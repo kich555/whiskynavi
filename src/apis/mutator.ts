@@ -114,8 +114,8 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
   }
 
   if (!res.ok) {
-    authLogger.error(`non-401 error (${res.status}): ${fullUrl}`);
     const detail = await extractErrorDetail(res);
+    authLogger.error(`non-401 error (${res.status}): ${fullUrl} — detail: ${detail}`);
     throw new ApiError(res.status, detail);
   }
 
