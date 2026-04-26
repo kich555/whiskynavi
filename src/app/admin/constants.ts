@@ -63,6 +63,7 @@ export const RESERVATION_STATUS_LABEL: Record<string, string> = {
   CONFIRMED: "확정",
   CANCELLED: "취소",
   REJECTED: "거절",
+  PAYMENT_COMPLETED: "결제완료",
   WAITING_PICKUP: "픽업대기",
   RECEIVED: "수령완료",
 };
@@ -72,6 +73,7 @@ export const RESERVATION_STATUS_COLOR: Record<string, string> = {
   CONFIRMED: "bg-green-100 text-green-700",
   CANCELLED: "bg-gray-200 text-gray-700",
   REJECTED: "bg-red-100 text-red-700",
+  PAYMENT_COMPLETED: "bg-cyan-100 text-cyan-700",
   WAITING_PICKUP: "bg-amber-100 text-amber-700",
   RECEIVED: "bg-emerald-100 text-emerald-700",
 };
