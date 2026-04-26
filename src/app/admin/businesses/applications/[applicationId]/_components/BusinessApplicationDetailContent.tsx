@@ -15,9 +15,9 @@ import ApplicationRejectModal from "./ApplicationRejectModal";
 
 const APPLICATION_STATUS_LABEL: Record<string, string> = {
   PENDING: "검토중",
-  APPROVED: "승인됨",
-  REJECTED: "반려됨",
-  CANCELED: "취소됨",
+  APPROVED: "승인",
+  REJECTED: "반려",
+  CANCELED: "취소",
 };
 
 const APPLICATION_STATUS_COLOR: Record<string, string> = {

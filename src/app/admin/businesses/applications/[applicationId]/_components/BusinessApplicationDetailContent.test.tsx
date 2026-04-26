@@ -63,8 +63,8 @@ describe("BusinessApplicationDetailContent", () => {
         auditLogs={[]}
       />,
     );
-    expect(screen.getByText("승인")).toBeInTheDocument();
-    expect(screen.getByText("반려")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /승인/ })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /반려/ })).toBeInTheDocument();
   });
 
   it("hides approve and reject buttons when status is APPROVED", () => {
@@ -74,8 +74,8 @@ describe("BusinessApplicationDetailContent", () => {
         auditLogs={[]}
       />,
     );
-    expect(screen.queryByText("승인")).not.toBeInTheDocument();
-    expect(screen.queryByText("반려")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /승인/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /반려/ })).not.toBeInTheDocument();
   });
 
   it("renders back button", () => {
