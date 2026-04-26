@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Ban, Briefcase, Calendar, Home, ImageIcon, Package, Users, Youtube } from "lucide-react";
+import { Award, Ban, Briefcase, Calendar, Home, ImageIcon, Package, Truck, Users, Youtube } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -19,6 +19,7 @@ const menuItems = [
     icon: Calendar,
     href: "/admin/reservations",
   },
+  { id: "pickup-reservations", label: "픽업 예약 관리", icon: Truck, href: "/admin/pickup-reservations" },
   {
     id: "membership",
     label: "멤버십 관리",
