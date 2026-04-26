@@ -147,10 +147,7 @@ type UpdateProfileState = {
   updatedEmail?: string;
 };
 
-export async function updateProfile(
-  _prevState: UpdateProfileState,
-  formData: FormData,
-): Promise<UpdateProfileState> {
+export async function updateProfile(_prevState: UpdateProfileState, formData: FormData): Promise<UpdateProfileState> {
   try {
     const token = await getAuthToken();
     if (!token) {
