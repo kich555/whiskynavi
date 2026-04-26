@@ -4,7 +4,9 @@ import { authOptions, getAuthToken } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 import MyPageClient from "./_components/MyPageClient";
+import MyPageLoading from "./loading";
 
 interface MyPageProps {
   searchParams: Promise<{ page?: string; tab?: string }>;
@@ -48,7 +50,11 @@ export default async function MyPage({ searchParams }: MyPageProps) {
 
   const user = userResult?.data ?? {};
   const orders = ordersResult?.data ?? { content: [], totalPages: 0 };
-  const businessApplicationHistory = businessApplicationHistoryResult?.data.content ?? null;
+  const businessApplicationHistory = businessApplicationHistoryResult?.data?.content ?? null;
 
-  return <MyPageClient user={user} orders={orders} businessApplicationHistory={businessApplicationHistory} />;
+  return (
+    <Suspense fallback={<MyPageLoading />}>
+      <MyPageClient user={user} orders={orders} businessApplicationHistory={businessApplicationHistory} />
+    </Suspense>
+  );
 }
