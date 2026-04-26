@@ -14,13 +14,9 @@ export default function BusinessUnauthorizedPage() {
           <ShieldX className="size-12 text-red-600" />
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-gray-900">
-          접근 권한이 없습니다
-        </h1>
+        <h1 className="mb-2 text-2xl font-bold text-white">접근 권한이 없습니다</h1>
 
-        <p className="mb-8 max-w-md text-gray-600">
-          픽업 사업장 계정으로 로그인해야 이용할 수 있습니다.
-        </p>
+        <p className="mb-8 max-w-md text-white">픽업 사업장 계정으로 로그인해야 이용할 수 있습니다.</p>
 
         <Button onClick={() => router.push("/")} className="gap-2">
           메인 페이지로 돌아가기
