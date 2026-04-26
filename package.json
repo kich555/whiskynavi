@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint .",
+    "test": "vitest",
+    "test:run": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "gen:api": "orval && tsx ./src/scripts/patch-generated-api.ts && prettier --write src/apis/generated/api.ts src/apis/mutator.ts",
@@ -51,13 +53,18 @@
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.1",
     "@types/node": "^20",
     "@types/qs": "^6.14.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitejs/plugin-react": "^6.0.1",
     "eslint": "^9.39.3",
     "eslint-config-next": "^16.1.6",
     "eslint-config-prettier": "^10.1.8",
+    "happy-dom": "^20.9.0",
     "orval": "^8.3.0",
     "prettier": "^3.8.1",
     "prettier-plugin-organize-imports": "^4.3.0",
@@ -66,6 +73,7 @@
     "tsx": "^4.20.6",
     "tw-animate-css": "^1.4.0",
     "typescript": "^5",
-    "typescript-eslint": "^8.56.1"
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.1.4"
   }
 }
