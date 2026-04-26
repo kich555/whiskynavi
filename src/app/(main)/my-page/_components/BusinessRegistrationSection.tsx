@@ -29,7 +29,7 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
           <Dialog open={isOpen} onOpenChange={close}>
             <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>내 정보 수정</DialogTitle>
+                <DialogTitle>사업자 등록하기</DialogTitle>
               </DialogHeader>
               <BusinessApplyForm onClose={close} />
             </DialogContent>
@@ -40,7 +40,7 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
           <Drawer open={isOpen} onOpenChange={(open) => !open && close()}>
             <DrawerContent className="max-h-[85vh]">
               <DrawerHeader>
-                <DrawerTitle>내 정보 수정</DrawerTitle>
+                <DrawerTitle>사업자 등록하기</DrawerTitle>
               </DrawerHeader>
               <div className="overflow-y-auto px-4 pb-4">
                 <BusinessApplyForm onClose={close} />

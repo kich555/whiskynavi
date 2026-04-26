@@ -143,7 +143,6 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
             id="document"
             name="document"
             type="file"
-            required
             accept=".pdf,.jpg,.jpeg,.png"
             onChange={(e) => {
               const file = e.target.files?.[0];
