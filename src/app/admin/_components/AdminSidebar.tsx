@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Ban, Calendar, Home, ImageIcon, Package, Users, Youtube } from "lucide-react";
+import { Award, Ban, Briefcase, Calendar, Home, ImageIcon, Package, Users, Youtube } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
@@ -30,6 +30,12 @@ const menuItems = [
     label: "배너 관리",
     icon: ImageIcon,
     href: "/admin/banners",
+  },
+  {
+    id: "businesses",
+    label: "사업자 관리",
+    icon: Briefcase,
+    href: "/admin/businesses",
   },
   { id: "blacklist", label: "블랙리스트", icon: Ban, href: "/admin/blacklist" },
   {
