@@ -1,6 +1,7 @@
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
+import BusinessUnauthorizedPage from "./_components/BusinessUnauthorizedPage";
 
 export const metadata = {
   title: "픽업 사업장",
@@ -19,7 +20,7 @@ export default async function BusinessLayout({
   }
 
   if (!session.user.roles?.includes("ROLE_PICK_UP_BUSINESS")) {
-    redirect("/");
+    return <BusinessUnauthorizedPage />;
   }
 
   return <main className="min-h-screen bg-gray-50">{children}</main>;
