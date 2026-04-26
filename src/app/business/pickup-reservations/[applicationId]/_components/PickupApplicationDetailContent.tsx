@@ -2,15 +2,152 @@
 
 import type { BottleReservationPickupApplicationResponse } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import BusinessHeader from "../../../_components/BusinessHeader";
 import {
   PICKUP_STATUS_COLOR,
   PICKUP_STATUS_LABEL,
 } from "../../../constants";
 import { formatDate } from "../../../utils";
+import {
+  paymentCompleteAction,
+  receiveCompleteAction,
+  waitingPickupAction,
+} from "../../actions";
+
+type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
+
+const ACTION_CONFIG: Record<
+  ActionType,
+  {
+    label: string;
+    confirmLabel: string;
+    className: string;
+    description: string;
+  }
+> = {
+  "payment-complete": {
+    label: "결제완료 처리",
+    confirmLabel: "결제완료 확인",
+    className: "bg-cyan-600 text-white hover:bg-cyan-700",
+    description: "이 신청을 결제완료 상태로 변경합니다.",
+  },
+  "waiting-pickup": {
+    label: "픽업대기 처리",
+    confirmLabel: "픽업대기 확인",
+    className: "bg-amber-600 text-white hover:bg-amber-700",
+    description: "이 신청을 픽업대기 상태로 변경합니다.",
+  },
+  "receive-complete": {
+    label: "수령완료 처리",
+    confirmLabel: "수령완료 확인",
+    className: "bg-emerald-600 text-white hover:bg-emerald-700",
+    description: "이 신청을 수령완료 상태로 변경합니다.",
+  },
+};
+
+const STATUS_TO_ACTION: Record<string, ActionType> = {
+  CONFIRMED: "payment-complete",
+  PAYMENT_COMPLETED: "waiting-pickup",
+  WAITING_PICKUP: "receive-complete",
+};
+
+interface StatusActionButtonProps {
+  applicationId: number;
+  status?: string;
+  applicantName?: string;
+}
+
+function StatusActionButton({
+  applicationId,
+  status,
+  applicantName,
+}: StatusActionButtonProps) {
+  const [isPending, startTransition] = useTransition();
+  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
+
+  const actionType = status ? STATUS_TO_ACTION[status] : undefined;
+  if (!actionType) return null;
+
+  const config = ACTION_CONFIG[actionType];
+
+  const handleConfirm = () => {
+    startTransition(async () => {
+      let result: { success: boolean; error?: string };
+
+      if (actionType === "payment-complete") {
+        result = await paymentCompleteAction(applicationId);
+      } else if (actionType === "waiting-pickup") {
+        result = await waitingPickupAction(applicationId);
+      } else {
+        result = await receiveCompleteAction(applicationId);
+      }
+
+      if (result.success) {
+        setIsOpen(false);
+        router.refresh();
+      } else {
+        toast.error(result.error ?? "처리에 실패했습니다.");
+      }
+    });
+  };
+
+  return (
+    <>
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          onClick={() => setIsOpen(true)}
+          className={config.className}
+        >
+          {config.label}
+        </Button>
+      </div>
+
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{config.label}</DialogTitle>
+            <DialogDescription>
+              {applicantName && <strong>{applicantName}</strong>}님의 신청을{" "}
+              {config.description}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+              disabled={isPending}
+            >
+              취소
+            </Button>
+            <Button
+              onClick={handleConfirm}
+              disabled={isPending}
+              className={config.className}
+            >
+              {isPending ? "처리 중..." : config.confirmLabel}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
 interface PickupApplicationDetailContentProps {
   application: BottleReservationPickupApplicationResponse;
@@ -38,6 +175,11 @@ export default function PickupApplicationDetailContent({
         </div>
 
         <div className="space-y-4">
+          <StatusActionButton
+            applicationId={application.id!}
+            status={application.status}
+            applicantName={application.applicantUser?.name ?? undefined}
+          />
           {/* 병 정보 */}
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">

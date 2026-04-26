@@ -3,7 +3,13 @@ import { describe, expect, it, vi } from "vitest";
 import PickupApplicationDetailContent from "./PickupApplicationDetailContent";
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("../../actions", () => ({
+  paymentCompleteAction: vi.fn().mockResolvedValue({ success: true }),
+  waitingPickupAction: vi.fn().mockResolvedValue({ success: true }),
+  receiveCompleteAction: vi.fn().mockResolvedValue({ success: true }),
 }));
 
 vi.mock("next/image", () => ({
@@ -83,5 +89,52 @@ describe("PickupApplicationDetailContent", () => {
       <PickupApplicationDetailContent application={appWithoutImage} />,
     );
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
+  });
+
+  it("shows 결제완료 처리 button for CONFIRMED status", () => {
+    render(
+      <PickupApplicationDetailContent
+        application={{ ...mockApplication, status: "CONFIRMED" as const }}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "결제완료 처리" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows 픽업대기 처리 button for PAYMENT_COMPLETED status", () => {
+    render(
+      <PickupApplicationDetailContent
+        application={{
+          ...mockApplication,
+          status: "PAYMENT_COMPLETED" as const,
+        }}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "픽업대기 처리" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows 수령완료 처리 button for WAITING_PICKUP status", () => {
+    render(
+      <PickupApplicationDetailContent
+        application={{ ...mockApplication, status: "WAITING_PICKUP" as const }}
+      />,
+    );
+    expect(
+      screen.getByRole("button", { name: "수령완료 처리" }),
+    ).toBeInTheDocument();
+  });
+
+  it("shows no action button for RECEIVED status", () => {
+    render(
+      <PickupApplicationDetailContent
+        application={{ ...mockApplication, status: "RECEIVED" as const }}
+      />,
+    );
+    expect(
+      screen.queryByRole("button", { name: /처리/ }),
+    ).not.toBeInTheDocument();
   });
 });
