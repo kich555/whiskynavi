@@ -117,7 +117,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
   const itemsPerPage = Number(searchParams.limit) || 20;
   const searchQuery = searchParams.q || "";
 
-  const { openFilter, filterRef, toggleFilter, closeFilter, getFilterValue, updateFilter } = useTableFilter({
+  const { getFilterValue, updateFilter } = useTableFilter({
     searchParams,
     basePath: "/admin/users",
   });
@@ -140,10 +140,10 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
       <AdminHeader title="회원 관리" onToggleSidebar={toggle} searchQuery={searchQuery} onSearch={handleSearch} />
 
       <div className="p-8">
-        <div className={`rounded-lg border border-gray-200 bg-white ${openFilter ? "" : "overflow-hidden"}`}>
-          <div className={openFilter ? "" : "overflow-x-auto"}>
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <div className="overflow-x-auto">
             <table className="w-full">
-              <thead ref={filterRef} className="relative border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">이름</th>
@@ -154,10 +154,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     filterKey="role"
                     options={ROLE_OPTIONS}
                     currentValue={getFilterValue("role")}
-                    isOpen={openFilter === "role"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     dropdownWidth="w-40"
                   />
                   <FilterHeader
@@ -165,10 +162,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     filterKey="navi"
                     options={NAVI_OPTIONS}
                     currentValue={getFilterValue("navi")}
-                    isOpen={openFilter === "navi"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     iconSize={10}
                     dropdownWidth="w-28"
                     className="typo-bold-10 w-20 px-2 py-2 text-left text-gray-700 uppercase"
@@ -178,10 +172,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     filterKey="tales"
                     options={TALES_OPTIONS}
                     currentValue={getFilterValue("tales")}
-                    isOpen={openFilter === "tales"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     iconSize={10}
                     dropdownWidth="w-28"
                     className="typo-bold-10 w-20 px-2 py-2 text-left text-gray-700 uppercase"
@@ -191,20 +182,14 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     filterKey="business"
                     options={BUSINESS_OPTIONS}
                     currentValue={getFilterValue("business")}
-                    isOpen={openFilter === "business"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                   />
                   <FilterHeader
                     label="상태"
                     filterKey="status"
                     options={STATUS_OPTIONS}
                     currentValue={getFilterValue("status")}
-                    isOpen={openFilter === "status"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     dropdownWidth="w-32"
                   />
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">가입일</th>

@@ -39,7 +39,7 @@ export default function ProductsContent({
   const itemsPerPage = Number(searchParams.limit) || 20;
   const searchQuery = searchParams.q || "";
 
-  const { openFilter, filterRef, toggleFilter, closeFilter, getFilterValue, updateFilter } = useTableFilter({
+  const { getFilterValue, updateFilter } = useTableFilter({
     searchParams,
     basePath: "/admin/products",
   });
@@ -87,7 +87,7 @@ export default function ProductsContent({
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <div className="overflow-x-auto">
             <table className="w-full">
-              <thead ref={filterRef} className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">ID</th>
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">이미지</th>
@@ -97,10 +97,7 @@ export default function ProductsContent({
                     filterKey="brand"
                     options={brandOptions}
                     currentValue={getFilterValue("brand")}
-                    isOpen={openFilter === "brand"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     dropdownWidth="w-40"
                     className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase"
                   />
@@ -109,10 +106,7 @@ export default function ProductsContent({
                     filterKey="distillery"
                     options={distilleryOptions}
                     currentValue={getFilterValue("distillery")}
-                    isOpen={openFilter === "distillery"}
-                    onToggle={toggleFilter}
                     onSelect={updateFilter}
-                    onClose={closeFilter}
                     dropdownWidth="w-40 max-h-60 overflow-y-auto"
                     className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase"
                   />
