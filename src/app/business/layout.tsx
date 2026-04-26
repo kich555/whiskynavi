@@ -18,5 +18,9 @@ export default async function BusinessLayout({
     redirect("/sign-in");
   }
 
+  if (!session.user.roles?.includes("ROLE_PICK_UP_BUSINESS")) {
+    redirect("/");
+  }
+
   return <main className="min-h-screen bg-gray-50">{children}</main>;
 }
