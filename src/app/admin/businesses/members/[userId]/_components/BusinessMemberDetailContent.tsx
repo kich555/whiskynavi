@@ -22,6 +22,18 @@ const formatDate = (dateStr?: string): string => {
     .replace(/\.$/, "");
 };
 
+
+const BUSINESS_TYPE_LABEL: Record<string, string> = {
+  HOUSEHOLD: "가정용",
+  ENTERTAINMENT: "유흥용",
+};
+
+const formatBusinessType = (member: AdminBusinessUserDetailResponse & { businessType?: string }): string => {
+  const businessType = member.businessType;
+  if (!businessType) return "-";
+  return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
+};
+
 interface BusinessMemberDetailContentProps {
   member: AdminBusinessUserDetailResponse;
 }
@@ -136,6 +148,12 @@ export default function BusinessMemberDetailContent({
                 <p className="text-xs text-gray-500">사업자등록번호</p>
                 <p className="text-sm font-medium text-gray-900">
                   {member.businessRegistrationNumber ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">사업자 구분</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {formatBusinessType(member)}
                 </p>
               </div>
               <div>

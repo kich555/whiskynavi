@@ -2,6 +2,17 @@ import { UserBusinessApplicationResponse } from "@/apis/generated/api";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 import { FC } from "react";
 
+const BUSINESS_TYPE_LABEL: Record<string, string> = {
+  HOUSEHOLD: "가정용",
+  ENTERTAINMENT: "유흥용",
+};
+
+const formatBusinessType = (application: UserBusinessApplicationResponse & { businessType?: string }): string => {
+  const businessType = application.businessType;
+  if (!businessType) return "-";
+  return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
+};
+
 interface Props {
   applicationHistory: UserBusinessApplicationResponse[] | null;
 }
@@ -39,6 +50,7 @@ const BusinessApplyHistory: FC<Props> = ({ applicationHistory }) => {
                 </div>
                 <div className="space-y-1 text-xs text-gray-600">
                   <p>사업자 등록번호: {application.businessRegistrationNumber}</p>
+                  <p>사업자 구분: {formatBusinessType(application)}</p>
                   <p>대표자: {application.representativeName}</p>
                   <p>연락처: {application.contact}</p>
                   {application.pickupAddress && <p>픽업 주소: {application.pickupAddress}</p>}

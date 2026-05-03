@@ -7,18 +7,60 @@ import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { addYears, format, isValid, parse } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarDays, Loader2, Upload } from "lucide-react";
-import { useActionState, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { submitBusinessApplication } from "../actions";
+
+const parseOpeningDate = (value: string): Date | undefined => {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
+
+  const date = parse(value, "yyyy-MM-dd", new Date());
+  if (!isValid(date) || format(date, "yyyy-MM-dd") !== value) return undefined;
+
+  return date;
+};
+
+const formatOpeningDateInput = (value: string, inputType?: string): string => {
+  if (inputType === "deleteContentBackward" && (/^\d{4}$/.test(value) || /^\d{4}-\d{2}$/.test(value))) {
+    return value;
+  }
+
+  const digits = value.replace(/\D/g, "").slice(0, 8);
+  if (digits.length <= 3) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 4)}-`;
+  if (digits.length <= 5) return `${digits.slice(0, 4)}-${digits.slice(4)}`;
+  if (digits.length <= 6) return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-`;
+  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
+};
 
 export default function BusinessApplyForm({ onClose }: { onClose?: () => void }) {
   const [state, formAction, pending] = useActionState(submitBusinessApplication, { success: false });
   const [fileName, setFileName] = useState<string | null>(null);
   const [openingDate, setOpeningDate] = useState<Date>();
+  const [openingDateInput, setOpeningDateInput] = useState("");
   const [calendarOpen, setCalendarOpen] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleOpeningDateSelect = (day?: Date) => {
+    if (!day) return;
+    setOpeningDate(day);
+    setOpeningDateInput(format(day, "yyyy-MM-dd"));
+    setCalendarMonth(day);
+  };
+
+  const moveCalendarYear = (amount: number) => {
+    setCalendarMonth((month) => addYears(month, amount));
+  };
+
+  useEffect(() => {
+    if (state.success) {
+      onClose?.();
+    }
+  }, [onClose, state.success]);
 
   return (
     <form action={formAction} className="space-y-4 md:space-y-6">
@@ -72,37 +114,74 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
       </div>
 
       <div>
-        <Label className="typo-bold-14 mb-2 block text-gray-900">개업일 *</Label>
-        <input type="hidden" name="openingDate" value={openingDate ? format(openingDate, "yyyy-MM-dd") : ""} />
-        <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              type="button"
-              variant="outline"
-              className={`h-auto w-full justify-start px-3 py-2 text-left text-sm font-normal ${
-                !openingDate ? "text-gray-400" : "text-gray-900"
-              }`}
-            >
-              <CalendarDays className="mr-2 size-4 text-gray-400" />
-              {openingDate ? format(openingDate, "yyyy년 MM월 dd일", { locale: ko }) : "개업일을 선택하세요"}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="start">
-            <Calendar
-              mode="single"
-              selected={openingDate}
-              onSelect={(day) => {
-                setOpeningDate(day);
-                setCalendarOpen(false);
-              }}
-              locale={ko}
-            />
-          </PopoverContent>
-        </Popover>
-        {/* required 검증용 숨김 input */}
-        {!openingDate && (
-          <input tabIndex={-1} className="absolute h-0 w-0 opacity-0" required value="" onChange={() => {}} />
-        )}
+        <Label htmlFor="openingDate" className="typo-bold-14 mb-2 block text-gray-900">
+          개업일 *
+        </Label>
+        <div className="flex gap-2">
+          <Input
+            id="openingDate"
+            name="openingDate"
+            type="text"
+            inputMode="numeric"
+            required
+            pattern="\d{4}-\d{2}-\d{2}"
+            title="yyyy-MM-dd 형식의 올바른 날짜를 입력해주세요."
+            placeholder="yyyy-MM-dd"
+            value={openingDateInput}
+            onChange={(e) => {
+              const inputType = "inputType" in e.nativeEvent ? String(e.nativeEvent.inputType) : undefined;
+              const value = formatOpeningDateInput(e.target.value, inputType);
+              setOpeningDateInput(value);
+
+              const parsed = parseOpeningDate(value);
+              e.currentTarget.setCustomValidity(
+                value.length > 0 && value.length !== 10
+                  ? "yyyy-MM-dd 형식으로 입력해주세요."
+                  : value.length === 10 && !parsed
+                    ? "올바른 날짜를 입력해주세요."
+                    : "",
+              );
+              if (parsed) {
+                setOpeningDate(parsed);
+                setCalendarMonth(parsed);
+              } else {
+                setOpeningDate(undefined);
+              }
+            }}
+            className="w-full"
+          />
+          <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Button type="button" variant="outline" className="shrink-0 px-3" aria-label="개업일 달력 열기">
+                <CalendarDays className="size-4 text-gray-400" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-3" align="start">
+              <div className="mb-2 flex items-center justify-between gap-2">
+                <Button type="button" variant="outline" size="sm" onClick={() => moveCalendarYear(-1)}>
+                  이전 연도
+                </Button>
+                <Button type="button" variant="outline" size="sm" onClick={() => moveCalendarYear(1)}>
+                  다음 연도
+                </Button>
+              </div>
+              <Calendar
+                mode="single"
+                selected={openingDate}
+                month={calendarMonth}
+                onMonthChange={setCalendarMonth}
+                onSelect={(day) => {
+                  handleOpeningDateSelect(day);
+                  setCalendarOpen(false);
+                }}
+                captionLayout="dropdown"
+                startMonth={new Date(1900, 0)}
+                endMonth={new Date()}
+                locale={ko}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
       </div>
 
       <div>
@@ -131,6 +210,21 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
           placeholder="사업자 등록번호를 입력해주세요 (예: 123-45-67890)"
           className="w-full"
         />
+      </div>
+
+      <div>
+        <Label htmlFor="businessType" className="typo-bold-14 mb-2 block text-gray-900">
+          사업자 구분 *
+        </Label>
+        <Select name="businessType" defaultValue="HOUSEHOLD" required>
+          <SelectTrigger id="businessType" className="w-full">
+            <SelectValue placeholder="사업자 구분을 선택해주세요" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="HOUSEHOLD">가정용</SelectItem>
+            <SelectItem value="ENTERTAINMENT">유흥용</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <div>

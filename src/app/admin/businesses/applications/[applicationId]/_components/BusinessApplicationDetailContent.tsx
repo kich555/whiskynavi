@@ -27,6 +27,17 @@ const APPLICATION_STATUS_COLOR: Record<string, string> = {
   CANCELED: "bg-gray-100 text-gray-700",
 };
 
+const BUSINESS_TYPE_LABEL: Record<string, string> = {
+  HOUSEHOLD: "가정용",
+  ENTERTAINMENT: "유흥용",
+};
+
+const formatBusinessType = (application: AdminBusinessApplicationResponse & { businessType?: string }): string => {
+  const businessType = application.businessType;
+  if (!businessType) return "-";
+  return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
+};
+
 const formatDate = (dateStr?: string): string => {
   if (!dateStr) return "-";
   const date = new Date(dateStr);
@@ -189,6 +200,12 @@ export default function BusinessApplicationDetailContent({
                 <p className="text-xs text-gray-500">사업자등록번호</p>
                 <p className="text-sm font-medium text-gray-900">
                   {application.businessRegistrationNumber ?? "-"}
+                </p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">사업자 구분</p>
+                <p className="text-sm font-medium text-gray-900">
+                  {formatBusinessType(application)}
                 </p>
               </div>
               <div>

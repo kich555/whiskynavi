@@ -5,6 +5,17 @@ import { FormMessage } from "@/components/ui/form-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
 
+const BUSINESS_TYPE_LABEL: Record<string, string> = {
+  HOUSEHOLD: "가정용",
+  ENTERTAINMENT: "유흥용",
+};
+
+const formatBusinessType = (location: PickupLocationResponse & { businessType?: string }): string => {
+  const businessType = location.businessType;
+  if (!businessType) return "-";
+  return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
+};
+
 interface ApplyFormProps {
   onApply: (quantity: number, userBusinessId: number) => void;
   isPending: boolean;
@@ -30,7 +41,7 @@ export default function ApplyForm({ onApply, isPending, pickupLocations, error }
           <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
             {pickupLocations.map((loc) => (
               <SelectItem key={loc.id} value={String(loc.id)}>
-                {loc.businessName}
+                {loc.businessName} · {formatBusinessType(loc)}
                 {loc.pickupAddress ? ` (${loc.pickupAddress})` : ""}
               </SelectItem>
             ))}

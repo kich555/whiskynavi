@@ -3,7 +3,7 @@ import { defineConfig } from "orval";
 export default defineConfig({
   whiskynavi: {
     input: {
-      target: "https://api.whiskynavi.com/v3/api-docs",
+      target: "https://api-ca01.whiskynavi.com/v3/api-docs",
     },
     output: {
       target: "./src/apis/generated/api.ts",
