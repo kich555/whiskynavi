@@ -1,6 +1,27 @@
 import type { BottleReservationNoticePublicResponse } from "@/apis/generated/api";
 
-export type NoticeStatus = "pending" | "active" | "closed";
+export type NoticeStatus = "pending" | "active" | "applied" | "closed";
+
+const RESERVATION_ROLE_LABEL_MAP: Record<string, string> = {
+  ROLE_GUEST: "게스트",
+  ROLE_USER: "일반 회원",
+  ROLE_ADMIN: "관리자",
+  ROLE_SUPER_ADMIN: "총괄 관리자",
+  ROLE_CONSUMER: "소비자",
+  ROLE_WHISKYNAVI_MEMBER: "위스키내비 멤버",
+  ROLE_WHISKYTALES_MEMBER: "위스키테일즈 멤버",
+  ROLE_BLIND_MEMBER: "블라인드 멤버",
+  ROLE_BUSINESS: "업장 회원",
+  ROLE_TRAILNTALE_BUSINESS: "트레일앤테일 업장",
+  ROLE_COMMUNITY_BUSINESS: "커뮤니티 업장",
+  ROLE_PICK_UP_BUSINESS: "픽업 업장",
+};
+
+export function formatReservationRole(role?: string): string {
+  // API에 새 권한 값이 추가되어도 화면이 비지 않도록 원본 값을 fallback으로 사용한다.
+  if (!role) return "-";
+  return RESERVATION_ROLE_LABEL_MAP[role] ?? role;
+}
 
 export function getNoticeStatus(notice: BottleReservationNoticePublicResponse): NoticeStatus {
   const now = new Date();
@@ -47,11 +68,13 @@ export function calculateTimeRemaining(targetDate: Date): string {
 export function getStatusBadge(status: NoticeStatus) {
   switch (status) {
     case "closed":
-      return { label: "종료", className: "bg-gray-600" };
+      return { label: "예약 종료됨", className: "bg-gray-600" };
     case "pending":
       return { label: "예약 대기 중", className: "bg-orange-600" };
     case "active":
       return { label: "예약 진행 중", className: "bg-blue-600" };
+    case "applied":
+      return { label: "예약신청완료", className: "bg-green-600" };
   }
 }
 

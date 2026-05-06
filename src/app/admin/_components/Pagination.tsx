@@ -11,13 +11,21 @@ interface PaginationProps {
   currentPage: number;
   searchParams: Record<string, string | undefined>;
   basePath: string;
+  alwaysVisible?: boolean;
 }
 
-export default function Pagination({ totalItems, itemsPerPage, currentPage, searchParams, basePath }: PaginationProps) {
+export default function Pagination({
+  totalItems,
+  itemsPerPage,
+  currentPage,
+  searchParams,
+  basePath,
+  alwaysVisible = false,
+}: PaginationProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
 
   const createQueryString = (updates: Record<string, string>) => {
     const params = new URLSearchParams();
@@ -42,9 +50,9 @@ export default function Pagination({ totalItems, itemsPerPage, currentPage, sear
     });
   };
 
-  if (totalPages <= 1) return null;
+  if (!alwaysVisible && totalPages <= 1) return null;
 
-  const startIndex = (currentPage - 1) * itemsPerPage + 1;
+  const startIndex = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (

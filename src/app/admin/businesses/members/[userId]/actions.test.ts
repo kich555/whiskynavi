@@ -1,23 +1,19 @@
 import { ApiError } from "@/apis/errors";
 import {
   patchApiAdminBusinessesMembersUseridBusiness,
-  postApiAdminBusinessesMembersUseridPickupGrant,
-  postApiAdminBusinessesMembersUseridPickupRevoke,
+  postApiAdminBusinessesMembersUseridRolesRoleGrant,
+  postApiAdminBusinessesMembersUseridRolesRoleRevoke,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  grantPickupRoleAction,
-  revokePickupRoleAction,
-  updateBusinessAction,
-} from "./actions";
+import { grantPickupRoleAction, revokePickupRoleAction, updateBusinessAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiAdminBusinessesMembersUseridBusiness: vi.fn(),
-  postApiAdminBusinessesMembersUseridPickupGrant: vi.fn(),
-  postApiAdminBusinessesMembersUseridPickupRevoke: vi.fn(),
+  postApiAdminBusinessesMembersUseridRolesRoleGrant: vi.fn(),
+  postApiAdminBusinessesMembersUseridRolesRoleRevoke: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -32,15 +28,9 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-const mockedPatchBusiness = vi.mocked(
-  patchApiAdminBusinessesMembersUseridBusiness,
-);
-const mockedGrantPickup = vi.mocked(
-  postApiAdminBusinessesMembersUseridPickupGrant,
-);
-const mockedRevokePickup = vi.mocked(
-  postApiAdminBusinessesMembersUseridPickupRevoke,
-);
+const mockedPatchBusiness = vi.mocked(patchApiAdminBusinessesMembersUseridBusiness);
+const mockedGrantPickup = vi.mocked(postApiAdminBusinessesMembersUseridRolesRoleGrant);
+const mockedRevokePickup = vi.mocked(postApiAdminBusinessesMembersUseridRolesRoleRevoke);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedWithToken = vi.mocked(withToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
@@ -99,12 +89,8 @@ describe("admin business member actions", () => {
       },
       { headers: { Authorization: "Bearer mocked" } },
     );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members/10",
-    );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members",
-    );
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });
 
@@ -126,9 +112,7 @@ describe("admin business member actions", () => {
   });
 
   it("returns backend user message when update api throws ApiError", async () => {
-    mockedPatchBusiness.mockRejectedValue(
-      new ApiError(400, '{"message":"사업자등록번호 형식이 올바르지 않습니다."}'),
-    );
+    mockedPatchBusiness.mockRejectedValue(new ApiError(400, '{"message":"사업자등록번호 형식이 올바르지 않습니다."}'));
 
     await expect(
       updateBusinessAction(10, {
@@ -153,16 +137,11 @@ describe("admin business member actions", () => {
 
     await expect(grantPickupRoleAction(10)).resolves.toEqual({ success: true });
 
-    expect(mockedGrantPickup).toHaveBeenCalledWith(
-      10,
-      { headers: { Authorization: "Bearer mocked" } },
-    );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members/10",
-    );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members",
-    );
+    expect(mockedGrantPickup).toHaveBeenCalledWith(10, "ROLE_PICK_UP_BUSINESS", {
+      headers: { Authorization: "Bearer mocked" },
+    });
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });
 
@@ -190,9 +169,7 @@ describe("admin business member actions", () => {
   });
 
   it("returns backend user message when grant api throws ApiError", async () => {
-    mockedGrantPickup.mockRejectedValue(
-      new ApiError(409, '{"message":"이미 처리된 요청입니다."}'),
-    );
+    mockedGrantPickup.mockRejectedValue(new ApiError(409, '{"message":"이미 처리된 요청입니다."}'));
 
     await expect(grantPickupRoleAction(10)).resolves.toEqual({
       success: false,
@@ -213,16 +190,11 @@ describe("admin business member actions", () => {
       success: true,
     });
 
-    expect(mockedRevokePickup).toHaveBeenCalledWith(
-      10,
-      { headers: { Authorization: "Bearer mocked" } },
-    );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members/10",
-    );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith(
-      "/admin/businesses/members",
-    );
+    expect(mockedRevokePickup).toHaveBeenCalledWith(10, "ROLE_PICK_UP_BUSINESS", {
+      headers: { Authorization: "Bearer mocked" },
+    });
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });
 
@@ -250,9 +222,7 @@ describe("admin business member actions", () => {
   });
 
   it("returns backend user message when revoke api throws ApiError", async () => {
-    mockedRevokePickup.mockRejectedValue(
-      new ApiError(409, '{"message":"이미 처리된 요청입니다."}'),
-    );
+    mockedRevokePickup.mockRejectedValue(new ApiError(409, '{"message":"이미 처리된 요청입니다."}'));
 
     await expect(revokePickupRoleAction(10)).resolves.toEqual({
       success: false,

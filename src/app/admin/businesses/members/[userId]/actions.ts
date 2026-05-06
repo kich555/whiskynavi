@@ -3,8 +3,8 @@
 import { getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiAdminBusinessesMembersUseridBusiness,
-  postApiAdminBusinessesMembersUseridPickupGrant,
-  postApiAdminBusinessesMembersUseridPickupRevoke,
+  postApiAdminBusinessesMembersUseridRolesRoleGrant,
+  postApiAdminBusinessesMembersUseridRolesRoleRevoke,
   type PatchApiAdminBusinessesMembersUseridBusinessBody,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -16,8 +16,7 @@ export type BusinessMemberActionResult = {
   error?: string;
 };
 
-export type UpdateBusinessInput =
-  PatchApiAdminBusinessesMembersUseridBusinessBody;
+export type UpdateBusinessInput = PatchApiAdminBusinessesMembersUseridBusinessBody;
 
 async function getAuthorizedOptions() {
   const token = await getAuthToken();
@@ -56,9 +55,7 @@ export async function updateBusinessAction(
   }
 }
 
-export async function grantPickupRoleAction(
-  userId: number,
-): Promise<BusinessMemberActionResult> {
+export async function grantPickupRoleAction(userId: number): Promise<BusinessMemberActionResult> {
   const options = await getAuthorizedOptions();
 
   if (!options) {
@@ -66,7 +63,7 @@ export async function grantPickupRoleAction(
   }
 
   try {
-    await postApiAdminBusinessesMembersUseridPickupGrant(userId, options);
+    await postApiAdminBusinessesMembersUseridRolesRoleGrant(userId, "ROLE_PICK_UP_BUSINESS", options);
     revalidateBusinessMemberPaths(userId);
     return { success: true };
   } catch (error) {
@@ -77,9 +74,7 @@ export async function grantPickupRoleAction(
   }
 }
 
-export async function revokePickupRoleAction(
-  userId: number,
-): Promise<BusinessMemberActionResult> {
+export async function revokePickupRoleAction(userId: number): Promise<BusinessMemberActionResult> {
   const options = await getAuthorizedOptions();
 
   if (!options) {
@@ -87,7 +82,7 @@ export async function revokePickupRoleAction(
   }
 
   try {
-    await postApiAdminBusinessesMembersUseridPickupRevoke(userId, options);
+    await postApiAdminBusinessesMembersUseridRolesRoleRevoke(userId, "ROLE_PICK_UP_BUSINESS", options);
     revalidateBusinessMemberPaths(userId);
     return { success: true };
   } catch (error) {

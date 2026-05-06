@@ -23,8 +23,15 @@ const timerConfig = {
     labelClass: "text-blue-400",
     subClass: "text-blue-400/70",
   },
+  applied: {
+    label: "예약신청완료",
+    borderClass: "border-green-600/30",
+    bgClass: "bg-green-600/20",
+    labelClass: "text-green-400",
+    subClass: "text-green-400/70",
+  },
   closed: {
-    label: "예약 종료일",
+    label: "예약 종료됨",
     borderClass: "border-gray-600/30",
     bgClass: "bg-gray-600/20",
     labelClass: "text-gray-400",
@@ -41,7 +48,7 @@ export default function TimerDisplay({
   const config = timerConfig[status];
   const dateStr = status === "pending" ? reservationStartAt : reservationEndAt;
 
-  if (status === "closed") {
+  if (status === "closed" || status === "applied") {
     return (
       <div className={`border ${config.borderClass} ${config.bgClass} p-3 lg:p-4`}>
         <div className="flex items-center justify-between">

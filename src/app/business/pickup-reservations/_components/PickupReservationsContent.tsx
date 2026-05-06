@@ -1,12 +1,9 @@
 "use client";
 
-import type { BottleReservationPickupApplicationResponse } from "@/apis/generated/api";
-import FilterHeader from "@/app/admin/_components/FilterHeader";
+import type { BottleReservationPickupNoticeReservationStatusResponse } from "@/apis/generated/api";
 import Pagination from "@/app/admin/_components/Pagination";
-import { useTableFilter } from "@/app/admin/_components/useTableFilter";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -19,81 +16,65 @@ import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import { bulkWaitingPickupAction } from "../actions";
 import BusinessHeader from "../../_components/BusinessHeader";
-import {
-  PICKUP_STATUS_COLOR,
-  PICKUP_STATUS_LABEL,
-  PICKUP_STATUS_OPTIONS,
-} from "../../constants";
-import { formatDate } from "../../utils";
+import { formatCurrency } from "../../utils";
+import { bulkWaitingPickupAction } from "../actions";
 
 interface PickupReservationsContentProps {
   searchParams: {
     page?: string;
     limit?: string;
-    status?: string;
   };
-  applications: BottleReservationPickupApplicationResponse[];
+  notices: BottleReservationPickupNoticeReservationStatusResponse[];
   totalElements: number;
 }
 
+interface NoticeGroup {
+  noticeId: number;
+  bottleId?: number;
+  bottleName: string;
+  bottleImgUrl?: string;
+  noticeStatus?: string;
+  price?: number;
+  totalApplicationCount: number;
+  totalConfirmedQuantity: number;
+  totalRequestedQuantity: number;
+}
+
+const mapNoticesToGroups = (notices: BottleReservationPickupNoticeReservationStatusResponse[]): NoticeGroup[] => {
+  return notices.map((notice) => ({
+    noticeId: notice.noticeId ?? 0,
+    bottleId: notice.bottleId,
+    bottleName: notice.bottleName ?? "이름 없는 예약 공고",
+    bottleImgUrl: notice.bottleImgUrl,
+    noticeStatus: notice.noticeStatus,
+    price: notice.price,
+    totalApplicationCount: notice.totalApplicationCount ?? 0,
+    totalConfirmedQuantity: notice.totalConfirmedQuantity ?? 0,
+    totalRequestedQuantity: notice.totalRequestedQuantity ?? 0,
+  }));
+};
+
 export default function PickupReservationsContent({
   searchParams,
-  applications,
+  notices,
   totalElements,
 }: PickupReservationsContentProps) {
   const router = useRouter();
+  const [bulkNotice, setBulkNotice] = useState<NoticeGroup | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
-
-  const { getFilterValue, updateFilter } = useTableFilter({
-    searchParams,
-    basePath: "/business/pickup-reservations",
-  });
-
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [isBulkDialogOpen, setIsBulkDialogOpen] = useState(false);
-  const [isPending, startTransition] = useTransition();
-
-  const paymentCompletedApps = applications.filter(
-    (app) => app.status === "PAYMENT_COMPLETED",
-  );
-
-  const toggleSelect = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const toggleSelectAll = () => {
-    if (
-      paymentCompletedApps.length > 0 &&
-      paymentCompletedApps.every((app) => selectedIds.has(app.id!))
-    ) {
-      setSelectedIds(new Set());
-    } else {
-      setSelectedIds(new Set(paymentCompletedApps.map((app) => app.id!)));
-    }
-  };
-
-  const isAllSelected =
-    paymentCompletedApps.length > 0 &&
-    paymentCompletedApps.every((app) => selectedIds.has(app.id!));
+  const noticeGroups = mapNoticesToGroups(notices);
 
   const handleBulkWaitingPickup = () => {
+    if (!bulkNotice) return;
+
     startTransition(async () => {
-      const result = await bulkWaitingPickupAction([...selectedIds]);
+      const result = await bulkWaitingPickupAction({ noticeId: bulkNotice.noticeId });
       if (result.success) {
-        setSelectedIds(new Set());
-        setIsBulkDialogOpen(false);
+        setBulkNotice(null);
         router.refresh();
       } else {
         toast.error(result.error ?? "일괄 처리에 실패했습니다.");
@@ -103,42 +84,30 @@ export default function PickupReservationsContent({
 
   return (
     <>
-      <BusinessHeader title="픽업 예약 관리" />
+      <BusinessHeader title="공고 별 픽업 예약 관리" />
 
       <div className="p-6">
-        <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
-          {selectedIds.size > 0 && (
-            <Button
-              type="button"
-              onClick={() => setIsBulkDialogOpen(true)}
-              className="bg-amber-600 text-white hover:bg-amber-700"
-            >
-              일괄 픽업대기 처리 ({selectedIds.size}건)
-            </Button>
-          )}
+        <div className="mb-4">
+          <p className="text-sm text-gray-600">공고 {totalElements}개</p>
+          <p className="mt-1 text-xs text-gray-500">공고별 신청 목록은 상세 화면에서 조회하고 처리합니다.</p>
         </div>
 
-        <Dialog open={isBulkDialogOpen} onOpenChange={setIsBulkDialogOpen}>
+        <Dialog open={bulkNotice != null} onOpenChange={(open) => !open && setBulkNotice(null)}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>일괄 픽업대기 처리</DialogTitle>
+              <DialogTitle>공고별 일괄 픽업대기 처리</DialogTitle>
               <DialogDescription>
-                선택한 <strong>{selectedIds.size}건</strong>의 신청을 픽업대기
-                상태로 변경합니다.
+                <strong>{bulkNotice?.bottleName ?? "선택한 공고"}</strong>의 결제완료 신청을 일괄로 픽업대기 상태로
+                변경합니다.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsBulkDialogOpen(false)}
-                disabled={isPending}
-              >
+              <Button variant="outline" onClick={() => setBulkNotice(null)} disabled={isPending}>
                 취소
               </Button>
               <Button
                 onClick={handleBulkWaitingPickup}
-                disabled={isPending}
+                disabled={isPending || !bulkNotice}
                 className="bg-amber-600 text-white hover:bg-amber-700"
               >
                 {isPending ? "처리 중..." : "픽업대기 확인"}
@@ -148,133 +117,59 @@ export default function PickupReservationsContent({
         </Dialog>
 
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="border-b border-gray-200 bg-gray-50">
-                <tr>
-                  <th className="w-10 px-4 py-3">
-                    <Checkbox
-                      checked={isAllSelected}
-                      onCheckedChange={() => toggleSelectAll()}
-                      disabled={paymentCompletedApps.length === 0}
-                      aria-label="전체 선택"
-                    />
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">
-                    ID
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">
-                    병 이름
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">
-                    신청자
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase text-gray-700">
-                    신청수량
-                  </th>
-                  <th className="px-4 py-3 text-center text-xs font-bold uppercase text-gray-700">
-                    확정수량
-                  </th>
-                  <FilterHeader
-                    label="상태"
-                    filterKey="status"
-                    options={PICKUP_STATUS_OPTIONS.map((o) => ({ value: o.value, label: o.label }))}
-                    currentValue={getFilterValue("status")}
-                    onSelect={updateFilter}
-                    dropdownWidth="w-36"
-                  />
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">
-                    신청일
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold uppercase text-gray-700">
-                    관리
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {applications.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={9}
-                      className="px-4 py-8 text-center text-gray-500"
+          {noticeGroups.length === 0 ? (
+            <div className="px-4 py-12 text-center text-gray-500">픽업 예약 공고가 없습니다.</div>
+          ) : (
+            <div className="divide-y divide-gray-100">
+              {noticeGroups.map((group) => (
+                <section key={group.noticeId} className="px-4 py-4 transition-colors hover:bg-gray-50">
+                  <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                    <button
+                      type="button"
+                      onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
+                      className="min-w-0 cursor-pointer text-left"
                     >
-                      픽업 예약 신청이 없습니다.
-                    </td>
-                  </tr>
-                ) : (
-                  applications.map((app) => (
-                    <tr
-                      key={app.id}
-                      className="cursor-pointer transition-colors hover:bg-gray-50"
-                      onClick={() =>
-                        router.push(`/business/pickup-reservations/${app.id}`)
-                      }
-                    >
-                      <td
-                        className="w-10 px-4 py-3"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {app.status === "PAYMENT_COMPLETED" && (
-                          <Checkbox
-                            checked={selectedIds.has(app.id!)}
-                            onCheckedChange={() => toggleSelect(app.id!)}
-                            aria-label={`${app.id} 선택`}
-                          />
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="truncate text-sm font-bold text-gray-900">{group.bottleName}</h3>
+                        <span className="text-xs text-gray-500">공고 #{group.noticeId || "-"}</span>
+                        {group.bottleId != null && <span className="text-xs text-gray-500">병 #{group.bottleId}</span>}
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {group.noticeStatus && (
+                          <Badge className="bg-gray-100 text-gray-700">공고 {group.noticeStatus}</Badge>
                         )}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">
-                        {app.id}
-                      </td>
-                      <td className="max-w-[200px] truncate px-4 py-3 text-sm font-medium text-gray-900">
-                        {app.bottleName ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {app.applicantUser?.name ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-center text-sm text-gray-900">
-                        {app.quantity ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-center text-sm font-medium text-amber-600">
-                        {app.confirmedQuantity ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <Badge
-                          className={
-                            PICKUP_STATUS_COLOR[app.status ?? ""] ??
-                            "bg-gray-100 text-gray-700"
-                          }
-                        >
-                          {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
-                        {formatDate(app.createdAt)}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div
-                          className="flex items-center gap-1"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <button
-                            type="button"
-                            onClick={() =>
-                              router.push(
-                                `/business/pickup-reservations/${app.id}`,
-                              )
-                            }
-                            className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
-                            title="상세"
-                          >
-                            <Eye size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                        <Badge className="bg-emerald-100 text-emerald-700">단가 {formatCurrency(group.price)}</Badge>
+                        <Badge className="bg-gray-100 text-gray-700">신청 {group.totalApplicationCount}건</Badge>
+                        <Badge className="bg-blue-100 text-blue-700">요청 {group.totalRequestedQuantity}병</Badge>
+                        <Badge className="bg-amber-100 text-amber-700">확정 {group.totalConfirmedQuantity}병</Badge>
+                      </div>
+                    </button>
+
+                    <div className="flex shrink-0 flex-wrap gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
+                      >
+                        <Eye size={16} />
+                        신청 목록
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={() => setBulkNotice(group)}
+                        disabled={isPending || group.totalApplicationCount === 0}
+                        className="bg-amber-600 text-white hover:bg-amber-700"
+                      >
+                        공고 일괄 픽업대기
+                      </Button>
+                    </div>
+                  </div>
+                </section>
+              ))}
+            </div>
+          )}
 
           <Pagination
             totalItems={totalElements}
@@ -282,6 +177,7 @@ export default function PickupReservationsContent({
             currentPage={currentPage}
             searchParams={searchParams}
             basePath="/business/pickup-reservations"
+            alwaysVisible
           />
         </div>
       </div>

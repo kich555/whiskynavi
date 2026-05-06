@@ -1,5 +1,5 @@
 import type { BottleReservationNoticePublicResponse } from "@/apis/generated/api";
-import { buildInfoItems, formatDateTime } from "../_lib/utils";
+import { buildInfoItems, formatDateTime, formatReservationRole } from "../_lib/utils";
 
 interface InfoListProps {
   notice: BottleReservationNoticePublicResponse;
@@ -22,7 +22,8 @@ export default function InfoList({ notice }: InfoListProps) {
           <div className="mt-1 space-y-1">
             {notice.gradeConditions.map((cond, i) => (
               <div key={i} className="text-xs text-gray-300 lg:text-sm">
-                {cond.requiredRole} - {cond.applicableFrom ? formatDateTime(cond.applicableFrom) : "즉시"}
+                {formatReservationRole(cond.requiredRole)} -{" "}
+                {cond.applicableFrom ? formatDateTime(cond.applicableFrom) : "즉시"}
               </div>
             ))}
           </div>

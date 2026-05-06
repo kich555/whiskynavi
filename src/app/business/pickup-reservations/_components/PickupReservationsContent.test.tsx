@@ -3,176 +3,114 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import PickupReservationsContent from "./PickupReservationsContent";
 
+const pushMock = vi.fn();
+const refreshMock = vi.fn();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: pushMock, refresh: refreshMock }),
 }));
 
 vi.mock("../actions", () => ({
   bulkWaitingPickupAction: vi.fn().mockResolvedValue({ success: true }),
 }));
 
-const searchParams = {};
+const makeNotice = ({
+  noticeId,
+  bottleId,
+  bottleName,
+  totalApplicationCount = 1,
+  totalConfirmedQuantity = 1,
+  totalRequestedQuantity = 1,
+  price = 120000,
+}: {
+  noticeId: number;
+  bottleId: number;
+  bottleName: string;
+  totalApplicationCount?: number;
+  totalConfirmedQuantity?: number;
+  totalRequestedQuantity?: number;
+  price?: number;
+}) => ({
+  noticeId,
+  bottleId,
+  bottleName,
+  noticeStatus: "OPEN" as const,
+  price,
+  totalApplicationCount,
+  totalConfirmedQuantity,
+  totalRequestedQuantity,
+});
 
 describe("PickupReservationsContent", () => {
-  it("shows empty state when no applications", () => {
-    render(
-      <PickupReservationsContent
-        searchParams={searchParams}
-        applications={[]}
-        totalElements={0}
-      />,
-    );
-    expect(
-      screen.getByText("픽업 예약 신청이 없습니다."),
-    ).toBeInTheDocument();
+  it("예약 공고가 없으면 빈 상태를 표시한다", () => {
+    render(<PickupReservationsContent searchParams={{}} notices={[]} totalElements={0} />);
+
+    expect(screen.getByText("픽업 예약 공고가 없습니다.")).toBeInTheDocument();
   });
 
-  it("shows total count", () => {
+  it("공고 총 개수와 가격 정보를 표시한다", () => {
     render(
       <PickupReservationsContent
-        searchParams={searchParams}
-        applications={[]}
+        searchParams={{}}
+        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12" })]}
         totalElements={42}
       />,
     );
-    expect(screen.getByText("총 42건")).toBeInTheDocument();
-  });
 
-  it("renders application row with bottle name and applicant", () => {
-    const mockApp = {
-      id: 1,
-      bottleName: "Glen 12",
-      applicantUser: { name: "김철수", nickname: "glen_lover", email: "kim@test.com", phone: "010-0000-0000" },
-      quantity: 2,
-      confirmedQuantity: 1,
-      status: "APPLIED" as const,
-      createdAt: "2024-01-15T00:00:00Z",
-      updatedAt: "2024-01-15T00:00:00Z",
-      bottleId: 5,
-      noticeId: 10,
-      bottleImgUrl: undefined,
-    };
-
-    render(
-      <PickupReservationsContent
-        searchParams={searchParams}
-        applications={[mockApp]}
-        totalElements={1}
-      />,
-    );
-
+    expect(screen.getByText("공고 42개")).toBeInTheDocument();
     expect(screen.getByText("Glen 12")).toBeInTheDocument();
-    expect(screen.getByText("김철수")).toBeInTheDocument();
-    expect(screen.getByText("신청완료")).toBeInTheDocument();
+    expect(screen.getByText("단가 120,000원")).toBeInTheDocument();
   });
 
-  it("renders status badge with correct label for WAITING_PICKUP", () => {
-    const mockApp = {
-      id: 2,
-      bottleName: "Yamazaki",
-      applicantUser: { name: "이영희", nickname: "y", email: "lee@test.com", phone: "010-1111-2222" },
-      quantity: 1,
-      confirmedQuantity: 1,
-      status: "WAITING_PICKUP" as const,
-      createdAt: "2024-02-01T00:00:00Z",
-      updatedAt: "2024-02-01T00:00:00Z",
-      bottleId: 6,
-      noticeId: 11,
-      bottleImgUrl: undefined,
-    };
-
-    render(
-      <PickupReservationsContent
-        searchParams={searchParams}
-        applications={[mockApp]}
-        totalElements={1}
-      />,
-    );
-
-    expect(screen.getByText("픽업대기")).toBeInTheDocument();
-  });
-
-  it("renders page title", () => {
-    render(
-      <PickupReservationsContent
-        searchParams={searchParams}
-        applications={[]}
-        totalElements={0}
-      />,
-    );
-    expect(screen.getByText("픽업 예약 관리")).toBeInTheDocument();
-  });
-
-  it("shows checkbox only for PAYMENT_COMPLETED rows", () => {
-    const apps = [
-      {
-        id: 1,
-        bottleName: "Glen",
-        applicantUser: { name: "A", nickname: "a", email: "a@test.com", phone: "010" },
-        quantity: 1, confirmedQuantity: 1,
-        status: "PAYMENT_COMPLETED" as const,
-        createdAt: "2024-01-01T00:00:00Z", updatedAt: "2024-01-01T00:00:00Z",
-        bottleId: 1, noticeId: 1, bottleImgUrl: undefined,
-      },
-      {
-        id: 2,
-        bottleName: "Yama",
-        applicantUser: { name: "B", nickname: "b", email: "b@test.com", phone: "010" },
-        quantity: 1, confirmedQuantity: 0,
-        status: "CONFIRMED" as const,
-        createdAt: "2024-01-02T00:00:00Z", updatedAt: "2024-01-02T00:00:00Z",
-        bottleId: 2, noticeId: 2, bottleImgUrl: undefined,
-      },
-    ];
-    render(
-      <PickupReservationsContent
-        searchParams={{}}
-        applications={apps}
-        totalElements={2}
-      />,
-    );
-    // One checkbox for PAYMENT_COMPLETED row + one "전체 선택" header checkbox = 2 total
-    // But only the row checkbox checks for a specific row
-    const checkboxes = screen.getAllByRole("checkbox");
-    // At minimum 2 checkboxes: header + row
-    expect(checkboxes.length).toBeGreaterThanOrEqual(2);
-  });
-
-  it("shows bulk action button when PAYMENT_COMPLETED row is checked", async () => {
+  it("신청 목록 버튼을 누르면 공고 상세 페이지로 이동한다", async () => {
     const user = userEvent.setup();
-    const app = {
-      id: 1,
-      bottleName: "Glen",
-      applicantUser: { name: "A", nickname: "a", email: "a@test.com", phone: "010" },
-      quantity: 1, confirmedQuantity: 1,
-      status: "PAYMENT_COMPLETED" as const,
-      createdAt: "2024-01-01T00:00:00Z", updatedAt: "2024-01-01T00:00:00Z",
-      bottleId: 1, noticeId: 1, bottleImgUrl: undefined,
-    };
+
     render(
       <PickupReservationsContent
         searchParams={{}}
-        applications={[app]}
+        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12" })]}
         totalElements={1}
       />,
     );
-    expect(screen.queryByText(/일괄 픽업대기 처리/)).not.toBeInTheDocument();
 
-    // Click the row checkbox (not header)
-    const rowCheckbox = screen.getAllByRole("checkbox")[1];
-    await user.click(rowCheckbox);
+    await user.click(screen.getByRole("button", { name: /신청 목록/ }));
 
-    expect(screen.getByText("일괄 픽업대기 처리 (1건)")).toBeInTheDocument();
+    expect(pushMock).toHaveBeenCalledWith("/business/pickup-reservations/notices/10");
   });
 
-  it("does not show bulk action button when no rows selected", () => {
+  it("공고 일괄 픽업대기 확인 후 화면을 새로고침한다", async () => {
+    const user = userEvent.setup();
+
     render(
       <PickupReservationsContent
         searchParams={{}}
-        applications={[]}
-        totalElements={0}
+        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12" })]}
+        totalElements={1}
       />,
     );
-    expect(screen.queryByText(/일괄 픽업대기 처리/)).not.toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "공고 일괄 픽업대기" }));
+    await user.click(screen.getByRole("button", { name: "픽업대기 확인" }));
+
+    expect(refreshMock).toHaveBeenCalled();
+  });
+
+  it("신청 건수가 없는 공고는 일괄 처리 버튼을 비활성화한다", () => {
+    render(
+      <PickupReservationsContent
+        searchParams={{}}
+        notices={[
+          makeNotice({
+            noticeId: 10,
+            bottleId: 5,
+            bottleName: "Glen 12",
+            totalApplicationCount: 0,
+          }),
+        ]}
+        totalElements={1}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "공고 일괄 픽업대기" })).toBeDisabled();
   });
 });

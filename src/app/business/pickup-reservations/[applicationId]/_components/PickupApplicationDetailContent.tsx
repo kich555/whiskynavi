@@ -17,16 +17,9 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import BusinessHeader from "../../../_components/BusinessHeader";
-import {
-  PICKUP_STATUS_COLOR,
-  PICKUP_STATUS_LABEL,
-} from "../../../constants";
-import { formatDate } from "../../../utils";
-import {
-  paymentCompleteAction,
-  receiveCompleteAction,
-  waitingPickupAction,
-} from "../../actions";
+import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL } from "../../../constants";
+import { formatCurrency, formatDate } from "../../../utils";
+import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../../actions";
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
 
@@ -71,11 +64,7 @@ interface StatusActionButtonProps {
   applicantName?: string;
 }
 
-function StatusActionButton({
-  applicationId,
-  status,
-  applicantName,
-}: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -109,11 +98,7 @@ function StatusActionButton({
   return (
     <>
       <div className="flex justify-end">
-        <Button
-          type="button"
-          onClick={() => setIsOpen(true)}
-          className={config.className}
-        >
+        <Button type="button" onClick={() => setIsOpen(true)} className={config.className}>
           {config.label}
         </Button>
       </div>
@@ -123,23 +108,14 @@ function StatusActionButton({
           <DialogHeader>
             <DialogTitle>{config.label}</DialogTitle>
             <DialogDescription>
-              {applicantName && <strong>{applicantName}</strong>}님의 신청을{" "}
-              {config.description}
+              {applicantName && <strong>{applicantName}</strong>}님의 신청을 {config.description}
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setIsOpen(false)}
-              disabled={isPending}
-            >
+            <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isPending}>
               취소
             </Button>
-            <Button
-              onClick={handleConfirm}
-              disabled={isPending}
-              className={config.className}
-            >
+            <Button onClick={handleConfirm} disabled={isPending} className={config.className}>
               {isPending ? "처리 중..." : config.confirmLabel}
             </Button>
           </DialogFooter>
@@ -153,9 +129,7 @@ interface PickupApplicationDetailContentProps {
   application: BottleReservationPickupApplicationResponse;
 }
 
-export default function PickupApplicationDetailContent({
-  application,
-}: PickupApplicationDetailContentProps) {
+export default function PickupApplicationDetailContent({ application }: PickupApplicationDetailContentProps) {
   const router = useRouter();
 
   return (
@@ -200,27 +174,19 @@ export default function PickupApplicationDetailContent({
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs text-gray-500">신청 ID</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {application.id}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{application.id}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">공고 ID</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {application.noticeId ?? "-"}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{application.noticeId ?? "-"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">병 이름</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {application.bottleName ?? "-"}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{application.bottleName ?? "-"}</p>
                   </div>
                   <div>
                     <p className="text-xs text-gray-500">병 ID</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {application.bottleId ?? "-"}
-                    </p>
+                    <p className="text-sm font-medium text-gray-900">{application.bottleId ?? "-"}</p>
                   </div>
                 </div>
               </div>
@@ -236,40 +202,34 @@ export default function PickupApplicationDetailContent({
               <div>
                 <p className="text-xs text-gray-500">상태</p>
                 <div className="mt-1">
-                  <Badge
-                    className={
-                      PICKUP_STATUS_COLOR[application.status ?? ""] ??
-                      "bg-gray-100 text-gray-700"
-                    }
-                  >
-                    {PICKUP_STATUS_LABEL[application.status ?? ""] ??
-                      application.status}
+                  <Badge className={PICKUP_STATUS_COLOR[application.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
+                    {PICKUP_STATUS_LABEL[application.status ?? ""] ?? application.status}
                   </Badge>
                 </div>
               </div>
               <div>
                 <p className="text-xs text-gray-500">신청수량</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {application.quantity ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{application.quantity ?? "-"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">확정수량</p>
-                <p className="text-sm font-medium text-amber-600">
-                  {application.confirmedQuantity ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-amber-600">{application.confirmedQuantity ?? "-"}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">단가</p>
+                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.unitPrice)}</p>
+              </div>
+              <div>
+                <p className="text-xs text-gray-500">총액</p>
+                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.totalPrice)}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">신청일</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {formatDate(application.createdAt)}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{formatDate(application.createdAt)}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">수정일</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {formatDate(application.updatedAt)}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{formatDate(application.updatedAt)}</p>
               </div>
             </div>
           </div>
@@ -282,27 +242,19 @@ export default function PickupApplicationDetailContent({
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
               <div>
                 <p className="text-xs text-gray-500">이름</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {application.applicantUser?.name ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.name ?? "-"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">닉네임</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {application.applicantUser?.nickname ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.nickname ?? "-"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">이메일</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {application.applicantUser?.email ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.email ?? "-"}</p>
               </div>
               <div>
                 <p className="text-xs text-gray-500">전화번호</p>
-                <p className="text-sm font-medium text-gray-900">
-                  {application.applicantUser?.phone ?? "-"}
-                </p>
+                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.phone ?? "-"}</p>
               </div>
             </div>
           </div>

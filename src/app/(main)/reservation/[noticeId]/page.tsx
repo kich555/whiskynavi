@@ -1,4 +1,9 @@
-import { getApiBottlesReservationsNoticesNoticeid } from "@/apis/generated/api";
+import {
+  getApiBottlesReservationsApplicationsMe,
+  getApiBottlesReservationsNoticesNoticeid,
+  type BottleReservationApplicationPublicResponse,
+} from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import { authOptions } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
@@ -9,6 +14,10 @@ import ReservationDetailClient from "./_components/ReservationDetailClient";
 
 type PageProps = {
   params: Promise<{ noticeId: string }>;
+};
+
+const isAppliedApplication = (application: BottleReservationApplicationPublicResponse): boolean => {
+  return application.status !== "CANCELLED" && application.status !== "REJECTED";
 };
 
 export default async function ReservationDetailPage({ params }: PageProps) {
@@ -30,6 +39,18 @@ export default async function ReservationDetailPage({ params }: PageProps) {
   }
 
   const pickupLocations = await fetchPickupLocations();
+  let initialHasApplied = false;
+
+  try {
+    const applicationsRes = await getApiBottlesReservationsApplicationsMe(
+      { noticeId: id, size: 1 },
+      withToken(session.accessToken),
+    );
+    // 취소/반려되지 않은 내 신청 건이 있으면 공고 진입 시에도 신청 완료로 표시한다.
+    initialHasApplied = (applicationsRes.data.content ?? []).some(isAppliedApplication);
+  } catch {
+    initialHasApplied = false;
+  }
 
   return (
     <div className="mt-20 min-h-screen bg-[#1d2429]">
@@ -44,7 +65,11 @@ export default async function ReservationDetailPage({ params }: PageProps) {
           <span className="typo-bold-14 lg:text-base">목록으로 돌아가기</span>
         </Link>
 
-        <ReservationDetailClient notice={notice} pickupLocations={pickupLocations} />
+        <ReservationDetailClient
+          notice={notice}
+          pickupLocations={pickupLocations}
+          initialHasApplied={initialHasApplied}
+        />
       </div>
     </div>
   );

@@ -10,3 +10,8 @@ export const formatDate = (dateStr?: string): string => {
     .replace(/\. /g, ".")
     .replace(/\.$/, "");
 };
+
+export const formatCurrency = (amount?: number): string => {
+  if (amount == null) return "-";
+  return `${amount.toLocaleString("ko-KR")}원`;
+};
