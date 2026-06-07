@@ -24,21 +24,14 @@ export default function BottleDetailModal({ bottle }: Props) {
         className="max-h-[90vh] max-w-[95vw] overflow-y-auto border-white/10 bg-[#1d2429] p-4 sm:max-w-3xl sm:p-6 [&_[data-slot=dialog-close]]:text-white"
         showCloseButton
       >
-        <DialogTitle className="typo-bold-20 text-white lg:text-2xl">
-          {bottle.name}
-        </DialogTitle>
+        <DialogTitle className="typo-bold-20 text-white lg:text-2xl">{bottle.name}</DialogTitle>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Image */}
           <div className="relative flex aspect-square items-center justify-center border border-white/10">
             {bottle.imgUrl ? (
               <ImageLightbox src={bottle.imgUrl} alt={bottle.name ?? ""}>
-                <ImageWithFallback
-                  src={bottle.imgUrl}
-                  alt={bottle.name ?? ""}
-                  fill
-                  className="object-contain p-4"
-                />
+                <ImageWithFallback src={bottle.imgUrl} alt={bottle.name ?? ""} fill className="object-contain p-4" />
               </ImageLightbox>
             ) : (
               <div className="text-2xl text-white/60">{bottle.name}</div>
@@ -61,10 +54,7 @@ export default function BottleDetailModal({ bottle }: Props) {
               { label: "병입일", value: bottle.bottledDate },
               {
                 label: "용량",
-                value:
-                  bottle.capacity != null
-                    ? `${bottle.capacity}ml`
-                    : undefined,
+                value: bottle.capacity != null ? `${bottle.capacity}ml` : undefined,
               },
             ].map((item, index, arr) => (
               <div
@@ -74,9 +64,7 @@ export default function BottleDetailModal({ bottle }: Props) {
                 }`}
               >
                 <span className="text-sm text-gray-400">{item.label}</span>
-                <span className="typo-medium-14 text-white">
-                  {item.value || "-"}
-                </span>
+                <span className="typo-medium-14 text-white">{item.value || "-"}</span>
               </div>
             ))}
           </div>
@@ -87,9 +75,7 @@ export default function BottleDetailModal({ bottle }: Props) {
           <div className="mt-4">
             <h3 className="typo-bold-18 mb-3 text-white">테이스팅 노트</h3>
             <div className="border border-white/10 p-4">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-300">
-                {bottle.description}
-              </p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-300">{bottle.description}</p>
             </div>
           </div>
         )}

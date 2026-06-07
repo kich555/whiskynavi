@@ -43,14 +43,7 @@ export default function BannerDetailContent({ banner }: BannerDetailContentProps
         {/* 미리보기 섹션 */}
         <div className="mb-6 overflow-hidden rounded-lg border border-gray-200">
           <div className="relative h-56 w-full bg-gray-900">
-            {banner.backgroundUrl ? (
-              <ImageWithFallback
-                src={banner.backgroundUrl}
-                alt="배경 이미지"
-                fill
-                className="object-cover opacity-70"
-              />
-            ) : null}
+            <ImageWithFallback src={banner.backgroundUrl} alt="배경 이미지" fill className="object-cover opacity-70" />
             <div className="absolute inset-0 flex items-center justify-center">
               <div className="flex items-center gap-6">
                 <div className="text-white">

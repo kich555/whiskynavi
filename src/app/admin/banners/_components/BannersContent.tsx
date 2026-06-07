@@ -54,14 +54,12 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                 className="cursor-pointer overflow-hidden rounded-lg border border-gray-200 bg-white text-left transition-shadow hover:shadow-md"
               >
                 <div className="relative h-40 w-full bg-gray-100">
-                  {banner.backgroundUrl ? (
-                    <ImageWithFallback
-                      src={banner.backgroundUrl}
-                      alt={banner.title ?? "배너 배경"}
-                      fill
-                      className="object-cover"
-                    />
-                  ) : null}
+                  <ImageWithFallback
+                    src={banner.backgroundUrl ?? ""}
+                    alt={banner.title ?? "배너 배경"}
+                    fill
+                    className="object-cover"
+                  />
                 </div>
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900">{banner.title ?? "(제목 없음)"}</h3>

@@ -22,15 +22,18 @@ function shouldSkipOptimization(src: ImageProps["src"]): boolean {
   }
 }
 
-export function ImageWithFallback({ className, style, ...rest }: ImageProps) {
-  const [didError, setDidError] = useState(false);
+type ImageWithFallbackProps = Omit<ImageProps, "src"> & { src?: ImageProps["src"] };
 
-  if (didError || !rest.src || rest.src === "") {
+export function ImageWithFallback({ className, style, ...rest }: ImageWithFallbackProps) {
+  const [didError, setDidError] = useState(false);
+  const { src, ...restWithoutSrc } = rest;
+
+  if (didError || !src || src === "") {
     return (
       <div className={`inline-block bg-gray-100 text-center align-middle ${className ?? ""}`} style={style}>
         <div className="flex h-full w-full items-center justify-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={ERROR_IMG_SRC} alt="Error loading image" data-original-url={String(rest.src)} />
+          <img src={ERROR_IMG_SRC} alt="Error loading image" data-original-url={String(src)} />
         </div>
       </div>
     );
@@ -38,12 +41,13 @@ export function ImageWithFallback({ className, style, ...rest }: ImageProps) {
 
   return (
     <Image
-      {...rest}
+      {...restWithoutSrc}
+      src={src}
       className={className}
       style={style}
-      unoptimized={rest.unoptimized ?? shouldSkipOptimization(rest.src)}
+      unoptimized={restWithoutSrc.unoptimized ?? shouldSkipOptimization(src)}
       onError={() => setDidError(true)}
-      alt={rest.alt}
+      alt={restWithoutSrc.alt}
     />
   );
 }
