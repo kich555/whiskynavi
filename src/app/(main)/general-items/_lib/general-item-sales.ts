@@ -1,3 +1,4 @@
+import { getApiItemsId } from "@/apis/generated/api";
 import type {
   GetApiSalesParams,
   PagedModelUserSaleAnnouncementResponse,
@@ -54,6 +55,28 @@ export async function fetchOpenGeneralItemSalesPage({
     sales: sales.slice(start, start + pageSize),
     totalElements: sales.length,
   };
+}
+
+export async function fetchGeneralItemSaleImageMap(
+  sales: UserSaleAnnouncementResponse[],
+): Promise<Map<number, string>> {
+  const productIds = collectGeneralItemProductIds(sales);
+  const results = await Promise.allSettled(
+    productIds.map(async (productId) => {
+      const response = await getApiItemsId(productId);
+      return [productId, response.data.imageUrl] as const;
+    }),
+  );
+
+  return new Map(
+    results
+      .filter(
+        (result): result is PromiseFulfilledResult<readonly [number, string | undefined]> =>
+          result.status === "fulfilled",
+      )
+      .filter((result) => Boolean(result.value[1]))
+      .map((result) => [result.value[0], result.value[1] as string]),
+  );
 }
 
 export function buildGeneralItemSaleDetailHref(sale: Pick<UserSaleAnnouncementResponse, "id">) {
