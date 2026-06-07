@@ -16,30 +16,17 @@ export default function BannerCreateContent() {
   const [formState, formAction, isPending] = useActionState(createBannerFormAction, { success: false });
 
   const bgInputRef = useRef<HTMLInputElement>(null);
-  const mainInputRef = useRef<HTMLInputElement>(null);
   const [bgPreview, setBgPreview] = useState<string | null>(null);
-  const [mainPreview, setMainPreview] = useState<string | null>(null);
 
   const handleBgChange = (file: File | null) => {
     if (bgPreview) URL.revokeObjectURL(bgPreview);
     setBgPreview(file ? URL.createObjectURL(file) : null);
   };
 
-  const handleMainChange = (file: File | null) => {
-    if (mainPreview) URL.revokeObjectURL(mainPreview);
-    setMainPreview(file ? URL.createObjectURL(file) : null);
-  };
-
   const handleBgRemove = () => {
     if (bgPreview) URL.revokeObjectURL(bgPreview);
     setBgPreview(null);
     if (bgInputRef.current) bgInputRef.current.value = "";
-  };
-
-  const handleMainRemove = () => {
-    if (mainPreview) URL.revokeObjectURL(mainPreview);
-    setMainPreview(null);
-    if (mainInputRef.current) mainInputRef.current.value = "";
   };
 
   return (
@@ -109,7 +96,7 @@ export default function BannerCreateContent() {
               />
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
+            <div>
               <ImageUploadArea
                 label="배경 이미지 *"
                 name="backgroundImg"
@@ -117,14 +104,6 @@ export default function BannerCreateContent() {
                 inputRef={bgInputRef}
                 onFileChange={handleBgChange}
                 onRemove={handleBgRemove}
-              />
-              <ImageUploadArea
-                label="메인 이미지 *"
-                name="mainImg"
-                previewUrl={mainPreview}
-                inputRef={mainInputRef}
-                onFileChange={handleMainChange}
-                onRemove={handleMainRemove}
               />
             </div>
           </div>
