@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUserResponse, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
+import { formatCurrency } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Search } from "lucide-react";
@@ -58,7 +59,7 @@ export default function OrderHistoryModal({ isOpen, close, user, orders, totalAm
         <DialogHeader>
           <DialogTitle className="typo-bold-20">주문 내역</DialogTitle>
           <p className="mt-1 text-sm text-gray-600">
-            {user.name} ({user.username}) - 총 {orders.length}건 / 총 금액 {totalAmount.toLocaleString()}원
+            {user.name} ({user.username}) - 총 {orders.length}건 / 총 금액 {formatCurrency(totalAmount)}
           </p>
         </DialogHeader>
 
@@ -118,11 +119,11 @@ export default function OrderHistoryModal({ isOpen, close, user, orders, totalAm
                           </p>
                         )}
                         <p className="text-gray-600">
-                          단가: <span className="font-medium text-gray-900">{order.unitPrice?.toLocaleString()}원</span>
+                          단가: <span className="font-medium text-gray-900">{formatCurrency(order.unitPrice)}</span>
                         </p>
                         <p className="text-gray-600">
                           총 금액:{" "}
-                          <span className="font-bold text-gray-900">{order.totalPrice?.toLocaleString()}원</span>
+                          <span className="font-bold text-gray-900">{formatCurrency(order.totalPrice)}</span>
                         </p>
                       </div>
                     </div>

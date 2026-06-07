@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+import { formatDate } from "@/lib/formatters";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
@@ -143,11 +144,6 @@ export default function BlacklistContent({ searchParams, blacklist }: BlacklistC
     }
     params.set("page", "1");
     router.push(`/admin/blacklist?${params.toString()}`);
-  };
-
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "-";
-    return new Date(dateString).toLocaleDateString("ko-KR");
   };
 
   const isPermanentBan = (dateString?: string) => {

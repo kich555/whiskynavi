@@ -9,6 +9,7 @@ import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { formatCurrency } from "@/lib/formatters";
 import { getGeneralItemOrderQuantityLimit, isOpenGeneralItemSale } from "../_lib/general-item-sales";
 import GeneralItemOrderForm from "./_components/GeneralItemOrderForm";
 
@@ -19,11 +20,6 @@ type GeneralItemSaleDetailPageProps = {
 function parseSaleId(value: string) {
   const id = Number(value);
   return Number.isInteger(id) && id > 0 ? id : undefined;
-}
-
-function formatCurrency(value?: number) {
-  if (value == null) return "-";
-  return `${value.toLocaleString("ko-KR")}원`;
 }
 
 async function fetchSale(saleId: number): Promise<UserSaleAnnouncementResponse | null> {

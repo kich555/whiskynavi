@@ -2,6 +2,7 @@
 
 import type { AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -12,21 +13,6 @@ interface AdminOrderDetailContentProps {
   order: OrderResponse;
 }
 
-function formatCurrency(amount?: number) {
-  if (amount == null) return "-";
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
-function formatDate(value?: string) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function getOrderSourceLabel(order: OrderResponse) {
   if (order.orderSource === "CART") return "장바구니";
@@ -108,7 +94,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
             <DetailField label="주문번호" value={order.orderNumber} />
             <DetailField label="주문 ID" value={order.id} />
             <DetailField label="주문 생성 방식" value={getOrderSourceLabel(order)} />
-            <DetailField label="주문일시" value={formatDate(order.createdAt)} />
+            <DetailField label="주문일시" value={formatDateTime(order.createdAt)} />
             <DetailField label="상품 요약" value={getOrderItemsSummary(order)} />
             <DetailField label="상품 라인 수" value={order.itemsCount != null ? `${order.itemsCount}건` : undefined} />
             <DetailField label="총 수량" value={`총 수량 ${getOrderTotalQuantity(order)}개`} />
@@ -138,8 +124,8 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
               <DetailField label="결제수단" value={order.payment?.paymentMethod} />
               <DetailField label="결제상태" value={order.payment?.paymentStatus} />
               <DetailField label="결제 금액" value={formatCurrency(order.payment?.paidAmount)} />
-              <DetailField label="결제 완료일" value={formatDate(order.payment?.paidAt)} />
-              <DetailField label="입금기한" value={formatDate(order.payment?.depositDeadlineAt)} />
+              <DetailField label="결제 완료일" value={formatDateTime(order.payment?.paidAt)} />
+              <DetailField label="입금기한" value={formatDateTime(order.payment?.depositDeadlineAt)} />
               <DetailField
                 label="입금기한 초과"
                 value={order.payment?.depositOverdue == null ? "-" : order.payment.depositOverdue ? "예" : "아니오"}
@@ -198,8 +184,8 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
               </div>
               <DetailField label="배송사" value={order.delivery?.carrierName} />
               <DetailField label="운송장번호" value={order.delivery?.trackingNumber} />
-              <DetailField label="발송일" value={formatDate(order.delivery?.shippedAt)} />
-              <DetailField label="배송 완료일" value={formatDate(order.delivery?.deliveredAt)} />
+              <DetailField label="발송일" value={formatDateTime(order.delivery?.shippedAt)} />
+              <DetailField label="배송 완료일" value={formatDateTime(order.delivery?.deliveredAt)} />
               <div className="md:col-span-2">
                 <DetailField label="배송 메모" value={order.delivery?.deliveryMemo} />
               </div>

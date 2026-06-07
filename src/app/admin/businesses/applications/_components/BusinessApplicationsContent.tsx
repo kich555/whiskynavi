@@ -6,6 +6,7 @@ import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
 import FilterHeader from "@/app/admin/_components/FilterHeader";
 import Pagination from "@/app/admin/_components/Pagination";
 import { useTableFilter } from "@/app/admin/_components/useTableFilter";
+import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -43,19 +44,6 @@ const APPLICATION_STATUS_OPTIONS = [
   { value: "REJECTED", label: "반려" },
   { value: "CANCELED", label: "취소" },
 ] as const;
-
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
-};
 
 interface BusinessApplicationsContentProps {
   searchParams: {

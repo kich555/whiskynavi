@@ -1,6 +1,7 @@
 "use client";
 
 import type { BottleAdminResponse } from "@/apis/generated/api";
+import { formatCurrency } from "@/lib/formatters";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -110,14 +111,14 @@ export default function AdminProductDetailView({ productDetails }: AdminProductD
           {productDetails.supplyPrice != null && (
             <div className="flex gap-3">
               <span className="w-32 text-sm text-gray-600">공급가</span>
-              <span className="flex-1 text-sm text-gray-900">{productDetails.supplyPrice.toLocaleString()}원</span>
+              <span className="flex-1 text-sm text-gray-900">{formatCurrency(productDetails.supplyPrice)}</span>
             </div>
           )}
 
           {productDetails.consumerPrice != null && (
             <div className="flex gap-3">
               <span className="w-32 text-sm text-gray-600">소비자가</span>
-              <span className="flex-1 text-sm text-gray-900">{productDetails.consumerPrice.toLocaleString()}원</span>
+              <span className="flex-1 text-sm text-gray-900">{formatCurrency(productDetails.consumerPrice)}</span>
             </div>
           )}
 

@@ -2,6 +2,7 @@
 
 import type { AdminDeliveryCsvUploadResponse, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -80,11 +81,6 @@ const SALE_TYPE_LABEL: Record<string, string> = {
   GENERAL: "일반판매",
 };
 
-function formatCurrency(amount?: number) {
-  if (amount == null) return "-";
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
 function getOrderSourceLabel(order: OrderResponse) {
   if (order.orderSource === "CART") return "장바구니";
   if (order.orderSource === "SINGLE_ITEM") return "단건";
@@ -112,17 +108,6 @@ function getOrderPriceSummary(order: OrderResponse) {
     shippingFee: order.priceSummary?.shippingFee ?? order.shippingFee,
     totalPrice: order.priceSummary?.totalPrice ?? order.totalPrice,
   };
-}
-
-function formatDate(value?: string) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 function buildSearchParams(params: AdminOrdersSearchParams) {
@@ -499,7 +484,7 @@ export default function AdminOrdersContent({
                       <tr key={order.id} className="align-top transition-colors hover:bg-gray-50">
                         <td className="px-4 py-4">
                           <div className="font-medium text-gray-900">{order.orderNumber ?? "-"}</div>
-                          <div className="mt-1 text-xs text-gray-500">{formatDate(order.createdAt)}</div>
+                          <div className="mt-1 text-xs text-gray-500">{formatDateTime(order.createdAt)}</div>
                           <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs ${statusColor}`}>
                             {statusLabel}
                           </span>
@@ -555,7 +540,7 @@ export default function AdminOrdersContent({
                           <div>{order.payment?.paymentStatus ?? "-"}</div>
                           {order.payment?.depositDeadlineAt && (
                             <div className="text-xs text-gray-500">
-                              입금기한 {formatDate(order.payment.depositDeadlineAt)}
+                              입금기한 {formatDateTime(order.payment.depositDeadlineAt)}
                             </div>
                           )}
                         </td>

@@ -4,6 +4,7 @@ import type {
   AdminBusinessUserDetailResponse,
   PatchApiAdminBusinessesMembersUseridBusinessBodyBusinessType,
 } from "@/apis/generated/api";
+import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
@@ -20,18 +21,6 @@ import {
   type BusinessMemberRole,
 } from "../actions";
 
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
-};
 
 const BUSINESS_TYPE_LABEL: Record<string, string> = {
   HOUSEHOLD: "가정용",

@@ -1,4 +1,5 @@
 import type { UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
+import { formatCurrency } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 
@@ -50,7 +51,7 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
         </div>
         <div className="mt-2 flex items-center justify-between">
           {notice.price != null && (
-            <span className="text-xs text-gray-400">{notice.price?.toLocaleString() ?? "-"}원</span>
+            <span className="text-xs text-gray-400">{formatCurrency(notice.price)}</span>
           )}
           {notice.availableQuantity != null && (
             <span className="text-xs text-gray-500">{notice.availableQuantity?.toLocaleString() ?? "-"}병</span>
