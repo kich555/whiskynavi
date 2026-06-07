@@ -11,8 +11,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Search } from "lucide-react";
+import { ArrowLeft, Plus, Search } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ChangeEvent, type FormEvent } from "react";
 import { createDeliveryAddress } from "../../delivery-order/actions";
 import { formatCartCurrency, getValidCartItems } from "../_lib/cart-utils";
@@ -262,6 +263,7 @@ export default function CartDeliveryOrderClient({
   currentUser,
   deliveryAddresses = [],
 }: CartDeliveryOrderClientProps) {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [isAddressPending, startAddressTransition] = useTransition();
   const [attemptKey, setAttemptKey] = useState("");
@@ -479,6 +481,13 @@ export default function CartDeliveryOrderClient({
       <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 md:grid-cols-[1fr_360px] md:py-16">
         <form className="border border-white/10 bg-white/5 p-5 md:p-8" onSubmit={(event) => event.preventDefault()}>
           <div className="mb-8">
+            <Button
+              onClick={() => router.back()}
+              className="mb-3 inline-flex items-center gap-2 bg-transparent text-sm font-medium text-white/70 transition-colors hover:text-white has-[>svg]:px-0"
+            >
+              <ArrowLeft size={18} />
+              뒤로가기
+            </Button>
             <p className="text-sm text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
             <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">장바구니 배송 주문서</h1>
           </div>

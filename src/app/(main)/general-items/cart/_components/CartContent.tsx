@@ -2,8 +2,10 @@
 
 import type { CartItemResponse, CartQuoteResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, Trash2 } from "lucide-react";
+import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
+
+import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { canCheckoutCart, formatCartCurrency, getCartBlockingReason, normalizeCartQuantity } from "../_lib/cart-utils";
 import { removeCartItem, updateCartItemQuantity } from "../actions";
@@ -50,6 +52,7 @@ function SummaryRow({ label, value, strong = false }: { label: string; value: st
 export default function CartContent({ error, quote }: CartContentProps) {
   const [actionMessage, setActionMessage] = useState<string>();
   const [isPending, startTransition] = useTransition();
+  const router = useRouter();
   const items = quote?.items ?? [];
   const blockingReason = getCartBlockingReason(quote);
   const canCheckout = canCheckoutCart(quote);
@@ -84,6 +87,13 @@ export default function CartContent({ error, quote }: CartContentProps) {
   return (
     <div className="mx-auto max-w-[1180px] px-4 py-8 lg:px-10 lg:py-12">
       <div className="mb-8">
+        <Button
+          onClick={() => router.back()}
+          className="mb-6 inline-flex cursor-pointer items-center gap-2 bg-transparent text-sm font-medium text-white/70 transition-colors hover:text-white"
+        >
+          <ArrowLeft size={18} />
+          뒤로가기
+        </Button>
         <p className="text-sm text-amber-300">일반상품 장바구니</p>
         <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">주문할 상품을 확인해 주세요.</h1>
       </div>
