@@ -37,16 +37,21 @@ function revalidateBannerPages(id?: number) {
   }
 }
 
-const bannerFormSchema = z.object({
+const optionalTextSchema = z
+  .string()
+  .transform((v) => v.trim() || undefined)
+  .optional();
+
+const createBannerFormSchema = z.object({
   title: z.string().min(1, "제목은 필수입니다."),
-  description: z
-    .string()
-    .transform((v) => v.trim() || undefined)
-    .optional(),
-  link: z
-    .string()
-    .transform((v) => v.trim() || undefined)
-    .optional(),
+  description: optionalTextSchema,
+  link: optionalTextSchema,
+});
+
+const updateBannerFormSchema = z.object({
+  title: optionalTextSchema,
+  description: optionalTextSchema,
+  link: optionalTextSchema,
 });
 
 export async function createBannerFormAction(_prev: FormState, formData: FormData): Promise<FormState> {
@@ -61,7 +66,7 @@ export async function createBannerFormAction(_prev: FormState, formData: FormDat
     link: (formData.get("link") as string) ?? "",
   };
 
-  const parsed = bannerFormSchema.safeParse(raw);
+  const parsed = createBannerFormSchema.safeParse(raw);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
@@ -71,16 +76,10 @@ export async function createBannerFormAction(_prev: FormState, formData: FormDat
     return { success: false, error: "배경 이미지는 필수입니다." };
   }
 
-  const mainImg = formData.get("mainImg") as File | null;
-  if (!mainImg || mainImg.size === 0) {
-    return { success: false, error: "메인 이미지는 필수입니다." };
-  }
-
   try {
     await postApiAdminBanners(
       {
         backgroundImg: shortenFile(backgroundImg),
-        mainImg: shortenFile(mainImg),
       },
       {
         title: parsed.data.title,
@@ -110,7 +109,7 @@ export async function updateBannerFormAction(id: number, _prev: FormState, formD
     link: (formData.get("link") as string) ?? "",
   };
 
-  const parsed = bannerFormSchema.safeParse(raw);
+  const parsed = updateBannerFormSchema.safeParse(raw);
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0].message };
   }
