@@ -74,6 +74,14 @@ export default function BannerDetailContent({ banner }: BannerDetailContentProps
               <dt className="typo-medium-14 text-gray-500">제목</dt>
               <dd className="mt-1 text-gray-900">{banner.title ?? "(없음)"}</dd>
             </div>
+            <div>
+              <dt className="typo-medium-14 text-gray-500">게시 상태</dt>
+              <dd className="mt-1 text-gray-900">{banner.published ? "게시중" : "게시중단"}</dd>
+            </div>
+            <div>
+              <dt className="typo-medium-14 text-gray-500">노출 순서</dt>
+              <dd className="mt-1 text-gray-900">{banner.sortOrder ?? 0}</dd>
+            </div>
             <div className="sm:col-span-2">
               <dt className="typo-medium-14 text-gray-500">설명</dt>
               <dd className="mt-1 text-gray-900">{banner.description ?? "(없음)"}</dd>

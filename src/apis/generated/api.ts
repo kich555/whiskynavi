@@ -36,11 +36,34 @@ export interface AdminAnnouncementResponse {
 }
 
 /**
+ * 배너별 노출 순서 변경 항목입니다.
+ */
+export type AdminBannerOrderRequestItemsItem = {
+  /** 배너 고유 ID입니다. */
+  id: number;
+  /** 적용할 노출 순서입니다. */
+  sortOrder: number;
+};
+
+/**
+ * 배너 노출 순서 변경 요청입니다.
+ */
+export interface AdminBannerOrderRequest {
+  /**
+   * 변경할 배너 순서 목록입니다.
+   * @minItems 1
+   */
+  items?: AdminBannerOrderRequestItemsItem[];
+}
+
+/**
  * 배너 조회 응답입니다.
  */
 export interface AdminBannerResponse {
   /** 배경 이미지의 CloudFront URL입니다. */
   backgroundUrl?: string;
+  /** 배너 제거 여부입니다. */
+  deleted?: boolean;
   /** 배너 설명입니다. */
   description?: string;
   /** 배너 고유 ID입니다. */
@@ -49,6 +72,10 @@ export interface AdminBannerResponse {
   link?: string;
   /** 메인 이미지의 CloudFront URL입니다. */
   mainUrl?: string;
+  /** 배너 게시 여부입니다. */
+  published?: boolean;
+  /** 배너 노출 순서입니다. */
+  sortOrder?: number;
   /** 배너 제목입니다. */
   title?: string;
 }
@@ -2029,6 +2056,16 @@ export interface HealthCheckResponse {
   service?: string;
   status?: string;
   timestamp?: string;
+}
+
+/**
+ * 배너별 노출 순서 변경 항목입니다.
+ */
+export interface Item {
+  /** 배너 고유 ID입니다. */
+  id: number;
+  /** 적용할 노출 순서입니다. */
+  sortOrder: number;
 }
 
 /**
@@ -4687,6 +4724,27 @@ link?: string;
 export type PostApiAdminBannersBody = {
   backgroundImg: Blob;
   mainImg: Blob;
+};
+
+/**
+ * 배너별 노출 순서 변경 항목입니다.
+ */
+export type PatchApiAdminBannersOrdersBodyItemsItem = {
+  /** 배너 고유 ID입니다. */
+  id: number;
+  /** 적용할 노출 순서입니다. */
+  sortOrder: number;
+};
+
+/**
+ * 배너 노출 순서 변경 요청입니다.
+ */
+export type PatchApiAdminBannersOrdersBody = {
+  /**
+   * 변경할 배너 순서 목록입니다.
+   * @minItems 1
+   */
+  items?: PatchApiAdminBannersOrdersBodyItemsItem[];
 };
 
 export type PatchApiAdminBannersIdParams = {
@@ -8446,6 +8504,81 @@ formData.append(`mainImg`, postApiAdminBannersBody.mainImg);
 
 
 /**
+ * 관리자가 배너 노출 순서를 변경합니다.
+ * @summary 배너 노출 순서 변경(관리자)
+ */
+export type patchApiAdminBannersOrdersResponse200 = {
+  data: AdminBannerResponse[]
+  status: 200
+}
+    
+export type patchApiAdminBannersOrdersResponseSuccess = (patchApiAdminBannersOrdersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiAdminBannersOrdersResponse = (patchApiAdminBannersOrdersResponseSuccess)
+
+export const getPatchApiAdminBannersOrdersUrl = () => {
+
+
+  
+
+  return `/api/admin/banners/orders`
+}
+
+export const patchApiAdminBannersOrders = async (patchApiAdminBannersOrdersBody: PatchApiAdminBannersOrdersBody, options?: RequestInit): Promise<patchApiAdminBannersOrdersResponse> => {
+  
+  return customFetch<patchApiAdminBannersOrdersResponse>(getPatchApiAdminBannersOrdersUrl(),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiAdminBannersOrdersBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 배너를 soft delete 방식으로 제거합니다.
+ * @summary 배너 제거(관리자)
+ */
+export type deleteApiAdminBannersIdResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiAdminBannersIdResponseSuccess = (deleteApiAdminBannersIdResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBannersIdResponse = (deleteApiAdminBannersIdResponseSuccess)
+
+export const getDeleteApiAdminBannersIdUrl = (id: number,) => {
+
+
+  
+
+  return `/api/admin/banners/${id}`
+}
+
+export const deleteApiAdminBannersId = async (id: number, options?: RequestInit): Promise<deleteApiAdminBannersIdResponse> => {
+  
+  return customFetch<deleteApiAdminBannersIdResponse>(getDeleteApiAdminBannersIdUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
  * 관리자가 식별자로 지정한 배너의 상세 정보를 조회합니다.
  * @summary 배너 상세 조회(관리자)
  */
@@ -8532,6 +8665,80 @@ if(patchApiAdminBannersIdBody.mainImg !== undefined) {
     ,
     body: 
       formData,
+  }
+);}
+
+
+
+/**
+ * 관리자가 배너를 사용자 화면에 게시합니다.
+ * @summary 배너 게시(관리자)
+ */
+export type patchApiAdminBannersIdPublishResponse200 = {
+  data: AdminBannerResponse
+  status: 200
+}
+    
+export type patchApiAdminBannersIdPublishResponseSuccess = (patchApiAdminBannersIdPublishResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiAdminBannersIdPublishResponse = (patchApiAdminBannersIdPublishResponseSuccess)
+
+export const getPatchApiAdminBannersIdPublishUrl = (id: number,) => {
+
+
+  
+
+  return `/api/admin/banners/${id}/publish`
+}
+
+export const patchApiAdminBannersIdPublish = async (id: number, options?: RequestInit): Promise<patchApiAdminBannersIdPublishResponse> => {
+  
+  return customFetch<patchApiAdminBannersIdPublishResponse>(getPatchApiAdminBannersIdPublishUrl(id),
+  {      
+    ...options,
+    method: 'PATCH'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 배너를 사용자 화면에서 내립니다.
+ * @summary 배너 게시중단(관리자)
+ */
+export type patchApiAdminBannersIdUnpublishResponse200 = {
+  data: AdminBannerResponse
+  status: 200
+}
+    
+export type patchApiAdminBannersIdUnpublishResponseSuccess = (patchApiAdminBannersIdUnpublishResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiAdminBannersIdUnpublishResponse = (patchApiAdminBannersIdUnpublishResponseSuccess)
+
+export const getPatchApiAdminBannersIdUnpublishUrl = (id: number,) => {
+
+
+  
+
+  return `/api/admin/banners/${id}/unpublish`
+}
+
+export const patchApiAdminBannersIdUnpublish = async (id: number, options?: RequestInit): Promise<patchApiAdminBannersIdUnpublishResponse> => {
+  
+  return customFetch<patchApiAdminBannersIdUnpublishResponse>(getPatchApiAdminBannersIdUnpublishUrl(id),
+  {      
+    ...options,
+    method: 'PATCH'
+    
+    
   }
 );}
 
