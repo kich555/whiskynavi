@@ -24,7 +24,6 @@ export default function BannerEditContent({ banner }: BannerEditContentProps) {
   });
 
   const bgInputRef = useRef<HTMLInputElement>(null);
-  const mainInputRef = useRef<HTMLInputElement>(null);
   const [bgPreview, setBgPreview] = useState<string | null>(banner.backgroundUrl ?? null);
 
   const handleBgChange = (file: File | null) => {
