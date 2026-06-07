@@ -1,11 +1,8 @@
-import {
-  getApiItemsId,
-  getApiSalesSaleid,
-  type ItemResponse,
-  type UserSaleAnnouncementResponse,
-} from "@/apis/generated/api";
+import { getApiItemsId, getApiSalesSaleid } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { formatCurrency } from "@/lib/formatters";
+import { parsePositiveInt } from "@/lib/page-response";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -16,45 +13,22 @@ type GeneralItemSaleDetailPageProps = {
   params: Promise<{ saleId: string }>;
 };
 
-function parseSaleId(value: string) {
-  const id = Number(value);
-  return Number.isInteger(id) && id > 0 ? id : undefined;
-}
-
-function formatCurrency(value?: number) {
-  if (value == null) return "-";
-  return `${value.toLocaleString("ko-KR")}원`;
-}
-
-async function fetchSale(saleId: number): Promise<UserSaleAnnouncementResponse | null> {
-  try {
-    const response = await getApiSalesSaleid(saleId);
-    return response.data;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchItem(productId?: number): Promise<ItemResponse | null> {
-  if (productId == null) return null;
-
-  try {
-    const response = await getApiItemsId(productId);
-    return response.data;
-  } catch {
-    return null;
-  }
-}
-
 export default async function GeneralItemSaleDetailPage({ params }: GeneralItemSaleDetailPageProps) {
   const { saleId } = await params;
-  const id = parseSaleId(saleId);
-  if (!id) notFound();
+  const id = parsePositiveInt(saleId) ?? notFound();
 
-  const sale = await fetchSale(id);
-  if (!sale || !isOpenGeneralItemSale(sale)) notFound();
+  const sale = await getApiSalesSaleid(id)
+    .then((r) => r.data)
+    .catch(() => notFound());
+  if (!isOpenGeneralItemSale(sale)) notFound();
 
-  const item = await fetchItem(sale.productId);
+  const item =
+    sale.productId != null
+      ? await getApiItemsId(sale.productId)
+          .then((r) => r.data)
+          .catch(() => null)
+      : null;
+
   const title = sale.title || sale.itemName || item?.name || "일반상품";
   const itemName = sale.itemName || item?.name || title;
   const remainingQuantity = sale.availableQuantity ?? 0;
@@ -75,19 +49,15 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
 
         <section className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_420px] lg:items-start">
           <div className="flex aspect-square items-center justify-center overflow-hidden border border-white/10 bg-black/20">
-            {item?.imageUrl ? (
-              <ImageWithFallback
-                src={item.imageUrl}
-                alt={title}
-                width={720}
-                height={720}
-                sizes="(min-width: 1024px) 55vw, 100vw"
-                className="h-full w-full object-contain p-6"
-                priority
-              />
-            ) : (
-              <div className="px-6 text-center text-sm text-white/45">{title}</div>
-            )}
+            <ImageWithFallback
+              src={item?.imageUrl}
+              alt={title}
+              width={720}
+              height={720}
+              sizes="(min-width: 1024px) 55vw, 100vw"
+              className="h-full w-full object-contain p-6"
+              priority
+            />
           </div>
 
           <div className="border border-white/10 bg-white/5 p-5 md:p-8">

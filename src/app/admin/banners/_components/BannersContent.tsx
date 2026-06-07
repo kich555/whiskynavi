@@ -110,9 +110,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                   className="overflow-hidden rounded-lg border border-gray-200 bg-white transition-shadow hover:shadow-md"
                 >
                   <div className="relative h-40 w-full bg-gray-100">
-                    {banner.backgroundUrl ? (
-                      <ImageWithFallback src={banner.backgroundUrl} alt={title} fill className="object-cover" />
-                    ) : null}
+                    <ImageWithFallback src={banner.backgroundUrl} alt={title} fill className="object-cover" />
                   </div>
                   <div className="p-4">
                     <div className="flex items-start justify-between gap-3">

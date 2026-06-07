@@ -5,6 +5,7 @@ import type {
   GetApiAdminBottlesReservationsApplicationsRole,
   GetApiAdminBottlesReservationsApplicationsStatus,
 } from "@/apis/generated/api";
+import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { Ban, Check, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -15,19 +16,6 @@ import ApplicationAutoConfirmModal from "./ApplicationAutoConfirmModal";
 import ApplicationCancelModal from "./ApplicationCancelModal";
 import ApplicationConfirmModal from "./ApplicationConfirmModal";
 import ApplicationRejectModal from "./ApplicationRejectModal";
-
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
-};
 
 const APPLICATION_STATUS_OPTIONS: GetApiAdminBottlesReservationsApplicationsStatus[] = [
   "APPLIED",

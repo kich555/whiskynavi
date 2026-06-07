@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminSaleAnnouncementResponse } from "@/apis/generated/api";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,21 +33,6 @@ interface GeneralItemSalesContentProps {
   totalElements: number;
 }
 
-function formatCurrency(value?: number) {
-  if (value == null) return "-";
-  return `${value.toLocaleString("ko-KR")}원`;
-}
-
-function formatDateTime(value?: string) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 function buildOrderHref(sale: AdminSaleAnnouncementResponse) {
   return sale.id != null ? `/general-items/${sale.id}` : "/general-items";

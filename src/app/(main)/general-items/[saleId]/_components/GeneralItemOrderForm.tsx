@@ -11,10 +11,7 @@ interface GeneralItemOrderFormProps {
   quantityLimit: number;
 }
 
-export default function GeneralItemOrderForm({
-  saleAnnouncementId,
-  quantityLimit,
-}: GeneralItemOrderFormProps) {
+export default function GeneralItemOrderForm({ saleAnnouncementId, quantityLimit }: GeneralItemOrderFormProps) {
   const router = useRouter();
   const [quantity, setQuantity] = useState(1);
   const [cartMessage, setCartMessage] = useState<string | null>(null);
@@ -68,7 +65,7 @@ export default function GeneralItemOrderForm({
             <button
               type="button"
               onClick={() => updateQuantity(quantity - 1)}
-              className="h-7 w-10 text-base font-semibold text-white transition-colors hover:bg-white/10 disabled:text-gray-600"
+              className="h-7 w-10 cursor-pointer text-base font-semibold text-white transition-colors hover:bg-white/10 disabled:text-gray-600"
               disabled={quantity <= 1}
               aria-label="수량 감소"
             >
@@ -89,7 +86,7 @@ export default function GeneralItemOrderForm({
             <button
               type="button"
               onClick={() => updateQuantity(quantity + 1)}
-              className="h-7 w-10 text-base font-semibold text-white transition-colors hover:bg-white/10 disabled:text-gray-600"
+              className="h-7 w-10 cursor-pointer text-base font-semibold text-white transition-colors hover:bg-white/10 disabled:text-gray-600"
               disabled={quantity >= quantityLimit}
               aria-label="수량 증가"
             >
@@ -114,7 +111,7 @@ export default function GeneralItemOrderForm({
             </Link>
             <button
               type="button"
-              className="text-gray-200 underline underline-offset-4 transition-colors hover:text-white"
+              className="cursor-pointer text-gray-200 underline underline-offset-4 transition-colors hover:text-white"
               onClick={() => setCartMessage(null)}
             >
               계속 쇼핑
@@ -132,7 +129,7 @@ export default function GeneralItemOrderForm({
       <div className="grid gap-2 sm:grid-cols-2">
         <button
           type="button"
-          className="min-h-11 w-full border border-white/20 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:text-gray-500"
+          className="min-h-11 w-full cursor-pointer border border-white/20 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:text-gray-500"
           onClick={handleAddToCart}
           disabled={isPending}
         >
@@ -140,7 +137,7 @@ export default function GeneralItemOrderForm({
         </button>
         <button
           type="button"
-          className="min-h-11 w-full bg-amber-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+          className="min-h-11 w-full cursor-pointer bg-amber-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-amber-700"
           onClick={handleOrderNow}
           disabled={isPending}
         >

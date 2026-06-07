@@ -47,7 +47,6 @@ export default function BannerSection({ banners }: BannerSectionProps) {
             alt={currentBanner.title ?? ""}
             fill
             className="object-cover"
-            priority
           />
           <div className="absolute inset-0 bg-black/50"></div>
         </div>

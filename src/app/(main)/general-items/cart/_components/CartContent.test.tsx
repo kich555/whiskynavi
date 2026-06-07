@@ -3,6 +3,12 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { removeCartItem, updateCartItemQuantity } from "../actions";
 import CartContent from "./CartContent";
 
+const back = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ back }),
+}));
+
 vi.mock("../actions", () => ({
   removeCartItem: vi.fn(),
   updateCartItemQuantity: vi.fn(),
@@ -10,6 +16,7 @@ vi.mock("../actions", () => ({
 
 describe("CartContent", () => {
   beforeEach(() => {
+    back.mockReset();
     vi.mocked(removeCartItem).mockReset();
     vi.mocked(updateCartItemQuantity).mockReset();
   });

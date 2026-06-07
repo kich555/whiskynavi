@@ -1,5 +1,6 @@
 import { getGetApiAdminBottlesReservationsNoticesNoticeidExcelUrl } from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
+import { parsePositiveInt } from "@/lib/page-response";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whiskynavi.com";
 
@@ -11,9 +12,8 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whisky
  */
 export async function GET(_request: Request, { params }: { params: Promise<{ noticeId: string }> }) {
   const { noticeId: noticeIdParam } = await params;
-  const noticeId = Number(noticeIdParam);
-
-  if (!Number.isInteger(noticeId) || noticeId <= 0) {
+  const noticeId = parsePositiveInt(noticeIdParam);
+  if (!noticeId) {
     return new Response("유효한 예약 공고 ID가 아닙니다.", { status: 400 });
   }
 

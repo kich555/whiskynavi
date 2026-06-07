@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
+import { formatCurrency } from "@/lib/formatters";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -454,7 +455,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                       <div>
                         <p className="typo-medium-14 text-amber-100">총 구매 금액</p>
                         <p className="typo-bold-24 mt-1 text-white">
-                          {(orderSummary.totalAmount ?? 0).toLocaleString()}원
+                          {formatCurrency(orderSummary.totalAmount ?? 0)}
                         </p>
                       </div>
                       <div className="text-right">
@@ -495,7 +496,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 {order.approvedQuantity != null ? `${order.approvedQuantity}병` : "-"}
                               </td>
                               <td className="px-3 py-3 text-right font-medium text-gray-900">
-                                {(order.totalPrice ?? 0).toLocaleString()}원
+                                {formatCurrency(order.totalPrice ?? 0)}
                               </td>
                               <td className="px-3 py-3 text-gray-600">
                                 {new Date(order.createdAt ?? "")

@@ -21,7 +21,4 @@ export function getCartBlockingReason(quote?: Pick<CartQuoteResponse, "items"> |
   return undefined;
 }
 
-export function formatCartCurrency(value?: number | null): string {
-  if (value == null) return "-";
-  return `${value.toLocaleString("ko-KR")}원`;
-}
+export { formatCurrency as formatCartCurrency } from "@/lib/formatters";

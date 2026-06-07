@@ -8,6 +8,7 @@ import { authOptions } from "@/lib/auth";
 import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
+import { parsePositiveInt } from "@/lib/page-response";
 import { notFound, redirect } from "next/navigation";
 import { fetchPickupLocations } from "../_lib/fetchPickupLocations";
 import ReservationDetailClient from "./_components/ReservationDetailClient";
@@ -27,8 +28,8 @@ export default async function ReservationDetailPage({ params }: PageProps) {
   }
 
   const { noticeId } = await params;
-  const id = Number(noticeId);
-  if (Number.isNaN(id)) notFound();
+  const id = parsePositiveInt(noticeId);
+  if (!id) notFound();
 
   let notice;
   try {

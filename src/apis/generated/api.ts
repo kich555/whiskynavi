@@ -36,6 +36,33 @@ export interface AdminAnnouncementResponse {
 }
 
 /**
+ * 공지 범위(전체/게시판)를 나타냅니다.
+ */
+export type AdminAnnouncementSummaryResponseScope = typeof AdminAnnouncementSummaryResponseScope[keyof typeof AdminAnnouncementSummaryResponseScope];
+
+
+export const AdminAnnouncementSummaryResponseScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 관리자 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ */
+export interface AdminAnnouncementSummaryResponse {
+  /** 게시판 공지일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /** 공지 생성 일시입니다. */
+  createdAt?: string;
+  /** 공지사항 식별자입니다. */
+  id?: number;
+  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  scope?: AdminAnnouncementSummaryResponseScope;
+  /** 사용자에게 표시되는 제목입니다. */
+  title?: string;
+}
+
+/**
  * 배너별 노출 순서 변경 항목입니다.
  */
 export type AdminBannerOrderRequestItemsItem = {
@@ -2660,8 +2687,18 @@ export interface OrderTicketIssueRequest {
   saleAnnouncementId: number;
 }
 
+export interface PagedModelAdminAnnouncementSummaryResponse {
+  content?: AdminAnnouncementSummaryResponse[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminBannerResponse {
   content?: AdminBannerResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBoardResponse {
+  content?: AdminBoardResponse[];
   page?: PageMetadata;
 }
 
@@ -2764,15 +2801,13 @@ export interface PagedModelPickupLocationResponse {
 }
 
 /**
- * 게시글 정보를 담은 응답 DTO입니다.
+ * 게시글 목록에 사용하는 요약 응답 DTO입니다.
  */
-export interface PostResponse {
+export interface PostSummaryResponse {
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
   /** 게시글이 속한 게시판 ID입니다. */
   boardId?: number;
-  /** 게시글 본문입니다. */
-  content?: string;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
   /** 게시글 식별자입니다. */
@@ -2783,42 +2818,40 @@ export interface PostResponse {
   updatedAt?: string;
 }
 
-export interface PagedModelPostResponse {
-  content?: PostResponse[];
+export interface PagedModelPostSummaryResponse {
+  content?: PostSummaryResponse[];
   page?: PageMetadata;
 }
 
 /**
  * 공지 범위(전체/게시판)를 나타냅니다.
  */
-export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
+export type UserAnnouncementSummaryResponseScope = typeof UserAnnouncementSummaryResponseScope[keyof typeof UserAnnouncementSummaryResponseScope];
 
 
-export const UserAnnouncementResponseScope = {
+export const UserAnnouncementSummaryResponseScope = {
   GLOBAL: 'GLOBAL',
   BOARD: 'BOARD',
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 공지사항 목록에 사용하는 요약 응답 DTO입니다.
  */
-export interface UserAnnouncementResponse {
+export interface UserAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
   boardId?: number;
-  /** 공지 본문 내용입니다. */
-  content?: string;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
   /** 공지 범위(전체/게시판)를 나타냅니다. */
-  scope?: UserAnnouncementResponseScope;
+  scope?: UserAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
 }
 
-export interface PagedModelUserAnnouncementResponse {
-  content?: UserAnnouncementResponse[];
+export interface PagedModelUserAnnouncementSummaryResponse {
+  content?: UserAnnouncementSummaryResponse[];
   page?: PageMetadata;
 }
 
@@ -3509,6 +3542,8 @@ export interface UserSaleAnnouncementResponse {
   createdAt?: string;
   /** 판매 공고 ID */
   id?: number;
+  /** 대표 이미지 URL */
+  imgUrl?: string;
   /** 상품명 */
   itemName?: string;
   /** 1회 최대 주문 가능 수량 */
@@ -3540,6 +3575,26 @@ export interface UserSaleAnnouncementResponse {
 export interface PagedModelUserSaleAnnouncementResponse {
   content?: UserSaleAnnouncementResponse[];
   page?: PageMetadata;
+}
+
+/**
+ * 게시글 정보를 담은 응답 DTO입니다.
+ */
+export interface PostResponse {
+  /** 게시글 작성자 ID입니다. */
+  authorId?: number;
+  /** 게시글이 속한 게시판 ID입니다. */
+  boardId?: number;
+  /** 게시글 본문입니다. */
+  content?: string;
+  /** 게시글 생성 일시입니다. */
+  createdAt?: string;
+  /** 게시글 식별자입니다. */
+  id?: number;
+  /** 게시글 제목입니다. */
+  title?: string;
+  /** 게시글 최종 수정 일시입니다. */
+  updatedAt?: string;
 }
 
 /**
@@ -4407,6 +4462,35 @@ export interface UpdatePostRequest {
   title?: string;
 }
 
+/**
+ * 공지 범위(전체/게시판)를 나타냅니다.
+ */
+export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
+
+
+export const UserAnnouncementResponseScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 공지사항 정보를 담은 응답 DTO입니다.
+ */
+export interface UserAnnouncementResponse {
+  /** 게시판 공지일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /** 공지 본문 내용입니다. */
+  content?: string;
+  /** 공지 생성 일시입니다. */
+  createdAt?: string;
+  /** 공지사항 식별자입니다. */
+  id?: number;
+  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  scope?: UserAnnouncementResponseScope;
+  /** 사용자에게 표시되는 제목입니다. */
+  title?: string;
+}
+
 export type UserBottleReservationPickupBulkUpdateResponseStatus = typeof UserBottleReservationPickupBulkUpdateResponseStatus[keyof typeof UserBottleReservationPickupBulkUpdateResponseStatus];
 
 
@@ -4758,6 +4842,23 @@ export type PatchApiAdminBannersIdBody = {
   mainImg?: Blob;
 };
 
+export type GetApiAdminBoardsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
 /**
  * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
  */
@@ -4780,6 +4881,23 @@ export type PostApiAdminBoardsBody = {
    * @maxLength 150
    */
   slug?: string;
+};
+
+export type GetApiAdminBoardsAnnouncementsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
 };
 
 /**
@@ -4812,6 +4930,62 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * @maxLength 200
    */
   title?: string;
+};
+
+/**
+ * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ */
+export type PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope[keyof typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope];
+
+
+export const PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
+  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /**
+   * 공지 상세 내용입니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  scope: PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope;
+  /**
+   * 사용자에게 보여줄 공지 제목입니다.
+   * @minLength 0
+   * @maxLength 200
+   */
+  title?: string;
+};
+
+/**
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsBoardidBody = {
+  /**
+   * 게시판에 표시할 선택 설명입니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  description?: string;
+  /**
+   * 사용자에게 노출되는 게시판명입니다.
+   * @minLength 0
+   * @maxLength 150
+   */
+  name?: string;
+  /**
+   * 라우팅에 사용하는 고유 슬러그입니다.
+   * @minLength 0
+   * @maxLength 150
+   */
+  slug?: string;
 };
 
 export type GetApiAdminBottlesParams = {
@@ -7985,8 +8159,20 @@ size?: number;
  * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
  */
 sort?: string[];
+saleType?: GetApiSalesSaleType;
 saleStatus?: GetApiSalesSaleStatus;
+productType?: GetApiSalesProductType;
+productId?: number;
 };
+
+export type GetApiSalesSaleType = typeof GetApiSalesSaleType[keyof typeof GetApiSalesSaleType];
+
+
+export const GetApiSalesSaleType = {
+  RESERVATION: 'RESERVATION',
+  PICKUP: 'PICKUP',
+  GENERAL: 'GENERAL',
+} as const;
 
 export type GetApiSalesSaleStatus = typeof GetApiSalesSaleStatus[keyof typeof GetApiSalesSaleStatus];
 
@@ -7996,6 +8182,14 @@ export const GetApiSalesSaleStatus = {
   OPEN: 'OPEN',
   CLOSED: 'CLOSED',
   SOLD_OUT: 'SOLD_OUT',
+} as const;
+
+export type GetApiSalesProductType = typeof GetApiSalesProductType[keyof typeof GetApiSalesProductType];
+
+
+export const GetApiSalesProductType = {
+  BOTTLE: 'BOTTLE',
+  ITEM: 'ITEM',
 } as const;
 
 export type GetApiTaxInvoicesTaxInvoiceMonthlyPdfParams = {
@@ -8747,6 +8941,50 @@ export const patchApiAdminBannersIdUnpublish = async (id: number, options?: Requ
 
 
 /**
+ * 관리자가 게시판 목록을 조회합니다.
+ * @summary 게시판 목록 조회(관리자)
+ */
+export type getApiAdminBoardsResponse200 = {
+  data: PagedModelAdminBoardResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsResponseSuccess = (getApiAdminBoardsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsResponse = (getApiAdminBoardsResponseSuccess)
+
+export const getGetApiAdminBoardsUrl = (params?: GetApiAdminBoardsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards?${stringifiedParams}` : `/api/admin/boards`
+}
+
+export const getApiAdminBoards = async (params?: GetApiAdminBoardsParams, options?: RequestInit): Promise<getApiAdminBoardsResponse> => {
+  
+  return customFetch<getApiAdminBoardsResponse>(getGetApiAdminBoardsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 게시글과 공지사항을 담을 새 게시판을 생성합니다.
  * @summary 게시판 생성(관리자)
  */
@@ -8785,6 +9023,50 @@ export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoa
 
 
 /**
+ * 관리자가 공지 목록을 조회합니다.
+ * @summary 공지 목록 조회(관리자)
+ */
+export type getApiAdminBoardsAnnouncementsResponse200 = {
+  data: PagedModelAdminAnnouncementSummaryResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsAnnouncementsResponseSuccess = (getApiAdminBoardsAnnouncementsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsAnnouncementsResponse = (getApiAdminBoardsAnnouncementsResponseSuccess)
+
+export const getGetApiAdminBoardsAnnouncementsUrl = (params?: GetApiAdminBoardsAnnouncementsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards/announcements?${stringifiedParams}` : `/api/admin/boards/announcements`
+}
+
+export const getApiAdminBoardsAnnouncements = async (params?: GetApiAdminBoardsAnnouncementsParams, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsResponse> => {
+  
+  return customFetch<getApiAdminBoardsAnnouncementsResponse>(getGetApiAdminBoardsAnnouncementsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다.
  * @summary 공지 등록(관리자)
  */
@@ -8817,6 +9099,232 @@ export const postApiAdminBoardsAnnouncements = async (postApiAdminBoardsAnnounce
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBoardsAnnouncementsBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 공지를 삭제합니다.
+ * @summary 공지 삭제(관리자)
+ */
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse = (deleteApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const deleteApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse>(getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 공지 본문을 포함해 상세 조회합니다.
+ * @summary 공지 상세 조회(관리자)
+ */
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: AdminAnnouncementResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponse = (getApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const getApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<getApiAdminBoardsAnnouncementsAnnouncementidResponse>(getGetApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 공지 제목, 내용, 범위를 수정합니다.
+ * @summary 공지 수정(관리자)
+ */
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: AdminAnnouncementResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (putApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponse = (putApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getPutApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number,
+    putApiAdminBoardsAnnouncementsAnnouncementidBody: PutApiAdminBoardsAnnouncementsAnnouncementidBody, options?: RequestInit): Promise<putApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<putApiAdminBoardsAnnouncementsAnnouncementidResponse>(getPutApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsAnnouncementsAnnouncementidBody,)
+  }
+);}
+
+
+
+/**
+ * 게시글이나 공지가 없는 게시판을 삭제합니다.
+ * @summary 게시판 삭제(관리자)
+ */
+export type deleteApiAdminBoardsBoardidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiAdminBoardsBoardidResponseSuccess = (deleteApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBoardsBoardidResponse = (deleteApiAdminBoardsBoardidResponseSuccess)
+
+export const getDeleteApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const deleteApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<deleteApiAdminBoardsBoardidResponse>(getDeleteApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 게시판 상세 정보를 조회합니다.
+ * @summary 게시판 상세 조회(관리자)
+ */
+export type getApiAdminBoardsBoardidResponse200 = {
+  data: AdminBoardResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsBoardidResponseSuccess = (getApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsBoardidResponse = (getApiAdminBoardsBoardidResponseSuccess)
+
+export const getGetApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const getApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<getApiAdminBoardsBoardidResponse>(getGetApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 게시판 이름, 슬러그, 설명을 수정합니다.
+ * @summary 게시판 수정(관리자)
+ */
+export type putApiAdminBoardsBoardidResponse200 = {
+  data: AdminBoardResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsBoardidResponseSuccess = (putApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsBoardidResponse = (putApiAdminBoardsBoardidResponseSuccess)
+
+export const getPutApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const putApiAdminBoardsBoardid = async (boardId: number,
+    putApiAdminBoardsBoardidBody: PutApiAdminBoardsBoardidBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<putApiAdminBoardsBoardidResponse>(getPutApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsBoardidBody,)
   }
 );}
 
@@ -13113,7 +13621,7 @@ export const getApiBoards = async (params?: GetApiBoardsParams, options?: Reques
  * @summary 게시판별 공지 조회
  */
 export type getApiBoardsAnnouncementsBoardBoardidResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13159,7 +13667,7 @@ export const getApiBoardsAnnouncementsBoardBoardid = async (boardId: number,
  * @summary 전체 공지 조회
  */
 export type getApiBoardsAnnouncementsGlobalResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13199,11 +13707,48 @@ export const getApiBoardsAnnouncementsGlobal = async (params?: GetApiBoardsAnnou
 
 
 /**
+ * 공지 본문을 포함해 상세 조회합니다.
+ * @summary 공지 상세 조회
+ */
+export type getApiBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: UserAnnouncementResponse
+  status: 200
+}
+    
+export type getApiBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsAnnouncementsAnnouncementidResponse = (getApiBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/boards/announcements/${announcementId}`
+}
+
+export const getApiBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<getApiBoardsAnnouncementsAnnouncementidResponse>(getGetApiBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 해당 게시판에만 적용되는 공지사항 목록을 반환합니다.
  * @summary 게시판 공지 조회
  */
 export type getApiBoardsBoardidAnnouncementsResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13249,7 +13794,7 @@ export const getApiBoardsBoardidAnnouncements = async (boardId: number,
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
-  data: PagedModelPostResponse
+  data: PagedModelPostSummaryResponse
   status: 200
 }
     
@@ -13361,6 +13906,45 @@ export const deleteApiBoardsBoardidPostsPostid = async (boardId: number,
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 선택한 게시판의 게시글 본문을 포함해 상세 조회합니다.
+ * @summary 게시글 상세 조회
+ */
+export type getApiBoardsBoardidPostsPostidResponse200 = {
+  data: PostResponse
+  status: 200
+}
+    
+export type getApiBoardsBoardidPostsPostidResponseSuccess = (getApiBoardsBoardidPostsPostidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidPostsPostidResponse = (getApiBoardsBoardidPostsPostidResponseSuccess)
+
+export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: number,
+    postId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}`
+}
+
+export const getApiBoardsBoardidPostsPostid = async (boardId: number,
+    postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidResponse> => {
+  
+  return customFetch<getApiBoardsBoardidPostsPostidResponse>(getGetApiBoardsBoardidPostsPostidUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
