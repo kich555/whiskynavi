@@ -293,6 +293,7 @@ export const AdminBusinessApplicationResponseStatus = {
 
 export interface AdminBusinessApplicationResponse {
   adminMemo?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -402,6 +403,7 @@ export interface AdminBusinessUserDetailResponse {
   accountNumber?: string;
   bankName?: string;
   businessCreatedAt?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessType?: AdminBusinessUserDetailResponseBusinessType;
@@ -451,6 +453,7 @@ export const AdminBusinessUserResponseRolesItem = {
 
 export interface AdminBusinessUserResponse {
   businessCreatedAt?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessType?: AdminBusinessUserResponseBusinessType;
@@ -1753,6 +1756,59 @@ export interface BottleSearchParameterValues {
   maltTypes?: string[];
   names?: string[];
   series?: string[];
+}
+
+export interface BusinessMemberCreateRequest {
+  email?: string;
+  userId?: number;
+}
+
+export type BusinessMemberResponseRole = typeof BusinessMemberResponseRole[keyof typeof BusinessMemberResponseRole];
+
+
+export const BusinessMemberResponseRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+} as const;
+
+export interface BusinessMemberResponse {
+  email?: string;
+  name?: string;
+  phone?: string;
+  primaryBusiness?: boolean;
+  role?: BusinessMemberResponseRole;
+  userId?: number;
+  username?: string;
+}
+
+export type BusinessMembershipBusinessResponseBusinessType = typeof BusinessMembershipBusinessResponseBusinessType[keyof typeof BusinessMembershipBusinessResponseBusinessType];
+
+
+export const BusinessMembershipBusinessResponseBusinessType = {
+  HOUSEHOLD: 'HOUSEHOLD',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+} as const;
+
+export type BusinessMembershipBusinessResponseRole = typeof BusinessMembershipBusinessResponseRole[keyof typeof BusinessMembershipBusinessResponseRole];
+
+
+export const BusinessMembershipBusinessResponseRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+} as const;
+
+export interface BusinessMembershipBusinessResponse {
+  businessId?: number;
+  businessName?: string;
+  businessType?: BusinessMembershipBusinessResponseBusinessType;
+  contact?: string;
+  pickupAddress?: string;
+  primaryBusiness?: boolean;
+  role?: BusinessMembershipBusinessResponseRole;
+}
+
+export interface BusinessOwnershipTransferRequest {
+  targetUserId: number;
 }
 
 export interface CartGeneralItemDeliveryOrderRequest {
@@ -3081,6 +3137,7 @@ export const UserBusinessApplicationResponseStatus = {
 } as const;
 
 export interface UserBusinessApplicationResponse {
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -4512,6 +4569,88 @@ export interface UserBottleReservationPickupBulkUpdateResponse {
   updatedCount?: number;
 }
 
+/**
+ * 픽업 사업장 월간 공고별 예약 통계
+ */
+export interface UserBottleReservationPickupMonthlyNoticeStatisticsResponse {
+  /** 월간 신청 건수 */
+  applicationCount?: number;
+  /** 병 ID */
+  bottleId?: number;
+  /** 병 이름 */
+  bottleName?: string;
+  /** 월간 확정 수량 */
+  confirmedQuantity?: number;
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 월간 신청 수량 */
+  requestedQuantity?: number;
+  /** 월간 신청 금액 합계 */
+  salesAmount?: number;
+}
+
+/**
+ * 예약 상태
+ */
+export type UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus = typeof UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus[keyof typeof UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus];
+
+
+export const UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/**
+ * 픽업 사업장 월간 상태별 예약 통계
+ */
+export interface UserBottleReservationPickupMonthlyStatusStatisticsResponse {
+  /** 월간 신청 건수 */
+  applicationCount?: number;
+  /** 월간 확정 수량 */
+  confirmedQuantity?: number;
+  /** 월간 신청 수량 */
+  requestedQuantity?: number;
+  /** 월간 신청 금액 합계 */
+  salesAmount?: number;
+  /** 예약 상태 */
+  status?: UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus;
+}
+
+/**
+ * 픽업 사업장 월간 예약 통계
+ */
+export interface UserBottleReservationPickupMonthlyStatisticsResponse {
+  /** 사업장 ID */
+  businessId?: number;
+  /** 사업장명 */
+  businessName?: string;
+  /** 집계 시작 시각. 포함 */
+  from?: string;
+  /** 통계 월. YYYY-MM 형식 */
+  month?: string;
+  /** 월간 수령 완료 금액 합계 */
+  receivedSalesAmount?: number;
+  /** 최근 공고별 월간 통계 */
+  recentNotices?: UserBottleReservationPickupMonthlyNoticeStatisticsResponse[];
+  /** 상태별 월간 통계 */
+  statuses?: UserBottleReservationPickupMonthlyStatusStatisticsResponse[];
+  /** 집계 종료 시각. 미포함 */
+  to?: string;
+  /** 월간 전체 신청 건수 */
+  totalApplicationCount?: number;
+  /** 월간 전체 확정 수량 */
+  totalConfirmedQuantity?: number;
+  /** 월간 전체 신청 수량 */
+  totalRequestedQuantity?: number;
+  /** 월간 전체 신청 금액 합계 */
+  totalSalesAmount?: number;
+}
+
 export interface UserBusinessApplicationCancelRequest {
   /**
    * 신청 취소 사유
@@ -4539,6 +4678,7 @@ export const UserBusinessApplicationSubmitResponseStatus = {
 } as const;
 
 export interface UserBusinessApplicationSubmitResponse {
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -5435,6 +5575,63 @@ export type PostApiAdminBusinessesApplicationsApplicationidRejectBody = {
    * @minLength 1
    */
   rejectReason?: string;
+};
+
+/**
+ * 사업 사용 목적 유형입니다.
+ */
+export type PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType = typeof PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType[keyof typeof PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType];
+
+
+export const PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType = {
+  HOUSEHOLD: 'HOUSEHOLD',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+} as const;
+
+/**
+ * 관리자 비즈니스 정보 수정 요청입니다. null 필드는 기존 값을 유지합니다.
+ */
+export type PatchApiAdminBusinessesBusinessesBusinessidBody = {
+  /**
+   * 계좌 예금주명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  accountHolderName?: string;
+  /**
+   * 계좌번호입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 100
+   */
+  accountNumber?: string;
+  /**
+   * 은행명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  bankName?: string;
+  /** 사업장 이름입니다. */
+  businessName?: string;
+  /** 사업자등록번호입니다. */
+  businessRegistrationNumber?: string;
+  /** 사업 사용 목적 유형입니다. */
+  businessType?: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType;
+  /** 문의 연락처입니다. 빈 값이면 저장 값을 비웁니다. */
+  contact?: string;
+  /** 픽업 주소 또는 위치 설명입니다. */
+  pickupAddress?: string;
+  /**
+   * 매장 담당자명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  storeManagerName?: string;
+  /**
+   * 매장 담당자 전화번호입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 20
+   */
+  storeManagerPhone?: string;
 };
 
 export type GetApiAdminBusinessesMembersParams = {
@@ -8444,8 +8641,24 @@ size?: number;
 sort?: string[];
 };
 
+export type GetApiUsersBusinessesPickupReservationsStatisticsParams = {
+/**
+ * 조회 월. YYYY-MM 형식
+ */
+month?: string;
+};
+
 export type GetApiUsersBusinessesReservationDeliveriesParams = {
 noticeId?: number;
+};
+
+export type PostApiUsersBusinessesBusinessidMembersBody = {
+  email?: string;
+  userId?: number;
+};
+
+export type PostApiUsersBusinessesBusinessidOwnershipTransferBody = {
+  targetUserId: number;
 };
 
 /**
@@ -10257,6 +10470,160 @@ export const postApiAdminBusinessesApplicationsApplicationidReject = async (appl
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBusinessesApplicationsApplicationidRejectBody,)
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 기본 정보, 현재 owner 권한 상태, 사업장 정보를 조회합니다.
+ * @summary 사업장 상세 조회(관리자)
+ */
+export type getApiAdminBusinessesBusinessesBusinessidResponse200 = {
+  data: AdminBusinessUserDetailResponse
+  status: 200
+}
+    
+export type getApiAdminBusinessesBusinessesBusinessidResponseSuccess = (getApiAdminBusinessesBusinessesBusinessidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBusinessesBusinessesBusinessidResponse = (getApiAdminBusinessesBusinessesBusinessidResponseSuccess)
+
+export const getGetApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}`
+}
+
+export const getApiAdminBusinessesBusinessesBusinessid = async (businessId: number, options?: RequestInit): Promise<getApiAdminBusinessesBusinessesBusinessidResponse> => {
+  
+  return customFetch<getApiAdminBusinessesBusinessesBusinessidResponse>(getGetApiAdminBusinessesBusinessesBusinessidUrl(businessId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 사업장 ID로 사업장명, 픽업 주소, 연락처, 사업자등록번호, 사업 유형을 수정합니다.
+ * @summary 사업장 정보 수정(관리자)
+ */
+export type patchApiAdminBusinessesBusinessesBusinessidResponse200 = {
+  data: AdminBusinessUserDetailResponse
+  status: 200
+}
+    
+export type patchApiAdminBusinessesBusinessesBusinessidResponseSuccess = (patchApiAdminBusinessesBusinessesBusinessidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiAdminBusinessesBusinessesBusinessidResponse = (patchApiAdminBusinessesBusinessesBusinessidResponseSuccess)
+
+export const getPatchApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}`
+}
+
+export const patchApiAdminBusinessesBusinessesBusinessid = async (businessId: number,
+    patchApiAdminBusinessesBusinessesBusinessidBody: PatchApiAdminBusinessesBusinessesBusinessidBody, options?: RequestInit): Promise<patchApiAdminBusinessesBusinessesBusinessidResponse> => {
+  
+  return customFetch<patchApiAdminBusinessesBusinessesBusinessidResponse>(getPatchApiAdminBusinessesBusinessesBusinessidUrl(businessId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiAdminBusinessesBusinessesBusinessidBody,)
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * @summary 사업장 owner 권한 부여(관리자)
+ */
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200 = {
+  data: AdminBusinessUserResponse
+  status: 200
+}
+    
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse = (postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponseSuccess)
+
+export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl = (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}/roles/${role}/grant`
+}
+
+export const postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant = async (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse> => {
+  
+  return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl(businessId,role),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * @summary 사업장 owner 권한 회수(관리자)
+ */
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200 = {
+  data: AdminBusinessUserResponse
+  status: 200
+}
+    
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse = (postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponseSuccess)
+
+export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl = (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}/roles/${role}/revoke`
+}
+
+export const postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke = async (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse> => {
+  
+  return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl(businessId,role),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -17140,6 +17507,80 @@ export const postApiUsersBusinessesItemsReservationsApplicationsApplicationidWai
 
 
 /**
+ * 로그인 사용자가 소유하거나 관리하는 사업장 목록을 반환합니다.
+ * @summary 내 사업장 목록 조회
+ */
+export type getApiUsersBusinessesMeResponse200 = {
+  data: BusinessMembershipBusinessResponse[]
+  status: 200
+}
+    
+export type getApiUsersBusinessesMeResponseSuccess = (getApiUsersBusinessesMeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesMeResponse = (getApiUsersBusinessesMeResponseSuccess)
+
+export const getGetApiUsersBusinessesMeUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/me`
+}
+
+export const getApiUsersBusinessesMe = async ( options?: RequestInit): Promise<getApiUsersBusinessesMeResponse> => {
+  
+  return customFetch<getApiUsersBusinessesMeResponse>(getGetApiUsersBusinessesMeUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 기본 사업장을 지정한 사업장으로 변경합니다.
+ * @summary 내 기본 사업장 변경
+ */
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponse200 = {
+  data: BusinessMembershipBusinessResponse
+  status: 200
+}
+    
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponseSuccess = (patchApiUsersBusinessesMeBusinessidPrimaryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponse = (patchApiUsersBusinessesMeBusinessidPrimaryResponseSuccess)
+
+export const getPatchApiUsersBusinessesMeBusinessidPrimaryUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/me/${businessId}/primary`
+}
+
+export const patchApiUsersBusinessesMeBusinessidPrimary = async (businessId: number, options?: RequestInit): Promise<patchApiUsersBusinessesMeBusinessidPrimaryResponse> => {
+  
+  return customFetch<patchApiUsersBusinessesMeBusinessidPrimaryResponse>(getPatchApiUsersBusinessesMeBusinessidPrimaryUrl(businessId),
+  {      
+    ...options,
+    method: 'PATCH'
+    
+    
+  }
+);}
+
+
+
+/**
  * ROLE_PICK_UP_BUSINESS 권한을 가진 유저의 사업장 정보를 반환합니다.
  * @summary 픽업 가능 사업장 목록
  */
@@ -17458,6 +17899,50 @@ export const getApiUsersBusinessesPickupReservationsNoticesStatuses = async (par
 
 
 /**
+ * 현재 로그인한 픽업 업장의 예약 현황을 월 단위로 집계합니다. month 미입력 시 한국시간 기준 현재 월을 조회합니다.
+ * @summary 픽업 사업장 월간 예약 통계 조회
+ */
+export type getApiUsersBusinessesPickupReservationsStatisticsResponse200 = {
+  data: UserBottleReservationPickupMonthlyStatisticsResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesPickupReservationsStatisticsResponseSuccess = (getApiUsersBusinessesPickupReservationsStatisticsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesPickupReservationsStatisticsResponse = (getApiUsersBusinessesPickupReservationsStatisticsResponseSuccess)
+
+export const getGetApiUsersBusinessesPickupReservationsStatisticsUrl = (params?: GetApiUsersBusinessesPickupReservationsStatisticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/statistics?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/statistics`
+}
+
+export const getApiUsersBusinessesPickupReservationsStatistics = async (params?: GetApiUsersBusinessesPickupReservationsStatisticsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsStatisticsResponse> => {
+  
+  return customFetch<getApiUsersBusinessesPickupReservationsStatisticsResponse>(getGetApiUsersBusinessesPickupReservationsStatisticsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 현재 로그인한 업장이 관리자로부터 받을 예약 공고별 택배사와 송장번호 정보를 조회합니다.
  * @summary 내 업장 예약 입고 배송 정보 목록 조회
  */
@@ -17496,6 +17981,160 @@ export const getApiUsersBusinessesReservationDeliveries = async (params?: GetApi
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 소유자와 매니저 목록을 조회합니다.
+ * @summary 사업장 멤버 목록 조회
+ */
+export type getApiUsersBusinessesBusinessidMembersResponse200 = {
+  data: BusinessMemberResponse[]
+  status: 200
+}
+    
+export type getApiUsersBusinessesBusinessidMembersResponseSuccess = (getApiUsersBusinessesBusinessidMembersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesBusinessidMembersResponse = (getApiUsersBusinessesBusinessidMembersResponseSuccess)
+
+export const getGetApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members`
+}
+
+export const getApiUsersBusinessesBusinessidMembers = async (businessId: number, options?: RequestInit): Promise<getApiUsersBusinessesBusinessidMembersResponse> => {
+  
+  return customFetch<getApiUsersBusinessesBusinessidMembersResponse>(getGetApiUsersBusinessesBusinessidMembersUrl(businessId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 사용자를 해당 사업장의 매니저로 추가합니다.
+ * @summary 사업장 매니저 추가
+ */
+export type postApiUsersBusinessesBusinessidMembersResponse200 = {
+  data: BusinessMemberResponse
+  status: 200
+}
+    
+export type postApiUsersBusinessesBusinessidMembersResponseSuccess = (postApiUsersBusinessesBusinessidMembersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiUsersBusinessesBusinessidMembersResponse = (postApiUsersBusinessesBusinessidMembersResponseSuccess)
+
+export const getPostApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members`
+}
+
+export const postApiUsersBusinessesBusinessidMembers = async (businessId: number,
+    postApiUsersBusinessesBusinessidMembersBody: PostApiUsersBusinessesBusinessidMembersBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidMembersResponse> => {
+  
+  return customFetch<postApiUsersBusinessesBusinessidMembersResponse>(getPostApiUsersBusinessesBusinessidMembersUrl(businessId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiUsersBusinessesBusinessidMembersBody,)
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 매니저 권한을 삭제합니다.
+ * @summary 사업장 매니저 삭제
+ */
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponseSuccess = (deleteApiUsersBusinessesBusinessidMembersUseridResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponse = (deleteApiUsersBusinessesBusinessidMembersUseridResponseSuccess)
+
+export const getDeleteApiUsersBusinessesBusinessidMembersUseridUrl = (businessId: number,
+    userId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members/${userId}`
+}
+
+export const deleteApiUsersBusinessesBusinessidMembersUserid = async (businessId: number,
+    userId: number, options?: RequestInit): Promise<deleteApiUsersBusinessesBusinessidMembersUseridResponse> => {
+  
+  return customFetch<deleteApiUsersBusinessesBusinessidMembersUseridResponse>(getDeleteApiUsersBusinessesBusinessidMembersUseridUrl(businessId,userId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 소유권을 다른 사용자에게 이전합니다.
+ * @summary 사업장 소유권 이전
+ */
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponse200 = {
+  data: BusinessMemberResponse
+  status: 200
+}
+    
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponseSuccess = (postApiUsersBusinessesBusinessidOwnershipTransferResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponse = (postApiUsersBusinessesBusinessidOwnershipTransferResponseSuccess)
+
+export const getPostApiUsersBusinessesBusinessidOwnershipTransferUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/ownership-transfer`
+}
+
+export const postApiUsersBusinessesBusinessidOwnershipTransfer = async (businessId: number,
+    postApiUsersBusinessesBusinessidOwnershipTransferBody: PostApiUsersBusinessesBusinessidOwnershipTransferBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidOwnershipTransferResponse> => {
+  
+  return customFetch<postApiUsersBusinessesBusinessidOwnershipTransferResponse>(getPostApiUsersBusinessesBusinessidOwnershipTransferUrl(businessId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiUsersBusinessesBusinessidOwnershipTransferBody,)
   }
 );}
 

@@ -32,7 +32,7 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
   const latestBusinessApplication = businessApplicationHistory?.[0] ?? null;
 
   const isPendingApplication = latestBusinessApplication?.status === "PENDING";
-  const isApprovedApplication = latestBusinessApplication?.status === "APPROVED";
+  const hasBusinessApplicationHistory = (businessApplicationHistory?.length ?? 0) > 0;
 
   const handleBusinessRegister = () => {
     overlay.open(({ isOpen, close }) => {
@@ -160,8 +160,14 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
         <p className="text-sm text-gray-400 md:text-base">
           사업자로 등록하시면 위스키 픽업 서비스 및 비즈니스 전용 혜택을 받으실 수 있습니다.
         </p>
-        {isPendingApplication ? (
-          <div className="flex gap-3">
+        <div className="flex flex-wrap gap-3">
+          <button
+            onClick={handleBusinessRegister}
+            className="typo-bold-14 cursor-pointer bg-white px-6 py-3 text-gray-900 transition-colors hover:bg-gray-100 md:text-base"
+          >
+            {hasBusinessApplicationHistory ? "새 사업자 등록" : "사업자 등록하기"}
+          </button>
+          {isPendingApplication && (
             <button
               onClick={handleBusinessCancel}
               disabled={isPending}
@@ -169,28 +175,16 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
             >
               사업자 등록 취소하기
             </button>
+          )}
+          {hasBusinessApplicationHistory && (
             <button
               onClick={handleBusinessHistory}
               className="border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20 md:text-base"
             >
               신청내역보기
             </button>
-          </div>
-        ) : isApprovedApplication ? (
-          <button
-            onClick={handleBusinessHistory}
-            className="border border-white/20 bg-white/10 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-white/20 md:text-base"
-          >
-            신청내역보기
-          </button>
-        ) : (
-          <button
-            onClick={handleBusinessRegister}
-            className="typo-bold-14 cursor-pointer bg-white px-6 py-3 text-gray-900 transition-colors hover:bg-gray-100 md:text-base"
-          >
-            사업자 등록하기
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       {/* 신청 상태 표시 */}
