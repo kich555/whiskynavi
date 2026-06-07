@@ -1,6 +1,7 @@
 import { getApiAdminOrdersOrderid } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { parsePositiveInt } from "@/lib/page-response";
 import { notFound } from "next/navigation";
 import AdminOrderDetailContent from "../../orders/_components/AdminOrderDetailContent";
 
@@ -10,11 +11,8 @@ interface AdminGeneralItemOrderDetailPageProps {
 
 export default async function AdminGeneralItemOrderDetailPage({ params }: AdminGeneralItemOrderDetailPageProps) {
   const { orderId } = await params;
-  const id = Number(orderId);
-
-  if (!Number.isFinite(id) || id <= 0) {
-    notFound();
-  }
+  const id = parsePositiveInt(orderId);
+  if (!id) notFound();
 
   const token = await getAuthToken();
   let response;
