@@ -86,12 +86,11 @@ export default function BannerEditContent({ banner }: BannerEditContentProps) {
         <div className="rounded-lg border border-gray-200 bg-white p-6">
           <div className="grid gap-6">
             <div>
-              <Label htmlFor="title">제목 *</Label>
+              <Label htmlFor="title">제목</Label>
               <input
                 id="title"
                 name="title"
                 type="text"
-                required
                 defaultValue={banner.title ?? ""}
                 className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
                 placeholder="배너 제목을 입력하세요"

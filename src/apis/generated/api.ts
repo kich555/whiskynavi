@@ -4723,7 +4723,7 @@ link?: string;
 
 export type PostApiAdminBannersBody = {
   backgroundImg: Blob;
-  mainImg: Blob;
+  mainImg?: Blob;
 };
 
 /**
@@ -8455,7 +8455,7 @@ export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, opti
 
 
 /**
- * 배경/메인 이미지를 업로드하고 랜딩 페이지에 노출할 배너를 생성합니다.
+ * 배경 이미지를 업로드하고 랜딩 페이지에 노출할 배너를 생성합니다.
  * @summary 배너 생성(관리자)
  */
 export type postApiAdminBannersResponse200 = {
@@ -8489,7 +8489,9 @@ export const postApiAdminBanners = async (postApiAdminBannersBody: PostApiAdminB
     params: PostApiAdminBannersParams, options?: RequestInit): Promise<postApiAdminBannersResponse> => {
     const formData = new FormData();
 formData.append(`backgroundImg`, postApiAdminBannersBody.backgroundImg);
-formData.append(`mainImg`, postApiAdminBannersBody.mainImg);
+if(postApiAdminBannersBody.mainImg !== undefined) {
+ formData.append(`mainImg`, postApiAdminBannersBody.mainImg);
+ }
 
   return customFetch<postApiAdminBannersResponse>(getPostApiAdminBannersUrl(params),
   {      
