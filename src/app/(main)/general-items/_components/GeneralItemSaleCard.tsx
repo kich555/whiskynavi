@@ -1,7 +1,9 @@
 import { type UserSaleAnnouncementResponse } from "@/apis/generated/api";
+import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { formatCurrency } from "@/lib/formatters";
-import { Badge, Link } from "lucide-react";
+
+import Link from "next/link";
 import { buildGeneralItemSaleDetailHref } from "../_lib/general-item-sales";
 
 const GeneralItemSaleCard = ({ sale, imageUrl }: { sale: UserSaleAnnouncementResponse; imageUrl?: string }) => {
@@ -12,18 +14,14 @@ const GeneralItemSaleCard = ({ sale, imageUrl }: { sale: UserSaleAnnouncementRes
   return (
     <article className="flex h-full flex-col border border-white/10 bg-white/5 p-5 transition-colors hover:bg-white/[0.07]">
       <div className="mb-4 flex aspect-square items-center justify-center overflow-hidden bg-black/20">
-        {imageUrl ? (
-          <ImageWithFallback
-            src={imageUrl}
-            alt={itemTitle}
-            width={320}
-            height={320}
-            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-            className="h-full w-full object-contain p-4"
-          />
-        ) : (
-          <div className="px-4 text-center text-sm text-white/45">{itemTitle}</div>
-        )}
+        <ImageWithFallback
+          src={imageUrl}
+          alt={itemTitle}
+          width={320}
+          height={320}
+          sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          className="h-full w-full object-contain p-4"
+        />
       </div>
 
       <div className="mb-5 flex items-start justify-between gap-4">
