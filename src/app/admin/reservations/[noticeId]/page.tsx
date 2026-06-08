@@ -59,6 +59,7 @@ export default async function NoticeDetailPage({ params, searchParams }: NoticeD
           status,
           page: parseApiPage(sp.page),
           size: sp.limit ? Number(sp.limit) : 20,
+          sort: ["createdAt,asc", "id,asc"],
         },
         withToken(token),
       ),
