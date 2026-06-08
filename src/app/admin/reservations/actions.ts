@@ -1,9 +1,11 @@
 "use server";
 
 import {
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
   type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
   type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
   type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
+  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
@@ -41,7 +43,13 @@ export interface NoticeFormValues {
 export type FormState = { success: boolean; error?: string; values?: NoticeFormValues };
 
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
-const DEFAULT_RESERVATION_REQUIRED_ROLE = "ROLE_USER";
+const DEFAULT_RESERVATION_REQUIRED_ROLE = PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
+
+function isReservationRequiredRole(role: string): role is ReservationRequiredRole {
+  return Object.values(PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole).includes(
+    role as ReservationRequiredRole,
+  );
+}
 
 // ─── Zod 스키마 ──────────────────────────────────────────
 
@@ -145,6 +153,13 @@ function parseNoticeFormData(formData: FormData) {
           values,
         };
       }
+      if (!isReservationRequiredRole(gc.requiredRole)) {
+        return {
+          success: false as const,
+          error: "등급 조건의 회원 등급 값이 올바르지 않습니다.",
+          values,
+        };
+      }
       const t = new Date(gc.applicableFrom).getTime();
       if (Number.isNaN(t) || t < start || t > end) {
         return {
@@ -174,10 +189,12 @@ function buildGradeConditions(
 ): PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[] {
   const startAt = new Date(data.reservationStartAt).toISOString();
   const gradeConditions =
-    data.gradeConditions?.map((condition) => ({
-      applicableFrom: new Date(condition.applicableFrom).toISOString(),
-      requiredRole: condition.requiredRole,
-    })) ?? [];
+    data.gradeConditions?.map(
+      (condition): PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem => ({
+        applicableFrom: new Date(condition.applicableFrom).toISOString(),
+        requiredRole: condition.requiredRole as ReservationRequiredRole,
+      }),
+    ) ?? [];
 
   if (gradeConditions.length > 0) {
     return gradeConditions;
@@ -188,7 +205,6 @@ function buildGradeConditions(
       applicableFrom: startAt,
       requiredRole: DEFAULT_RESERVATION_REQUIRED_ROLE,
     },
-    ...gradeConditions,
   ];
 }
 
