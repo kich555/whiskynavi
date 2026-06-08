@@ -9,4 +9,10 @@ describe("MobileAuthSection", () => {
     expect(screen.getByRole("link", { name: "로그인" })).toHaveAttribute("href", "/sign-in");
     expect(screen.getByRole("link", { name: "비회원 주문조회" })).toHaveAttribute("href", "/orders/guest");
   });
+
+  it("shows business management link to the default business page for business users", () => {
+    render(<MobileAuthSection userName="나비" hasSession isAdmin={false} isBusiness close={vi.fn()} />);
+
+    expect(screen.getByRole("link", { name: "비즈니스 관리" })).toHaveAttribute("href", "/business");
+  });
 });

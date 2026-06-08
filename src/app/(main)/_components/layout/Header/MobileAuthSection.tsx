@@ -62,11 +62,11 @@ export default function MobileAuthSection({
       ) : null}
       {isBusiness ? (
         <Link
-          href="/business/pickup-reservations"
+          href="/business"
           onClick={close}
           className="typo-medium-14 rounded-lg px-3 py-3 text-white/80 transition-colors hover:bg-white/5 hover:text-white"
         >
-          픽업 예약 관리
+          비즈니스 관리
         </Link>
       ) : null}
       <LogoutButton
