@@ -7,6 +7,7 @@ import { useState } from "react";
 import CurrencyInput from "../../../_components/CurrencyInput";
 import DateTimePicker from "../../../_components/DateTimePicker";
 import { ROLE_LABEL_MAP } from "../../../constants";
+import type { NoticeFormValues } from "../../actions";
 import BottleSearchCombobox from "./BottleSearchCombobox";
 
 const ROLE_OPTIONS = Object.entries(ROLE_LABEL_MAP) as [string, string][];
@@ -18,14 +19,17 @@ interface GradeCondition {
 
 interface NoticeFormFieldsProps {
   defaultValues?: AdminBottleReservationNoticeResponse;
+  formValues?: NoticeFormValues;
 }
 
-export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProps) {
+export default function NoticeFormFields({ defaultValues, formValues }: NoticeFormFieldsProps) {
   const [gradeConditions, setGradeConditions] = useState<GradeCondition[]>(
-    defaultValues?.gradeConditions?.map((gc) => ({
-      applicableFrom: gc.applicableFrom ?? "",
-      requiredRole: gc.requiredRole ?? "",
-    })) ?? [],
+    formValues?.gradeConditions ??
+      defaultValues?.gradeConditions?.map((gc) => ({
+        applicableFrom: gc.applicableFrom ?? "",
+        requiredRole: gc.requiredRole ?? "",
+      })) ??
+      [],
   );
 
   const addCondition = () => {
@@ -48,12 +52,10 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
         value={
           gradeConditions.length > 0
             ? JSON.stringify(
-                gradeConditions
-                  .filter((c) => c.requiredRole && c.applicableFrom)
-                  .map((c) => ({
-                    applicableFrom: new Date(c.applicableFrom).toISOString(),
-                    requiredRole: c.requiredRole,
-                  })),
+                gradeConditions.map((c) => ({
+                  applicableFrom: c.applicableFrom,
+                  requiredRole: c.requiredRole,
+                })),
               )
             : ""
         }
@@ -66,12 +68,17 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
           </label>
           <BottleSearchCombobox
             defaultBottle={
-              defaultValues?.bottleId != null && defaultValues?.bottleName != null
+              formValues?.bottleId
                 ? {
-                    id: defaultValues.bottleId,
-                    name: defaultValues.bottleName,
+                    id: Number(formValues.bottleId),
+                    name: formValues.bottleName || `ID: ${formValues.bottleId}`,
                   }
-                : undefined
+                : defaultValues?.bottleId != null && defaultValues?.bottleName != null
+                  ? {
+                      id: defaultValues.bottleId,
+                      name: defaultValues.bottleName,
+                    }
+                  : undefined
             }
           />
         </div>
@@ -82,7 +89,7 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
           </label>
           <CurrencyInput
             name="price"
-            defaultValue={defaultValues?.price}
+            defaultValue={formValues?.price ?? defaultValues?.price}
             required
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="가격을 입력하세요"
@@ -96,7 +103,7 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
             name="availableQuantity"
             min={0}
             step={1}
-            defaultValue={defaultValues?.availableQuantity ?? ""}
+            defaultValue={formValues?.availableQuantity ?? defaultValues?.availableQuantity ?? ""}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 100"
           />
@@ -109,7 +116,7 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
             name="maxOrderQuantity"
             min={0}
             step={1}
-            defaultValue={defaultValues?.maxOrderQuantity ?? ""}
+            defaultValue={formValues?.maxOrderQuantity ?? defaultValues?.maxOrderQuantity ?? ""}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 2"
           />
@@ -119,14 +126,22 @@ export default function NoticeFormFields({ defaultValues }: NoticeFormFieldsProp
           <label className="typo-medium-14 mb-1 block text-gray-700">
             예약 시작일 <span className="text-red-500">*</span>
           </label>
-          <DateTimePicker name="reservationStartAt" defaultValue={defaultValues?.reservationStartAt} required />
+          <DateTimePicker
+            name="reservationStartAt"
+            defaultValue={formValues?.reservationStartAt ?? defaultValues?.reservationStartAt}
+            required
+          />
         </div>
 
         <div>
           <label className="typo-medium-14 mb-1 block text-gray-700">
             예약 종료일 <span className="text-red-500">*</span>
           </label>
-          <DateTimePicker name="reservationEndAt" defaultValue={defaultValues?.reservationEndAt} required />
+          <DateTimePicker
+            name="reservationEndAt"
+            defaultValue={formValues?.reservationEndAt ?? defaultValues?.reservationEndAt}
+            required
+          />
         </div>
       </div>
 
