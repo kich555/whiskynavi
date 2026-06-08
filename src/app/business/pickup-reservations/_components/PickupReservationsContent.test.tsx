@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
+import { bulkWaitingPickupAction } from "../actions";
 import PickupReservationsContent from "./PickupReservationsContent";
 
 const pushMock = vi.fn();
@@ -98,6 +99,7 @@ describe("PickupReservationsContent", () => {
 
   it("공고 일괄 픽업대기 확인 후 화면을 새로고침한다", async () => {
     const user = userEvent.setup();
+    const mockedBulkWaitingPickupAction = vi.mocked(bulkWaitingPickupAction);
 
     render(
       <PickupReservationsContent
@@ -111,6 +113,10 @@ describe("PickupReservationsContent", () => {
     await user.click(screen.getByRole("button", { name: "공고 일괄 픽업대기" }));
     await user.click(screen.getByRole("button", { name: "픽업대기 확인" }));
 
+    expect(mockedBulkWaitingPickupAction).toHaveBeenCalledWith({
+      bottleId: 5,
+      noticeId: 10,
+    });
     expect(refreshMock).toHaveBeenCalled();
   });
 

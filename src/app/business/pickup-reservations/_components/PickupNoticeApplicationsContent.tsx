@@ -187,6 +187,7 @@ export default function PickupNoticeApplicationsContent({
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
   const bottleName = applications[0]?.bottleName ?? `공고 #${noticeId}`;
+  const bottleId = applications.find((app) => app.bottleId != null)?.bottleId;
   const paymentCompletedApps = applications.filter((app) => app.status === "PAYMENT_COMPLETED" && app.id != null);
   const isAllSelected =
     paymentCompletedApps.length > 0 && paymentCompletedApps.every((app) => selectedIds.has(app.id!));
@@ -227,10 +228,17 @@ export default function PickupNoticeApplicationsContent({
     if (!bulkTarget) return;
 
     startTransition(async () => {
-      const result =
-        bulkTarget.type === "notice"
-          ? await bulkWaitingPickupAction({ noticeId })
-          : await bulkWaitingPickupAction({ applicationIds: bulkTarget.applicationIds });
+      let result: { success: boolean; error?: string };
+
+      if (bulkTarget.type === "notice") {
+        if (bottleId == null) {
+          toast.error("일괄 처리할 병 정보를 찾을 수 없습니다.");
+          return;
+        }
+        result = await bulkWaitingPickupAction({ bottleId, noticeId });
+      } else {
+        result = await bulkWaitingPickupAction({ applicationIds: bulkTarget.applicationIds });
+      }
 
       if (result.success) {
         if (bulkTarget.type === "selected") {
@@ -315,7 +323,7 @@ export default function PickupNoticeApplicationsContent({
             <Button
               type="button"
               onClick={() => setBulkTarget({ type: "notice" })}
-              disabled={isPending || totalElements === 0}
+              disabled={isPending || totalElements === 0 || bottleId == null}
               className="bg-amber-600 text-white hover:bg-amber-700"
             >
               공고 일괄 픽업대기
