@@ -1,0 +1,55 @@
+import { render, screen } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import ApplicationsTableSection from "./ApplicationsTableSection";
+
+const push = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push }),
+}));
+
+vi.mock("overlay-kit", () => ({
+  overlay: { open: vi.fn() },
+}));
+
+vi.mock("../../../_components/Pagination", () => ({
+  default: () => null,
+}));
+
+describe("ApplicationsTableSection", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("예약신청시각을 밀리초 단위까지 표시한다", () => {
+    render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[
+          {
+            id: 123,
+            applicantUser: {
+              name: "홍길동",
+              phone: "01012345678",
+              roles: ["ROLE_USER"],
+            },
+            pickupBusiness: {
+              businessName: "강남 픽업",
+            },
+            quantity: 2,
+            confirmedQuantity: 1,
+            status: "APPLIED",
+            createdAt: "2026-06-08T10:12:33.456",
+          },
+        ]}
+        totalElements={1}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={1}
+      />,
+    );
+
+    expect(screen.getByRole("columnheader", { name: "예약신청시각" })).toBeInTheDocument();
+    expect(screen.getByText("2026.06.08 10:12:33.456")).toBeInTheDocument();
+  });
+});
