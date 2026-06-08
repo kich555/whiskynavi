@@ -36,6 +36,33 @@ export interface AdminAnnouncementResponse {
 }
 
 /**
+ * 공지 범위(전체/게시판)를 나타냅니다.
+ */
+export type AdminAnnouncementSummaryResponseScope = typeof AdminAnnouncementSummaryResponseScope[keyof typeof AdminAnnouncementSummaryResponseScope];
+
+
+export const AdminAnnouncementSummaryResponseScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 관리자 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ */
+export interface AdminAnnouncementSummaryResponse {
+  /** 게시판 공지일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /** 공지 생성 일시입니다. */
+  createdAt?: string;
+  /** 공지사항 식별자입니다. */
+  id?: number;
+  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  scope?: AdminAnnouncementSummaryResponseScope;
+  /** 사용자에게 표시되는 제목입니다. */
+  title?: string;
+}
+
+/**
  * 배너별 노출 순서 변경 항목입니다.
  */
 export type AdminBannerOrderRequestItemsItem = {
@@ -266,6 +293,7 @@ export const AdminBusinessApplicationResponseStatus = {
 
 export interface AdminBusinessApplicationResponse {
   adminMemo?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -375,6 +403,7 @@ export interface AdminBusinessUserDetailResponse {
   accountNumber?: string;
   bankName?: string;
   businessCreatedAt?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessType?: AdminBusinessUserDetailResponseBusinessType;
@@ -424,6 +453,7 @@ export const AdminBusinessUserResponseRolesItem = {
 
 export interface AdminBusinessUserResponse {
   businessCreatedAt?: string;
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessType?: AdminBusinessUserResponseBusinessType;
@@ -1728,6 +1758,66 @@ export interface BottleSearchParameterValues {
   series?: string[];
 }
 
+export interface BusinessMemberCreateRequest {
+  email?: string;
+  userId?: number;
+}
+
+export type BusinessMemberResponseRole = typeof BusinessMemberResponseRole[keyof typeof BusinessMemberResponseRole];
+
+
+export const BusinessMemberResponseRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+} as const;
+
+export interface BusinessMemberResponse {
+  email?: string;
+  name?: string;
+  phone?: string;
+  primaryBusiness?: boolean;
+  role?: BusinessMemberResponseRole;
+  userId?: number;
+  username?: string;
+}
+
+export type BusinessMembershipBusinessResponseBusinessType = typeof BusinessMembershipBusinessResponseBusinessType[keyof typeof BusinessMembershipBusinessResponseBusinessType];
+
+
+export const BusinessMembershipBusinessResponseBusinessType = {
+  HOUSEHOLD: 'HOUSEHOLD',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+} as const;
+
+export type BusinessMembershipBusinessResponseRole = typeof BusinessMembershipBusinessResponseRole[keyof typeof BusinessMembershipBusinessResponseRole];
+
+
+export const BusinessMembershipBusinessResponseRole = {
+  OWNER: 'OWNER',
+  MANAGER: 'MANAGER',
+} as const;
+
+export interface BusinessMembershipBusinessResponse {
+  businessId?: number;
+  businessName?: string;
+  businessType?: BusinessMembershipBusinessResponseBusinessType;
+  contact?: string;
+  pickupAddress?: string;
+  primaryBusiness?: boolean;
+  role?: BusinessMembershipBusinessResponseRole;
+}
+
+export interface BusinessMembershipContextResponse {
+  businesses?: BusinessMembershipBusinessResponse[];
+  canManageCurrentBusiness?: boolean;
+  currentBusiness?: BusinessMembershipBusinessResponse;
+  currentBusinessMembers?: BusinessMemberResponse[];
+}
+
+export interface BusinessOwnershipTransferRequest {
+  targetUserId: number;
+}
+
 export interface CartGeneralItemDeliveryOrderRequest {
   /**
    * 배송 주소
@@ -2660,8 +2750,18 @@ export interface OrderTicketIssueRequest {
   saleAnnouncementId: number;
 }
 
+export interface PagedModelAdminAnnouncementSummaryResponse {
+  content?: AdminAnnouncementSummaryResponse[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminBannerResponse {
   content?: AdminBannerResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBoardResponse {
+  content?: AdminBoardResponse[];
   page?: PageMetadata;
 }
 
@@ -2764,15 +2864,13 @@ export interface PagedModelPickupLocationResponse {
 }
 
 /**
- * 게시글 정보를 담은 응답 DTO입니다.
+ * 게시글 목록에 사용하는 요약 응답 DTO입니다.
  */
-export interface PostResponse {
+export interface PostSummaryResponse {
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
   /** 게시글이 속한 게시판 ID입니다. */
   boardId?: number;
-  /** 게시글 본문입니다. */
-  content?: string;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
   /** 게시글 식별자입니다. */
@@ -2783,42 +2881,40 @@ export interface PostResponse {
   updatedAt?: string;
 }
 
-export interface PagedModelPostResponse {
-  content?: PostResponse[];
+export interface PagedModelPostSummaryResponse {
+  content?: PostSummaryResponse[];
   page?: PageMetadata;
 }
 
 /**
  * 공지 범위(전체/게시판)를 나타냅니다.
  */
-export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
+export type UserAnnouncementSummaryResponseScope = typeof UserAnnouncementSummaryResponseScope[keyof typeof UserAnnouncementSummaryResponseScope];
 
 
-export const UserAnnouncementResponseScope = {
+export const UserAnnouncementSummaryResponseScope = {
   GLOBAL: 'GLOBAL',
   BOARD: 'BOARD',
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 공지사항 목록에 사용하는 요약 응답 DTO입니다.
  */
-export interface UserAnnouncementResponse {
+export interface UserAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
   boardId?: number;
-  /** 공지 본문 내용입니다. */
-  content?: string;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
   /** 공지 범위(전체/게시판)를 나타냅니다. */
-  scope?: UserAnnouncementResponseScope;
+  scope?: UserAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
 }
 
-export interface PagedModelUserAnnouncementResponse {
-  content?: UserAnnouncementResponse[];
+export interface PagedModelUserAnnouncementSummaryResponse {
+  content?: UserAnnouncementSummaryResponse[];
   page?: PageMetadata;
 }
 
@@ -3029,6 +3125,29 @@ export interface PagedModelUserBottleReservationPickupNoticeReservationStatusRes
   page?: PageMetadata;
 }
 
+/**
+ * 픽업 사업장 공고별 예약 단계 통계
+ */
+export interface UserBottleReservationPickupNoticeStageStatisticsResponse {
+  /** 승인 단계까지 도달한 수량 */
+  approvedQuantity?: number;
+  /** 병 이름 */
+  bottleName?: string;
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 결제완료 단계까지 도달한 수량 */
+  paymentCompletedQuantity?: number;
+  /** 수령완료 수량 */
+  receivedQuantity?: number;
+  /** 픽업대기 단계까지 도달한 수량 */
+  waitingPickupQuantity?: number;
+}
+
+export interface PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse {
+  content?: UserBottleReservationPickupNoticeStageStatisticsResponse[];
+  page?: PageMetadata;
+}
+
 export type UserBusinessApplicationResponseBusinessType = typeof UserBusinessApplicationResponseBusinessType[keyof typeof UserBusinessApplicationResponseBusinessType];
 
 
@@ -3048,6 +3167,7 @@ export const UserBusinessApplicationResponseStatus = {
 } as const;
 
 export interface UserBusinessApplicationResponse {
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -3509,6 +3629,8 @@ export interface UserSaleAnnouncementResponse {
   createdAt?: string;
   /** 판매 공고 ID */
   id?: number;
+  /** 대표 이미지 URL */
+  imgUrl?: string;
   /** 상품명 */
   itemName?: string;
   /** 1회 최대 주문 가능 수량 */
@@ -3540,6 +3662,26 @@ export interface UserSaleAnnouncementResponse {
 export interface PagedModelUserSaleAnnouncementResponse {
   content?: UserSaleAnnouncementResponse[];
   page?: PageMetadata;
+}
+
+/**
+ * 게시글 정보를 담은 응답 DTO입니다.
+ */
+export interface PostResponse {
+  /** 게시글 작성자 ID입니다. */
+  authorId?: number;
+  /** 게시글이 속한 게시판 ID입니다. */
+  boardId?: number;
+  /** 게시글 본문입니다. */
+  content?: string;
+  /** 게시글 생성 일시입니다. */
+  createdAt?: string;
+  /** 게시글 식별자입니다. */
+  id?: number;
+  /** 게시글 제목입니다. */
+  title?: string;
+  /** 게시글 최종 수정 일시입니다. */
+  updatedAt?: string;
 }
 
 /**
@@ -4407,6 +4549,35 @@ export interface UpdatePostRequest {
   title?: string;
 }
 
+/**
+ * 공지 범위(전체/게시판)를 나타냅니다.
+ */
+export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
+
+
+export const UserAnnouncementResponseScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 공지사항 정보를 담은 응답 DTO입니다.
+ */
+export interface UserAnnouncementResponse {
+  /** 게시판 공지일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /** 공지 본문 내용입니다. */
+  content?: string;
+  /** 공지 생성 일시입니다. */
+  createdAt?: string;
+  /** 공지사항 식별자입니다. */
+  id?: number;
+  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  scope?: UserAnnouncementResponseScope;
+  /** 사용자에게 표시되는 제목입니다. */
+  title?: string;
+}
+
 export type UserBottleReservationPickupBulkUpdateResponseStatus = typeof UserBottleReservationPickupBulkUpdateResponseStatus[keyof typeof UserBottleReservationPickupBulkUpdateResponseStatus];
 
 
@@ -4436,6 +4607,13 @@ export interface UserBusinessApplicationCancelRequest {
   cancelReason?: string;
 }
 
+export interface UserBusinessApplicationOverviewResponse {
+  hasHistory?: boolean;
+  latestApplication?: UserBusinessApplicationResponse;
+  pendingApplications?: UserBusinessApplicationResponse[];
+  recentApplications?: UserBusinessApplicationResponse[];
+}
+
 export type UserBusinessApplicationSubmitResponseBusinessType = typeof UserBusinessApplicationSubmitResponseBusinessType[keyof typeof UserBusinessApplicationSubmitResponseBusinessType];
 
 
@@ -4455,6 +4633,7 @@ export const UserBusinessApplicationSubmitResponseStatus = {
 } as const;
 
 export interface UserBusinessApplicationSubmitResponse {
+  businessId?: number;
   businessName?: string;
   businessRegistrationNumber?: string;
   businessStatus?: string;
@@ -4758,6 +4937,23 @@ export type PatchApiAdminBannersIdBody = {
   mainImg?: Blob;
 };
 
+export type GetApiAdminBoardsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
 /**
  * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
  */
@@ -4780,6 +4976,23 @@ export type PostApiAdminBoardsBody = {
    * @maxLength 150
    */
   slug?: string;
+};
+
+export type GetApiAdminBoardsAnnouncementsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
 };
 
 /**
@@ -4812,6 +5025,62 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * @maxLength 200
    */
   title?: string;
+};
+
+/**
+ * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ */
+export type PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope[keyof typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope];
+
+
+export const PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = {
+  GLOBAL: 'GLOBAL',
+  BOARD: 'BOARD',
+} as const;
+
+/**
+ * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
+  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  boardId?: number;
+  /**
+   * 공지 상세 내용입니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  scope: PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope;
+  /**
+   * 사용자에게 보여줄 공지 제목입니다.
+   * @minLength 0
+   * @maxLength 200
+   */
+  title?: string;
+};
+
+/**
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsBoardidBody = {
+  /**
+   * 게시판에 표시할 선택 설명입니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  description?: string;
+  /**
+   * 사용자에게 노출되는 게시판명입니다.
+   * @minLength 0
+   * @maxLength 150
+   */
+  name?: string;
+  /**
+   * 라우팅에 사용하는 고유 슬러그입니다.
+   * @minLength 0
+   * @maxLength 150
+   */
+  slug?: string;
 };
 
 export type GetApiAdminBottlesParams = {
@@ -5261,6 +5530,63 @@ export type PostApiAdminBusinessesApplicationsApplicationidRejectBody = {
    * @minLength 1
    */
   rejectReason?: string;
+};
+
+/**
+ * 사업 사용 목적 유형입니다.
+ */
+export type PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType = typeof PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType[keyof typeof PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType];
+
+
+export const PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType = {
+  HOUSEHOLD: 'HOUSEHOLD',
+  ENTERTAINMENT: 'ENTERTAINMENT',
+} as const;
+
+/**
+ * 관리자 비즈니스 정보 수정 요청입니다. null 필드는 기존 값을 유지합니다.
+ */
+export type PatchApiAdminBusinessesBusinessesBusinessidBody = {
+  /**
+   * 계좌 예금주명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  accountHolderName?: string;
+  /**
+   * 계좌번호입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 100
+   */
+  accountNumber?: string;
+  /**
+   * 은행명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  bankName?: string;
+  /** 사업장 이름입니다. */
+  businessName?: string;
+  /** 사업자등록번호입니다. */
+  businessRegistrationNumber?: string;
+  /** 사업 사용 목적 유형입니다. */
+  businessType?: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType;
+  /** 문의 연락처입니다. 빈 값이면 저장 값을 비웁니다. */
+  contact?: string;
+  /** 픽업 주소 또는 위치 설명입니다. */
+  pickupAddress?: string;
+  /**
+   * 매장 담당자명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  storeManagerName?: string;
+  /**
+   * 매장 담당자 전화번호입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
+   * @minLength 0
+   * @maxLength 20
+   */
+  storeManagerPhone?: string;
 };
 
 export type GetApiAdminBusinessesMembersParams = {
@@ -7985,8 +8311,20 @@ size?: number;
  * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
  */
 sort?: string[];
+saleType?: GetApiSalesSaleType;
 saleStatus?: GetApiSalesSaleStatus;
+productType?: GetApiSalesProductType;
+productId?: number;
 };
+
+export type GetApiSalesSaleType = typeof GetApiSalesSaleType[keyof typeof GetApiSalesSaleType];
+
+
+export const GetApiSalesSaleType = {
+  RESERVATION: 'RESERVATION',
+  PICKUP: 'PICKUP',
+  GENERAL: 'GENERAL',
+} as const;
 
 export type GetApiSalesSaleStatus = typeof GetApiSalesSaleStatus[keyof typeof GetApiSalesSaleStatus];
 
@@ -7996,6 +8334,14 @@ export const GetApiSalesSaleStatus = {
   OPEN: 'OPEN',
   CLOSED: 'CLOSED',
   SOLD_OUT: 'SOLD_OUT',
+} as const;
+
+export type GetApiSalesProductType = typeof GetApiSalesProductType[keyof typeof GetApiSalesProductType];
+
+
+export const GetApiSalesProductType = {
+  BOTTLE: 'BOTTLE',
+  ITEM: 'ITEM',
 } as const;
 
 export type GetApiTaxInvoicesTaxInvoiceMonthlyPdfParams = {
@@ -8233,6 +8579,23 @@ export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBod
   noticeId?: number;
 };
 
+export type GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
 export type GetApiUsersBusinessesPickupReservationsNoticesStatusesParams = {
 /**
  * Zero-based page index (0..N)
@@ -8252,6 +8615,15 @@ sort?: string[];
 
 export type GetApiUsersBusinessesReservationDeliveriesParams = {
 noticeId?: number;
+};
+
+export type PostApiUsersBusinessesBusinessidMembersBody = {
+  email?: string;
+  userId?: number;
+};
+
+export type PostApiUsersBusinessesBusinessidOwnershipTransferBody = {
+  targetUserId: number;
 };
 
 /**
@@ -8747,6 +9119,50 @@ export const patchApiAdminBannersIdUnpublish = async (id: number, options?: Requ
 
 
 /**
+ * 관리자가 게시판 목록을 조회합니다.
+ * @summary 게시판 목록 조회(관리자)
+ */
+export type getApiAdminBoardsResponse200 = {
+  data: PagedModelAdminBoardResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsResponseSuccess = (getApiAdminBoardsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsResponse = (getApiAdminBoardsResponseSuccess)
+
+export const getGetApiAdminBoardsUrl = (params?: GetApiAdminBoardsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards?${stringifiedParams}` : `/api/admin/boards`
+}
+
+export const getApiAdminBoards = async (params?: GetApiAdminBoardsParams, options?: RequestInit): Promise<getApiAdminBoardsResponse> => {
+  
+  return customFetch<getApiAdminBoardsResponse>(getGetApiAdminBoardsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 게시글과 공지사항을 담을 새 게시판을 생성합니다.
  * @summary 게시판 생성(관리자)
  */
@@ -8785,6 +9201,50 @@ export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoa
 
 
 /**
+ * 관리자가 공지 목록을 조회합니다.
+ * @summary 공지 목록 조회(관리자)
+ */
+export type getApiAdminBoardsAnnouncementsResponse200 = {
+  data: PagedModelAdminAnnouncementSummaryResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsAnnouncementsResponseSuccess = (getApiAdminBoardsAnnouncementsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsAnnouncementsResponse = (getApiAdminBoardsAnnouncementsResponseSuccess)
+
+export const getGetApiAdminBoardsAnnouncementsUrl = (params?: GetApiAdminBoardsAnnouncementsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards/announcements?${stringifiedParams}` : `/api/admin/boards/announcements`
+}
+
+export const getApiAdminBoardsAnnouncements = async (params?: GetApiAdminBoardsAnnouncementsParams, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsResponse> => {
+  
+  return customFetch<getApiAdminBoardsAnnouncementsResponse>(getGetApiAdminBoardsAnnouncementsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다.
  * @summary 공지 등록(관리자)
  */
@@ -8817,6 +9277,232 @@ export const postApiAdminBoardsAnnouncements = async (postApiAdminBoardsAnnounce
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBoardsAnnouncementsBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 공지를 삭제합니다.
+ * @summary 공지 삭제(관리자)
+ */
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse = (deleteApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const deleteApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse>(getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 공지 본문을 포함해 상세 조회합니다.
+ * @summary 공지 상세 조회(관리자)
+ */
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: AdminAnnouncementResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsAnnouncementsAnnouncementidResponse = (getApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const getApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<getApiAdminBoardsAnnouncementsAnnouncementidResponse>(getGetApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 공지 제목, 내용, 범위를 수정합니다.
+ * @summary 공지 수정(관리자)
+ */
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: AdminAnnouncementResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (putApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsAnnouncementsAnnouncementidResponse = (putApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getPutApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/announcements/${announcementId}`
+}
+
+export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number,
+    putApiAdminBoardsAnnouncementsAnnouncementidBody: PutApiAdminBoardsAnnouncementsAnnouncementidBody, options?: RequestInit): Promise<putApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<putApiAdminBoardsAnnouncementsAnnouncementidResponse>(getPutApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsAnnouncementsAnnouncementidBody,)
+  }
+);}
+
+
+
+/**
+ * 게시글이나 공지가 없는 게시판을 삭제합니다.
+ * @summary 게시판 삭제(관리자)
+ */
+export type deleteApiAdminBoardsBoardidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiAdminBoardsBoardidResponseSuccess = (deleteApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBoardsBoardidResponse = (deleteApiAdminBoardsBoardidResponseSuccess)
+
+export const getDeleteApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const deleteApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<deleteApiAdminBoardsBoardidResponse>(getDeleteApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 게시판 상세 정보를 조회합니다.
+ * @summary 게시판 상세 조회(관리자)
+ */
+export type getApiAdminBoardsBoardidResponse200 = {
+  data: AdminBoardResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsBoardidResponseSuccess = (getApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsBoardidResponse = (getApiAdminBoardsBoardidResponseSuccess)
+
+export const getGetApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const getApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<getApiAdminBoardsBoardidResponse>(getGetApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 게시판 이름, 슬러그, 설명을 수정합니다.
+ * @summary 게시판 수정(관리자)
+ */
+export type putApiAdminBoardsBoardidResponse200 = {
+  data: AdminBoardResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsBoardidResponseSuccess = (putApiAdminBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsBoardidResponse = (putApiAdminBoardsBoardidResponseSuccess)
+
+export const getPutApiAdminBoardsBoardidUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}`
+}
+
+export const putApiAdminBoardsBoardid = async (boardId: number,
+    putApiAdminBoardsBoardidBody: PutApiAdminBoardsBoardidBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidResponse> => {
+  
+  return customFetch<putApiAdminBoardsBoardidResponse>(getPutApiAdminBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsBoardidBody,)
   }
 );}
 
@@ -9749,6 +10435,160 @@ export const postApiAdminBusinessesApplicationsApplicationidReject = async (appl
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBusinessesApplicationsApplicationidRejectBody,)
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 기본 정보, 현재 owner 권한 상태, 사업장 정보를 조회합니다.
+ * @summary 사업장 상세 조회(관리자)
+ */
+export type getApiAdminBusinessesBusinessesBusinessidResponse200 = {
+  data: AdminBusinessUserDetailResponse
+  status: 200
+}
+    
+export type getApiAdminBusinessesBusinessesBusinessidResponseSuccess = (getApiAdminBusinessesBusinessesBusinessidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBusinessesBusinessesBusinessidResponse = (getApiAdminBusinessesBusinessesBusinessidResponseSuccess)
+
+export const getGetApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}`
+}
+
+export const getApiAdminBusinessesBusinessesBusinessid = async (businessId: number, options?: RequestInit): Promise<getApiAdminBusinessesBusinessesBusinessidResponse> => {
+  
+  return customFetch<getApiAdminBusinessesBusinessesBusinessidResponse>(getGetApiAdminBusinessesBusinessesBusinessidUrl(businessId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 사업장 ID로 사업장명, 픽업 주소, 연락처, 사업자등록번호, 사업 유형을 수정합니다.
+ * @summary 사업장 정보 수정(관리자)
+ */
+export type patchApiAdminBusinessesBusinessesBusinessidResponse200 = {
+  data: AdminBusinessUserDetailResponse
+  status: 200
+}
+    
+export type patchApiAdminBusinessesBusinessesBusinessidResponseSuccess = (patchApiAdminBusinessesBusinessesBusinessidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiAdminBusinessesBusinessesBusinessidResponse = (patchApiAdminBusinessesBusinessesBusinessidResponseSuccess)
+
+export const getPatchApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}`
+}
+
+export const patchApiAdminBusinessesBusinessesBusinessid = async (businessId: number,
+    patchApiAdminBusinessesBusinessesBusinessidBody: PatchApiAdminBusinessesBusinessesBusinessidBody, options?: RequestInit): Promise<patchApiAdminBusinessesBusinessesBusinessidResponse> => {
+  
+  return customFetch<patchApiAdminBusinessesBusinessesBusinessidResponse>(getPatchApiAdminBusinessesBusinessesBusinessidUrl(businessId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiAdminBusinessesBusinessesBusinessidBody,)
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * @summary 사업장 owner 권한 부여(관리자)
+ */
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200 = {
+  data: AdminBusinessUserResponse
+  status: 200
+}
+    
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse = (postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponseSuccess)
+
+export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl = (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}/roles/${role}/grant`
+}
+
+export const postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant = async (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse> => {
+  
+  return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl(businessId,role),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * @summary 사업장 owner 권한 회수(관리자)
+ */
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200 = {
+  data: AdminBusinessUserResponse
+  status: 200
+}
+    
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse = (postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponseSuccess)
+
+export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl = (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
+
+
+  
+
+  return `/api/admin/businesses/businesses/${businessId}/roles/${role}/revoke`
+}
+
+export const postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke = async (businessId: number,
+    role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse> => {
+  
+  return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl(businessId,role),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -13113,7 +13953,7 @@ export const getApiBoards = async (params?: GetApiBoardsParams, options?: Reques
  * @summary 게시판별 공지 조회
  */
 export type getApiBoardsAnnouncementsBoardBoardidResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13159,7 +13999,7 @@ export const getApiBoardsAnnouncementsBoardBoardid = async (boardId: number,
  * @summary 전체 공지 조회
  */
 export type getApiBoardsAnnouncementsGlobalResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13199,11 +14039,48 @@ export const getApiBoardsAnnouncementsGlobal = async (params?: GetApiBoardsAnnou
 
 
 /**
+ * 공지 본문을 포함해 상세 조회합니다.
+ * @summary 공지 상세 조회
+ */
+export type getApiBoardsAnnouncementsAnnouncementidResponse200 = {
+  data: UserAnnouncementResponse
+  status: 200
+}
+    
+export type getApiBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiBoardsAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsAnnouncementsAnnouncementidResponse = (getApiBoardsAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
+
+
+  
+
+  return `/api/boards/announcements/${announcementId}`
+}
+
+export const getApiBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiBoardsAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<getApiBoardsAnnouncementsAnnouncementidResponse>(getGetApiBoardsAnnouncementsAnnouncementidUrl(announcementId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 해당 게시판에만 적용되는 공지사항 목록을 반환합니다.
  * @summary 게시판 공지 조회
  */
 export type getApiBoardsBoardidAnnouncementsResponse200 = {
-  data: PagedModelUserAnnouncementResponse
+  data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
     
@@ -13249,7 +14126,7 @@ export const getApiBoardsBoardidAnnouncements = async (boardId: number,
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
-  data: PagedModelPostResponse
+  data: PagedModelPostSummaryResponse
   status: 200
 }
     
@@ -13361,6 +14238,45 @@ export const deleteApiBoardsBoardidPostsPostid = async (boardId: number,
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 선택한 게시판의 게시글 본문을 포함해 상세 조회합니다.
+ * @summary 게시글 상세 조회
+ */
+export type getApiBoardsBoardidPostsPostidResponse200 = {
+  data: PostResponse
+  status: 200
+}
+    
+export type getApiBoardsBoardidPostsPostidResponseSuccess = (getApiBoardsBoardidPostsPostidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidPostsPostidResponse = (getApiBoardsBoardidPostsPostidResponseSuccess)
+
+export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: number,
+    postId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}`
+}
+
+export const getApiBoardsBoardidPostsPostid = async (boardId: number,
+    postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidResponse> => {
+  
+  return customFetch<getApiBoardsBoardidPostsPostidResponse>(getGetApiBoardsBoardidPostsPostidUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
@@ -16287,6 +17203,43 @@ export const getApiUsersBusinessesApplicationsMeHistory = async (params?: GetApi
 
 
 /**
+ * 사용자의 진행중 신청, 최신 신청, 최근 신청 이력을 한 번에 반환합니다.
+ * @summary 내 비즈니스 신청 요약 조회
+ */
+export type getApiUsersBusinessesApplicationsMeOverviewResponse200 = {
+  data: UserBusinessApplicationOverviewResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesApplicationsMeOverviewResponseSuccess = (getApiUsersBusinessesApplicationsMeOverviewResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesApplicationsMeOverviewResponse = (getApiUsersBusinessesApplicationsMeOverviewResponseSuccess)
+
+export const getGetApiUsersBusinessesApplicationsMeOverviewUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/applications/me/overview`
+}
+
+export const getApiUsersBusinessesApplicationsMeOverview = async ( options?: RequestInit): Promise<getApiUsersBusinessesApplicationsMeOverviewResponse> => {
+  
+  return customFetch<getApiUsersBusinessesApplicationsMeOverviewResponse>(getGetApiUsersBusinessesApplicationsMeOverviewUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 사용자가 대기중 신청 건을 취소합니다.
  * @summary 비즈니스 신청 취소
  */
@@ -16320,6 +17273,43 @@ export const postApiUsersBusinessesApplicationsApplicationidCancel = async (appl
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiUsersBusinessesApplicationsApplicationidCancelBody,)
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 사업장 목록, 현재 사업장, 현재 사업장 멤버 정보를 반환합니다.
+ * @summary 내 사업장 컨텍스트 조회
+ */
+export type getApiUsersBusinessesContextResponse200 = {
+  data: BusinessMembershipContextResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesContextResponseSuccess = (getApiUsersBusinessesContextResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesContextResponse = (getApiUsersBusinessesContextResponseSuccess)
+
+export const getGetApiUsersBusinessesContextUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/context`
+}
+
+export const getApiUsersBusinessesContext = async ( options?: RequestInit): Promise<getApiUsersBusinessesContextResponse> => {
+  
+  return customFetch<getApiUsersBusinessesContextResponse>(getGetApiUsersBusinessesContextUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
   }
 );}
 
@@ -16548,6 +17538,80 @@ export const postApiUsersBusinessesItemsReservationsApplicationsApplicationidWai
   {      
     ...options,
     method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자가 소유하거나 관리하는 사업장 목록을 반환합니다.
+ * @summary 내 사업장 목록 조회
+ */
+export type getApiUsersBusinessesMeResponse200 = {
+  data: BusinessMembershipBusinessResponse[]
+  status: 200
+}
+    
+export type getApiUsersBusinessesMeResponseSuccess = (getApiUsersBusinessesMeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesMeResponse = (getApiUsersBusinessesMeResponseSuccess)
+
+export const getGetApiUsersBusinessesMeUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/me`
+}
+
+export const getApiUsersBusinessesMe = async ( options?: RequestInit): Promise<getApiUsersBusinessesMeResponse> => {
+  
+  return customFetch<getApiUsersBusinessesMeResponse>(getGetApiUsersBusinessesMeUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 기본 사업장을 지정한 사업장으로 변경합니다.
+ * @summary 내 기본 사업장 변경
+ */
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponse200 = {
+  data: BusinessMembershipBusinessResponse
+  status: 200
+}
+    
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponseSuccess = (patchApiUsersBusinessesMeBusinessidPrimaryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiUsersBusinessesMeBusinessidPrimaryResponse = (patchApiUsersBusinessesMeBusinessidPrimaryResponseSuccess)
+
+export const getPatchApiUsersBusinessesMeBusinessidPrimaryUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/me/${businessId}/primary`
+}
+
+export const patchApiUsersBusinessesMeBusinessidPrimary = async (businessId: number, options?: RequestInit): Promise<patchApiUsersBusinessesMeBusinessidPrimaryResponse> => {
+  
+  return customFetch<patchApiUsersBusinessesMeBusinessidPrimaryResponse>(getPatchApiUsersBusinessesMeBusinessidPrimaryUrl(businessId),
+  {      
+    ...options,
+    method: 'PATCH'
     
     
   }
@@ -16830,6 +17894,50 @@ export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidWa
 
 
 /**
+ * 현재 로그인한 픽업 업장에 할당된 예약을 공고별 승인, 결제완료, 픽업대기, 수령완료 도달 수량으로 집계해 최신 공고 순으로 5개씩 페이지 조회합니다.
+ * @summary 픽업 사업장 공고별 예약 단계 통계 조회
+ */
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200 = {
+  data: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponseSuccess = (getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse = (getApiUsersBusinessesPickupReservationsNoticeStatisticsResponseSuccess)
+
+export const getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl = (params?: GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/notice-statistics?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/notice-statistics`
+}
+
+export const getApiUsersBusinessesPickupReservationsNoticeStatistics = async (params?: GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse> => {
+  
+  return customFetch<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse>(getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 현재 로그인한 픽업 업장에 할당된 예약을 공고별 신청 건수와 수량으로 집계해 최근 생성된 공고 순으로 페이지 조회합니다.
  * @summary 픽업 업장 예약 공고별 신청 현황 목록 조회
  */
@@ -16912,6 +18020,160 @@ export const getApiUsersBusinessesReservationDeliveries = async (params?: GetApi
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 소유자와 매니저 목록을 조회합니다.
+ * @summary 사업장 멤버 목록 조회
+ */
+export type getApiUsersBusinessesBusinessidMembersResponse200 = {
+  data: BusinessMemberResponse[]
+  status: 200
+}
+    
+export type getApiUsersBusinessesBusinessidMembersResponseSuccess = (getApiUsersBusinessesBusinessidMembersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesBusinessidMembersResponse = (getApiUsersBusinessesBusinessidMembersResponseSuccess)
+
+export const getGetApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members`
+}
+
+export const getApiUsersBusinessesBusinessidMembers = async (businessId: number, options?: RequestInit): Promise<getApiUsersBusinessesBusinessidMembersResponse> => {
+  
+  return customFetch<getApiUsersBusinessesBusinessidMembersResponse>(getGetApiUsersBusinessesBusinessidMembersUrl(businessId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 사용자를 해당 사업장의 매니저로 추가합니다.
+ * @summary 사업장 매니저 추가
+ */
+export type postApiUsersBusinessesBusinessidMembersResponse200 = {
+  data: BusinessMemberResponse
+  status: 200
+}
+    
+export type postApiUsersBusinessesBusinessidMembersResponseSuccess = (postApiUsersBusinessesBusinessidMembersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiUsersBusinessesBusinessidMembersResponse = (postApiUsersBusinessesBusinessidMembersResponseSuccess)
+
+export const getPostApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members`
+}
+
+export const postApiUsersBusinessesBusinessidMembers = async (businessId: number,
+    postApiUsersBusinessesBusinessidMembersBody: PostApiUsersBusinessesBusinessidMembersBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidMembersResponse> => {
+  
+  return customFetch<postApiUsersBusinessesBusinessidMembersResponse>(getPostApiUsersBusinessesBusinessidMembersUrl(businessId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiUsersBusinessesBusinessidMembersBody,)
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 매니저 권한을 삭제합니다.
+ * @summary 사업장 매니저 삭제
+ */
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponseSuccess = (deleteApiUsersBusinessesBusinessidMembersUseridResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiUsersBusinessesBusinessidMembersUseridResponse = (deleteApiUsersBusinessesBusinessidMembersUseridResponseSuccess)
+
+export const getDeleteApiUsersBusinessesBusinessidMembersUseridUrl = (businessId: number,
+    userId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/members/${userId}`
+}
+
+export const deleteApiUsersBusinessesBusinessidMembersUserid = async (businessId: number,
+    userId: number, options?: RequestInit): Promise<deleteApiUsersBusinessesBusinessidMembersUseridResponse> => {
+  
+  return customFetch<deleteApiUsersBusinessesBusinessidMembersUseridResponse>(getDeleteApiUsersBusinessesBusinessidMembersUseridUrl(businessId,userId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 사업장 소유자가 해당 사업장의 소유권을 다른 사용자에게 이전합니다.
+ * @summary 사업장 소유권 이전
+ */
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponse200 = {
+  data: BusinessMemberResponse
+  status: 200
+}
+    
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponseSuccess = (postApiUsersBusinessesBusinessidOwnershipTransferResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiUsersBusinessesBusinessidOwnershipTransferResponse = (postApiUsersBusinessesBusinessidOwnershipTransferResponseSuccess)
+
+export const getPostApiUsersBusinessesBusinessidOwnershipTransferUrl = (businessId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/${businessId}/ownership-transfer`
+}
+
+export const postApiUsersBusinessesBusinessidOwnershipTransfer = async (businessId: number,
+    postApiUsersBusinessesBusinessidOwnershipTransferBody: PostApiUsersBusinessesBusinessidOwnershipTransferBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidOwnershipTransferResponse> => {
+  
+  return customFetch<postApiUsersBusinessesBusinessidOwnershipTransferResponse>(getPostApiUsersBusinessesBusinessidOwnershipTransferUrl(businessId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiUsersBusinessesBusinessidOwnershipTransferBody,)
   }
 );}
 

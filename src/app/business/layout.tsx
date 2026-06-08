@@ -1,3 +1,5 @@
+import { getApiUsersBusinessesContext } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
@@ -24,9 +26,15 @@ export default async function BusinessLayout({
     return <BusinessUnauthorizedPage />;
   }
 
+  const businessContext = await getApiUsersBusinessesContext(withToken(session.accessToken)).then(
+    (response) => response.data ?? null,
+    () => null,
+  );
+  const businesses = businessContext?.businesses ?? [];
+
   return (
     <main className="flex min-h-screen bg-gray-50">
-      <BusinessSidebar />
+      <BusinessSidebar businesses={businesses} />
       <div className="min-w-0 flex-1">{children}</div>
     </main>
   );

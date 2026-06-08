@@ -1,19 +1,8 @@
 "use client";
 
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { ROLE_LABEL_MAP } from "../../../constants";
-
-const formatDateTime = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date.toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
 
 interface NoticeInfoSectionProps {
   notice: AdminBottleReservationNoticeResponse;
@@ -26,7 +15,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
     { label: "브랜드", value: notice.bottleBrand ?? "-" },
     {
       label: "가격",
-      value: notice.price != null ? `${notice.price.toLocaleString()}원` : "-",
+      value: formatCurrency(notice.price),
     },
     { label: "예약 시작", value: formatDateTime(notice.reservationStartAt) },
     { label: "예약 종료", value: formatDateTime(notice.reservationEndAt) },

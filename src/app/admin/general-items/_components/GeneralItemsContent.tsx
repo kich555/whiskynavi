@@ -1,6 +1,7 @@
 "use client";
 
 import type { ItemAdminResponse } from "@/apis/generated/api";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Eye, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -16,20 +17,6 @@ interface GeneralItemsContentProps {
   };
   items: ItemAdminResponse[];
   totalElements: number;
-}
-
-function formatCurrency(value?: number) {
-  if (value == null) return "-";
-  return `${value.toLocaleString("ko-KR")}원`;
-}
-
-function formatDate(value?: string) {
-  if (!value) return "-";
-  return new Date(value).toLocaleDateString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-  });
 }
 
 export default function GeneralItemsContent({ searchParams, items, totalElements }: GeneralItemsContentProps) {

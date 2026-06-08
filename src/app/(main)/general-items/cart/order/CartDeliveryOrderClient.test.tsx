@@ -5,6 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createGeneralItemCartTossTicket } from "./actions";
 import CartDeliveryOrderClient from "./CartDeliveryOrderClient";
 
+const back = vi.fn();
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ back }),
+}));
+
 vi.mock("./actions", () => ({
   createGeneralItemCartTossTicket: vi.fn(),
 }));

@@ -10,6 +10,7 @@ import type { AdminUserResponse } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { formatDate } from "@/lib/formatters";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
@@ -34,18 +35,6 @@ const BUSINESS_ROLES: UserRole[] = [
 const getMemberType = (roles: UserRole[]): string => {
   const hasBusiness = BUSINESS_ROLES.some((r) => roles.includes(r));
   return hasBusiness ? "업장" : "일반";
-};
-
-const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
 };
 
 interface MembershipContentProps {

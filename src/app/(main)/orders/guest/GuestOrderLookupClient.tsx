@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserOrderResponse } from "@/apis/generated/api";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,22 +17,6 @@ import { cancelGuestGeneralItemOrder, lookupGuestGeneralItemOrder } from "../../
 interface GuestOrderLookupClientProps {
   initialOrderNumber?: string;
   initialGuestOrderToken?: string;
-}
-
-function formatCurrency(amount?: number) {
-  if (amount == null) return "-";
-  return `${amount.toLocaleString("ko-KR")}원`;
-}
-
-function formatDateTime(value?: string) {
-  if (!value) return "-";
-  return new Date(value).toLocaleString("ko-KR", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 function InfoRow({ label, value }: { label: string; value?: string | number }) {

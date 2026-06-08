@@ -1,25 +1,13 @@
 "use client";
 
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { formatCurrency, formatDate } from "@/lib/formatters";
 import { Eye, Pencil, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
 import ReservationExcelDownloadLink from "./ReservationExcelDownloadLink";
-
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
-};
 
 const formatPeriod = (start?: string, end?: string): string => {
   return `${formatDate(start)} ~ ${formatDate(end)}`;
@@ -108,7 +96,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         {notice.bottleName}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{notice.bottleBrand ?? "-"}</td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-900">{notice.price?.toLocaleString()}원</td>
+                      <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
                       <td className="px-4 py-3 text-center text-sm">
                         <span className="font-medium text-blue-600">{notice.appliedQuantity ?? 0}</span>
                         <span className="mx-1 text-gray-400">/</span>

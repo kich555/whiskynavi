@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminBusinessApplicationAuditLogResponse, AdminBusinessApplicationResponse } from "@/apis/generated/api";
+import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -35,18 +36,6 @@ const formatBusinessType = (application: AdminBusinessApplicationResponse & { bu
   return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
 };
 
-const formatDate = (dateStr?: string): string => {
-  if (!dateStr) return "-";
-  const date = new Date(dateStr);
-  return date
-    .toLocaleDateString("ko-KR", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-    })
-    .replace(/\. /g, ".")
-    .replace(/\.$/, "");
-};
 
 interface BusinessApplicationDetailContentProps {
   application: AdminBusinessApplicationResponse;

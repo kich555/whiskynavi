@@ -1,10 +1,19 @@
 "use client";
 
-import { ClipboardList, Home, Layers } from "lucide-react";
+import type { BusinessMembershipBusinessResponse } from "@/apis/generated/api";
+import { BarChart3, ClipboardList, Home, Layers, Users } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useTransition } from "react";
+import { setPrimaryBusinessAction } from "../actions";
 
 const NAV_ITEMS = [
+  {
+    href: "/business/statistics",
+    label: "통계",
+    description: "공고별 단계 현황",
+    icon: BarChart3,
+  },
   {
     href: "/business/pickup-reservations",
     label: "공고 별 관리",
@@ -17,10 +26,45 @@ const NAV_ITEMS = [
     description: "신청 건 단위 목록",
     icon: ClipboardList,
   },
+  {
+    href: "/business/members",
+    label: "멤버 관리",
+    description: "소유자와 매니저 관리",
+    icon: Users,
+  },
 ];
 
-export default function BusinessSidebar() {
+interface BusinessSidebarProps {
+  businesses?: BusinessMembershipBusinessResponse[];
+}
+
+const ROLE_LABEL: Record<string, string> = {
+  OWNER: "소유자",
+  MANAGER: "매니저",
+};
+
+function isActivePath(pathname: string, href: string) {
+  if (href === "/business/pickup-reservations") {
+    return pathname.startsWith(href) && !pathname.startsWith("/business/pickup-reservations/applications");
+  }
+  return pathname.startsWith(href);
+}
+
+export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const handleSelectBusiness = (businessId?: number, isPrimary?: boolean) => {
+    if (!businessId || isPrimary || isPending) return;
+
+    startTransition(async () => {
+      const result = await setPrimaryBusinessAction(businessId);
+      if (result.success) {
+        router.refresh();
+      }
+    });
+  };
 
   return (
     <aside className="w-64 shrink-0 border-r border-gray-200 bg-white">
@@ -29,14 +73,46 @@ export default function BusinessSidebar() {
         <h1 className="mt-1 text-lg font-bold text-gray-900">픽업 사업장</h1>
       </div>
 
+      <div className="border-b border-gray-200 p-3">
+        <p className="px-2 text-xs font-bold text-gray-500">사업장 선택</p>
+        <div className="mt-2 space-y-2">
+          {businesses.length === 0 ? (
+            <p className="px-2 py-3 text-sm text-gray-500">연결된 사업장이 없습니다.</p>
+          ) : (
+            businesses.map((business) => {
+              const businessId = business.businessId;
+              const isPrimary = Boolean(business.primaryBusiness);
+
+              return (
+                <button
+                  key={businessId ?? business.businessName}
+                  type="button"
+                  disabled={!businessId || isPrimary || isPending}
+                  onClick={() => handleSelectBusiness(businessId, isPrimary)}
+                  className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
+                    isPrimary ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
+                  } disabled:cursor-default`}
+                >
+                  <span className="block truncate text-sm font-bold">
+                    {business.businessName ?? "이름 없는 사업장"}
+                  </span>
+                  <span
+                    className={`mt-1 flex items-center gap-2 text-xs ${isPrimary ? "text-gray-200" : "text-gray-500"}`}
+                  >
+                    <span>{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</span>
+                    {isPrimary && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">기본</span>}
+                  </span>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+
       <nav className="space-y-1 p-3">
         {NAV_ITEMS.map((item) => {
           const Icon = item.icon;
-          const isApplicationsPath = pathname.startsWith("/business/pickup-reservations/applications");
-          const isActive =
-            item.href === "/business/pickup-reservations"
-              ? pathname.startsWith(item.href) && !isApplicationsPath
-              : isApplicationsPath;
+          const isActive = isActivePath(pathname, item.href);
 
           return (
             <Link

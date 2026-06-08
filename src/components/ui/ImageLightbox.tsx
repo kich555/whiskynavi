@@ -16,7 +16,7 @@ export function ImageLightbox({ src, alt, children }: ImageLightboxProps) {
 
   return (
     <>
-      { }
+      {}
       <div
         className="group/lightbox relative h-full w-full cursor-zoom-in"
         onClickCapture={(e) => {
@@ -36,10 +36,7 @@ export function ImageLightbox({ src, alt, children }: ImageLightboxProps) {
         </span>
       </div>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent
-          className="w-fit max-w-[90vw] border-white/10 bg-[#1d2429] p-0"
-          showCloseButton={false}
-        >
+        <DialogContent className="w-fit max-w-[90vw] border-white/10 bg-[#1d2429] p-0" showCloseButton={false}>
           <DialogTitle className="sr-only">{alt}</DialogTitle>
           <div className="relative">
             <ImageWithFallback

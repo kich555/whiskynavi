@@ -5,6 +5,4 @@ export const NAV_LINKS = [
   { href: "/general-items", label: "일반상품" },
 ] as const;
 
-export const AUTH_NAV_LINKS = [
-  // { href: "/reservation", label: "예약" }
-] as const;
+export const AUTH_NAV_LINKS = [{ href: "/reservation", label: "예약하기" }] as const;
