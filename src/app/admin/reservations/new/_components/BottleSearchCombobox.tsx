@@ -114,6 +114,7 @@ export default function BottleSearchCombobox({ defaultBottle }: BottleSearchComb
   return (
     <div ref={containerRef} className="relative">
       <input type="hidden" name="bottleId" value={selected ? String(selected.id) : ""} />
+      <input type="hidden" name="bottleName" value={selected?.name ?? ""} />
 
       <input
         ref={inputRef}
