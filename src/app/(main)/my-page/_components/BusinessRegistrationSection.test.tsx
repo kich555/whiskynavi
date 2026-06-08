@@ -36,4 +36,31 @@ describe("BusinessRegistrationSection", () => {
     expect(screen.getByRole("button", { name: "사업자 등록 취소하기" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "신청내역보기" })).toBeInTheDocument();
   });
+
+  it("진행 중인 사업자 등록 신청을 모두 표시한다", () => {
+    const secondPendingApplication: UserBusinessApplicationResponse = {
+      ...pendingApplication,
+      id: 2,
+      businessName: "테스트샵",
+      businessRegistrationNumber: "222-22-22222",
+      createdAt: "2026-06-08T10:00:00",
+    };
+    const approvedApplication: UserBusinessApplicationResponse = {
+      ...pendingApplication,
+      id: 3,
+      businessName: "승인된 사업장",
+      status: "APPROVED",
+    };
+
+    render(
+      <BusinessRegistrationSection
+        businessApplicationHistory={[secondPendingApplication, pendingApplication, approvedApplication]}
+      />,
+    );
+
+    expect(screen.getByText("테스트샵")).toBeInTheDocument();
+    expect(screen.getByText("나비바")).toBeInTheDocument();
+    expect(screen.queryByText("승인된 사업장")).not.toBeInTheDocument();
+    expect(screen.getAllByText("심사중")).toHaveLength(2);
+  });
 });
