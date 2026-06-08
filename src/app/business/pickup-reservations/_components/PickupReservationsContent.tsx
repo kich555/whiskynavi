@@ -81,9 +81,16 @@ export default function PickupReservationsContent({
 
   const handleBulkWaitingPickup = () => {
     if (!bulkNotice) return;
+    if (bulkNotice.bottleId == null) {
+      toast.error("일괄 처리할 병 정보를 찾을 수 없습니다.");
+      return;
+    }
 
     startTransition(async () => {
-      const result = await bulkWaitingPickupAction({ noticeId: bulkNotice.noticeId });
+      const result = await bulkWaitingPickupAction({
+        bottleId: bulkNotice.bottleId,
+        noticeId: bulkNotice.noticeId,
+      });
       if (result.success) {
         setBulkNotice(null);
         router.refresh();
@@ -199,7 +206,7 @@ export default function PickupReservationsContent({
                               type="button"
                               size="sm"
                               onClick={() => setBulkNotice(group)}
-                              disabled={isPending || group.totalApplicationCount === 0}
+                              disabled={isPending || group.totalApplicationCount === 0 || group.bottleId == null}
                               className="bg-amber-600 text-white hover:bg-amber-700"
                             >
                               공고 일괄 픽업대기
