@@ -3,6 +3,20 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createNoticeFormAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole: {
+    ROLE_GUEST: "ROLE_GUEST",
+    ROLE_USER: "ROLE_USER",
+    ROLE_ADMIN: "ROLE_ADMIN",
+    ROLE_SUPER_ADMIN: "ROLE_SUPER_ADMIN",
+    ROLE_CONSUMER: "ROLE_CONSUMER",
+    ROLE_WHISKYNAVI_MEMBER: "ROLE_WHISKYNAVI_MEMBER",
+    ROLE_WHISKYTALES_MEMBER: "ROLE_WHISKYTALES_MEMBER",
+    ROLE_BLIND_MEMBER: "ROLE_BLIND_MEMBER",
+    ROLE_BUSINESS: "ROLE_BUSINESS",
+    ROLE_TRAILNTALE_BUSINESS: "ROLE_TRAILNTALE_BUSINESS",
+    ROLE_COMMUNITY_BUSINESS: "ROLE_COMMUNITY_BUSINESS",
+    ROLE_PICK_UP_BUSINESS: "ROLE_PICK_UP_BUSINESS",
+  },
   getApiAdminBottles: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidCancel: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm: vi.fn(),
