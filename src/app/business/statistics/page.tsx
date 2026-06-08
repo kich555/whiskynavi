@@ -1,19 +1,20 @@
-import { getApiUsersBusinessesPickupReservationsStatistics } from "@/apis/generated/api";
+import { getApiUsersBusinessesPickupReservationsNoticeStatistics } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { parseApiPage } from "@/lib/page-response";
 import BusinessStatisticsContent from "./_components/BusinessStatisticsContent";
 
 interface BusinessStatisticsPageProps {
   searchParams: Promise<{
-    month?: string;
+    page?: string;
   }>;
 }
 
 export default async function BusinessStatisticsPage({ searchParams }: BusinessStatisticsPageProps) {
   const params = await searchParams;
   const token = await getAuthToken();
-  const res = await getApiUsersBusinessesPickupReservationsStatistics(
-    { month: params.month },
+  const res = await getApiUsersBusinessesPickupReservationsNoticeStatistics(
+    { page: parseApiPage(params.page), size: 5 },
     withToken(token),
   );
 

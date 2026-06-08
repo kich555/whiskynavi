@@ -11,7 +11,7 @@ const NAV_ITEMS = [
   {
     href: "/business/statistics",
     label: "통계",
-    description: "월간 예약 현황",
+    description: "공고별 단계 현황",
     icon: BarChart3,
   },
   {
@@ -93,8 +93,12 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
                     isPrimary ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
                   } disabled:cursor-default`}
                 >
-                  <span className="block truncate text-sm font-bold">{business.businessName ?? "이름 없는 사업장"}</span>
-                  <span className={`mt-1 flex items-center gap-2 text-xs ${isPrimary ? "text-gray-200" : "text-gray-500"}`}>
+                  <span className="block truncate text-sm font-bold">
+                    {business.businessName ?? "이름 없는 사업장"}
+                  </span>
+                  <span
+                    className={`mt-1 flex items-center gap-2 text-xs ${isPrimary ? "text-gray-200" : "text-gray-500"}`}
+                  >
                     <span>{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</span>
                     {isPrimary && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">기본</span>}
                   </span>

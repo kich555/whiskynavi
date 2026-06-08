@@ -3125,6 +3125,29 @@ export interface PagedModelUserBottleReservationPickupNoticeReservationStatusRes
   page?: PageMetadata;
 }
 
+/**
+ * 픽업 사업장 공고별 예약 단계 통계
+ */
+export interface UserBottleReservationPickupNoticeStageStatisticsResponse {
+  /** 승인 단계까지 도달한 수량 */
+  approvedQuantity?: number;
+  /** 병 이름 */
+  bottleName?: string;
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 결제완료 단계까지 도달한 수량 */
+  paymentCompletedQuantity?: number;
+  /** 수령완료 수량 */
+  receivedQuantity?: number;
+  /** 픽업대기 단계까지 도달한 수량 */
+  waitingPickupQuantity?: number;
+}
+
+export interface PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse {
+  content?: UserBottleReservationPickupNoticeStageStatisticsResponse[];
+  page?: PageMetadata;
+}
+
 export type UserBusinessApplicationResponseBusinessType = typeof UserBusinessApplicationResponseBusinessType[keyof typeof UserBusinessApplicationResponseBusinessType];
 
 
@@ -4574,88 +4597,6 @@ export interface UserBottleReservationPickupBulkUpdateResponse {
   noticeId?: number;
   status?: UserBottleReservationPickupBulkUpdateResponseStatus;
   updatedCount?: number;
-}
-
-/**
- * 픽업 사업장 월간 공고별 예약 통계
- */
-export interface UserBottleReservationPickupMonthlyNoticeStatisticsResponse {
-  /** 월간 신청 건수 */
-  applicationCount?: number;
-  /** 병 ID */
-  bottleId?: number;
-  /** 병 이름 */
-  bottleName?: string;
-  /** 월간 확정 수량 */
-  confirmedQuantity?: number;
-  /** 예약 공고 ID */
-  noticeId?: number;
-  /** 월간 신청 수량 */
-  requestedQuantity?: number;
-  /** 월간 신청 금액 합계 */
-  salesAmount?: number;
-}
-
-/**
- * 예약 상태
- */
-export type UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus = typeof UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus[keyof typeof UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus];
-
-
-export const UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus = {
-  APPLIED: 'APPLIED',
-  CANCELLED: 'CANCELLED',
-  CONFIRMED: 'CONFIRMED',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  WAITING_PICKUP: 'WAITING_PICKUP',
-  RECEIVED: 'RECEIVED',
-  REJECTED: 'REJECTED',
-} as const;
-
-/**
- * 픽업 사업장 월간 상태별 예약 통계
- */
-export interface UserBottleReservationPickupMonthlyStatusStatisticsResponse {
-  /** 월간 신청 건수 */
-  applicationCount?: number;
-  /** 월간 확정 수량 */
-  confirmedQuantity?: number;
-  /** 월간 신청 수량 */
-  requestedQuantity?: number;
-  /** 월간 신청 금액 합계 */
-  salesAmount?: number;
-  /** 예약 상태 */
-  status?: UserBottleReservationPickupMonthlyStatusStatisticsResponseStatus;
-}
-
-/**
- * 픽업 사업장 월간 예약 통계
- */
-export interface UserBottleReservationPickupMonthlyStatisticsResponse {
-  /** 사업장 ID */
-  businessId?: number;
-  /** 사업장명 */
-  businessName?: string;
-  /** 집계 시작 시각. 포함 */
-  from?: string;
-  /** 통계 월. YYYY-MM 형식 */
-  month?: string;
-  /** 월간 수령 완료 금액 합계 */
-  receivedSalesAmount?: number;
-  /** 최근 공고별 월간 통계 */
-  recentNotices?: UserBottleReservationPickupMonthlyNoticeStatisticsResponse[];
-  /** 상태별 월간 통계 */
-  statuses?: UserBottleReservationPickupMonthlyStatusStatisticsResponse[];
-  /** 집계 종료 시각. 미포함 */
-  to?: string;
-  /** 월간 전체 신청 건수 */
-  totalApplicationCount?: number;
-  /** 월간 전체 확정 수량 */
-  totalConfirmedQuantity?: number;
-  /** 월간 전체 신청 수량 */
-  totalRequestedQuantity?: number;
-  /** 월간 전체 신청 금액 합계 */
-  totalSalesAmount?: number;
 }
 
 export interface UserBusinessApplicationCancelRequest {
@@ -8638,7 +8579,7 @@ export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBod
   noticeId?: number;
 };
 
-export type GetApiUsersBusinessesPickupReservationsNoticesStatusesParams = {
+export type GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams = {
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -8655,11 +8596,21 @@ size?: number;
 sort?: string[];
 };
 
-export type GetApiUsersBusinessesPickupReservationsStatisticsParams = {
+export type GetApiUsersBusinessesPickupReservationsNoticesStatusesParams = {
 /**
- * 조회 월. YYYY-MM 형식
+ * Zero-based page index (0..N)
+ * @minimum 0
  */
-month?: string;
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
 };
 
 export type GetApiUsersBusinessesReservationDeliveriesParams = {
@@ -17943,6 +17894,50 @@ export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidWa
 
 
 /**
+ * 현재 로그인한 픽업 업장에 할당된 예약을 공고별 승인, 결제완료, 픽업대기, 수령완료 도달 수량으로 집계해 최신 공고 순으로 5개씩 페이지 조회합니다.
+ * @summary 픽업 사업장 공고별 예약 단계 통계 조회
+ */
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200 = {
+  data: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponseSuccess = (getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse = (getApiUsersBusinessesPickupReservationsNoticeStatisticsResponseSuccess)
+
+export const getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl = (params?: GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/notice-statistics?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/notice-statistics`
+}
+
+export const getApiUsersBusinessesPickupReservationsNoticeStatistics = async (params?: GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse> => {
+  
+  return customFetch<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse>(getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 현재 로그인한 픽업 업장에 할당된 예약을 공고별 신청 건수와 수량으로 집계해 최근 생성된 공고 순으로 페이지 조회합니다.
  * @summary 픽업 업장 예약 공고별 신청 현황 목록 조회
  */
@@ -17976,50 +17971,6 @@ export const getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl = (par
 export const getApiUsersBusinessesPickupReservationsNoticesStatuses = async (params?: GetApiUsersBusinessesPickupReservationsNoticesStatusesParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse> => {
   
   return customFetch<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse>(getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * 현재 로그인한 픽업 업장의 예약 현황을 월 단위로 집계합니다. month 미입력 시 한국시간 기준 현재 월을 조회합니다.
- * @summary 픽업 사업장 월간 예약 통계 조회
- */
-export type getApiUsersBusinessesPickupReservationsStatisticsResponse200 = {
-  data: UserBottleReservationPickupMonthlyStatisticsResponse
-  status: 200
-}
-    
-export type getApiUsersBusinessesPickupReservationsStatisticsResponseSuccess = (getApiUsersBusinessesPickupReservationsStatisticsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiUsersBusinessesPickupReservationsStatisticsResponse = (getApiUsersBusinessesPickupReservationsStatisticsResponseSuccess)
-
-export const getGetApiUsersBusinessesPickupReservationsStatisticsUrl = (params?: GetApiUsersBusinessesPickupReservationsStatisticsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/statistics?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/statistics`
-}
-
-export const getApiUsersBusinessesPickupReservationsStatistics = async (params?: GetApiUsersBusinessesPickupReservationsStatisticsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsStatisticsResponse> => {
-  
-  return customFetch<getApiUsersBusinessesPickupReservationsStatisticsResponse>(getGetApiUsersBusinessesPickupReservationsStatisticsUrl(params),
   {      
     ...options,
     method: 'GET'

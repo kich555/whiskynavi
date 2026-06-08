@@ -1,13 +1,12 @@
-import { getApiUsersBusinessesPickupReservationsStatistics } from "@/apis/generated/api";
+import { getApiUsersBusinessesPickupReservationsNoticeStatistics } from "@/apis/generated/api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BusinessStatisticsPage from "./page";
 
 vi.mock("@/apis/generated/api", () => ({
-  getApiUsersBusinessesPickupReservationsStatistics: vi.fn(async () => ({
+  getApiUsersBusinessesPickupReservationsNoticeStatistics: vi.fn(async () => ({
     data: {
-      businessId: 99,
-      businessName: "나비바",
-      month: "2026-06",
+      content: [],
+      page: { number: 2, size: 5, totalElements: 0, totalPages: 0 },
     },
   })),
 }));
@@ -29,13 +28,13 @@ describe("BusinessStatisticsPage", () => {
     vi.clearAllMocks();
   });
 
-  it("조회 월 query를 프론트에서 보정하지 않고 API에 전달한다", async () => {
+  it("공고별 단계 통계를 5개씩 페이지 조회한다", async () => {
     await BusinessStatisticsPage({
-      searchParams: Promise.resolve({ month: "bad-month" }),
+      searchParams: Promise.resolve({ page: "3" }),
     });
 
-    expect(getApiUsersBusinessesPickupReservationsStatistics).toHaveBeenCalledWith(
-      { month: "bad-month" },
+    expect(getApiUsersBusinessesPickupReservationsNoticeStatistics).toHaveBeenCalledWith(
+      { page: 2, size: 5 },
       { headers: { Authorization: "Bearer access-token" } },
     );
   });
