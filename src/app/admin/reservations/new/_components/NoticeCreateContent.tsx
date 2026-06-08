@@ -45,7 +45,7 @@ export default function NoticeCreateContent() {
           </div>
         )}
 
-        <NoticeFormFields />
+        <NoticeFormFields key={JSON.stringify(formState.values ?? null)} formValues={formState.values} />
       </form>
     </>
   );

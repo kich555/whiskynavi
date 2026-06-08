@@ -22,9 +22,26 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
 
-export type FormState = { success: boolean; error?: string };
+interface GradeConditionFormValue {
+  applicableFrom: string;
+  requiredRole: string;
+}
+
+export interface NoticeFormValues {
+  bottleId: string;
+  bottleName: string;
+  price: string;
+  availableQuantity: string;
+  maxOrderQuantity: string;
+  reservationStartAt: string;
+  reservationEndAt: string;
+  gradeConditions: GradeConditionFormValue[];
+}
+
+export type FormState = { success: boolean; error?: string; values?: NoticeFormValues };
 
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
+const DEFAULT_RESERVATION_REQUIRED_ROLE = "ROLE_USER";
 
 // ─── Zod 스키마 ──────────────────────────────────────────
 
@@ -55,24 +72,47 @@ const noticeFormSchema = z.object({
   gradeConditions: z.string().transform((v) => {
     if (!v.trim()) return undefined;
     try {
-      return JSON.parse(v) as {
-        applicableFrom: string;
-        requiredRole: string;
-      }[];
+      const parsed = JSON.parse(v);
+      if (!Array.isArray(parsed)) throw new Error();
+      return parsed as GradeConditionFormValue[];
     } catch {
       throw new Error("등급 조건의 형식이 올바르지 않습니다.");
     }
   }),
 });
 
+function extractNoticeFormValues(formData: FormData): NoticeFormValues {
+  const gradeConditionsRaw = (formData.get("gradeConditions") as string) ?? "";
+  let gradeConditions: GradeConditionFormValue[] = [];
+
+  try {
+    const parsed = gradeConditionsRaw.trim() ? JSON.parse(gradeConditionsRaw) : [];
+    gradeConditions = Array.isArray(parsed) ? (parsed as GradeConditionFormValue[]) : [];
+  } catch {
+    gradeConditions = [];
+  }
+
+  return {
+    bottleId: (formData.get("bottleId") as string) ?? "",
+    bottleName: (formData.get("bottleName") as string) ?? "",
+    price: (formData.get("price") as string) ?? "",
+    availableQuantity: (formData.get("availableQuantity") as string) ?? "",
+    maxOrderQuantity: (formData.get("maxOrderQuantity") as string) ?? "",
+    reservationStartAt: (formData.get("reservationStartAt") as string) ?? "",
+    reservationEndAt: (formData.get("reservationEndAt") as string) ?? "",
+    gradeConditions,
+  };
+}
+
 function parseNoticeFormData(formData: FormData) {
+  const values = extractNoticeFormValues(formData);
   const raw: Record<string, string> = {};
   for (const key of Object.keys(noticeFormSchema.shape)) {
     raw[key] = (formData.get(key) as string) ?? "";
   }
   const result = noticeFormSchema.safeParse(raw);
   if (!result.success) {
-    return { success: false as const, error: result.error.message };
+    return { success: false as const, error: result.error.message, values };
   }
 
   const { reservationStartAt, reservationEndAt, gradeConditions, availableQuantity, maxOrderQuantity } = result.data;
@@ -84,6 +124,7 @@ function parseNoticeFormData(formData: FormData) {
     return {
       success: false as const,
       error: "예약 시작일 또는 종료일이 유효하지 않습니다.",
+      values,
     };
   }
 
@@ -91,22 +132,64 @@ function parseNoticeFormData(formData: FormData) {
     return {
       success: false as const,
       error: "인당 최대 예약 병수는 전체 예약 받을 병수를 초과할 수 없습니다.",
+      values,
     };
   }
 
   if (gradeConditions?.length) {
     for (const gc of gradeConditions) {
+      if (!gc.requiredRole || !gc.applicableFrom) {
+        return {
+          success: false as const,
+          error: "등급 조건에는 역할과 적용 시작일을 모두 입력해야 합니다.",
+          values,
+        };
+      }
       const t = new Date(gc.applicableFrom).getTime();
       if (Number.isNaN(t) || t < start || t > end) {
         return {
           success: false as const,
           error: "등급 조건의 적용 시작일은 예약 기간 내에 있어야 합니다.",
+          values,
         };
       }
     }
+
+    const hasStartCondition = gradeConditions.some((gc) => new Date(gc.applicableFrom).getTime() === start);
+    if (!hasStartCondition) {
+      return {
+        success: false as const,
+        error:
+          "등급 조건에는 예약 시작 시각과 동일한 적용 시작일 조건이 1개 필요합니다. 예약 시작 즉시 신청 가능한 최소 회원 등급을 지정하는 조건입니다.",
+        values,
+      };
+    }
   }
 
-  return { success: true as const, data: result.data };
+  return { success: true as const, data: result.data, values };
+}
+
+function buildGradeConditions(
+  data: z.infer<typeof noticeFormSchema>,
+): PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[] {
+  const startAt = new Date(data.reservationStartAt).toISOString();
+  const gradeConditions =
+    data.gradeConditions?.map((condition) => ({
+      applicableFrom: new Date(condition.applicableFrom).toISOString(),
+      requiredRole: condition.requiredRole,
+    })) ?? [];
+
+  if (gradeConditions.length > 0) {
+    return gradeConditions;
+  }
+
+  return [
+    {
+      applicableFrom: startAt,
+      requiredRole: DEFAULT_RESERVATION_REQUIRED_ROLE,
+    },
+    ...gradeConditions,
+  ];
 }
 
 function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
@@ -115,7 +198,7 @@ function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
     price: data.price,
     reservationStartAt: new Date(data.reservationStartAt).toISOString(),
     reservationEndAt: new Date(data.reservationEndAt).toISOString(),
-    gradeConditions: data.gradeConditions as PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[],
+    gradeConditions: buildGradeConditions(data),
     availableQuantity: data.availableQuantity,
     maxOrderQuantity: data.maxOrderQuantity,
   };
@@ -167,13 +250,13 @@ export async function createNoticeFormAction(_prev: FormState, formData: FormDat
   if (!token) return { success: false, error: "인증이 필요합니다." };
 
   const parsed = parseNoticeFormData(formData);
-  if (!parsed.success) return { success: false, error: parsed.error };
+  if (!parsed.success) return { success: false, error: parsed.error, values: parsed.values };
 
   try {
     await postApiAdminBottlesReservationsNotices(buildNoticeBody(parsed.data), withToken(token));
   } catch (error) {
     const message = error instanceof Error ? error.message : "공고 생성에 실패했습니다.";
-    return { success: false, error: message };
+    return { success: false, error: message, values: parsed.values };
   }
 
   revalidatePath("/admin/reservations");
@@ -189,13 +272,13 @@ export async function updateNoticeFormAction(
   if (!token) return { success: false, error: "인증이 필요합니다." };
 
   const parsed = parseNoticeFormData(formData);
-  if (!parsed.success) return { success: false, error: parsed.error };
+  if (!parsed.success) return { success: false, error: parsed.error, values: parsed.values };
 
   try {
     await putApiAdminBottlesReservationsNoticesNoticeid(noticeId, buildNoticeBody(parsed.data), withToken(token));
   } catch (error) {
     const message = error instanceof Error ? error.message : "공고 수정에 실패했습니다.";
-    return { success: false, error: message };
+    return { success: false, error: message, values: parsed.values };
   }
 
   revalidatePath("/admin/reservations");
