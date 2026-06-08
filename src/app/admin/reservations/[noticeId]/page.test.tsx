@@ -55,7 +55,7 @@ describe("NoticeDetailPage", () => {
         noticeId: 7,
         page: 1,
         size: 50,
-        sort: ["createdAt,asc", "id,asc"],
+        sort: ["createdAt,asc"],
       }),
       { token: "admin-token" },
     );
