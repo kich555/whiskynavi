@@ -5,8 +5,8 @@ import type {
   GetApiAdminBottlesReservationsApplicationsRole,
   GetApiAdminBottlesReservationsApplicationsStatus,
 } from "@/apis/generated/api";
-import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
+import { formatDateTimeWithMilliseconds } from "@/lib/formatters";
 import { Ban, Check, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
@@ -206,7 +206,7 @@ export default function ApplicationsTableSection({
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청수량</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">확정수량</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청일</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">예약신청시각</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">관리</th>
             </tr>
           </thead>
@@ -249,7 +249,9 @@ export default function ApplicationsTableSection({
                       {RESERVATION_STATUS_LABEL[app.status ?? ""] ?? app.status}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{formatDate(app.createdAt)}</td>
+                  <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                    {formatDateTimeWithMilliseconds(app.createdAt)}
+                  </td>
                   <td className="px-4 py-3 text-sm">
                     <div className="flex items-center gap-1">
                       {canConfirm(app.status) && (
