@@ -1,4 +1,4 @@
-import type { UserBusinessApplicationResponse } from "@/apis/generated/api";
+import type { UserBusinessApplicationOverviewResponse, UserBusinessApplicationResponse } from "@/apis/generated/api";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import BusinessRegistrationSection from "./BusinessRegistrationSection";
@@ -28,9 +28,19 @@ const pendingApplication: UserBusinessApplicationResponse = {
   createdAt: "2026-06-07T10:00:00",
 };
 
+const overview = (
+  applications: UserBusinessApplicationResponse[],
+  pendingApplications = applications.filter((application) => application.status === "PENDING"),
+): UserBusinessApplicationOverviewResponse => ({
+  hasHistory: applications.length > 0,
+  latestApplication: applications[0],
+  pendingApplications,
+  recentApplications: applications,
+});
+
 describe("BusinessRegistrationSection", () => {
   it("심사 중 신청이 있어도 새 사업자 등록 버튼을 표시한다", () => {
-    render(<BusinessRegistrationSection businessApplicationHistory={[pendingApplication]} />);
+    render(<BusinessRegistrationSection businessApplicationOverview={overview([pendingApplication])} />);
 
     expect(screen.getByRole("button", { name: "새 사업자 등록" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "사업자 등록 취소하기" })).toBeInTheDocument();
@@ -54,7 +64,7 @@ describe("BusinessRegistrationSection", () => {
 
     render(
       <BusinessRegistrationSection
-        businessApplicationHistory={[secondPendingApplication, pendingApplication, approvedApplication]}
+        businessApplicationOverview={overview([secondPendingApplication, pendingApplication, approvedApplication])}
       />,
     );
 

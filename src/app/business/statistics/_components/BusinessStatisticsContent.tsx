@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import BusinessHeader from "../../_components/BusinessHeader";
-import { PICKUP_STATUS_COLOR, PICKUP_STATUS_OPTIONS } from "../../constants";
+import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL } from "../../constants";
 import { formatCurrency } from "../../utils";
 
 interface BusinessStatisticsContentProps {
@@ -40,15 +40,6 @@ const shiftMonth = (month: string, offset: number) => {
 const formatCount = (value?: number) => `${numberFormatter.format(value ?? 0)}건`;
 const formatBottleCount = (value?: number) => `${numberFormatter.format(value ?? 0)}병`;
 
-const getStatusRows = (statuses?: UserBottleReservationPickupMonthlyStatusStatisticsResponse[]) => {
-  const statusMap = new Map((statuses ?? []).map((item) => [item.status, item]));
-  return PICKUP_STATUS_OPTIONS.filter((option) => option.value !== "all").map((option) => ({
-    value: option.value,
-    label: option.label,
-    data: statusMap.get(option.value),
-  }));
-};
-
 function StatCard({ label, value, helper }: { label: string; value: string; helper: string }) {
   return (
     <div className="border border-gray-200 bg-white p-4">
@@ -60,7 +51,7 @@ function StatCard({ label, value, helper }: { label: string; value: string; help
 }
 
 function StatusTable({ statuses }: { statuses?: UserBottleReservationPickupMonthlyStatusStatisticsResponse[] }) {
-  const rows = getStatusRows(statuses);
+  const rows = statuses ?? [];
 
   return (
     <div className="border border-gray-200 bg-white">
@@ -80,18 +71,20 @@ function StatusTable({ statuses }: { statuses?: UserBottleReservationPickupMonth
           </thead>
           <tbody className="divide-y divide-gray-100">
             {rows.map((row) => (
-              <tr key={row.value}>
+              <tr key={row.status}>
                 <td className="px-4 py-3 text-sm">
-                  <Badge className={PICKUP_STATUS_COLOR[row.value] ?? "bg-gray-100 text-gray-700"}>{row.label}</Badge>
+                  <Badge className={PICKUP_STATUS_COLOR[row.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
+                    {PICKUP_STATUS_LABEL[row.status ?? ""] ?? row.status ?? "-"}
+                  </Badge>
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCount(row.data?.applicationCount)}</td>
+                <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCount(row.applicationCount)}</td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {formatBottleCount(row.data?.requestedQuantity)}
+                  {formatBottleCount(row.requestedQuantity)}
                 </td>
                 <td className="px-4 py-3 text-right text-sm text-gray-900">
-                  {formatBottleCount(row.data?.confirmedQuantity)}
+                  {formatBottleCount(row.confirmedQuantity)}
                 </td>
-                <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(row.data?.salesAmount)}</td>
+                <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(row.salesAmount)}</td>
               </tr>
             ))}
           </tbody>

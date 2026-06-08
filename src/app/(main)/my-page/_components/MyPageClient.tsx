@@ -2,7 +2,7 @@
 
 import type {
   PagedModelUserOrderResponse,
-  UserBusinessApplicationResponse,
+  UserBusinessApplicationOverviewResponse,
   UserSelfResponse,
 } from "@/apis/generated/api";
 import { Crown, Package } from "lucide-react";
@@ -16,10 +16,10 @@ import UserProfileCard from "./UserProfileCard";
 interface MyPageClientProps {
   user: UserSelfResponse;
   orders: PagedModelUserOrderResponse;
-  businessApplicationHistory: UserBusinessApplicationResponse[] | null;
+  businessApplicationOverview: UserBusinessApplicationOverviewResponse | null;
 }
 
-export default function MyPageClient({ user, orders, businessApplicationHistory }: MyPageClientProps) {
+export default function MyPageClient({ user, orders, businessApplicationOverview }: MyPageClientProps) {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "membership" ? "membership" : "orders";
   const [activeTab, setActiveTab] = useState<"orders" | "membership">(initialTab);
@@ -77,7 +77,7 @@ export default function MyPageClient({ user, orders, businessApplicationHistory 
         </div>
 
         {/* 사업자 등록 섹션 */}
-        <BusinessRegistrationSection businessApplicationHistory={businessApplicationHistory} />
+        <BusinessRegistrationSection businessApplicationOverview={businessApplicationOverview} />
         {/* FAQ Section */}
         <FaqSection />
       </div>

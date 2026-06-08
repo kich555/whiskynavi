@@ -1807,6 +1807,13 @@ export interface BusinessMembershipBusinessResponse {
   role?: BusinessMembershipBusinessResponseRole;
 }
 
+export interface BusinessMembershipContextResponse {
+  businesses?: BusinessMembershipBusinessResponse[];
+  canManageCurrentBusiness?: boolean;
+  currentBusiness?: BusinessMembershipBusinessResponse;
+  currentBusinessMembers?: BusinessMemberResponse[];
+}
+
 export interface BusinessOwnershipTransferRequest {
   targetUserId: number;
 }
@@ -4657,6 +4664,13 @@ export interface UserBusinessApplicationCancelRequest {
    * @minLength 1
    */
   cancelReason?: string;
+}
+
+export interface UserBusinessApplicationOverviewResponse {
+  hasHistory?: boolean;
+  latestApplication?: UserBusinessApplicationResponse;
+  pendingApplications?: UserBusinessApplicationResponse[];
+  recentApplications?: UserBusinessApplicationResponse[];
 }
 
 export type UserBusinessApplicationSubmitResponseBusinessType = typeof UserBusinessApplicationSubmitResponseBusinessType[keyof typeof UserBusinessApplicationSubmitResponseBusinessType];
@@ -17238,6 +17252,43 @@ export const getApiUsersBusinessesApplicationsMeHistory = async (params?: GetApi
 
 
 /**
+ * 사용자의 진행중 신청, 최신 신청, 최근 신청 이력을 한 번에 반환합니다.
+ * @summary 내 비즈니스 신청 요약 조회
+ */
+export type getApiUsersBusinessesApplicationsMeOverviewResponse200 = {
+  data: UserBusinessApplicationOverviewResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesApplicationsMeOverviewResponseSuccess = (getApiUsersBusinessesApplicationsMeOverviewResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesApplicationsMeOverviewResponse = (getApiUsersBusinessesApplicationsMeOverviewResponseSuccess)
+
+export const getGetApiUsersBusinessesApplicationsMeOverviewUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/applications/me/overview`
+}
+
+export const getApiUsersBusinessesApplicationsMeOverview = async ( options?: RequestInit): Promise<getApiUsersBusinessesApplicationsMeOverviewResponse> => {
+  
+  return customFetch<getApiUsersBusinessesApplicationsMeOverviewResponse>(getGetApiUsersBusinessesApplicationsMeOverviewUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 사용자가 대기중 신청 건을 취소합니다.
  * @summary 비즈니스 신청 취소
  */
@@ -17271,6 +17322,43 @@ export const postApiUsersBusinessesApplicationsApplicationidCancel = async (appl
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiUsersBusinessesApplicationsApplicationidCancelBody,)
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 사업장 목록, 현재 사업장, 현재 사업장 멤버 정보를 반환합니다.
+ * @summary 내 사업장 컨텍스트 조회
+ */
+export type getApiUsersBusinessesContextResponse200 = {
+  data: BusinessMembershipContextResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesContextResponseSuccess = (getApiUsersBusinessesContextResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesContextResponse = (getApiUsersBusinessesContextResponseSuccess)
+
+export const getGetApiUsersBusinessesContextUrl = () => {
+
+
+  
+
+  return `/api/users/businesses/context`
+}
+
+export const getApiUsersBusinessesContext = async ( options?: RequestInit): Promise<getApiUsersBusinessesContextResponse> => {
+  
+  return customFetch<getApiUsersBusinessesContextResponse>(getGetApiUsersBusinessesContextUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
   }
 );}
 

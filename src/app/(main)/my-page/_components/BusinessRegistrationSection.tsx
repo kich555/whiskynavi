@@ -1,6 +1,6 @@
 "use client";
 
-import type { UserBusinessApplicationResponse } from "@/apis/generated/api";
+import type { UserBusinessApplicationOverviewResponse, UserBusinessApplicationResponse } from "@/apis/generated/api";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle } from "@/components/ui/drawer";
 import { useIsDesktop } from "@/hooks/use-media-query";
@@ -12,7 +12,7 @@ import BusinessApplyForm from "./BusinessApplyForm";
 import BusinessApplyHistory from "./BusinessApplyHistory";
 
 interface BusinessRegistrationSectionProps {
-  businessApplicationHistory: UserBusinessApplicationResponse[] | null;
+  businessApplicationOverview: UserBusinessApplicationOverviewResponse | null;
 }
 
 const BUSINESS_TYPE_LABEL: Record<string, string> = {
@@ -46,12 +46,12 @@ const getStatusIcon = (status?: string) => {
   return <XCircle className="mt-0.5 shrink-0 text-red-400" size={18} />;
 };
 
-export default function BusinessRegistrationSection({ businessApplicationHistory }: BusinessRegistrationSectionProps) {
+export default function BusinessRegistrationSection({ businessApplicationOverview }: BusinessRegistrationSectionProps) {
   const isDesktop = useIsDesktop();
   const [isPending, startTransition] = useTransition();
-  const latestBusinessApplication = businessApplicationHistory?.[0] ?? null;
-  const pendingBusinessApplications =
-    businessApplicationHistory?.filter((application) => application.status === "PENDING") ?? [];
+  const latestBusinessApplication = businessApplicationOverview?.latestApplication ?? null;
+  const pendingBusinessApplications = businessApplicationOverview?.pendingApplications ?? [];
+  const businessApplicationHistory = businessApplicationOverview?.recentApplications ?? null;
   const visibleBusinessApplications =
     pendingBusinessApplications.length > 0
       ? pendingBusinessApplications
@@ -60,7 +60,7 @@ export default function BusinessRegistrationSection({ businessApplicationHistory
         : [];
 
   const hasPendingApplication = pendingBusinessApplications.length > 0;
-  const hasBusinessApplicationHistory = (businessApplicationHistory?.length ?? 0) > 0;
+  const hasBusinessApplicationHistory = businessApplicationOverview?.hasHistory ?? false;
 
   const handleBusinessRegister = () => {
     overlay.open(({ isOpen, close }) => {
