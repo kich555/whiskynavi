@@ -1,4 +1,4 @@
-import { getApiOrders, getApiUsersBusinessesApplicationsMeHistory, getApiUsersMe } from "@/apis/generated/api";
+import { getApiOrders, getApiUsersBusinessesApplicationsMeOverview, getApiUsersMe } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
@@ -29,7 +29,7 @@ export default async function MyPage({ searchParams }: MyPageProps) {
   const params = await searchParams;
   const apiPage = parseApiPage(params.page);
 
-  const [userResult, ordersResult, businessApplicationHistoryResult] = await Promise.all([
+  const [userResult, ordersResult, businessApplicationOverviewResult] = await Promise.all([
     getApiUsersMe(withToken(token)).catch((e) => {
       if (isRedirectError(e)) throw e;
       console.error("[my-page] getApiUsersMe failed:", e);
@@ -40,23 +40,20 @@ export default async function MyPage({ searchParams }: MyPageProps) {
       console.error("[my-page] getApiOrders failed:", e);
       return null;
     }),
-    getApiUsersBusinessesApplicationsMeHistory(
-      { page: apiPage, size: 10, sort: ["createdAt,desc"] },
-      withToken(token),
-    ).catch((e) => {
+    getApiUsersBusinessesApplicationsMeOverview(withToken(token)).catch((e) => {
       if (isRedirectError(e)) throw e;
-      console.error("[my-page] getBusinessApplicationHistory failed:", e);
+      console.error("[my-page] getBusinessApplicationOverview failed:", e);
       return null;
     }),
   ]);
 
   const user = userResult?.data ?? {};
   const orders = ordersResult?.data ?? { content: [], page: { number: apiPage, totalPages: 0 } };
-  const businessApplicationHistory = businessApplicationHistoryResult?.data?.content ?? null;
+  const businessApplicationOverview = businessApplicationOverviewResult?.data ?? null;
 
   return (
     <Suspense fallback={<MyPageLoading />}>
-      <MyPageClient user={user} orders={orders} businessApplicationHistory={businessApplicationHistory} />
+      <MyPageClient user={user} orders={orders} businessApplicationOverview={businessApplicationOverview} />
     </Suspense>
   );
 }

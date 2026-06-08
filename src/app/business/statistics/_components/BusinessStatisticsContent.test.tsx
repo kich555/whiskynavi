@@ -1,0 +1,52 @@
+import type { PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse } from "@/apis/generated/api";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import BusinessStatisticsContent from "./BusinessStatisticsContent";
+
+const statistics: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse = {
+  content: [
+    {
+      noticeId: 10,
+      bottleName: "나비 1st",
+      approvedQuantity: 10,
+      paymentCompletedQuantity: 8,
+      waitingPickupQuantity: 6,
+      receivedQuantity: 4,
+    },
+  ],
+  page: {
+    number: 0,
+    size: 5,
+    totalElements: 6,
+    totalPages: 2,
+  },
+};
+
+describe("BusinessStatisticsContent", () => {
+  it("공고별 단계 수량과 페이지네이션을 표시한다", () => {
+    render(<BusinessStatisticsContent statistics={statistics} />);
+
+    expect(screen.getByText("공고별 예약 통계")).toBeInTheDocument();
+    expect(screen.getByText("나비 1st")).toBeInTheDocument();
+    expect(screen.getByText("공고 #10")).toBeInTheDocument();
+    expect(screen.getByText("10병")).toBeInTheDocument();
+    expect(screen.getByText("4병")).toBeInTheDocument();
+    expect(screen.getByText("100%")).toBeInTheDocument();
+    expect(screen.getByText("40%")).toBeInTheDocument();
+    expect(screen.getByText("총 6개 공고")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "다음" })).toHaveAttribute("href", "/business/statistics?page=2");
+  });
+
+  it("공고가 없으면 빈 상태를 표시한다", () => {
+    render(
+      <BusinessStatisticsContent
+        statistics={{
+          content: [],
+          page: { number: 0, size: 5, totalElements: 0, totalPages: 0 },
+        }}
+      />,
+    );
+
+    expect(screen.getByText("표시할 공고별 예약 통계가 없습니다.")).toBeInTheDocument();
+  });
+});
