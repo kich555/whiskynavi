@@ -22,6 +22,8 @@ const NOTICE_STATUS_CLASS_NAME: Record<string, string> = {
   CLOSED: "bg-red-100 text-red-700",
 };
 
+const EDITABLE_NOTICE_STATUSES = new Set<string>(["DRAFT", "OPEN", "SOLD_OUT"]);
+
 export function getReservationNoticeStatus(notice: ReservationNoticeStatus): string | undefined {
   return notice.saleStatus ?? undefined;
 }
@@ -40,5 +42,5 @@ export function isReservationNoticeEditable(notice: ReservationNoticeStatus): bo
   if (typeof notice.editable === "boolean") {
     return notice.editable;
   }
-  return notice.saleStatus !== "CLOSED";
+  return EDITABLE_NOTICE_STATUSES.has(notice.saleStatus ?? "");
 }
