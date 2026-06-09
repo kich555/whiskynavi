@@ -7,7 +7,8 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
-import { isReservationNoticeClosed } from "../_lib/noticeStatus";
+import { isReservationNoticeEditable } from "../_lib/noticeStatus";
+import NoticeStatusBadge from "./NoticeStatusBadge";
 import ReservationExcelDownloadLink from "./ReservationExcelDownloadLink";
 
 const formatPeriod = (start?: string, end?: string): string => {
@@ -71,6 +72,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">제품명</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
                   <th className="typo-bold-12 px-4 py-3 text-right text-gray-700 uppercase">가격</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청 / 전체</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">승인</th>
@@ -81,13 +83,13 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
               <tbody className="divide-y divide-gray-100">
                 {notices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       예약 공고가 없습니다.
                     </td>
                   </tr>
                 ) : (
                   notices.map((notice) => {
-                    const canEditNotice = !isReservationNoticeClosed(notice);
+                    const canEditNotice = isReservationNoticeEditable(notice);
 
                     return (
                       <tr
@@ -100,6 +102,9 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                           {notice.bottleName}
                         </td>
                         <td className="px-4 py-3 text-sm text-gray-600">{notice.bottleBrand ?? "-"}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <NoticeStatusBadge notice={notice} />
+                        </td>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
                         <td className="px-4 py-3 text-center text-sm">
                           <span className="font-medium text-blue-600">{notice.appliedQuantity ?? 0}</span>

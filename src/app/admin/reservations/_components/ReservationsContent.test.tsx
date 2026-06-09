@@ -28,13 +28,15 @@ describe("ReservationsContent", () => {
     const closedNotice = {
       id: 7,
       saleStatus: "CLOSED",
+      editable: false,
       bottleName: "종료 보틀",
       reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
       price: 120000,
-    } as AdminBottleReservationNoticeResponse & { saleStatus: "CLOSED" };
+    } satisfies AdminBottleReservationNoticeResponse;
 
     render(<ReservationsContent searchParams={{}} notices={[closedNotice]} totalElements={1} />);
 
+    expect(screen.getByText("종료")).toBeInTheDocument();
     expect(screen.queryByTitle("수정")).not.toBeInTheDocument();
   });
 });

@@ -13,7 +13,7 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import ReservationExcelDownloadLink from "../../_components/ReservationExcelDownloadLink";
-import { isReservationNoticeClosed } from "../../_lib/noticeStatus";
+import { isReservationNoticeEditable } from "../../_lib/noticeStatus";
 import ApplicationsTableSection from "./ApplicationsTableSection";
 import ApprovalSummarySection from "./ApprovalSummarySection";
 import NoticeInfoSection from "./NoticeInfoSection";
@@ -48,7 +48,7 @@ export default function NoticeDetailContent({
   if (!notice) return null;
   if (notice.id == null) return null;
 
-  const canEditNotice = !isReservationNoticeClosed(notice);
+  const canEditNotice = isReservationNoticeEditable(notice);
 
   return (
     <>

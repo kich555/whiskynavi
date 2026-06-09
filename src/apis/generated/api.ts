@@ -208,6 +208,16 @@ export interface AdminBottleReservationGradeConditionResponse {
   requiredRole?: AdminBottleReservationGradeConditionResponseRequiredRole;
 }
 
+export type AdminBottleReservationNoticeResponseSaleStatus = typeof AdminBottleReservationNoticeResponseSaleStatus[keyof typeof AdminBottleReservationNoticeResponseSaleStatus];
+
+
+export const AdminBottleReservationNoticeResponseSaleStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SOLD_OUT: 'SOLD_OUT',
+} as const;
+
 export interface AdminBottleReservationNoticeResponse {
   appliedQuantity?: number;
   approvedQuantity?: number;
@@ -217,6 +227,7 @@ export interface AdminBottleReservationNoticeResponse {
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
+  editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
@@ -224,6 +235,7 @@ export interface AdminBottleReservationNoticeResponse {
   price?: number;
   reservationEndAt?: string;
   reservationStartAt?: string;
+  saleStatus?: AdminBottleReservationNoticeResponseSaleStatus;
   updatedAt?: string;
 }
 
@@ -678,11 +690,22 @@ export interface AdminItemReservationGradeConditionResponse {
   requiredRole?: AdminItemReservationGradeConditionResponseRequiredRole;
 }
 
+export type AdminItemReservationNoticeResponseSaleStatus = typeof AdminItemReservationNoticeResponseSaleStatus[keyof typeof AdminItemReservationNoticeResponseSaleStatus];
+
+
+export const AdminItemReservationNoticeResponseSaleStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SOLD_OUT: 'SOLD_OUT',
+} as const;
+
 export interface AdminItemReservationNoticeResponse {
   appliedQuantity?: number;
   approvedQuantity?: number;
   availableQuantity?: number;
   createdAt?: string;
+  editable?: boolean;
   gradeConditions?: AdminItemReservationGradeConditionResponse[];
   id?: number;
   itemBrand?: string;
@@ -694,6 +717,7 @@ export interface AdminItemReservationNoticeResponse {
   price?: number;
   reservationEndAt?: string;
   reservationStartAt?: string;
+  saleStatus?: AdminItemReservationNoticeResponseSaleStatus;
   updatedAt?: string;
 }
 
@@ -14571,8 +14595,8 @@ export const getApiBottlesReservationsNotices = async (params?: GetApiBottlesRes
 
 
 /**
- * 종료되지 않은 예약 공고 중 가장 최근에 생성된 공고를 조회합니다.
- * @summary 최근 생성된 종료되지 않은 예약 공고
+ * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 조회합니다.
+ * @summary 최근 생성된 진행 예약 공고
  */
 export type getApiBottlesReservationsNoticesLatestActiveResponse200 = {
   data: UserBottleReservationNoticePublicResponse
@@ -14608,7 +14632,7 @@ export const getApiBottlesReservationsNoticesLatestActive = async ( options?: Re
 
 
 /**
- * 최근 종료된 예약 공고 10건을 조회합니다.
+ * CLOSED 상태 예약 공고 10건을 최근 종료 시각순으로 조회합니다.
  * @summary 최근 종료된 예약 공고 10건
  */
 export type getApiBottlesReservationsNoticesRecentEndedResponse200 = {
@@ -15520,8 +15544,8 @@ export const getApiItemsReservationsNotices = async (params?: GetApiItemsReserva
 
 
 /**
- * 종료되지 않은 예약 공고 중 가장 최근에 생성된 공고를 조회합니다.
- * @summary 최근 생성된 종료되지 않은 예약 공고
+ * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 조회합니다.
+ * @summary 최근 생성된 진행 예약 공고
  */
 export type getApiItemsReservationsNoticesLatestActiveResponse200 = {
   data: UserItemReservationNoticePublicResponse
@@ -15557,7 +15581,7 @@ export const getApiItemsReservationsNoticesLatestActive = async ( options?: Requ
 
 
 /**
- * 최근 종료된 예약 공고 10건을 조회합니다.
+ * CLOSED 상태 예약 공고 10건을 최근 종료 시각순으로 조회합니다.
  * @summary 최근 종료된 예약 공고 10건
  */
 export type getApiItemsReservationsNoticesRecentEndedResponse200 = {

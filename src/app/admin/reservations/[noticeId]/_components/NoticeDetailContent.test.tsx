@@ -40,8 +40,9 @@ describe("NoticeDetailContent", () => {
     const closedNotice = {
       id: 7,
       saleStatus: "CLOSED",
+      editable: false,
       reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
-    } as AdminBottleReservationNoticeResponse & { saleStatus: "CLOSED" };
+    } satisfies AdminBottleReservationNoticeResponse;
 
     render(
       <NoticeDetailContent
