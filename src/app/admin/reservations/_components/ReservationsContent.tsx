@@ -7,6 +7,8 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
+import { isReservationNoticeEditable } from "../_lib/noticeStatus";
+import NoticeStatusBadge from "./NoticeStatusBadge";
 import ReservationExcelDownloadLink from "./ReservationExcelDownloadLink";
 
 const formatPeriod = (start?: string, end?: string): string => {
@@ -70,6 +72,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">제품명</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
                   <th className="typo-bold-12 px-4 py-3 text-right text-gray-700 uppercase">가격</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청 / 전체</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">승인</th>
@@ -80,57 +83,66 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
               <tbody className="divide-y divide-gray-100">
                 {notices.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
                       예약 공고가 없습니다.
                     </td>
                   </tr>
                 ) : (
-                  notices.map((notice) => (
-                    <tr
-                      key={notice.id}
-                      className="cursor-pointer transition-colors hover:bg-gray-50"
-                      onClick={() => router.push(`/admin/reservations/${notice.id}`)}
-                    >
-                      <td className="px-4 py-3 text-sm text-gray-900">{notice.id}</td>
-                      <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
-                        {notice.bottleName}
-                      </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{notice.bottleBrand ?? "-"}</td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
-                      <td className="px-4 py-3 text-center text-sm">
-                        <span className="font-medium text-blue-600">{notice.appliedQuantity ?? 0}</span>
-                        <span className="mx-1 text-gray-400">/</span>
-                        <span className="text-gray-600">{notice.availableQuantity ?? 0}</span>
-                      </td>
-                      <td className="px-4 py-3 text-center text-sm">
-                        <span className="font-medium text-green-600">{notice.approvedQuantity ?? 0}</span>
-                      </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
-                        {formatPeriod(notice.reservationStartAt, notice.reservationEndAt)}
-                      </td>
-                      <td className="px-4 py-3 text-sm">
-                        <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            type="button"
-                            onClick={() => router.push(`/admin/reservations/${notice.id}`)}
-                            className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
-                            title="상세"
-                          >
-                            <Eye size={16} />
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => router.push(`/admin/reservations/${notice.id}/edit`)}
-                            className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
-                            title="수정"
-                          >
-                            <Pencil size={16} />
-                          </button>
-                          {notice.id != null && <ReservationExcelDownloadLink noticeId={notice.id} compact />}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  notices.map((notice) => {
+                    const canEditNotice = isReservationNoticeEditable(notice);
+
+                    return (
+                      <tr
+                        key={notice.id}
+                        className="cursor-pointer transition-colors hover:bg-gray-50"
+                        onClick={() => router.push(`/admin/reservations/${notice.id}`)}
+                      >
+                        <td className="px-4 py-3 text-sm text-gray-900">{notice.id}</td>
+                        <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
+                          {notice.bottleName}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">{notice.bottleBrand ?? "-"}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <NoticeStatusBadge notice={notice} />
+                        </td>
+                        <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
+                        <td className="px-4 py-3 text-center text-sm">
+                          <span className="font-medium text-blue-600">{notice.appliedQuantity ?? 0}</span>
+                          <span className="mx-1 text-gray-400">/</span>
+                          <span className="text-gray-600">{notice.availableQuantity ?? 0}</span>
+                        </td>
+                        <td className="px-4 py-3 text-center text-sm">
+                          <span className="font-medium text-green-600">{notice.approvedQuantity ?? 0}</span>
+                        </td>
+                        <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                          {formatPeriod(notice.reservationStartAt, notice.reservationEndAt)}
+                        </td>
+                        <td className="px-4 py-3 text-sm">
+                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => router.push(`/admin/reservations/${notice.id}`)}
+                              className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
+                              title="상세"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            {canEditNotice && (
+                              <button
+                                type="button"
+                                onClick={() => router.push(`/admin/reservations/${notice.id}/edit`)}
+                                className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
+                                title="수정"
+                              >
+                                <Pencil size={16} />
+                              </button>
+                            )}
+                            {notice.id != null && <ReservationExcelDownloadLink noticeId={notice.id} compact />}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>
