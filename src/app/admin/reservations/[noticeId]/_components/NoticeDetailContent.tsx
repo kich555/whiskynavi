@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import ReservationExcelDownloadLink from "../../_components/ReservationExcelDownloadLink";
+import { isReservationNoticeEditable } from "../../_lib/noticeStatus";
 import ApplicationsTableSection from "./ApplicationsTableSection";
 import ApprovalSummarySection from "./ApprovalSummarySection";
 import NoticeInfoSection from "./NoticeInfoSection";
@@ -47,6 +48,8 @@ export default function NoticeDetailContent({
   if (!notice) return null;
   if (notice.id == null) return null;
 
+  const canEditNotice = isReservationNoticeEditable(notice);
+
   return (
     <>
       <AdminHeader title="예약 공고 상세" onToggleSidebar={toggle} showSearch={false} />
@@ -64,14 +67,16 @@ export default function NoticeDetailContent({
 
           <div className="flex items-center gap-2">
             <ReservationExcelDownloadLink noticeId={notice.id} />
-            <button
-              type="button"
-              onClick={() => router.push(`/admin/reservations/${notice.id}/edit`)}
-              className="typo-medium-14 flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700"
-            >
-              <Edit2 size={16} />
-              편집
-            </button>
+            {canEditNotice && (
+              <button
+                type="button"
+                onClick={() => router.push(`/admin/reservations/${notice.id}/edit`)}
+                className="typo-medium-14 flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700"
+              >
+                <Edit2 size={16} />
+                편집
+              </button>
+            )}
           </div>
         </div>
 

@@ -4,7 +4,8 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
+import { isReservationNoticeEditable } from "../../_lib/noticeStatus";
 import NoticeEditContent from "./_components/NoticeEditContent";
 
 interface NoticeEditPageProps {
@@ -24,6 +25,9 @@ export default async function NoticeEditPage({ params }: NoticeEditPageProps) {
   }
 
   if (!notice) notFound();
+  if (!isReservationNoticeEditable(notice)) {
+    redirect(`/admin/reservations/${notice.id ?? Number(noticeId)}`);
+  }
 
   return <NoticeEditContent notice={notice} />;
 }

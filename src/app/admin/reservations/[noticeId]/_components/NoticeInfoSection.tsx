@@ -2,17 +2,20 @@
 
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import type { ReactNode } from "react";
 import { ROLE_LABEL_MAP } from "../../../constants";
+import NoticeStatusBadge from "../../_components/NoticeStatusBadge";
 
 interface NoticeInfoSectionProps {
   notice: AdminBottleReservationNoticeResponse;
 }
 
 export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
-  const fields = [
+  const fields: { label: string; value: ReactNode }[] = [
     { label: "공고 ID", value: notice.id },
     { label: "제품명", value: notice.bottleName },
     { label: "브랜드", value: notice.bottleBrand ?? "-" },
+    { label: "상태", value: <NoticeStatusBadge notice={notice} /> },
     {
       label: "가격",
       value: formatCurrency(notice.price),
