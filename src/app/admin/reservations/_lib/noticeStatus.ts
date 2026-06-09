@@ -1,8 +1,7 @@
-type ReservationNoticePeriod = {
+type ReservationNoticeStatus = {
   saleStatus?: string | null;
-  reservationEndAt?: string | Date | null;
 };
 
-export function isReservationNoticeClosed(notice: ReservationNoticePeriod): boolean {
-  return notice.saleStatus === "CLOSED";
+export function isReservationNoticeClosed<T extends object>(notice: T): boolean {
+  return (notice as T & ReservationNoticeStatus).saleStatus === "CLOSED";
 }
