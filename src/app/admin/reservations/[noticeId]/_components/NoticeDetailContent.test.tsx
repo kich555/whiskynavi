@@ -1,3 +1,4 @@
+import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import NoticeDetailContent from "./NoticeDetailContent";
@@ -35,13 +36,16 @@ vi.mock("./ReservationDeliverySection", () => ({
 }));
 
 describe("NoticeDetailContent", () => {
-  it("종료 시각이 지난 예약 공고는 편집 버튼을 표시하지 않는다", () => {
+  it("CLOSED 상태 예약 공고는 편집 버튼을 표시하지 않는다", () => {
+    const closedNotice = {
+      id: 7,
+      saleStatus: "CLOSED",
+      reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
+    } as AdminBottleReservationNoticeResponse & { saleStatus: "CLOSED" };
+
     render(
       <NoticeDetailContent
-        notice={{
-          id: 7,
-          reservationEndAt: new Date(Date.now() - 60_000).toISOString(),
-        }}
+        notice={closedNotice}
         applications={[]}
         applicationsTotalElements={0}
         applicationsPage={1}

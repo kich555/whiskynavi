@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
-import { isReservationNoticeEnded } from "../_lib/noticeStatus";
+import { isReservationNoticeClosed } from "../_lib/noticeStatus";
 import ReservationExcelDownloadLink from "./ReservationExcelDownloadLink";
 
 const formatPeriod = (start?: string, end?: string): string => {
@@ -87,7 +87,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                   </tr>
                 ) : (
                   notices.map((notice) => {
-                    const canEditNotice = !isReservationNoticeEnded(notice);
+                    const canEditNotice = !isReservationNoticeClosed(notice);
 
                     return (
                       <tr

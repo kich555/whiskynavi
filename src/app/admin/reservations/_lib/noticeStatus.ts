@@ -1,12 +1,8 @@
 type ReservationNoticePeriod = {
+  saleStatus?: string | null;
   reservationEndAt?: string | Date | null;
 };
 
-export function isReservationNoticeEnded(notice: ReservationNoticePeriod): boolean {
-  if (!notice.reservationEndAt) {
-    return false;
-  }
-
-  const endAt = new Date(notice.reservationEndAt).getTime();
-  return Number.isFinite(endAt) && Date.now() > endAt;
+export function isReservationNoticeClosed(notice: ReservationNoticePeriod): boolean {
+  return notice.saleStatus === "CLOSED";
 }

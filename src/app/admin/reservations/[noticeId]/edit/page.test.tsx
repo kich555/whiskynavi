@@ -28,11 +28,12 @@ vi.mock("./_components/NoticeEditContent", () => ({
 }));
 
 describe("NoticeEditPage", () => {
-  it("종료 시각이 지난 예약 공고 편집 URL은 상세 화면으로 돌려보낸다", async () => {
+  it("CLOSED 상태 예약 공고 편집 URL은 상세 화면으로 돌려보낸다", async () => {
     vi.mocked(getApiAdminBottlesReservationsNoticesNoticeid).mockResolvedValue({
       data: {
         id: 7,
-        reservationEndAt: new Date(Date.now() - 60_000).toISOString(),
+        saleStatus: "CLOSED",
+        reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
       },
       status: 200,
       headers: new Headers(),
