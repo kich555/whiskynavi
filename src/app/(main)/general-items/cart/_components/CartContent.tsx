@@ -6,7 +6,8 @@ import { ArrowLeft, Minus, Plus, Trash2 } from "lucide-react";
 import Link from "next/link";
 
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useTransition } from "react";
+import { toast } from "sonner";
 import { canCheckoutCart, formatCartCurrency, getCartBlockingReason, normalizeCartQuantity } from "../_lib/cart-utils";
 import { removeCartItem, updateCartItemQuantity } from "../actions";
 
@@ -50,7 +51,6 @@ function SummaryRow({ label, value, strong = false }: { label: string; value: st
 }
 
 export default function CartContent({ error, quote }: CartContentProps) {
-  const [actionMessage, setActionMessage] = useState<string>();
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const items = quote?.items ?? [];
@@ -64,9 +64,9 @@ export default function CartContent({ error, quote }: CartContentProps) {
     startTransition(async () => {
       try {
         const result = await updateCartItemQuantity(item.cartItemId!, quantity);
-        setActionMessage(result.success ? undefined : result.error || "장바구니 수량을 변경하지 못했습니다.");
+        if (!result.success) toast.error(result.error || "장바구니 수량을 변경하지 못했습니다.");
       } catch {
-        setActionMessage("장바구니 수량을 변경하지 못했습니다.");
+        toast.error("장바구니 수량을 변경하지 못했습니다.");
       }
     });
   };
@@ -77,9 +77,9 @@ export default function CartContent({ error, quote }: CartContentProps) {
     startTransition(async () => {
       try {
         const result = await removeCartItem(item.cartItemId!);
-        setActionMessage(result.success ? undefined : result.error || "장바구니 상품을 삭제하지 못했습니다.");
+        if (!result.success) toast.error(result.error || "장바구니 상품을 삭제하지 못했습니다.");
       } catch {
-        setActionMessage("장바구니 상품을 삭제하지 못했습니다.");
+        toast.error("장바구니 상품을 삭제하지 못했습니다.");
       }
     });
   };
@@ -98,9 +98,9 @@ export default function CartContent({ error, quote }: CartContentProps) {
         <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">주문할 상품을 확인해 주세요.</h1>
       </div>
 
-      {(error || actionMessage) && (
+      {error && (
         <div role="alert" className="mb-6 border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
-          {actionMessage || error}
+          {error}
         </div>
       )}
 
