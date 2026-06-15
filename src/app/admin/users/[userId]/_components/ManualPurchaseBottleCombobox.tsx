@@ -42,6 +42,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
       requestIdRef.current += 1;
       setOptions(cached);
       setError(null);
+      setLoading(false);
       return;
     }
 
@@ -85,6 +86,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
       requestIdRef.current += 1;
       setOptions(cached);
       setError(null);
+      setLoading(false);
       return;
     }
     if (debounceRef.current) clearTimeout(debounceRef.current);

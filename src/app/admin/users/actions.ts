@@ -11,6 +11,7 @@ import {
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 export interface ManualPurchaseBottleOption {
   id: number;
@@ -59,7 +60,14 @@ export interface CreateManualPurchaseInput {
   orderNote?: string;
 }
 
-export async function createManualPurchaseAction(userId: number, input: CreateManualPurchaseInput) {
+const createManualPurchaseSchema = z.object({
+  bottleId: z.number().int("보틀을 선택해 주세요.").min(1, "보틀을 선택해 주세요."),
+  unitPrice: z.number().finite("단가는 0 이상이어야 합니다.").min(0, "단가는 0 이상이어야 합니다."),
+  requestedQuantity: z.number().int("수량은 1개 이상이어야 합니다.").min(1, "수량은 1개 이상이어야 합니다."),
+  orderNote: z.string().max(500, "메모는 500자를 초과할 수 없습니다.").optional(),
+});
+
+export async function createManualPurchaseAction(userId: number, input: unknown) {
   const token = await getAuthToken();
 
   if (!token) {
@@ -69,27 +77,25 @@ export async function createManualPurchaseAction(userId: number, input: CreateMa
   if (!Number.isInteger(userId) || userId < 1) {
     return { success: false, error: "사용자 ID가 올바르지 않습니다." };
   }
-  if (!Number.isInteger(input.bottleId) || input.bottleId < 1) {
-    return { success: false, error: "보틀을 선택해 주세요." };
-  }
-  if (!Number.isFinite(input.unitPrice) || input.unitPrice < 0) {
-    return { success: false, error: "단가는 0 이상이어야 합니다." };
-  }
-  if (!Number.isInteger(input.requestedQuantity) || input.requestedQuantity < 1) {
-    return { success: false, error: "수량은 1개 이상이어야 합니다." };
-  }
-  if ((input.orderNote ?? "").length > 500) {
-    return { success: false, error: "메모는 500자를 초과할 수 없습니다." };
+
+  const parsed = createManualPurchaseSchema.safeParse(input);
+  if (!parsed.success) {
+    const invalidTypeIssue = parsed.error.issues.find((issue) => issue.code === "invalid_type");
+    if (invalidTypeIssue?.path[0] === "bottleId" || invalidTypeIssue?.path.length === 0) {
+      return { success: false, error: "보틀을 선택해 주세요." };
+    }
+    return { success: false, error: parsed.error.issues[0].message };
   }
 
+  const values = parsed.data;
   try {
     await postApiAdminOrdersUsersUseridManualPurchases(
       userId,
       {
-        bottleId: input.bottleId,
-        unitPrice: input.unitPrice,
-        requestedQuantity: input.requestedQuantity,
-        orderNote: input.orderNote?.trim() || undefined,
+        bottleId: values.bottleId,
+        unitPrice: values.unitPrice,
+        requestedQuantity: values.requestedQuantity,
+        orderNote: values.orderNote?.trim() || undefined,
       },
       withToken(token),
     );
