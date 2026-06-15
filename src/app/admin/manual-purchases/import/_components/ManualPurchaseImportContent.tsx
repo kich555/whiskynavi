@@ -20,6 +20,7 @@ import {
   uploadManualPurchaseImportAction,
 } from "../../actions";
 import { downloadBase64File } from "../_lib/downloadBase64File";
+import { formatImportFailureToast } from "../_lib/importFailureDetails";
 import ImportResultSummary from "./ImportResultSummary";
 import { BottleReferenceTable, UserReferenceTable } from "./ReferenceTables";
 
@@ -98,7 +99,12 @@ export default function ManualPurchaseImportContent({
       const response = await uploadManualPurchaseImportAction(file, mode, dryRun);
       if (response.success) {
         setResult(response.data);
-        toast.success(dryRun ? "Excel 검증이 끝났습니다." : "구매내역 등록을 완료했습니다.");
+        const failureCount = response.data.failureCount ?? 0;
+        if (failureCount > 0) {
+          toast.warning(formatImportFailureToast(response.data));
+        } else {
+          toast.success(dryRun ? "Excel 검증이 끝났습니다." : "구매내역 등록을 완료했습니다.");
+        }
         router.refresh();
       } else {
         toast.error(response.error);

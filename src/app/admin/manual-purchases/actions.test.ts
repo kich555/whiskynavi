@@ -43,12 +43,14 @@ describe("manual purchase import actions", () => {
     });
   });
 
-  it("xlsx 파일이 아니면 API 호출 없이 실패한다", async () => {
-    const file = new File(["id"], "manual-purchases.csv", { type: "text/csv" });
+  it("빈 파일이면 API 호출 없이 실패한다", async () => {
+    const file = new File([], "manual-purchases.xlsx", {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
 
     const result = await uploadManualPurchaseImportAction(file, "ONE_USER_MANY_BOTTLES", true);
 
-    expect(result).toEqual({ success: false, error: "xlsx Excel 파일만 업로드할 수 있습니다." });
+    expect(result).toEqual({ success: false, error: "Excel 파일을 선택해주세요." });
     expect(mockedUpload).not.toHaveBeenCalled();
   });
 

@@ -5,37 +5,20 @@ import {
   getGetApiAdminOrdersManualPurchasesImportTemplateUrl,
   postApiAdminOrdersManualPurchasesImport,
   type AdminManualPurchaseImportResponse,
-  type AdminManualPurchaseImportResponseMode,
+  type PostApiAdminOrdersManualPurchasesImportMode,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 
-export type ManualPurchaseImportMode = AdminManualPurchaseImportResponseMode;
+export type ManualPurchaseImportMode = PostApiAdminOrdersManualPurchasesImportMode;
 
 type ManualPurchaseImportActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whiskynavi.com";
-const MANUAL_PURCHASE_IMPORT_MODES = new Set<ManualPurchaseImportMode>([
-  "ONE_USER_MANY_BOTTLES",
-  "ONE_BOTTLE_MANY_USERS",
-  "MANY_USERS_MANY_BOTTLES",
-]);
-
-function normalizeMode(mode: string): ManualPurchaseImportMode {
-  return MANUAL_PURCHASE_IMPORT_MODES.has(mode as ManualPurchaseImportMode)
-    ? (mode as ManualPurchaseImportMode)
-    : "MANY_USERS_MANY_BOTTLES";
-}
-
-function isXlsxFile(file: File) {
-  const name = file.name.toLowerCase();
-  return name.endsWith(".xlsx");
-}
-
 async function fetchAdminBinaryAsBase64(path: string, token: string): Promise<string> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...withToken(token),
@@ -70,7 +53,7 @@ export async function downloadManualPurchaseImportTemplateAction(): Promise<
 
 export async function uploadManualPurchaseImportAction(
   file: File,
-  mode: string,
+  mode: ManualPurchaseImportMode,
   dryRun: boolean,
 ): Promise<ManualPurchaseImportActionResult<AdminManualPurchaseImportResponse>> {
   try {
@@ -80,13 +63,10 @@ export async function uploadManualPurchaseImportAction(
     if (!file || file.size === 0) {
       return { success: false, error: "Excel 파일을 선택해주세요." };
     }
-    if (!isXlsxFile(file)) {
-      return { success: false, error: "xlsx Excel 파일만 업로드할 수 있습니다." };
-    }
 
     const response = await postApiAdminOrdersManualPurchasesImport(
       { file },
-      { mode: normalizeMode(mode), dryRun },
+      { mode, dryRun },
       withToken(token),
     );
 
