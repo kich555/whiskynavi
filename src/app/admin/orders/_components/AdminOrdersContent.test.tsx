@@ -107,4 +107,27 @@ describe("AdminOrdersContent", () => {
 
     expect(push).toHaveBeenCalledWith("/admin/general-item-orders/123");
   });
+
+  it("관리자 수동 구매내역 주문 출처를 표시한다", () => {
+    render(
+      <AdminOrdersContent
+        searchParams={{}}
+        totalElements={1}
+        orders={[
+          {
+            id: 2,
+            orderNumber: "ODR-MANUAL-1",
+            orderSource: "ADMIN_MANUAL",
+            itemName: "테스트 보틀",
+            requestedQuantity: 1,
+            totalPrice: 120000,
+            customer: { name: "김관리", guest: false },
+            availableAdminActions: [],
+          } satisfies OrderResponse,
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("관리자 수동")).toBeInTheDocument();
+  });
 });
