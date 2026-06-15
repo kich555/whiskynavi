@@ -49,6 +49,7 @@ interface UserDetailViewProps {
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
   onStatusToggle?: (newStatus: string) => void;
+  onAddManualPurchase?: () => void;
   onAddRole?: never;
   onRemoveRole?: never;
   onReplaceRole?: never;
@@ -60,6 +61,7 @@ interface UserDetailEditProps {
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
   onStatusToggle?: (newStatus: string) => void;
+  onAddManualPurchase?: () => void;
   onAddRole?: (role: string) => void;
   onRemoveRole?: (role: string) => void;
   onReplaceRole?: (oldRole: string, newRole: string) => void;
@@ -79,6 +81,7 @@ type UserExtWithSocialConnections = NonNullable<AdminUserResponse["userExt"]> & 
 // ─── 컴포넌트 ────────────────────────────────────────────────────
 export default function AdminUserDetailSection(props: UserDetailProps) {
   const { isEditMode, userDetails, orderSummary, onStatusToggle } = props;
+  const { onAddManualPurchase } = props;
   const userExt = userDetails.userExt as UserExtWithSocialConnections | undefined;
   const orderTotalElements = orderSummary?.orders?.page?.totalElements ?? 0;
 
@@ -451,16 +454,28 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 <>
                   {/* 총 구매 금액 요약 카드 */}
                   <div className="mb-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 p-5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="typo-medium-14 text-amber-100">총 구매 금액</p>
                         <p className="typo-bold-24 mt-1 text-white">
                           {formatCurrency(orderSummary.totalAmount ?? 0)}
                         </p>
                       </div>
-                      <div className="text-right">
-                        <p className="typo-medium-14 text-amber-100">총 주문 수</p>
-                        <p className="typo-bold-24 mt-1 text-white">{orderTotalElements}건</p>
+                      <div className="flex items-center justify-between gap-4 sm:justify-end">
+                        <div className="text-right">
+                          <p className="typo-medium-14 text-amber-100">총 주문 수</p>
+                          <p className="typo-bold-24 mt-1 text-white">{orderTotalElements}건</p>
+                        </div>
+                        {onAddManualPurchase && (
+                          <button
+                            type="button"
+                            onClick={onAddManualPurchase}
+                            className="typo-medium-14 flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-white px-3 py-2 text-amber-700 transition-colors hover:bg-amber-50"
+                          >
+                            <Plus size={14} />
+                            구매내역 추가
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
