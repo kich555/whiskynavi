@@ -3,7 +3,6 @@
 import { getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiOrdersOrderidCancel,
-  postApiUsersBusinessesApplications,
   postApiUsersBusinessesApplicationsApplicationidCancel,
   postApiUsersMeEmailVerificationSend,
   postApiUsersMeEmailVerificationVerify,
@@ -11,7 +10,7 @@ import {
   putApiUsersMeEmail,
   putApiUsersMeNickname,
 } from "@/apis/generated/api";
-import { withToken } from "@/apis/mutator";
+import { customFetch, withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -224,6 +223,21 @@ const businessApplySchema = z.object({
   representativeName: z.string().min(1, "대표자 이름을 입력해주세요."),
 });
 
+const BUSINESS_APPLICATIONS_URL = "/api/users/businesses/applications";
+
+function createBusinessApplicationFormData(data: z.infer<typeof businessApplySchema>, document: File): FormData {
+  const body = new FormData();
+  body.set("businessName", data.businessName);
+  body.set("contact", data.contact);
+  body.set("businessRegistrationNumber", data.businessRegistrationNumber);
+  body.set("businessType", data.businessType);
+  body.set("pickupAddress", data.pickupAddress || "");
+  body.set("openingDate", data.openingDate);
+  body.set("representativeName", data.representativeName);
+  body.set("document", document);
+  return body;
+}
+
 export async function submitBusinessApplication(
   _prevState: { success: boolean; error?: string },
   formData: FormData,
@@ -257,21 +271,11 @@ export async function submitBusinessApplication(
       return { success: false, error: "파일 크기는 10MB 이하여야 합니다." };
     }
 
-    await postApiUsersBusinessesApplications(
-      { document },
-      {
-        businessName: parsed.data.businessName,
-        contact: parsed.data.contact,
-        businessRegistrationNumber: parsed.data.businessRegistrationNumber,
-        businessType: parsed.data.businessType,
-        pickupAddress: parsed.data.pickupAddress || "",
-        openingDate: parsed.data.openingDate,
-        representativeName: parsed.data.representativeName,
-      } as Parameters<typeof postApiUsersBusinessesApplications>[1] & {
-        businessType: "HOUSEHOLD" | "ENTERTAINMENT";
-      },
-      withToken(token),
-    );
+    await customFetch(BUSINESS_APPLICATIONS_URL, {
+      ...withToken(token),
+      method: "POST",
+      body: createBusinessApplicationFormData(parsed.data, document),
+    });
 
     revalidatePath("/my-page");
     return { success: true };
