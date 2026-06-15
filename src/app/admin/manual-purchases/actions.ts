@@ -36,6 +36,20 @@ function isXlsxFile(file: File) {
   return name.endsWith(".xlsx");
 }
 
+async function fetchAdminBinaryAsBase64(path: string, token: string): Promise<string> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    ...withToken(token),
+    cache: "no-store",
+  });
+
+  if (!response.ok) {
+    throw new Error("관리자 파일 다운로드 요청이 실패했습니다.");
+  }
+
+  const buffer = Buffer.from(await response.arrayBuffer());
+  return buffer.toString("base64");
+}
+
 export async function downloadManualPurchaseImportTemplateAction(): Promise<
   ManualPurchaseImportActionResult<string>
 > {
@@ -43,17 +57,8 @@ export async function downloadManualPurchaseImportTemplateAction(): Promise<
     const token = await getAuthToken();
     if (!token) return { success: false, error: "인증이 필요합니다." };
 
-    const response = await fetch(`${API_BASE_URL}${getGetApiAdminOrdersManualPurchasesImportTemplateUrl()}`, {
-      ...withToken(token),
-      cache: "no-store",
-    });
-
-    if (!response.ok) {
-      return { success: false, error: "Excel 템플릿 다운로드에 실패했습니다." };
-    }
-
-    const buffer = Buffer.from(await response.arrayBuffer());
-    return { success: true, data: buffer.toString("base64") };
+    const data = await fetchAdminBinaryAsBase64(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(), token);
+    return { success: true, data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {

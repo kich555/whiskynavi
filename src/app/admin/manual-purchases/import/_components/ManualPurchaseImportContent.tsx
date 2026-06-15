@@ -7,8 +7,7 @@ import type {
 } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { formatCurrency } from "@/lib/formatters";
-import { Download, ExternalLink, FileCheck2, FileSpreadsheet, FileUp, Search } from "lucide-react";
+import { Download, FileCheck2, FileSpreadsheet, FileUp, Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -20,6 +19,9 @@ import {
   type ManualPurchaseImportMode,
   uploadManualPurchaseImportAction,
 } from "../../actions";
+import { downloadBase64File } from "../_lib/downloadBase64File";
+import ImportResultSummary from "./ImportResultSummary";
+import { BottleReferenceTable, UserReferenceTable } from "./ReferenceTables";
 
 export interface ManualPurchaseImportSearchParams extends Record<string, string | undefined> {
   userQ?: string;
@@ -57,162 +59,6 @@ const USER_SEARCH_FIELDS = [
   { value: "email", label: "이메일" },
   { value: "phone", label: "전화번호" },
 ];
-
-function downloadBase64File(filename: string, base64: string, type: string) {
-  const binary = atob(base64);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i += 1) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  const blob = new Blob([bytes], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
-}
-
-function ImportResultSummary({ result }: { result: AdminManualPurchaseImportResponse }) {
-  return (
-    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <div className="flex flex-wrap gap-4 text-sm text-gray-700">
-        <span>전체 {result.totalRows ?? 0}행</span>
-        <span className="text-green-700">성공 {result.successCount ?? 0}행</span>
-        <span className="text-red-700">실패 {result.failureCount ?? 0}행</span>
-        <span>{result.dryRun ? "검증 결과" : "등록 결과"}</span>
-      </div>
-      {(result.results ?? []).length > 0 && (
-        <div className="mt-3 max-h-72 overflow-auto rounded border border-gray-200 bg-white">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-600">
-              <tr>
-                <th className="px-3 py-2 text-left">행</th>
-                <th className="px-3 py-2 text-left">사용자ID</th>
-                <th className="px-3 py-2 text-left">보틀ID</th>
-                <th className="px-3 py-2 text-left">주문번호</th>
-                <th className="px-3 py-2 text-left">결과</th>
-                <th className="px-3 py-2 text-left">메시지</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {result.results?.map((row) => (
-                <tr key={`${row.rowNumber}-${row.userId}-${row.bottleId}`}>
-                  <td className="px-3 py-2">{row.rowNumber}</td>
-                  <td className="px-3 py-2">{row.userId ?? "-"}</td>
-                  <td className="px-3 py-2">{row.bottleId ?? "-"}</td>
-                  <td className="px-3 py-2">{row.orderNumber ?? "-"}</td>
-                  <td className={row.success ? "px-3 py-2 text-green-700" : "px-3 py-2 text-red-700"}>
-                    {row.success ? "성공" : "실패"}
-                  </td>
-                  <td className="px-3 py-2">{row.message ?? "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
-function UserReferenceTable({ users }: { users: AdminUserResponse[] }) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-600">
-            <tr>
-              <th className="px-3 py-2 text-left">ID</th>
-              <th className="px-3 py-2 text-left">이름</th>
-              <th className="px-3 py-2 text-left">아이디</th>
-              <th className="px-3 py-2 text-left">이메일</th>
-              <th className="px-3 py-2 text-left">상태</th>
-              <th className="px-3 py-2 text-left">상세</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {users.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-gray-500">
-                  조회된 사용자가 없습니다.
-                </td>
-              </tr>
-            ) : (
-              users.map((user) => (
-                <tr key={user.id}>
-                  <td className="px-3 py-2 font-semibold text-gray-900">{user.id ?? "-"}</td>
-                  <td className="px-3 py-2">{user.name ?? "-"}</td>
-                  <td className="px-3 py-2">{user.username ?? "-"}</td>
-                  <td className="px-3 py-2">{user.email ?? "-"}</td>
-                  <td className="px-3 py-2">{user.status ?? "-"}</td>
-                  <td className="px-3 py-2">
-                    {user.id && (
-                      <Link className="inline-flex items-center gap-1 text-amber-700" href={`/admin/users/${user.id}`}>
-                        열기
-                        <ExternalLink className="size-3" />
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-function BottleReferenceTable({ bottles }: { bottles: BottleAdminResponse[] }) {
-  return (
-    <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[620px] text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-600">
-            <tr>
-              <th className="px-3 py-2 text-left">ID</th>
-              <th className="px-3 py-2 text-left">보틀명</th>
-              <th className="px-3 py-2 text-left">브랜드</th>
-              <th className="px-3 py-2 text-left">소비자가</th>
-              <th className="px-3 py-2 text-left">재고</th>
-              <th className="px-3 py-2 text-left">상세</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {bottles.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="px-3 py-8 text-center text-gray-500">
-                  조회된 보틀이 없습니다.
-                </td>
-              </tr>
-            ) : (
-              bottles.map((bottle) => (
-                <tr key={bottle.id}>
-                  <td className="px-3 py-2 font-semibold text-gray-900">{bottle.id ?? "-"}</td>
-                  <td className="px-3 py-2">{bottle.name ?? "-"}</td>
-                  <td className="px-3 py-2">{bottle.brand ?? "-"}</td>
-                  <td className="px-3 py-2">{formatCurrency(bottle.consumerPrice)}</td>
-                  <td className="px-3 py-2">{bottle.stockQuantity ?? "-"}</td>
-                  <td className="px-3 py-2">
-                    {bottle.id && (
-                      <Link className="inline-flex items-center gap-1 text-amber-700" href={`/admin/products/${bottle.id}`}>
-                        열기
-                        <ExternalLink className="size-3" />
-                      </Link>
-                    )}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
 
 export default function ManualPurchaseImportContent({
   searchParams,
