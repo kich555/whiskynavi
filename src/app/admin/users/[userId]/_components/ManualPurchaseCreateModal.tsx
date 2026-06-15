@@ -15,7 +15,7 @@ interface ManualPurchaseCreateModalProps {
 
 function parseCurrencyInput(value: string): number {
   const normalized = value.replace(/,/g, "").trim();
-  if (!normalized) return 0;
+  if (!normalized) return Number.NaN;
   return Number(normalized);
 }
 
@@ -53,6 +53,14 @@ export default function ManualPurchaseCreateModal({ isOpen, close, userId }: Man
 
     const parsedUnitPrice = parseCurrencyInput(unitPrice);
     const parsedQuantity = Number(requestedQuantity);
+    if (!Number.isFinite(parsedUnitPrice) || parsedUnitPrice < 0) {
+      setError("단가를 입력해 주세요.");
+      return;
+    }
+    if (!Number.isInteger(parsedQuantity) || parsedQuantity < 1) {
+      setError("수량은 1개 이상이어야 합니다.");
+      return;
+    }
 
     startTransition(async () => {
       setError(null);

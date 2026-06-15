@@ -82,6 +82,7 @@ const SALE_TYPE_LABEL: Record<string, string> = {
 };
 
 function getOrderSourceLabel(order: OrderResponse) {
+  if (order.orderSource === "ADMIN_MANUAL") return "관리자 수동";
   if (order.orderSource === "CART") return "장바구니";
   if (order.orderSource === "SINGLE_ITEM") return "단건";
   if ((order.itemsCount ?? order.items?.length ?? 0) > 1) return "장바구니";

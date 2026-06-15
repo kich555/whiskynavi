@@ -39,6 +39,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
   const fetchBottles = useCallback(async (keyword: string) => {
     const cached = cacheRef.current.get(keyword);
     if (cached) {
+      requestIdRef.current += 1;
       setOptions(cached);
       setError(null);
       return;
@@ -81,6 +82,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
     if (!open) return;
     const cached = cacheRef.current.get(search);
     if (cached) {
+      requestIdRef.current += 1;
       setOptions(cached);
       setError(null);
       return;
