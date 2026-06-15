@@ -80,4 +80,22 @@ describe("AdminOrderDetailContent", () => {
     expect(screen.getByText("선물 포장")).toBeInTheDocument();
     expect(screen.getByText("UPDATE_DELIVERY")).toBeInTheDocument();
   });
+
+  it("관리자 수동 구매내역 주문 출처를 표시한다", () => {
+    const order = {
+      id: 124,
+      orderNumber: "ODR-MANUAL-124",
+      orderSource: "ADMIN_MANUAL",
+      orderStatus: "RECEIPT_COMPLETED",
+      itemName: "테스트 보틀",
+      requestedQuantity: 1,
+      totalPrice: 120000,
+      customer: { name: "김관리", guest: false },
+      availableAdminActions: [],
+    } satisfies OrderResponse;
+
+    render(<AdminOrderDetailContent order={order} />);
+
+    expect(screen.getByText("관리자 수동")).toBeInTheDocument();
+  });
 });
