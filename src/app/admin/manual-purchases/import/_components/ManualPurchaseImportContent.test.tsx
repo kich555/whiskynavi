@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
-import { uploadManualPurchaseImportAction } from "../../actions";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { downloadManualPurchaseImportTemplateAction, uploadManualPurchaseImportAction } from "../../actions";
 import ManualPurchaseImportContent from "./ManualPurchaseImportContent";
 
 vi.mock("next/navigation", () => ({
@@ -30,8 +30,13 @@ vi.mock("../../actions", () => ({
 }));
 
 const mockedUploadManualPurchaseImport = vi.mocked(uploadManualPurchaseImportAction);
+const mockedDownloadManualPurchaseImport = vi.mocked(downloadManualPurchaseImportTemplateAction);
 
 describe("ManualPurchaseImportContent", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   it("대량 등록 모드와 사용자/보틀 ID 참고 테이블을 표시한다", () => {
     render(
       <ManualPurchaseImportContent
@@ -76,6 +81,101 @@ describe("ManualPurchaseImportContent", () => {
     await user.click(screen.getByRole("button", { name: "검증" }));
 
     expect(toast.error).toHaveBeenCalledWith("Excel 파일을 선택해주세요.");
+  });
+
+  it("한 사용자 여러 보틀 모드는 사용자를 선택해야 템플릿을 다운로드한다", async () => {
+    const user = userEvent.setup();
+    mockedDownloadManualPurchaseImport.mockResolvedValue({
+      success: true,
+      data: "base64",
+    });
+    render(
+      <ManualPurchaseImportContent
+        searchParams={{}}
+        users={[
+          {
+            id: 12,
+            name: "홍길동",
+            username: "hong",
+            email: "hong@example.com",
+            status: "ACTIVE",
+          },
+        ]}
+        bottles={[]}
+      />,
+    );
+
+    const downloadButton = screen.getByRole("button", {
+      name: "템플릿 다운로드",
+    });
+    expect(downloadButton).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "홍길동 선택" }));
+    expect(downloadButton).toBeEnabled();
+    await user.click(downloadButton);
+
+    expect(mockedDownloadManualPurchaseImport).toHaveBeenCalledWith({
+      mode: "ONE_USER_MANY_BOTTLES",
+      userId: 12,
+    });
+  });
+
+  it("한 보틀 여러 사용자 모드는 보틀을 선택해야 템플릿을 다운로드한다", async () => {
+    const user = userEvent.setup();
+    mockedDownloadManualPurchaseImport.mockResolvedValue({
+      success: true,
+      data: "base64",
+    });
+    render(
+      <ManualPurchaseImportContent
+        searchParams={{}}
+        users={[]}
+        bottles={[
+          {
+            id: 34,
+            name: "테스트 보틀",
+            brand: "Navi",
+            consumerPrice: 120000,
+            stockQuantity: 5,
+          },
+        ]}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /한 보틀 여러 사용자/ }));
+    const downloadButton = screen.getByRole("button", {
+      name: "템플릿 다운로드",
+    });
+    expect(downloadButton).toBeDisabled();
+
+    await user.click(screen.getByRole("button", { name: "테스트 보틀 선택" }));
+    expect(downloadButton).toBeEnabled();
+    await user.click(downloadButton);
+
+    expect(mockedDownloadManualPurchaseImport).toHaveBeenCalledWith({
+      mode: "ONE_BOTTLE_MANY_USERS",
+      bottleId: 34,
+    });
+  });
+
+  it("여러 사용자 여러 보틀 모드는 선행 선택 없이 템플릿을 다운로드한다", async () => {
+    const user = userEvent.setup();
+    mockedDownloadManualPurchaseImport.mockResolvedValue({
+      success: true,
+      data: "base64",
+    });
+    render(<ManualPurchaseImportContent searchParams={{}} users={[]} bottles={[]} />);
+
+    await user.click(screen.getByRole("button", { name: /여러 사용자 여러 보틀/ }));
+    const downloadButton = screen.getByRole("button", {
+      name: "템플릿 다운로드",
+    });
+    expect(downloadButton).toBeEnabled();
+    await user.click(downloadButton);
+
+    expect(mockedDownloadManualPurchaseImport).toHaveBeenCalledWith({
+      mode: "MANY_USERS_MANY_BOTTLES",
+    });
   });
 
   it("업로드 결과에 실패 행이 있으면 성공 대신 경고를 표시한다", async () => {
