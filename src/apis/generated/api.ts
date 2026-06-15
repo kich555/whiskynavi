@@ -6584,6 +6584,21 @@ export type PostApiAdminOrdersManualPurchasesImportBody = {
   file: Blob;
 };
 
+export type GetApiAdminOrdersManualPurchasesImportTemplateParams = {
+mode?: GetApiAdminOrdersManualPurchasesImportTemplateMode;
+userId?: number;
+bottleId?: number;
+};
+
+export type GetApiAdminOrdersManualPurchasesImportTemplateMode = typeof GetApiAdminOrdersManualPurchasesImportTemplateMode[keyof typeof GetApiAdminOrdersManualPurchasesImportTemplateMode];
+
+
+export const GetApiAdminOrdersManualPurchasesImportTemplateMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
+
 export type GetApiAdminOrdersUsersUseridParams = {
 /**
  * Zero-based page index (0..N)
@@ -9177,7 +9192,7 @@ export type getApiAdminBannersResponse200 = {
   data: PagedModelAdminBannerResponse
   status: 200
 }
-    
+
 export type getApiAdminBannersResponseSuccess = (getApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -9189,7 +9204,7 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12242,7 +12257,13 @@ formData.append(`file`, postApiAdminOrdersManualPurchasesImportBody.file);
 
 /**
  * 수동 구매내역 대량 등록에 사용할 xlsx 템플릿을 내려받는다.
-컬럼은 사용자ID, 보틀ID, 수량, 단가, 메모 순서이며, 단가를 비우면 보틀 소비자가를 사용하고 없으면 0으로 처리한다.
+구매내역 시트는 사용자, 보틀, 수량, 단가, 메모 순서이며 사용자와 보틀은 템플릿의 목록 시트 값을 선택한다.
+단가를 비우면 보틀 소비자가를 사용하고 없으면 0으로 처리한다.
+
+mode:
+- ONE_USER_MANY_BOTTLES: userId를 먼저 선택해 사용자 값을 고정한 템플릿을 내려받는다.
+- ONE_BOTTLE_MANY_USERS: bottleId를 먼저 선택해 보틀 값을 고정한 템플릿을 내려받는다.
+- MANY_USERS_MANY_BOTTLES: 사용자와 보틀을 모두 Excel 목록에서 선택한다.
 
  * @summary 관리자 수동 구매내역 Excel 템플릿 다운로드
  */
@@ -12258,17 +12279,23 @@ export type getApiAdminOrdersManualPurchasesImportTemplateResponseSuccess = (get
 
 export type getApiAdminOrdersManualPurchasesImportTemplateResponse = (getApiAdminOrdersManualPurchasesImportTemplateResponseSuccess)
 
-export const getGetApiAdminOrdersManualPurchasesImportTemplateUrl = () => {
+export const getGetApiAdminOrdersManualPurchasesImportTemplateUrl = (params?: GetApiAdminOrdersManualPurchasesImportTemplateParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/admin/orders/manual-purchases/import/template`
+  return stringifiedParams.length > 0 ? `/api/admin/orders/manual-purchases/import/template?${stringifiedParams}` : `/api/admin/orders/manual-purchases/import/template`
 }
 
-export const getApiAdminOrdersManualPurchasesImportTemplate = async ( options?: RequestInit): Promise<getApiAdminOrdersManualPurchasesImportTemplateResponse> => {
+export const getApiAdminOrdersManualPurchasesImportTemplate = async (params?: GetApiAdminOrdersManualPurchasesImportTemplateParams, options?: RequestInit): Promise<getApiAdminOrdersManualPurchasesImportTemplateResponse> => {
   
-  return customFetch<getApiAdminOrdersManualPurchasesImportTemplateResponse>(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(),
+  return customFetch<getApiAdminOrdersManualPurchasesImportTemplateResponse>(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(params),
   {      
     ...options,
     method: 'GET'

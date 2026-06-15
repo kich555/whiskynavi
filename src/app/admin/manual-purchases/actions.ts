@@ -14,11 +14,16 @@ import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 export type ManualPurchaseImportMode = PostApiAdminOrdersManualPurchasesImportMode;
 
-type ManualPurchaseImportActionResult<T = unknown> =
-  | { success: true; data: T }
-  | { success: false; error: string };
+export interface ManualPurchaseImportTemplateParams {
+  mode: ManualPurchaseImportMode;
+  userId?: number;
+  bottleId?: number;
+}
+
+type ManualPurchaseImportActionResult<T = unknown> = { success: true; data: T } | { success: false; error: string };
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whiskynavi.com";
+
 async function fetchAdminBinaryAsBase64(path: string, token: string): Promise<string> {
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...withToken(token),
@@ -33,14 +38,14 @@ async function fetchAdminBinaryAsBase64(path: string, token: string): Promise<st
   return buffer.toString("base64");
 }
 
-export async function downloadManualPurchaseImportTemplateAction(): Promise<
-  ManualPurchaseImportActionResult<string>
-> {
+export async function downloadManualPurchaseImportTemplateAction(
+  params?: ManualPurchaseImportTemplateParams,
+): Promise<ManualPurchaseImportActionResult<string>> {
   try {
     const token = await getAuthToken();
     if (!token) return { success: false, error: "인증이 필요합니다." };
 
-    const data = await fetchAdminBinaryAsBase64(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(), token);
+    const data = await fetchAdminBinaryAsBase64(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(params), token);
     return { success: true, data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -64,11 +69,7 @@ export async function uploadManualPurchaseImportAction(
       return { success: false, error: "Excel 파일을 선택해주세요." };
     }
 
-    const response = await postApiAdminOrdersManualPurchasesImport(
-      { file },
-      { mode, dryRun },
-      withToken(token),
-    );
+    const response = await postApiAdminOrdersManualPurchasesImport({ file }, { mode, dryRun }, withToken(token));
 
     revalidatePath("/admin/manual-purchases/import");
     revalidatePath("/admin/orders");

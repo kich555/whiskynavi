@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  AdminManualPurchaseImportResponse,
-  AdminUserResponse,
-  BottleAdminResponse,
-} from "@/apis/generated/api";
+import type { AdminManualPurchaseImportResponse, AdminUserResponse, BottleAdminResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Download, FileCheck2, FileSpreadsheet, FileUp, Search } from "lucide-react";
@@ -40,12 +36,12 @@ const MODES: { value: ManualPurchaseImportMode; label: string; detail: string }[
   {
     value: "ONE_USER_MANY_BOTTLES",
     label: "한 사용자 여러 보틀",
-    detail: "파일 내 사용자 ID는 하나만 허용",
+    detail: "선택한 사용자 기준으로 보틀을 행별 처리",
   },
   {
     value: "ONE_BOTTLE_MANY_USERS",
     label: "한 보틀 여러 사용자",
-    detail: "파일 내 보틀 ID는 하나만 허용",
+    detail: "선택한 보틀 기준으로 사용자를 행별 처리",
   },
   {
     value: "MANY_USERS_MANY_BOTTLES",
@@ -61,6 +57,16 @@ const USER_SEARCH_FIELDS = [
   { value: "phone", label: "전화번호" },
 ];
 
+function formatSelectedUser(user: AdminUserResponse | null) {
+  if (!user) return "아래 사용자 검색 결과에서 선택하세요.";
+  return [user.name, user.username, user.email].filter(Boolean).join(" / ") || `사용자 ${user.id}`;
+}
+
+function formatSelectedBottle(bottle: BottleAdminResponse | null) {
+  if (!bottle) return "아래 보틀 검색 결과에서 선택하세요.";
+  return [bottle.name, bottle.brand].filter(Boolean).join(" / ") || `보틀 ${bottle.id}`;
+}
+
 export default function ManualPurchaseImportContent({
   searchParams,
   users,
@@ -70,12 +76,31 @@ export default function ManualPurchaseImportContent({
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<ManualPurchaseImportMode>("ONE_USER_MANY_BOTTLES");
+  const [selectedUser, setSelectedUser] = useState<AdminUserResponse | null>(null);
+  const [selectedBottle, setSelectedBottle] = useState<BottleAdminResponse | null>(null);
   const [result, setResult] = useState<AdminManualPurchaseImportResponse | null>(null);
   const [isPending, startTransition] = useTransition();
 
+  const isTemplateDownloadDisabled =
+    (mode === "ONE_USER_MANY_BOTTLES" && !selectedUser?.id) ||
+    (mode === "ONE_BOTTLE_MANY_USERS" && !selectedBottle?.id);
+
   const handleDownloadTemplate = () => {
+    if (isTemplateDownloadDisabled) {
+      toast.error(
+        mode === "ONE_USER_MANY_BOTTLES"
+          ? "템플릿 다운로드 전에 사용자를 선택해주세요."
+          : "템플릿 다운로드 전에 보틀을 선택해주세요.",
+      );
+      return;
+    }
+
     startTransition(async () => {
-      const response = await downloadManualPurchaseImportTemplateAction();
+      const response = await downloadManualPurchaseImportTemplateAction({
+        mode,
+        ...(mode === "ONE_USER_MANY_BOTTLES" ? { userId: selectedUser?.id } : {}),
+        ...(mode === "ONE_BOTTLE_MANY_USERS" ? { bottleId: selectedBottle?.id } : {}),
+      });
       if (response.success) {
         downloadBase64File(
           "manual-purchase-import-template.xlsx",
@@ -122,14 +147,19 @@ export default function ManualPurchaseImportContent({
             <div>
               <h2 className="typo-bold-18 text-gray-900">Excel 업로드</h2>
               <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
-                {["사용자ID", "보틀ID", "수량", "단가", "메모"].map((column) => (
+                {["사용자", "보틀", "수량", "단가", "메모"].map((column) => (
                   <span key={column} className="rounded border border-gray-200 px-2 py-1">
                     {column}
                   </span>
                 ))}
               </div>
             </div>
-            <Button type="button" variant="outline" onClick={handleDownloadTemplate} disabled={isPending}>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleDownloadTemplate}
+              disabled={isPending || isTemplateDownloadDisabled}
+            >
               <Download className="size-4" />
               템플릿 다운로드
             </Button>
@@ -149,6 +179,24 @@ export default function ManualPurchaseImportContent({
                 <span className="mt-1 block text-sm text-gray-500">{item.detail}</span>
               </button>
             ))}
+          </div>
+
+          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
+            {mode === "ONE_USER_MANY_BOTTLES" && (
+              <div>
+                <span className="font-semibold text-gray-900">선택된 사용자</span>
+                <p className="mt-1 text-gray-600">{formatSelectedUser(selectedUser)}</p>
+              </div>
+            )}
+            {mode === "ONE_BOTTLE_MANY_USERS" && (
+              <div>
+                <span className="font-semibold text-gray-900">선택된 보틀</span>
+                <p className="mt-1 text-gray-600">{formatSelectedBottle(selectedBottle)}</p>
+              </div>
+            )}
+            {mode === "MANY_USERS_MANY_BOTTLES" && (
+              <p className="text-gray-600">사용자와 보틀을 Excel에서 행별로 선택합니다.</p>
+            )}
           </div>
 
           <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center">
@@ -172,7 +220,7 @@ export default function ManualPurchaseImportContent({
         <section className="grid gap-6 xl:grid-cols-2">
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="typo-bold-18 text-gray-900">사용자 ID 참고</h2>
+              <h2 className="typo-bold-18 text-gray-900">사용자 선택</h2>
               <Link href="/admin/users" className="text-sm text-amber-700">
                 전체 보기
               </Link>
@@ -198,12 +246,12 @@ export default function ManualPurchaseImportContent({
                 검색
               </Button>
             </form>
-            <UserReferenceTable users={users} />
+            <UserReferenceTable users={users} selectedUserId={selectedUser?.id} onSelectUser={setSelectedUser} />
           </div>
 
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
-              <h2 className="typo-bold-18 text-gray-900">보틀 ID 참고</h2>
+              <h2 className="typo-bold-18 text-gray-900">보틀 선택</h2>
               <Link href="/admin/products" className="text-sm text-amber-700">
                 전체 보기
               </Link>
@@ -219,7 +267,11 @@ export default function ManualPurchaseImportContent({
                 검색
               </Button>
             </form>
-            <BottleReferenceTable bottles={bottles} />
+            <BottleReferenceTable
+              bottles={bottles}
+              selectedBottleId={selectedBottle?.id}
+              onSelectBottle={setSelectedBottle}
+            />
           </div>
         </section>
       </div>
