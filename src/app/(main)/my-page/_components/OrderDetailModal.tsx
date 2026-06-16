@@ -2,7 +2,7 @@
 
 import type { UserOrderResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatOrderClassification } from "@/lib/order-classification";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../general-items/delivery-order/_lib/order-utils";
@@ -37,6 +37,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle>주문 상세</DialogTitle>
+          <DialogDescription className="sr-only">주문 상품과 결제/배송 정보를 확인합니다.</DialogDescription>
         </DialogHeader>
         <div className="space-y-6 py-4">
           {/* 주문 상태 */}

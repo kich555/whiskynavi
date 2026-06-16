@@ -40,12 +40,16 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
       basePath="/admin/general-item-orders"
       enableGeneralItemActions
       searchParams={{
-        ...params,
         page: String(page),
         limit: String(size),
+        keyword: query.keyword,
         productType: "ITEM",
         fulfillmentMethod: "DIRECT_DELIVERY",
         saleTiming: "IMMEDIATE",
+        orderStatus: query.orderStatus,
+        paymentMethod: query.paymentMethod,
+        paymentStatus: query.paymentStatus,
+        guestOnly: query.guestOnly ? "true" : undefined,
       }}
       orders={response.data.content ?? []}
       totalElements={response.data.page?.totalElements ?? 0}

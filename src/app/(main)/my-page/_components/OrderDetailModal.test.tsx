@@ -31,6 +31,7 @@ describe("OrderDetailModal", () => {
 
     render(<OrderDetailModal isOpen close={() => {}} order={order} />);
 
+    expect(screen.getByText("주문 상품과 결제/배송 정보를 확인합니다.")).toBeInTheDocument();
     expect(screen.getByText("아이템 · 직배송 · 바로배송")).toBeInTheDocument();
     expect(screen.queryByText("입금 은행")).not.toBeInTheDocument();
     expect(screen.queryByText("입금 계좌")).not.toBeInTheDocument();

@@ -42,12 +42,16 @@ export default async function AdminBottleOrdersPage({ searchParams }: AdminBottl
       basePath="/admin/bottle-orders"
       enableGeneralItemActions={false}
       searchParams={{
-        ...params,
         page: String(page),
         limit: String(size),
+        keyword: query.keyword,
         productType: "BOTTLE",
         fulfillmentMethod: query.fulfillmentMethod as AdminOrdersSearchParams["fulfillmentMethod"],
         saleTiming: query.saleTiming as AdminOrdersSearchParams["saleTiming"],
+        orderStatus: query.orderStatus,
+        paymentMethod: query.paymentMethod,
+        paymentStatus: query.paymentStatus,
+        guestOnly: query.guestOnly ? "true" : undefined,
       }}
       orders={response.data.content ?? []}
       totalElements={response.data.page?.totalElements ?? 0}

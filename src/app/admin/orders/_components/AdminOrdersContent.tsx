@@ -28,7 +28,6 @@ export interface AdminOrdersSearchParams extends Record<string, string | undefin
   page?: string;
   limit?: string;
   keyword?: string;
-  orderType?: "RESERVATION" | "PICKUP" | "GENERAL";
   productType?: "BOTTLE" | "ITEM";
   fulfillmentMethod?: "DIRECT_DELIVERY" | "PICKUP";
   saleTiming?: "IMMEDIATE" | "RESERVATION";
