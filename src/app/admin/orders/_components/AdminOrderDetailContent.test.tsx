@@ -101,7 +101,6 @@ describe("AdminOrderDetailContent", () => {
     expect(screen.getAllByText("10,000원")).not.toHaveLength(0);
     expect(screen.getByText("선물 포장")).toBeInTheDocument();
     expect(screen.getByText("UPDATE_DELIVERY")).toBeInTheDocument();
-    expect(screen.queryByText("입금기한")).not.toBeInTheDocument();
   });
 
   it("관리자 수동 구매내역 주문 출처를 표시한다", () => {

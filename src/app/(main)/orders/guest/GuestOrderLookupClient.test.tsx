@@ -14,7 +14,7 @@ vi.mock("../../general-items/delivery-order/actions", () => ({
 }));
 
 describe("GuestOrderLookupClient", () => {
-  it("비회원 주문 상세에 주문 분류를 표시하고 계좌이체 안내는 표시하지 않는다", async () => {
+  it("비회원 주문 상세에 주문 분류를 표시한다", async () => {
     vi.mocked(lookupGuestGeneralItemOrder).mockResolvedValue({
       success: true,
       data: {
@@ -30,7 +30,6 @@ describe("GuestOrderLookupClient", () => {
         payment: {
           paymentMethod: "TOSS",
           paymentStatus: "DONE",
-          bankTransferGuideMessage: "계좌이체 안내",
         },
       } satisfies UserOrderResponse,
     });
@@ -39,6 +38,5 @@ describe("GuestOrderLookupClient", () => {
 
     await waitFor(() => expect(screen.getByText("ODR-GUEST-1")).toBeInTheDocument());
     expect(screen.getByText("아이템 · 직배송 · 바로배송")).toBeInTheDocument();
-    expect(screen.queryByText("계좌이체 안내")).not.toBeInTheDocument();
   });
 });
