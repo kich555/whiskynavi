@@ -1057,18 +1057,6 @@ export const AdminOrderResponseOrderStatus = {
 } as const;
 
 /**
- * 판매 유형
- */
-export type AdminOrderResponseOrderType = typeof AdminOrderResponseOrderType[keyof typeof AdminOrderResponseOrderType];
-
-
-export const AdminOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType[keyof typeof AdminOrderResponseProductType];
@@ -1155,8 +1143,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: AdminOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: AdminOrderResponseOrderType;
   payment?: AdminOrderPaymentResponse;
   priceSummary?: AdminOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -2756,18 +2742,6 @@ export interface OrderCancelRequest {
 }
 
 /**
- * 판매 유형
- */
-export type OrderCreateRequestOrderType = typeof OrderCreateRequestOrderType[keyof typeof OrderCreateRequestOrderType];
-
-
-export const OrderCreateRequestOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type OrderCreateRequestProductType = typeof OrderCreateRequestProductType[keyof typeof OrderCreateRequestProductType];
@@ -2812,8 +2786,6 @@ export interface OrderCreateRequest {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: OrderCreateRequestOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -3757,18 +3729,6 @@ export const UserOrderResponseOrderStatus = {
 } as const;
 
 /**
- * 판매 유형
- */
-export type UserOrderResponseOrderType = typeof UserOrderResponseOrderType[keyof typeof UserOrderResponseOrderType];
-
-
-export const UserOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 결제 정보
  */
 export interface UserOrderPaymentResponse {
@@ -3894,8 +3854,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: UserOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: UserOrderResponseOrderType;
   payment?: UserOrderPaymentResponse;
   priceSummary?: UserOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -6454,10 +6412,6 @@ size?: number;
  */
 sort?: string[];
 /**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersOrderType;
-/**
  * 주문 상태
  */
 orderStatus?: GetApiAdminOrdersOrderStatus;
@@ -6527,15 +6481,6 @@ createdFrom?: string;
 createdTo?: string;
 };
 
-export type GetApiAdminOrdersOrderType = typeof GetApiAdminOrdersOrderType[keyof typeof GetApiAdminOrdersOrderType];
-
-
-export const GetApiAdminOrdersOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
 export type GetApiAdminOrdersOrderStatus = typeof GetApiAdminOrdersOrderStatus[keyof typeof GetApiAdminOrdersOrderStatus];
 
 
@@ -6578,10 +6523,6 @@ export const GetApiAdminOrdersSaleTiming = {
 } as const;
 
 export type GetApiAdminOrdersDeliveryExportParams = {
-/**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersDeliveryExportOrderType;
 /**
  * 주문 상태
  */
@@ -6651,15 +6592,6 @@ createdFrom?: string;
  */
 createdTo?: string;
 };
-
-export type GetApiAdminOrdersDeliveryExportOrderType = typeof GetApiAdminOrdersDeliveryExportOrderType[keyof typeof GetApiAdminOrdersDeliveryExportOrderType];
-
-
-export const GetApiAdminOrdersDeliveryExportOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
 
 export type GetApiAdminOrdersDeliveryExportOrderStatus = typeof GetApiAdminOrdersDeliveryExportOrderStatus[keyof typeof GetApiAdminOrdersDeliveryExportOrderStatus];
 
@@ -8261,18 +8193,6 @@ userId?: number;
 };
 
 /**
- * 판매 유형
- */
-export type PostApiOrdersBodyOrderType = typeof PostApiOrdersBodyOrderType[keyof typeof PostApiOrdersBodyOrderType];
-
-
-export const PostApiOrdersBodyOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type PostApiOrdersBodyProductType = typeof PostApiOrdersBodyProductType[keyof typeof PostApiOrdersBodyProductType];
@@ -8317,8 +8237,6 @@ export type PostApiOrdersBody = {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: PostApiOrdersBodyOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -9373,8 +9291,8 @@ export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, opti
   {      
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9564,7 +9482,7 @@ export const getPatchApiAdminBannersIdUrl = (id: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12143,7 +12061,7 @@ export const getApiAdminNiceidStatus = async (requestNo: string, options?: Reque
  * 관리자 대시보드와 주문 운영 큐에서 사용하는 주문 목록 API다.
 
 주요 검색 조건:
-- orderType, orderStatus: 기존 주문 흐름/상태 기준 필터
+- orderStatus: 주문 상태 기준 필터
 - productType, fulfillmentMethod, saleTiming: 물품 종류/전달 방식/판매 시기 기준 필터
 - paymentMethod, paymentStatus: 계좌이체 입금 대기, 토스 완료 등 결제 기준 필터
 - depositOverdue=true: 입금 기한이 지난 계좌이체 입금 대기 주문만 조회
