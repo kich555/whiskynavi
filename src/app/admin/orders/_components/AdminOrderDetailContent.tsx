@@ -4,7 +4,7 @@ import type { AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
-import { formatOrderClassification } from "@/lib/order-classification";
+import { formatOrderClassification, getProductTypeLabel } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
@@ -140,7 +140,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
                   <tr>
                     <th className="px-3 py-2 text-left">상품명</th>
                     <th className="px-3 py-2 text-left">판매공고</th>
-                    <th className="px-3 py-2 text-left">분류</th>
+                    <th className="px-3 py-2 text-left">상품 유형</th>
                     <th className="px-3 py-2 text-right">단가</th>
                     <th className="px-3 py-2 text-right">수량</th>
                     <th className="px-3 py-2 text-right">라인 합계</th>
@@ -151,7 +151,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
                     <tr key={item.orderItemId ?? `${item.productId ?? "item"}-${index}`}>
                       <td className="px-3 py-3 font-medium text-gray-900">{item.itemName ?? "-"}</td>
                       <td className="px-3 py-3 text-gray-600">{item.saleTitle ?? "-"}</td>
-                      <td className="px-3 py-3 text-gray-600">{formatOrderClassification(item)}</td>
+                      <td className="px-3 py-3 text-gray-600">{getProductTypeLabel(item.productType)}</td>
                       <td className="px-3 py-3 text-right text-gray-700">{formatCurrency(item.unitPrice)}</td>
                       <td className="px-3 py-3 text-right text-gray-700">{item.quantity ?? 0}개</td>
                       <td className="px-3 py-3 text-right font-medium text-gray-900">
