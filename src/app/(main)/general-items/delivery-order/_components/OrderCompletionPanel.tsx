@@ -1,8 +1,8 @@
 "use client";
 
 import type { UserGeneralItemDeliveryOrderResponse } from "@/apis/generated/api";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -23,7 +23,6 @@ export default function OrderCompletionPanel({ result }: OrderCompletionPanelPro
   const [copied, setCopied] = useState(false);
   const order = result.order;
   const payment = order?.payment;
-  const depositDeadline = result.depositDeadlineAt ?? payment?.depositDeadlineAt;
   const lookupHref =
     order?.orderNumber && result.guestOrderToken
       ? `/orders/guest?orderNumber=${encodeURIComponent(order.orderNumber)}&guestOrderToken=${encodeURIComponent(
@@ -65,23 +64,6 @@ export default function OrderCompletionPanel({ result }: OrderCompletionPanelPro
           <p className="mt-3 text-xs leading-5 text-amber-100/80">
             조회 코드는 최초 주문 완료 화면에서만 다시 확인할 수 있습니다. 주문번호와 함께 보관해 주세요.
           </p>
-        </div>
-      )}
-
-      {(payment?.bankName || payment?.bankAccountNumber || payment?.bankTransferGuideMessage || depositDeadline) && (
-        <div className="mt-6 border border-white/10 bg-black/20 p-4">
-          <h3 className="typo-bold-18 mb-4 text-white">입금 안내</h3>
-          <dl className="space-y-3">
-            <InfoRow label="입금 은행" value={payment?.bankName} />
-            <InfoRow label="입금 계좌" value={payment?.bankAccountNumber} />
-            <InfoRow label="예금주" value={payment?.bankAccountHolderName} />
-            <InfoRow label="입금 기한" value={formatDateTime(depositDeadline)} />
-          </dl>
-          {payment?.bankTransferGuideMessage && (
-            <p className="mt-4 rounded-md bg-white/5 p-3 text-sm leading-6 text-gray-200">
-              {payment.bankTransferGuideMessage}
-            </p>
-          )}
         </div>
       )}
 

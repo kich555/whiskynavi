@@ -1,11 +1,12 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
-import { formatCurrency } from "@/lib/formatters";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { IconGoogle, IconKakao, IconNaver } from "@/icons";
+import { formatCurrency } from "@/lib/formatters";
+import { formatOrderClassification } from "@/lib/order-classification";
 import {
   Ban,
   Calendar,
@@ -26,12 +27,6 @@ import { toast } from "sonner";
 import { ASSIGNABLE_ROLES, ORDER_STATUS_COLOR, ORDER_STATUS_LABEL, ROLE_COLOR_MAP, ROLE_LABEL_MAP } from "../constants";
 import AdminConfirmModal from "./modals/AdminConfirmModal";
 import RoleConflictModal from "./modals/RoleConflictModal";
-
-const ORDER_TYPE_LABEL: Record<string, string> = {
-  RESERVATION: "예약",
-  PICKUP: "픽업",
-  GENERAL: "일반",
-};
 
 // ─── 유틸 ─────────────────────────────────────────────────────
 // 같은 그룹 내 역할은 하나만 가질 수 있음 (추가 시 교체 확인)
@@ -457,9 +452,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="typo-medium-14 text-amber-100">총 구매 금액</p>
-                        <p className="typo-bold-24 mt-1 text-white">
-                          {formatCurrency(orderSummary.totalAmount ?? 0)}
-                        </p>
+                        <p className="typo-bold-24 mt-1 text-white">{formatCurrency(orderSummary.totalAmount ?? 0)}</p>
                       </div>
                       <div className="flex items-center justify-between gap-4 sm:justify-end">
                         <div className="text-right">
@@ -488,7 +481,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                           <tr className="border-b border-gray-200">
                             <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
                             <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문유형</th>
+                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
@@ -501,9 +494,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                             <tr key={order.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
                               <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
                               <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
-                              <td className="px-3 py-3 text-gray-600">
-                                {ORDER_TYPE_LABEL[order.orderType ?? ""] ?? order.orderType}
-                              </td>
+                              <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
                               <td className="px-3 py-3 text-right font-medium text-gray-900">
                                 {order.requestedQuantity}병
                               </td>

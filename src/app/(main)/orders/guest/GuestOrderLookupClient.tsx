@@ -1,10 +1,11 @@
 "use client";
 
 import type { UserOrderResponse } from "@/apis/generated/api";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { formatOrderClassification } from "@/lib/order-classification";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import {
@@ -44,6 +45,7 @@ function GuestOrderDetail({
   const canCancel = canRequestDeliveryOrderCancel(order.orderStatus);
   const delivery = order.delivery;
   const payment = order.payment;
+  const orderClassification = formatOrderClassification(order);
 
   return (
     <section className="mt-8 border border-white/10 bg-white/5 p-5 md:p-8">
@@ -60,6 +62,7 @@ function GuestOrderDetail({
           <h3 className="typo-bold-18 mb-4 text-white">주문 정보</h3>
           <dl className="space-y-3">
             <InfoRow label="상품명" value={order.itemName || order.saleTitle} />
+            <InfoRow label="주문 분류" value={orderClassification} />
             <InfoRow label="수량" value={order.requestedQuantity ? `${order.requestedQuantity}개` : "-"} />
             <InfoRow label="총 금액" value={formatCurrency(order.totalPrice)} />
             <InfoRow label="결제수단" value={payment?.paymentMethod} />
@@ -82,12 +85,6 @@ function GuestOrderDetail({
           </dl>
         </div>
       </div>
-
-      {payment?.bankTransferGuideMessage && (
-        <div className="mt-6 border border-amber-400/30 bg-amber-400/10 p-4 text-sm leading-6 text-amber-100">
-          {payment.bankTransferGuideMessage}
-        </div>
-      )}
 
       {canCancel && (
         <div className="mt-8 border-t border-white/10 pt-6">
