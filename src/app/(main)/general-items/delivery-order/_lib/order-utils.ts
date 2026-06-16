@@ -12,7 +12,7 @@ const STATUS_CONFIG_MAP: Record<string, { label: string; colorClass: string }> =
     colorClass: "border-yellow-600/30 bg-yellow-600/20 text-yellow-400",
   },
   [UserOrderResponseOrderStatus.PAYMENT_PENDING]: {
-    label: "입금 대기",
+    label: "결제 대기",
     colorClass: "border-orange-600/30 bg-orange-600/20 text-orange-400",
   },
   [UserOrderResponseOrderStatus.ORDER_PREPARING]: {

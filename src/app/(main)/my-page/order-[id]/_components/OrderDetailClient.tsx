@@ -2,6 +2,7 @@
 
 import type { UserOrderResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
+import { formatOrderClassification } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { overlay } from "overlay-kit";
@@ -17,6 +18,7 @@ interface OrderDetailClientProps {
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
+  const orderClassification = formatOrderClassification(order);
 
   const handleCancelClick = () => {
     overlay.open(({ isOpen, close }) => (
@@ -84,7 +86,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
               </h3>
               <div className="space-y-3 sm:space-y-4">
                 <InfoRow label="주문일시" value={formatDate(order.createdAt)} />
-                <InfoRow label="주문 유형" value={order.orderType ?? "-"} />
+                <InfoRow label="주문 분류" value={orderClassification} />
                 {order.orderNote && <InfoRow label="주문 메모" value={order.orderNote} />}
                 {order.cancelReason && <InfoRow label="취소 사유" value={order.cancelReason} />}
               </div>
@@ -102,22 +104,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                   <InfoRow label="결제상태" value={order.payment.paymentStatus ?? "-"} />
                   <InfoRow label="결제금액" value={formatCurrency(order.payment.paidAmount)} />
                   {order.payment.paidAt && <InfoRow label="결제일" value={formatDate(order.payment.paidAt)} />}
-                  {order.payment.bankName && <InfoRow label="입금 은행" value={order.payment.bankName} />}
-                  {order.payment.bankAccountNumber && (
-                    <InfoRow label="입금 계좌" value={order.payment.bankAccountNumber} />
-                  )}
-                  {order.payment.bankAccountHolderName && (
-                    <InfoRow label="예금주" value={order.payment.bankAccountHolderName} />
-                  )}
-                  {order.payment.depositDeadlineAt && (
-                    <InfoRow label="입금 기한" value={formatDate(order.payment.depositDeadlineAt)} />
-                  )}
                 </div>
-                {order.payment.bankTransferGuideMessage && (
-                  <p className="mt-4 border border-amber-400/30 bg-amber-400/10 p-3 text-sm leading-6 text-amber-100">
-                    {order.payment.bankTransferGuideMessage}
-                  </p>
-                )}
               </div>
             )}
 

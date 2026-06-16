@@ -893,6 +893,17 @@ export interface AdminOrderDeliveryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type AdminOrderItemResponseFulfillmentMethod = typeof AdminOrderItemResponseFulfillmentMethod[keyof typeof AdminOrderItemResponseFulfillmentMethod];
+
+
+export const AdminOrderItemResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 판매 상품 유형
  */
 export type AdminOrderItemResponseProductType = typeof AdminOrderItemResponseProductType[keyof typeof AdminOrderItemResponseProductType];
@@ -901,6 +912,17 @@ export type AdminOrderItemResponseProductType = typeof AdminOrderItemResponsePro
 export const AdminOrderItemResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
+} as const;
+
+/**
+ * 판매/배송 시기
+ */
+export type AdminOrderItemResponseSaleTiming = typeof AdminOrderItemResponseSaleTiming[keyof typeof AdminOrderItemResponseSaleTiming];
+
+
+export const AdminOrderItemResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
 } as const;
 
 /**
@@ -919,6 +941,8 @@ export const AdminOrderItemResponseSaleType = {
  * 주문 상품 라인 응답 정보
  */
 export interface AdminOrderItemResponse {
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: AdminOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -936,6 +960,8 @@ export interface AdminOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: AdminOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -995,6 +1021,17 @@ export interface AdminOrderPriceSummaryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type AdminOrderResponseFulfillmentMethod = typeof AdminOrderResponseFulfillmentMethod[keyof typeof AdminOrderResponseFulfillmentMethod];
+
+
+export const AdminOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 주문 상태.
 일반 아이템 배송 주문 주요 흐름:
 PAYMENT_PENDING -> ORDER_PREPARING -> SHIPPING -> DELIVERY_COMPLETED,
@@ -1043,6 +1080,17 @@ export const AdminOrderResponseProductType = {
 } as const;
 
 /**
+ * 판매/배송 시기
+ */
+export type AdminOrderResponseSaleTiming = typeof AdminOrderResponseSaleTiming[keyof typeof AdminOrderResponseSaleTiming];
+
+
+export const AdminOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
+/**
  * 판매 공고 유형
  */
 export type AdminOrderResponseSaleType = typeof AdminOrderResponseSaleType[keyof typeof AdminOrderResponseSaleType];
@@ -1074,6 +1122,8 @@ export interface AdminOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: AdminOrderResponseFulfillmentMethod;
   /** 비회원 주문 안내 이메일 */
   guestEmail?: string;
   /** 비회원 주문 안내 휴대폰 번호 */
@@ -1122,6 +1172,8 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
    * @nullable
    */
   saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: AdminOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -2786,7 +2838,7 @@ export interface OrderCreateRequest {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -3591,6 +3643,28 @@ export interface UserOrderDeliveryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type UserOrderResponseFulfillmentMethod = typeof UserOrderResponseFulfillmentMethod[keyof typeof UserOrderResponseFulfillmentMethod];
+
+
+export const UserOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
+ * 상품 전달 방식
+ */
+export type UserOrderItemResponseFulfillmentMethod = typeof UserOrderItemResponseFulfillmentMethod[keyof typeof UserOrderItemResponseFulfillmentMethod];
+
+
+export const UserOrderItemResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 판매 상품 유형
  */
 export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProductType[keyof typeof UserOrderItemResponseProductType];
@@ -3599,6 +3673,17 @@ export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProdu
 export const UserOrderItemResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
+} as const;
+
+/**
+ * 판매/배송 시기
+ */
+export type UserOrderItemResponseSaleTiming = typeof UserOrderItemResponseSaleTiming[keyof typeof UserOrderItemResponseSaleTiming];
+
+
+export const UserOrderItemResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
 } as const;
 
 /**
@@ -3617,6 +3702,8 @@ export const UserOrderItemResponseSaleType = {
  * 주문 상품 라인 응답 정보
  */
 export interface UserOrderItemResponse {
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: UserOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -3634,6 +3721,8 @@ export interface UserOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: UserOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -3737,6 +3826,17 @@ export const UserOrderResponseProductType = {
 } as const;
 
 /**
+ * 판매/배송 시기
+ */
+export type UserOrderResponseSaleTiming = typeof UserOrderResponseSaleTiming[keyof typeof UserOrderResponseSaleTiming];
+
+
+export const UserOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
+/**
  * 판매 공고 유형
  */
 export type UserOrderResponseSaleType = typeof UserOrderResponseSaleType[keyof typeof UserOrderResponseSaleType];
@@ -3765,6 +3865,8 @@ export interface UserOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: UserOrderResponseFulfillmentMethod;
   /** 주문 ID */
   id?: number;
   /** 수입사 ID */
@@ -3809,6 +3911,8 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
    * @nullable
    */
   saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: UserOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -6362,6 +6466,14 @@ orderStatus?: GetApiAdminOrdersOrderStatus;
  */
 productType?: GetApiAdminOrdersProductType;
 /**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersSaleTiming;
+/**
  * 판매 공고 ID
  */
 saleAnnouncementId?: number;
@@ -6449,6 +6561,22 @@ export const GetApiAdminOrdersProductType = {
   ITEM: 'ITEM',
 } as const;
 
+export type GetApiAdminOrdersFulfillmentMethod = typeof GetApiAdminOrdersFulfillmentMethod[keyof typeof GetApiAdminOrdersFulfillmentMethod];
+
+
+export const GetApiAdminOrdersFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersSaleTiming = typeof GetApiAdminOrdersSaleTiming[keyof typeof GetApiAdminOrdersSaleTiming];
+
+
+export const GetApiAdminOrdersSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
 export type GetApiAdminOrdersDeliveryExportParams = {
 /**
  * 주문 유형
@@ -6462,6 +6590,14 @@ orderStatus?: GetApiAdminOrdersDeliveryExportOrderStatus;
  * 상품 유형
  */
 productType?: GetApiAdminOrdersDeliveryExportProductType;
+/**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersDeliveryExportFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersDeliveryExportSaleTiming;
 /**
  * 판매 공고 ID
  */
@@ -6548,6 +6684,22 @@ export type GetApiAdminOrdersDeliveryExportProductType = typeof GetApiAdminOrder
 export const GetApiAdminOrdersDeliveryExportProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
+} as const;
+
+export type GetApiAdminOrdersDeliveryExportFulfillmentMethod = typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod[keyof typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod];
+
+
+export const GetApiAdminOrdersDeliveryExportFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersDeliveryExportSaleTiming = typeof GetApiAdminOrdersDeliveryExportSaleTiming[keyof typeof GetApiAdminOrdersDeliveryExportSaleTiming];
+
+
+export const GetApiAdminOrdersDeliveryExportSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
 } as const;
 
 export type PostApiAdminOrdersDeliveryImportParams = {
@@ -6644,7 +6796,7 @@ export type PatchApiAdminOrdersOrderidApproveBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6699,7 +6851,7 @@ export type PatchApiAdminOrdersOrderidDeliveryBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6754,7 +6906,7 @@ export type PatchApiAdminOrdersOrderidDeliveryCompleteBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -9248,7 +9400,7 @@ export const getPostApiAdminBannersUrl = (params: PostApiAdminBannersParams,) =>
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11991,7 +12143,8 @@ export const getApiAdminNiceidStatus = async (requestNo: string, options?: Reque
  * 관리자 대시보드와 주문 운영 큐에서 사용하는 주문 목록 API다.
 
 주요 검색 조건:
-- orderType, orderStatus, productType: 주문/상품/상태 기준 필터
+- orderType, orderStatus: 기존 주문 흐름/상태 기준 필터
+- productType, fulfillmentMethod, saleTiming: 물품 종류/전달 방식/판매 시기 기준 필터
 - paymentMethod, paymentStatus: 계좌이체 입금 대기, 토스 완료 등 결제 기준 필터
 - depositOverdue=true: 입금 기한이 지난 계좌이체 입금 대기 주문만 조회
 - orderNumber, keyword: 주문번호와 고객명/이메일/휴대폰/상품명/공고명 검색
@@ -12283,6 +12436,7 @@ export const getGetApiAdminOrdersManualPurchasesImportTemplateUrl = (params?: Ge
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
