@@ -893,17 +893,6 @@ export interface AdminOrderDeliveryResponse {
 }
 
 /**
- * 상품 전달 방식
- */
-export type AdminOrderItemResponseFulfillmentMethod = typeof AdminOrderItemResponseFulfillmentMethod[keyof typeof AdminOrderItemResponseFulfillmentMethod];
-
-
-export const AdminOrderItemResponseFulfillmentMethod = {
-  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
-  PICKUP: 'PICKUP',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderItemResponseProductType = typeof AdminOrderItemResponseProductType[keyof typeof AdminOrderItemResponseProductType];
@@ -915,34 +904,9 @@ export const AdminOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매/배송 시기
- */
-export type AdminOrderItemResponseSaleTiming = typeof AdminOrderItemResponseSaleTiming[keyof typeof AdminOrderItemResponseSaleTiming];
-
-
-export const AdminOrderItemResponseSaleTiming = {
-  IMMEDIATE: 'IMMEDIATE',
-  RESERVATION: 'RESERVATION',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type AdminOrderItemResponseSaleType = typeof AdminOrderItemResponseSaleType[keyof typeof AdminOrderItemResponseSaleType];
-
-
-export const AdminOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface AdminOrderItemResponse {
-  /** 상품 전달 방식 */
-  fulfillmentMethod?: AdminOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -960,12 +924,8 @@ export interface AdminOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
-  /** 판매/배송 시기 */
-  saleTiming?: AdminOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: AdminOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -1057,18 +1017,6 @@ export const AdminOrderResponseOrderStatus = {
 } as const;
 
 /**
- * 판매 유형
- */
-export type AdminOrderResponseOrderType = typeof AdminOrderResponseOrderType[keyof typeof AdminOrderResponseOrderType];
-
-
-export const AdminOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType[keyof typeof AdminOrderResponseProductType];
@@ -1155,8 +1103,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: AdminOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: AdminOrderResponseOrderType;
   payment?: AdminOrderPaymentResponse;
   priceSummary?: AdminOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -2756,18 +2702,6 @@ export interface OrderCancelRequest {
 }
 
 /**
- * 판매 유형
- */
-export type OrderCreateRequestOrderType = typeof OrderCreateRequestOrderType[keyof typeof OrderCreateRequestOrderType];
-
-
-export const OrderCreateRequestOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type OrderCreateRequestProductType = typeof OrderCreateRequestProductType[keyof typeof OrderCreateRequestProductType];
@@ -2812,8 +2746,6 @@ export interface OrderCreateRequest {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: OrderCreateRequestOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -3654,17 +3586,6 @@ export const UserOrderResponseFulfillmentMethod = {
 } as const;
 
 /**
- * 상품 전달 방식
- */
-export type UserOrderItemResponseFulfillmentMethod = typeof UserOrderItemResponseFulfillmentMethod[keyof typeof UserOrderItemResponseFulfillmentMethod];
-
-
-export const UserOrderItemResponseFulfillmentMethod = {
-  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
-  PICKUP: 'PICKUP',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProductType[keyof typeof UserOrderItemResponseProductType];
@@ -3676,34 +3597,9 @@ export const UserOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매/배송 시기
- */
-export type UserOrderItemResponseSaleTiming = typeof UserOrderItemResponseSaleTiming[keyof typeof UserOrderItemResponseSaleTiming];
-
-
-export const UserOrderItemResponseSaleTiming = {
-  IMMEDIATE: 'IMMEDIATE',
-  RESERVATION: 'RESERVATION',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type UserOrderItemResponseSaleType = typeof UserOrderItemResponseSaleType[keyof typeof UserOrderItemResponseSaleType];
-
-
-export const UserOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface UserOrderItemResponse {
-  /** 상품 전달 방식 */
-  fulfillmentMethod?: UserOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -3721,12 +3617,8 @@ export interface UserOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
-  /** 판매/배송 시기 */
-  saleTiming?: UserOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: UserOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -3754,18 +3646,6 @@ export const UserOrderResponseOrderStatus = {
   ORDER_CANCELED: 'ORDER_CANCELED',
   CANCEL_REQUESTED: 'CANCEL_REQUESTED',
   CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-/**
- * 판매 유형
- */
-export type UserOrderResponseOrderType = typeof UserOrderResponseOrderType[keyof typeof UserOrderResponseOrderType];
-
-
-export const UserOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
 } as const;
 
 /**
@@ -3894,8 +3774,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: UserOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: UserOrderResponseOrderType;
   payment?: UserOrderPaymentResponse;
   priceSummary?: UserOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -6454,10 +6332,6 @@ size?: number;
  */
 sort?: string[];
 /**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersOrderType;
-/**
  * 주문 상태
  */
 orderStatus?: GetApiAdminOrdersOrderStatus;
@@ -6527,15 +6401,6 @@ createdFrom?: string;
 createdTo?: string;
 };
 
-export type GetApiAdminOrdersOrderType = typeof GetApiAdminOrdersOrderType[keyof typeof GetApiAdminOrdersOrderType];
-
-
-export const GetApiAdminOrdersOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
 export type GetApiAdminOrdersOrderStatus = typeof GetApiAdminOrdersOrderStatus[keyof typeof GetApiAdminOrdersOrderStatus];
 
 
@@ -6578,10 +6443,6 @@ export const GetApiAdminOrdersSaleTiming = {
 } as const;
 
 export type GetApiAdminOrdersDeliveryExportParams = {
-/**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersDeliveryExportOrderType;
 /**
  * 주문 상태
  */
@@ -6651,15 +6512,6 @@ createdFrom?: string;
  */
 createdTo?: string;
 };
-
-export type GetApiAdminOrdersDeliveryExportOrderType = typeof GetApiAdminOrdersDeliveryExportOrderType[keyof typeof GetApiAdminOrdersDeliveryExportOrderType];
-
-
-export const GetApiAdminOrdersDeliveryExportOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
 
 export type GetApiAdminOrdersDeliveryExportOrderStatus = typeof GetApiAdminOrdersDeliveryExportOrderStatus[keyof typeof GetApiAdminOrdersDeliveryExportOrderStatus];
 
@@ -8261,18 +8113,6 @@ userId?: number;
 };
 
 /**
- * 판매 유형
- */
-export type PostApiOrdersBodyOrderType = typeof PostApiOrdersBodyOrderType[keyof typeof PostApiOrdersBodyOrderType];
-
-
-export const PostApiOrdersBodyOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type PostApiOrdersBodyProductType = typeof PostApiOrdersBodyProductType[keyof typeof PostApiOrdersBodyProductType];
@@ -8317,8 +8157,6 @@ export type PostApiOrdersBody = {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: PostApiOrdersBodyOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -9368,13 +9206,13 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
 }
 
 export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, options?: RequestInit): Promise<getApiAdminBannersResponse> => {
-  
+
   return customFetch<getApiAdminBannersResponse>(getGetApiAdminBannersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9388,7 +9226,7 @@ export type postApiAdminBannersResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type postApiAdminBannersResponseSuccess = (postApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -9439,7 +9277,7 @@ export type patchApiAdminBannersOrdersResponse200 = {
   data: AdminBannerResponse[]
   status: 200
 }
-    
+
 export type patchApiAdminBannersOrdersResponseSuccess = (patchApiAdminBannersOrdersResponse200) & {
   headers: Headers;
 };
@@ -9564,7 +9402,7 @@ export const getPatchApiAdminBannersIdUrl = (id: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12143,7 +11981,7 @@ export const getApiAdminNiceidStatus = async (requestNo: string, options?: Reque
  * 관리자 대시보드와 주문 운영 큐에서 사용하는 주문 목록 API다.
 
 주요 검색 조건:
-- orderType, orderStatus: 기존 주문 흐름/상태 기준 필터
+- orderStatus: 주문 상태 기준 필터
 - productType, fulfillmentMethod, saleTiming: 물품 종류/전달 방식/판매 시기 기준 필터
 - paymentMethod, paymentStatus: 계좌이체 입금 대기, 토스 완료 등 결제 기준 필터
 - depositOverdue=true: 입금 기한이 지난 계좌이체 입금 대기 주문만 조회

@@ -56,8 +56,6 @@ describe("AdminOrderDetailContent", () => {
           unitPrice: 4000,
           lineTotalPrice: 4000,
           productType: "ITEM",
-          fulfillmentMethod: "DIRECT_DELIVERY",
-          saleTiming: "IMMEDIATE",
         },
         {
           orderItemId: 2,
@@ -66,8 +64,6 @@ describe("AdminOrderDetailContent", () => {
           unitPrice: 1000,
           lineTotalPrice: 3000,
           productType: "ITEM",
-          fulfillmentMethod: "DIRECT_DELIVERY",
-          saleTiming: "IMMEDIATE",
         },
       ],
       priceSummary: {
@@ -86,7 +82,9 @@ describe("AdminOrderDetailContent", () => {
     expect(screen.getByText("일반상품 주문 상세")).toBeInTheDocument();
     expect(screen.getByText("ODR-CART-123")).toBeInTheDocument();
     expect(screen.getByText("장바구니")).toBeInTheDocument();
-    expect(screen.getAllByText("아이템 · 직배송 · 바로배송").length).toBeGreaterThan(0);
+    expect(screen.getAllByText("아이템 · 직배송 · 바로배송")).toHaveLength(1);
+    expect(screen.getByRole("columnheader", { name: "상품 유형" })).toBeInTheDocument();
+    expect(screen.getAllByText("아이템")).toHaveLength(2);
     expect(screen.getByText("시음권 세트 외 1건")).toBeInTheDocument();
     expect(screen.getByText("총 수량 4개")).toBeInTheDocument();
     expect(screen.getByText("김관리")).toBeInTheDocument();
