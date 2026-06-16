@@ -893,17 +893,6 @@ export interface AdminOrderDeliveryResponse {
 }
 
 /**
- * 상품 전달 방식
- */
-export type AdminOrderItemResponseFulfillmentMethod = typeof AdminOrderItemResponseFulfillmentMethod[keyof typeof AdminOrderItemResponseFulfillmentMethod];
-
-
-export const AdminOrderItemResponseFulfillmentMethod = {
-  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
-  PICKUP: 'PICKUP',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderItemResponseProductType = typeof AdminOrderItemResponseProductType[keyof typeof AdminOrderItemResponseProductType];
@@ -915,34 +904,9 @@ export const AdminOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매/배송 시기
- */
-export type AdminOrderItemResponseSaleTiming = typeof AdminOrderItemResponseSaleTiming[keyof typeof AdminOrderItemResponseSaleTiming];
-
-
-export const AdminOrderItemResponseSaleTiming = {
-  IMMEDIATE: 'IMMEDIATE',
-  RESERVATION: 'RESERVATION',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type AdminOrderItemResponseSaleType = typeof AdminOrderItemResponseSaleType[keyof typeof AdminOrderItemResponseSaleType];
-
-
-export const AdminOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface AdminOrderItemResponse {
-  /** 상품 전달 방식 */
-  fulfillmentMethod?: AdminOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -960,12 +924,8 @@ export interface AdminOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
-  /** 판매/배송 시기 */
-  saleTiming?: AdminOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: AdminOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -3626,17 +3586,6 @@ export const UserOrderResponseFulfillmentMethod = {
 } as const;
 
 /**
- * 상품 전달 방식
- */
-export type UserOrderItemResponseFulfillmentMethod = typeof UserOrderItemResponseFulfillmentMethod[keyof typeof UserOrderItemResponseFulfillmentMethod];
-
-
-export const UserOrderItemResponseFulfillmentMethod = {
-  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
-  PICKUP: 'PICKUP',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProductType[keyof typeof UserOrderItemResponseProductType];
@@ -3648,34 +3597,9 @@ export const UserOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매/배송 시기
- */
-export type UserOrderItemResponseSaleTiming = typeof UserOrderItemResponseSaleTiming[keyof typeof UserOrderItemResponseSaleTiming];
-
-
-export const UserOrderItemResponseSaleTiming = {
-  IMMEDIATE: 'IMMEDIATE',
-  RESERVATION: 'RESERVATION',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type UserOrderItemResponseSaleType = typeof UserOrderItemResponseSaleType[keyof typeof UserOrderItemResponseSaleType];
-
-
-export const UserOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface UserOrderItemResponse {
-  /** 상품 전달 방식 */
-  fulfillmentMethod?: UserOrderItemResponseFulfillmentMethod;
   /** 상품명 */
   itemName?: string;
   /** 상품 라인 합계 */
@@ -3693,12 +3617,8 @@ export interface UserOrderItemResponse {
    * @nullable
    */
   saleAnnouncementId?: number | null;
-  /** 판매/배송 시기 */
-  saleTiming?: UserOrderItemResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: UserOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -9286,9 +9206,9 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
 }
 
 export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, options?: RequestInit): Promise<getApiAdminBannersResponse> => {
-  
+
   return customFetch<getApiAdminBannersResponse>(getGetApiAdminBannersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
 
@@ -9306,7 +9226,7 @@ export type postApiAdminBannersResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type postApiAdminBannersResponseSuccess = (postApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -9357,7 +9277,7 @@ export type patchApiAdminBannersOrdersResponse200 = {
   data: AdminBannerResponse[]
   status: 200
 }
-    
+
 export type patchApiAdminBannersOrdersResponseSuccess = (patchApiAdminBannersOrdersResponse200) & {
   headers: Headers;
 };
