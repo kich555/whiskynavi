@@ -1,4 +1,5 @@
 import {
+  getApiAdminOrdersDeliveryExport,
   patchApiAdminOrdersOrderidDeliveryComplete,
   patchApiAdminOrdersOrderidDeliveryShip,
   patchApiAdminOrdersOrderidStatus,
@@ -7,11 +8,13 @@ import { getAuthToken } from "@/lib/auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeAdminOrderDelivery,
+  exportAdminDeliveryCsv,
   shipAdminOrderDelivery,
   updateAdminOrderStatus,
 } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
+  getApiAdminOrdersDeliveryExport: vi.fn(),
   patchApiAdminOrdersOrderidDeliveryComplete: vi.fn(),
   patchApiAdminOrdersOrderidDeliveryShip: vi.fn(),
   patchApiAdminOrdersOrderidStatus: vi.fn(),
@@ -29,6 +32,7 @@ const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedShip = vi.mocked(patchApiAdminOrdersOrderidDeliveryShip);
 const mockedComplete = vi.mocked(patchApiAdminOrdersOrderidDeliveryComplete);
 const mockedStatus = vi.mocked(patchApiAdminOrdersOrderidStatus);
+const mockedExport = vi.mocked(getApiAdminOrdersDeliveryExport);
 
 describe("admin order actions", () => {
   beforeEach(() => {
@@ -71,6 +75,20 @@ describe("admin order actions", () => {
     expect(mockedStatus).toHaveBeenCalledWith(
       10,
       { orderStatus: "ORDER_CANCELED", reason: "취소 승인" },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
+  });
+
+  it("exports direct delivery immediate item orders", async () => {
+    mockedExport.mockResolvedValue({ data: "csv-body", status: 200, headers: new Headers() });
+
+    await expect(exportAdminDeliveryCsv()).resolves.toEqual({ success: true, data: "csv-body" });
+    expect(mockedExport).toHaveBeenCalledWith(
+      {
+        productType: "ITEM",
+        fulfillmentMethod: "DIRECT_DELIVERY",
+        saleTiming: "IMMEDIATE",
+      },
       { headers: { Authorization: "Bearer admin-token" } },
     );
   });

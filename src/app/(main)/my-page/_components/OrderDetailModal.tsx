@@ -3,6 +3,7 @@
 import type { UserOrderResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { formatOrderClassification } from "@/lib/order-classification";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../general-items/delivery-order/_lib/order-utils";
 import { CANCELABLE_STATUSES } from "../_lib/constants";
@@ -18,6 +19,7 @@ interface OrderDetailModalProps {
 export default function OrderDetailModal({ isOpen, close, order }: OrderDetailModalProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
+  const orderClassification = formatOrderClassification(order);
 
   const handleCancelClick = () => {
     overlay.open(({ isOpen: cancelOpen, close: cancelClose }) => (
@@ -54,6 +56,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
                 <span className="text-gray-500">상품명</span>
                 <span className="font-medium">{order.itemName || order.saleTitle || "상품명 없음"}</span>
               </div>
+              <DetailRow label="주문 분류" value={orderClassification} />
               <div className="flex justify-between">
                 <span className="text-gray-500">신청 수량</span>
                 <span className="font-medium">{order.requestedQuantity}병</span>
@@ -82,22 +85,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
                 <DetailRow label="결제상태" value={order.payment.paymentStatus} />
                 <DetailRow label="결제금액" value={formatCurrency(order.payment.paidAmount)} />
                 {order.payment.paidAt && <DetailRow label="결제일" value={formatDate(order.payment.paidAt)} />}
-                {order.payment.bankName && <DetailRow label="입금 은행" value={order.payment.bankName} />}
-                {order.payment.bankAccountNumber && (
-                  <DetailRow label="입금 계좌" value={order.payment.bankAccountNumber} />
-                )}
-                {order.payment.bankAccountHolderName && (
-                  <DetailRow label="예금주" value={order.payment.bankAccountHolderName} />
-                )}
-                {order.payment.depositDeadlineAt && (
-                  <DetailRow label="입금 기한" value={formatDate(order.payment.depositDeadlineAt)} />
-                )}
               </div>
-              {order.payment.bankTransferGuideMessage && (
-                <p className="mt-3 rounded bg-amber-50 p-3 text-sm leading-6 text-amber-800">
-                  {order.payment.bankTransferGuideMessage}
-                </p>
-              )}
             </div>
           )}
 

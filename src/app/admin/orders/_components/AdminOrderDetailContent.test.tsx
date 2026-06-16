@@ -26,6 +26,9 @@ describe("AdminOrderDetailContent", () => {
       orderSource: "CART",
       orderStatus: "ORDER_PREPARING",
       createdAt: "2026-05-24T10:00:00+09:00",
+      productType: "ITEM",
+      fulfillmentMethod: "DIRECT_DELIVERY",
+      saleTiming: "IMMEDIATE",
       itemsSummary: "시음권 세트 외 1건",
       itemsCount: 2,
       totalQuantity: 4,
@@ -41,13 +44,31 @@ describe("AdminOrderDetailContent", () => {
         trackingNumber: "1234567890",
       },
       payment: {
-        paymentMethod: "BANK_TRANSFER",
-        paymentStatus: "DEPOSIT_WAITING",
+        paymentMethod: "TOSS",
+        paymentStatus: "DONE",
         paidAmount: 10000,
       },
       items: [
-        { orderItemId: 1, itemName: "시음권 세트", quantity: 1, unitPrice: 4000, lineTotalPrice: 4000 },
-        { orderItemId: 2, itemName: "테이스팅 글라스", quantity: 3, unitPrice: 1000, lineTotalPrice: 3000 },
+        {
+          orderItemId: 1,
+          itemName: "시음권 세트",
+          quantity: 1,
+          unitPrice: 4000,
+          lineTotalPrice: 4000,
+          productType: "ITEM",
+          fulfillmentMethod: "DIRECT_DELIVERY",
+          saleTiming: "IMMEDIATE",
+        },
+        {
+          orderItemId: 2,
+          itemName: "테이스팅 글라스",
+          quantity: 3,
+          unitPrice: 1000,
+          lineTotalPrice: 3000,
+          productType: "ITEM",
+          fulfillmentMethod: "DIRECT_DELIVERY",
+          saleTiming: "IMMEDIATE",
+        },
       ],
       priceSummary: {
         itemsTotalPrice: 7000,
@@ -65,6 +86,7 @@ describe("AdminOrderDetailContent", () => {
     expect(screen.getByText("일반상품 주문 상세")).toBeInTheDocument();
     expect(screen.getByText("ODR-CART-123")).toBeInTheDocument();
     expect(screen.getByText("장바구니")).toBeInTheDocument();
+    expect(screen.getAllByText("아이템 · 직배송 · 바로배송").length).toBeGreaterThan(0);
     expect(screen.getByText("시음권 세트 외 1건")).toBeInTheDocument();
     expect(screen.getByText("총 수량 4개")).toBeInTheDocument();
     expect(screen.getByText("김관리")).toBeInTheDocument();
@@ -79,6 +101,7 @@ describe("AdminOrderDetailContent", () => {
     expect(screen.getAllByText("10,000원")).not.toHaveLength(0);
     expect(screen.getByText("선물 포장")).toBeInTheDocument();
     expect(screen.getByText("UPDATE_DELIVERY")).toBeInTheDocument();
+    expect(screen.queryByText("입금기한")).not.toBeInTheDocument();
   });
 
   it("관리자 수동 구매내역 주문 출처를 표시한다", () => {

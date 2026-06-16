@@ -17,20 +17,21 @@ export default async function AdminBottleOrdersPage({ searchParams }: AdminBottl
   const token = await getAuthToken();
   const page = parseDisplayPage(params.page);
   const size = parsePageSize(params.limit);
-  const orderType = emptyToUndefined(params.orderType) as GetApiAdminOrdersParams["orderType"] | undefined;
+  const fulfillmentMethod = emptyToUndefined(params.fulfillmentMethod) as GetApiAdminOrdersParams["fulfillmentMethod"];
+  const saleTiming = emptyToUndefined(params.saleTiming) as GetApiAdminOrdersParams["saleTiming"];
 
   const query: GetApiAdminOrdersParams = {
     page: toApiPage(page),
     size,
     sort: ["createdAt,desc"],
-    orderType,
     productType: "BOTTLE",
+    fulfillmentMethod,
+    saleTiming,
     orderStatus: emptyToUndefined(params.orderStatus) as GetApiAdminOrdersParams["orderStatus"],
     paymentMethod: emptyToUndefined(params.paymentMethod),
     paymentStatus: emptyToUndefined(params.paymentStatus),
     keyword: emptyToUndefined(params.keyword),
     guestOnly: params.guestOnly === "true" ? true : undefined,
-    depositOverdue: params.depositOverdue === "true" ? true : undefined,
   };
 
   const response = await getApiAdminOrders(query, withToken(token));
@@ -44,8 +45,9 @@ export default async function AdminBottleOrdersPage({ searchParams }: AdminBottl
         ...params,
         page: String(page),
         limit: String(size),
-        orderType: query.orderType as AdminOrdersSearchParams["orderType"],
         productType: "BOTTLE",
+        fulfillmentMethod: query.fulfillmentMethod as AdminOrdersSearchParams["fulfillmentMethod"],
+        saleTiming: query.saleTiming as AdminOrdersSearchParams["saleTiming"],
       }}
       orders={response.data.content ?? []}
       totalElements={response.data.page?.totalElements ?? 0}

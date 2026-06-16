@@ -2,8 +2,9 @@
 
 import type { AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { formatOrderClassification } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
@@ -12,7 +13,6 @@ import { useSidebar } from "../../_components/AdminLayoutClient";
 interface AdminOrderDetailContentProps {
   order: OrderResponse;
 }
-
 
 function getOrderSourceLabel(order: OrderResponse) {
   if (order.orderSource === "ADMIN_MANUAL") return "관리자 수동";
@@ -76,6 +76,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
     : "bg-gray-100 text-gray-700";
   const priceSummary = getOrderPriceSummary(order);
   const lineItems = order.items ?? [];
+  const orderClassification = formatOrderClassification(order);
 
   return (
     <>
@@ -95,6 +96,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
             <DetailField label="주문번호" value={order.orderNumber} />
             <DetailField label="주문 ID" value={order.id} />
             <DetailField label="주문 생성 방식" value={getOrderSourceLabel(order)} />
+            <DetailField label="주문 분류" value={orderClassification} />
             <DetailField label="주문일시" value={formatDateTime(order.createdAt)} />
             <DetailField label="상품 요약" value={getOrderItemsSummary(order)} />
             <DetailField label="상품 라인 수" value={order.itemsCount != null ? `${order.itemsCount}건` : undefined} />
@@ -126,13 +128,6 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
               <DetailField label="결제상태" value={order.payment?.paymentStatus} />
               <DetailField label="결제 금액" value={formatCurrency(order.payment?.paidAmount)} />
               <DetailField label="결제 완료일" value={formatDateTime(order.payment?.paidAt)} />
-              <DetailField label="입금기한" value={formatDateTime(order.payment?.depositDeadlineAt)} />
-              <DetailField
-                label="입금기한 초과"
-                value={order.payment?.depositOverdue == null ? "-" : order.payment.depositOverdue ? "예" : "아니오"}
-              />
-              <DetailField label="은행" value={order.payment?.bankName} />
-              <DetailField label="계좌번호" value={order.payment?.bankAccountNumber} />
             </div>
           </Section>
         </div>
@@ -140,11 +135,12 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
         <Section title="상품 라인">
           {lineItems.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[720px] text-sm">
+              <table className="w-full min-w-[860px] text-sm">
                 <thead className="bg-gray-50 text-xs text-gray-600">
                   <tr>
                     <th className="px-3 py-2 text-left">상품명</th>
                     <th className="px-3 py-2 text-left">판매공고</th>
+                    <th className="px-3 py-2 text-left">분류</th>
                     <th className="px-3 py-2 text-right">단가</th>
                     <th className="px-3 py-2 text-right">수량</th>
                     <th className="px-3 py-2 text-right">라인 합계</th>
@@ -155,6 +151,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
                     <tr key={item.orderItemId ?? `${item.productId ?? "item"}-${index}`}>
                       <td className="px-3 py-3 font-medium text-gray-900">{item.itemName ?? "-"}</td>
                       <td className="px-3 py-3 text-gray-600">{item.saleTitle ?? "-"}</td>
+                      <td className="px-3 py-3 text-gray-600">{formatOrderClassification(item)}</td>
                       <td className="px-3 py-3 text-right text-gray-700">{formatCurrency(item.unitPrice)}</td>
                       <td className="px-3 py-3 text-right text-gray-700">{item.quantity ?? 0}개</td>
                       <td className="px-3 py-3 text-right font-medium text-gray-900">
@@ -168,6 +165,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
           ) : (
             <div className="grid gap-6 md:grid-cols-4">
               <DetailField label="상품명" value={order.itemName ?? order.saleTitle} />
+              <DetailField label="분류" value={orderClassification} />
               <DetailField label="단가" value={formatCurrency(order.unitPrice)} />
               <DetailField label="수량" value={`${order.requestedQuantity ?? 0}개`} />
               <DetailField label="총액" value={formatCurrency(order.totalPrice)} />

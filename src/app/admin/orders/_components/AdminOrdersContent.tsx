@@ -2,11 +2,12 @@
 
 import type { AdminDeliveryCsvUploadResponse, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { getFulfillmentMethodLabel, getProductTypeLabel, getSaleTimingLabel } from "@/lib/order-classification";
 import { Download, Eye, FileCheck2, FileUp, Search, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -29,11 +30,12 @@ export interface AdminOrdersSearchParams extends Record<string, string | undefin
   keyword?: string;
   orderType?: "RESERVATION" | "PICKUP" | "GENERAL";
   productType?: "BOTTLE" | "ITEM";
+  fulfillmentMethod?: "DIRECT_DELIVERY" | "PICKUP";
+  saleTiming?: "IMMEDIATE" | "RESERVATION";
   orderStatus?: string;
   paymentMethod?: string;
   paymentStatus?: string;
   guestOnly?: string;
-  depositOverdue?: string;
 }
 
 interface AdminOrdersContentProps {
@@ -49,7 +51,7 @@ type DeliveryModalMode = "edit" | "ship";
 
 const ORDER_STATUS_OPTIONS = [
   { value: "", label: "전체 상태" },
-  { value: "PAYMENT_PENDING", label: "입금 대기" },
+  { value: "PAYMENT_PENDING", label: "결제 대기" },
   { value: "ORDER_PREPARING", label: "상품 준비 중" },
   { value: "SHIPPING", label: "배송 중" },
   { value: "DELIVERY_COMPLETED", label: "배송 완료" },
@@ -69,17 +71,17 @@ const PAYMENT_STATUS_OPTIONS = [
   { value: "CANCELED", label: "결제 취소" },
 ];
 
-const ORDER_TYPE_LABEL: Record<string, string> = {
-  RESERVATION: "예약",
-  PICKUP: "픽업",
-  GENERAL: "일반배송",
-};
+const FULFILLMENT_METHOD_OPTIONS = [
+  { value: "", label: "전체 방식" },
+  { value: "DIRECT_DELIVERY", label: "직배송" },
+  { value: "PICKUP", label: "픽업" },
+];
 
-const SALE_TYPE_LABEL: Record<string, string> = {
-  RESERVATION: "예약공고",
-  PICKUP: "픽업공고",
-  GENERAL: "일반판매",
-};
+const SALE_TIMING_OPTIONS = [
+  { value: "", label: "전체 시기" },
+  { value: "IMMEDIATE", label: "바로배송" },
+  { value: "RESERVATION", label: "예약판매" },
+];
 
 function getOrderSourceLabel(order: OrderResponse) {
   if (order.orderSource === "ADMIN_MANUAL") return "관리자 수동";
@@ -296,6 +298,9 @@ export default function AdminOrdersContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
+  const filterGridClassName = enableGeneralItemActions
+    ? "grid gap-4 lg:grid-cols-[1fr_160px_160px_160px_130px_auto] lg:items-end"
+    : "grid gap-4 xl:grid-cols-[1fr_150px_150px_150px_150px_130px_auto] xl:items-end";
 
   const pushFilter = (updates: Partial<AdminOrdersSearchParams>) => {
     const params = buildSearchParams({ ...searchParams, ...updates, page: "1" });
@@ -362,7 +367,7 @@ export default function AdminOrdersContent({
 
       <div className="p-8">
         <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-          <div className="grid gap-4 lg:grid-cols-[1fr_160px_160px_160px_130px_auto] lg:items-end">
+          <div className={filterGridClassName}>
             <div>
               <label className="mb-1 block text-xs font-medium text-gray-600">검색어</label>
               <div className="relative">
@@ -378,6 +383,24 @@ export default function AdminOrdersContent({
                 />
               </div>
             </div>
+            {!enableGeneralItemActions && (
+              <>
+                <SelectFilter
+                  label="배송방식"
+                  value={searchParams.fulfillmentMethod ?? ""}
+                  options={FULFILLMENT_METHOD_OPTIONS}
+                  onChange={(value) =>
+                    pushFilter({ fulfillmentMethod: value as AdminOrdersSearchParams["fulfillmentMethod"] })
+                  }
+                />
+                <SelectFilter
+                  label="배송시기"
+                  value={searchParams.saleTiming ?? ""}
+                  options={SALE_TIMING_OPTIONS}
+                  onChange={(value) => pushFilter({ saleTiming: value as AdminOrdersSearchParams["saleTiming"] })}
+                />
+              </>
+            )}
             <SelectFilter
               label="주문상태"
               value={searchParams.orderStatus ?? ""}
@@ -539,11 +562,6 @@ export default function AdminOrdersContent({
                         <td className="px-4 py-4 text-sm text-gray-700">
                           <div>{order.payment?.paymentMethod ?? "-"}</div>
                           <div>{order.payment?.paymentStatus ?? "-"}</div>
-                          {order.payment?.depositDeadlineAt && (
-                            <div className="text-xs text-gray-500">
-                              입금기한 {formatDateTime(order.payment.depositDeadlineAt)}
-                            </div>
-                          )}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-700">
                           {enableGeneralItemActions ? (
@@ -554,10 +572,9 @@ export default function AdminOrdersContent({
                             </>
                           ) : (
                             <>
-                              <div>
-                                {order.orderType ? (ORDER_TYPE_LABEL[order.orderType] ?? order.orderType) : "-"}
-                              </div>
-                              <div>{order.saleType ? (SALE_TYPE_LABEL[order.saleType] ?? order.saleType) : "-"}</div>
+                              <div>{getProductTypeLabel(order.productType)}</div>
+                              <div>{getFulfillmentMethodLabel(order.fulfillmentMethod)}</div>
+                              <div>{getSaleTimingLabel(order.saleTiming)}</div>
                               <div className="text-xs text-gray-500">
                                 {order.businessId ? `사업장 ${order.businessId}` : "보틀 주문"}
                               </div>

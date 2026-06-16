@@ -22,14 +22,14 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
     page: toApiPage(page),
     size,
     sort: ["createdAt,desc"],
-    orderType: "GENERAL",
     productType: "ITEM",
+    fulfillmentMethod: "DIRECT_DELIVERY",
+    saleTiming: "IMMEDIATE",
     orderStatus: emptyToUndefined(params.orderStatus) as GetApiAdminOrdersParams["orderStatus"],
     paymentMethod: emptyToUndefined(params.paymentMethod),
     paymentStatus: emptyToUndefined(params.paymentStatus),
     keyword: emptyToUndefined(params.keyword),
     guestOnly: params.guestOnly === "true" ? true : undefined,
-    depositOverdue: params.depositOverdue === "true" ? true : undefined,
   };
 
   const response = await getApiAdminOrders(query, withToken(token));
@@ -43,8 +43,9 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
         ...params,
         page: String(page),
         limit: String(size),
-        orderType: "GENERAL",
         productType: "ITEM",
+        fulfillmentMethod: "DIRECT_DELIVERY",
+        saleTiming: "IMMEDIATE",
       }}
       orders={response.data.content ?? []}
       totalElements={response.data.page?.totalElements ?? 0}
