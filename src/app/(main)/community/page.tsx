@@ -1,0 +1,84 @@
+import {
+  getApiBoardsBoardidAnnouncements,
+  getApiBoardsBoardidPosts,
+} from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
+import { getAuthToken } from "@/lib/auth";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { parseApiPage } from "@/lib/page-response";
+import BoardContent from "./_components/BoardContent";
+import { COMMUNITY_BOARD_ID, POSTS_PER_PAGE, PINNED_ANNOUNCEMENT_COUNT } from "./_lib/constants";
+
+interface CommunityPageProps {
+  searchParams: Promise<{
+    tab?: string;
+    page?: string;
+  }>;
+}
+
+export default async function CommunityPage({ searchParams }: CommunityPageProps) {
+  const params = await searchParams;
+  const tab = params.tab ?? "general";
+  const page = parseApiPage(params.page);
+
+  // async-parallel: session + token 독립적이므로 병렬 fetch
+  const [session, token] = await Promise.all([
+    getServerSession(authOptions),
+    getAuthToken(),
+  ]);
+
+  // 현재 사용자 ID (비로그인 시 undefined)
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
+  if (tab === "announcement") {
+    const announcementsRes = await getApiBoardsBoardidAnnouncements(
+      COMMUNITY_BOARD_ID,
+      { page, size: POSTS_PER_PAGE },
+      token ? { headers: withToken(token).headers } : undefined,
+    );
+
+    return (
+      <BoardContent
+        tab={tab}
+        currentPage={Number(params.page) || 1}
+        currentUserId={currentUserId}
+        initialPosts={[]}
+        initialAnnouncements={announcementsRes.data.content ?? []}
+        totalElements={announcementsRes.data.page?.totalElements ?? 0}
+        totalPages={announcementsRes.data.page?.totalPages ?? 0}
+      />
+    );
+  }
+
+  // general 또는 popular 탭 → 게시글 + 공지 3개 병렬 fetch
+  const sort =
+    tab === "popular"
+      ? (["viewCount,desc"] as const)
+      : (["createdAt,desc"] as const);
+
+  const [postsRes, pinnedRes] = await Promise.all([
+    getApiBoardsBoardidPosts(
+      COMMUNITY_BOARD_ID,
+      { page, size: POSTS_PER_PAGE, sort },
+      token ? { headers: withToken(token).headers } : undefined,
+    ),
+    getApiBoardsBoardidAnnouncements(
+      COMMUNITY_BOARD_ID,
+      { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
+      token ? { headers: withToken(token).headers } : undefined,
+    ),
+  ]);
+
+  return (
+    <BoardContent
+      tab={tab}
+      currentPage={Number(params.page) || 1}
+      currentUserId={currentUserId}
+      initialPosts={postsRes.data.content ?? []}
+      initialAnnouncements={pinnedRes.data.content ?? []}
+      totalElements={postsRes.data.page?.totalElements ?? 0}
+      totalPages={postsRes.data.page?.totalPages ?? 0}
+    />
+  );
+}
