@@ -9182,7 +9182,7 @@ export type getApiAdminBannersResponse200 = {
   data: PagedModelAdminBannerResponse
   status: 200
 }
-
+    
 export type getApiAdminBannersResponseSuccess = (getApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -9194,7 +9194,7 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
+    
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9206,13 +9206,13 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
 }
 
 export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, options?: RequestInit): Promise<getApiAdminBannersResponse> => {
-
+  
   return customFetch<getApiAdminBannersResponse>(getGetApiAdminBannersUrl(params),
-  {
+  {      
     ...options,
     method: 'GET'
-
-
+    
+    
   }
 );}
 
@@ -9226,7 +9226,7 @@ export type postApiAdminBannersResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-
+    
 export type postApiAdminBannersResponseSuccess = (postApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -9238,7 +9238,7 @@ export const getPostApiAdminBannersUrl = (params: PostApiAdminBannersParams,) =>
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
+    
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9277,7 +9277,7 @@ export type patchApiAdminBannersOrdersResponse200 = {
   data: AdminBannerResponse[]
   status: 200
 }
-
+    
 export type patchApiAdminBannersOrdersResponseSuccess = (patchApiAdminBannersOrdersResponse200) & {
   headers: Headers;
 };
@@ -9402,7 +9402,7 @@ export const getPatchApiAdminBannersIdUrl = (id: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
+    
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12274,7 +12274,7 @@ export const getGetApiAdminOrdersManualPurchasesImportTemplateUrl = (params?: Ge
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-
+    
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
