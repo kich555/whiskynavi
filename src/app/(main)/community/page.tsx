@@ -1,13 +1,10 @@
-import {
-  getApiBoardsBoardidAnnouncements,
-  getApiBoardsBoardidPosts,
-} from "@/apis/generated/api";
+import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getAuthToken, authOptions } from "@/lib/auth";
-import { getServerSession } from "next-auth";
+import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
+import { getServerSession } from "next-auth";
 import BoardContent from "./_components/BoardContent";
-import { COMMUNITY_BOARD_ID, POSTS_PER_PAGE, PINNED_ANNOUNCEMENT_COUNT } from "./_lib/constants";
+import { COMMUNITY_BOARD_ID, PINNED_ANNOUNCEMENT_COUNT, POSTS_PER_PAGE } from "./_lib/constants";
 
 interface CommunityPageProps {
   searchParams: Promise<{
@@ -22,11 +19,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const page = parseApiPage(params.page);
 
   // async-parallel: session + token 독립적이므로 병렬 fetch
-  const [session, token] = await Promise.all([
-    getServerSession(authOptions),
-    getAuthToken(),
-  ]);
-
+  const [session, token] = await Promise.all([getServerSession(authOptions), getAuthToken()]);
+  console.log("===>", token);
   // 현재 사용자 ID (비로그인 시 undefined)
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
 
@@ -51,15 +45,10 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   }
 
   // general 또는 popular 탭 → 게시글 + 공지 3개 병렬 fetch
-  const sort: string[] =
-    tab === "popular" ? ["viewCount,desc"] : ["createdAt,desc"];
+  const sort: string[] = tab === "popular" ? ["viewCount,desc"] : ["createdAt,desc"];
 
   const [postsRes, pinnedRes] = await Promise.all([
-    getApiBoardsBoardidPosts(
-      COMMUNITY_BOARD_ID,
-      { page, size: POSTS_PER_PAGE, sort },
-      withToken(token ?? undefined),
-    ),
+    getApiBoardsBoardidPosts(COMMUNITY_BOARD_ID, { page, size: POSTS_PER_PAGE, sort }, withToken(token ?? undefined)),
     getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
       { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
