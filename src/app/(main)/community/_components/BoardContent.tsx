@@ -47,9 +47,7 @@ export default function BoardContent({
   const isLoadMoreMode = isMobile && loadMorePage <= LOAD_MORE_MAX_CLICKS;
 
   const displayPosts =
-    isLoadMoreMode && accumulatedPosts.length > 0
-      ? [...initialPosts, ...accumulatedPosts]
-      : initialPosts;
+    isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
 
   const handleTabChange = useCallback(
     (newTab: string) => {
@@ -95,14 +93,15 @@ export default function BoardContent({
   const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
 
   return (
-    <div className="mx-auto max-w-4xl">
-      <div className="border-b border-gray-200 bg-white sticky top-0 z-10">
-        <div className="px-4">
+    <div className="mx-auto max-w-[1440px]">
+      {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
+      <div className="sticky top-[64px] z-10 border-b border-gray-200 bg-white lg:top-20">
+        <div className="mx-auto max-w-4xl px-4">
           <BoardTabs activeTab={tab} onTabChange={handleTabChange} />
         </div>
       </div>
 
-      <div className="px-4 py-4">
+      <div className="mx-auto max-w-4xl px-4 py-6">
         <PostList
           posts={displayPosts}
           announcements={tab !== "announcement" ? initialAnnouncements : []}

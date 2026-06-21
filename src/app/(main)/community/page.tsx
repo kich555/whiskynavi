@@ -45,7 +45,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   }
 
   // general 또는 popular 탭 → 게시글 + 공지 3개 병렬 fetch
-  const sort: string[] = tab === "popular" ? ["viewCount,desc"] : ["createdAt,desc"];
+  // 인기 탭은 createdAt 내림차순 사용 (API가 viewCount를 지원하지 않음)
+  const sort: string[] = ["createdAt,desc"];
 
   const [postsRes, pinnedRes] = await Promise.all([
     getApiBoardsBoardidPosts(COMMUNITY_BOARD_ID, { page, size: POSTS_PER_PAGE, sort }, withToken(token ?? undefined)),
