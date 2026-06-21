@@ -93,15 +93,23 @@ export default function BoardContent({
   const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
 
   return (
-    <div className="mx-auto max-w-[1440px]">
+    <div className="mx-auto mt-20 max-w-[1440px]">
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
-      <div className="sticky top-[64px] z-10 lg:top-20">
-        <div className="mx-auto px-4">
+      <div className="sticky top-[64px] z-10 border-b border-gray-200 bg-white lg:top-20">
+        <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
           <BoardTabs activeTab={tab} onTabChange={handleTabChange} />
+          {currentUserId ? (
+            <a
+              href="/community/posts/new"
+              className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+            >
+              글쓰기
+            </a>
+          ) : null}
         </div>
       </div>
 
-      <div className="mx-auto min-h-[calc(100vh-200px)] px-4 py-6">
+      <div className="mx-auto max-w-4xl px-4 py-6">
         <PostList
           posts={displayPosts}
           announcements={tab !== "announcement" ? initialAnnouncements : []}
