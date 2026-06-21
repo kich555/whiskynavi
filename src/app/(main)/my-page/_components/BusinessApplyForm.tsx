@@ -2,7 +2,6 @@
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,13 +75,6 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
           placeholder="사업자명을 입력해주세요"
           className="w-full"
         />
-      </div>
-
-      <div className="flex items-center space-x-2">
-        <Checkbox id="pickupStore" name="pickupStore" value="true" />
-        <Label htmlFor="pickupStore" className="typo-medium-14 cursor-pointer text-gray-900">
-          픽업매장 등록
-        </Label>
       </div>
 
       <div>
