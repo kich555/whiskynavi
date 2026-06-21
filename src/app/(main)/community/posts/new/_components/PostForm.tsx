@@ -67,6 +67,89 @@ export default function PostForm({
     ta.focus();
   }, []);
 
+  const handlePaste = useCallback(
+    async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+      const items = Array.from(e.clipboardData.items);
+      const imageItems = items.filter(
+        (item) =>
+          item.kind === "file" &&
+          item.type.startsWith("image/") &&
+          ALLOWED_IMAGE_TYPES.includes(
+            item.type as (typeof ALLOWED_IMAGE_TYPES)[number],
+          ),
+      );
+
+      if (imageItems.length === 0) return;
+
+      e.preventDefault();
+
+      const remaining = MAX_IMAGE_COUNT - images.length;
+      const toUpload = imageItems.slice(0, remaining);
+
+      const processPastedImage = async (file: File) => {
+        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
+          alert(
+            `${file.name}: 파일 크기가 ${MAX_IMAGE_SIZE_MB}MB를 초과합니다.`,
+          );
+          return;
+        }
+
+        const tempId = crypto.randomUUID();
+        const previewUrl = URL.createObjectURL(file);
+        const entry: UploadedImage = {
+          id: tempId,
+          url: previewUrl,
+          markdown: "",
+          uploading: true,
+          error: false,
+        };
+        setImages((prev) => [...prev, entry]);
+
+        try {
+          const token = await getAuthToken();
+          if (!token) throw new Error("인증 필요");
+
+          const key = `community/${crypto.randomUUID()}/${file.name}`;
+          const presignedRes = await getApiS3Presigned(
+            { key, filename: file.name },
+            withToken(token),
+          );
+          const presignedUrl = presignedRes.data.url!;
+
+          await fetch(presignedUrl, { method: "PUT", body: file });
+
+          const cdnUrl = presignedUrl.split("?")[0];
+          const markdown = `![${file.name}](${cdnUrl})`;
+
+          setImages((prev) =>
+            prev.map((img) =>
+              img.id === tempId ? { ...img, markdown, uploading: false } : img,
+            ),
+          );
+
+          // 클립보드 붙여넣기 시 커서 위치에 자동 삽입
+          insertAtCursor(`\n${markdown}\n`);
+        } catch {
+          setImages((prev) =>
+            prev.map((img) =>
+              img.id === tempId
+                ? { ...img, uploading: false, error: true }
+                : img,
+            ),
+          );
+        }
+      };
+
+      for (const item of imageItems) {
+        const file = item.getAsFile();
+        if (file) {
+          await processPastedImage(file);
+        }
+      }
+    },
+    [insertAtCursor, images.length],
+  );
+
   const handleFileChange = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
       const files = Array.from(e.target.files ?? []);
@@ -192,6 +275,7 @@ export default function PostForm({
           <textarea
             ref={textareaRef}
             name="content"
+            onPaste={handlePaste}
             defaultValue={
               defaultValues?.content ?? state?.values?.content ?? ""
             }
