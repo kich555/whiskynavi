@@ -158,19 +158,19 @@ export default function PostForm({
       {/* 뒤로가기 */}
       <a
         href="/community"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+        className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4"
       >
         ← 목록으로
       </a>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h1 className="text-lg font-bold text-gray-900 mb-5">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5">
+        <h1 className="text-lg font-bold text-white mb-5">
           {submitLabel === "수정하기" ? "글 수정" : "글쓰기"}
         </h1>
 
         {/* 제목 */}
         <div className="mb-4">
-          <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">
+          <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">
             제목
           </label>
           <input
@@ -179,13 +179,13 @@ export default function PostForm({
             defaultValue={defaultValues?.title ?? state?.values?.title ?? ""}
             maxLength={200}
             placeholder="글 제목을 입력하세요"
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500"
+            className="w-full border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white bg-white/5 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 placeholder-gray-500"
           />
         </div>
 
         {/* 내용 */}
         <div className="mb-4">
-          <label className="block text-[11px] font-bold text-gray-500 uppercase mb-1.5">
+          <label className="block text-[11px] font-bold text-gray-400 uppercase mb-1.5">
             내용
           </label>
           <textarea
@@ -196,13 +196,13 @@ export default function PostForm({
             }
             rows={10}
             placeholder="내용을 입력하세요. 이미지는 첨부 후 클릭하면 커서 위치에 삽입됩니다."
-            className="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 resize-y min-h-[160px]"
+            className="w-full border border-white/20 rounded-lg px-3 py-2.5 text-sm text-white bg-white/5 focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500 placeholder-gray-500 resize-y min-h-[160px]"
           />
         </div>
 
         {/* 이미지 첨부 */}
-        <div className="mb-4 border border-dashed border-gray-300 rounded-lg p-3 bg-gray-50/50">
-          <div className="text-[11px] font-bold text-gray-500 uppercase mb-2">
+        <div className="mb-4 border border-dashed border-white/20 rounded-lg p-3 bg-white/5">
+          <div className="text-[11px] font-bold text-gray-400 uppercase mb-2">
             첨부 이미지
           </div>
 
@@ -211,7 +211,7 @@ export default function PostForm({
               {images.map((img) => (
                 <div
                   key={img.id}
-                  className="relative w-14 h-14 rounded-lg overflow-hidden bg-gray-200 group"
+                  className="relative w-14 h-14 rounded-lg overflow-hidden bg-white/10 group"
                 >
                   <img
                     src={img.url}
@@ -262,11 +262,11 @@ export default function PostForm({
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={images.length >= MAX_IMAGE_COUNT}
-            className="text-xs text-gray-500 border border-dashed border-gray-400 rounded-lg px-4 py-2 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-xs text-gray-400 border border-dashed border-white/30 rounded-lg px-4 py-2 hover:bg-white/10 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
             + 이미지 추가 ({images.length}/{MAX_IMAGE_COUNT})
           </button>
-          <p className="text-[10px] text-gray-400 mt-1">
+          <p className="text-[10px] text-gray-500 mt-1">
             이미지 클릭 시 커서 위치에 삽입 · 최대 5장 · JPG/PNG/WEBP · 5MB
             이하
           </p>

@@ -93,19 +93,11 @@ export default function BoardContent({
   const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
 
   return (
-    <div className="mx-auto mt-20 max-w-[1440px]">
+    <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
-      <div className="sticky top-[64px] z-10 border-b border-gray-200 bg-white lg:top-20">
+      <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
           <BoardTabs activeTab={tab} onTabChange={handleTabChange} />
-          {currentUserId ? (
-            <a
-              href="/community/posts/new"
-              className="shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
-            >
-              글쓰기
-            </a>
-          ) : null}
         </div>
       </div>
 

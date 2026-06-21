@@ -26,6 +26,7 @@ export default function PostList({
   isMobile,
   isLoadMoreMode,
   showPagination,
+  currentUserId,
   currentPage,
   totalPages,
   loadMoreRemaining,
@@ -37,23 +38,31 @@ export default function PostList({
 
   if (isEmpty) {
     return (
-      <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center text-gray-400">
+      <div className="flex min-h-[calc(100vh-430px)] flex-col items-center justify-center text-gray-400">
         <p className="text-sm">게시글이 없습니다.</p>
-        <p className="text-xs mt-1">첫 번째 게시글을 작성해보세요!</p>
+        <p className="mt-1 text-xs">첫 번째 게시글을 작성해보세요!</p>
+        {currentUserId ? (
+          <a
+            href="/community/posts/new"
+            className="mt-4 shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+          >
+            글쓰기
+          </a>
+        ) : null}
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
       {/* 고정 공지 (일반/인기 탭에서만) */}
       {announcements.length > 0 && (
-        <div className="divide-y divide-amber-200">
+        <div className="divide-y divide-white/10">
           {announcements.map((a) => (
             <AnnouncementItem key={a.id} announcement={a} isMobile={isMobile} />
           ))}
           {/* 공지와 게시글 사이 구분선 */}
-          <div className="border-b border-gray-200" />
+          <div className="border-b border-white/10" />
         </div>
       )}
 
@@ -63,12 +72,12 @@ export default function PostList({
       ) : (
         <div>
           {/* 데스크탑 테이블 헤더 */}
-          <div className="grid grid-cols-[1fr_80px_100px] gap-3 items-center bg-gray-50 border-b border-gray-200 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
+          <div className="grid grid-cols-[1fr_80px_100px] items-center gap-3 border-b border-white/10 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
             <span>제목</span>
             <span className="text-right">작성자</span>
             <span className="text-right">날짜</span>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-white/10">
             {posts.map((post) => (
               <PostItem key={post.id} post={post} isMobile={false} />
             ))}

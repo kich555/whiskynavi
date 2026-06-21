@@ -48,18 +48,18 @@ export default function PostDetailContent({
       {/* 뒤로가기 */}
       <Link
         href="/community"
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 mb-4"
+        className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4"
       >
         ← 목록으로
       </Link>
 
-      <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
         {/* 헤더 */}
-        <div className="px-5 pt-5 pb-3 border-b border-gray-100">
-          <h1 className="text-lg font-bold text-gray-900 leading-snug mb-2">
+        <div className="px-5 pt-5 pb-3 border-b border-white/10">
+          <h1 className="text-lg font-bold text-white leading-snug mb-2">
             {post.title}
           </h1>
-          <div className="flex items-center gap-2 text-xs text-gray-400">
+          <div className="flex items-center gap-2 text-xs text-gray-500">
             <span>#{post.authorId}</span>
             <span>·</span>
             <span>
@@ -85,7 +85,7 @@ export default function PostDetailContent({
           <div className="px-5 pb-5 flex items-center gap-3 border-t border-gray-100 pt-4">
             <Link
               href={`/community/posts/${post.id}/edit`}
-              className="text-sm text-gray-600 border border-gray-300 rounded-lg px-3 py-1.5 hover:bg-gray-50 transition-colors"
+              className="text-sm text-gray-400 border border-white/20 rounded-lg px-3 py-1.5 hover:bg-white/5 transition-colors"
             >
               수정
             </Link>

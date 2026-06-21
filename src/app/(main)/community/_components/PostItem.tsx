@@ -30,14 +30,14 @@ const PostItem = memo(function PostItem({ post, isMobile }: PostItemProps) {
     return (
       <Link
         href={`/community/posts/${post.id}`}
-        className="block border-b border-gray-100 px-1 py-3 hover:bg-gray-50 transition-colors"
+        className="block border-b border-white/10 px-1 py-3 hover:bg-white/5 transition-colors"
         // rendering-content-visibility: 오프스크린 아이템의 layout/paint 생략
         style={{ contentVisibility: "auto", containIntrinsicSize: "0 60px" }}
       >
-        <div className="text-sm font-medium text-gray-900 line-clamp-1">
+        <div className="text-sm font-medium text-white line-clamp-1">
           {post.title}
         </div>
-        <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-400">
+        <div className="flex items-center gap-2 mt-1.5 text-xs text-gray-500">
           <span>#{post.authorId}</span>
           <span>·</span>
           <span>{formatDate(post.createdAt)}</span>
@@ -49,14 +49,14 @@ const PostItem = memo(function PostItem({ post, isMobile }: PostItemProps) {
   return (
     <Link
       href={`/community/posts/${post.id}`}
-      className="grid grid-cols-[1fr_80px_100px] gap-3 items-center border-b border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors"
+      className="grid grid-cols-[1fr_80px_100px] gap-3 items-center border-b border-white/10 px-4 py-3 hover:bg-white/5 transition-colors"
       style={{ contentVisibility: "auto", containIntrinsicSize: "0 44px" }}
     >
-      <span className="text-sm font-medium text-gray-900 truncate">
+      <span className="text-sm font-medium text-white truncate">
         {post.title}
       </span>
-      <span className="text-xs text-gray-500 text-right">#{post.authorId}</span>
-      <span className="text-xs text-gray-500 text-right">
+      <span className="text-xs text-gray-400 text-right">#{post.authorId}</span>
+      <span className="text-xs text-gray-400 text-right">
         {formatDate(post.createdAt)}
       </span>
     </Link>
