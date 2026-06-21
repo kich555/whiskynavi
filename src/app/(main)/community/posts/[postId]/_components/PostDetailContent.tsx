@@ -72,7 +72,7 @@ export default function PostDetailContent({
         </div>
 
         {/* 본문 (react-markdown) — lazy-loaded */}
-        <div className="px-5 py-5 prose prose-sm max-w-none prose-img:rounded-lg prose-img:my-4">
+        <div className="px-5 py-5 prose prose-sm max-w-none prose-img:rounded-lg prose-img:my-4 [&_*]:text-white [&_img]:text-transparent">
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             rehypePlugins={[rehypeSanitize]}
