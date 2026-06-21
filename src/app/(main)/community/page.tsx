@@ -3,9 +3,8 @@ import {
   getApiBoardsBoardidPosts,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getAuthToken } from "@/lib/auth";
+import { getAuthToken, authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
 import BoardContent from "./_components/BoardContent";
 import { COMMUNITY_BOARD_ID, POSTS_PER_PAGE, PINNED_ANNOUNCEMENT_COUNT } from "./_lib/constants";
@@ -35,7 +34,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
     const announcementsRes = await getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
       { page, size: POSTS_PER_PAGE },
-      token ? { headers: withToken(token).headers } : undefined,
+      withToken(token ?? undefined),
     );
 
     return (
@@ -52,21 +51,19 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   }
 
   // general 또는 popular 탭 → 게시글 + 공지 3개 병렬 fetch
-  const sort =
-    tab === "popular"
-      ? (["viewCount,desc"] as const)
-      : (["createdAt,desc"] as const);
+  const sort: string[] =
+    tab === "popular" ? ["viewCount,desc"] : ["createdAt,desc"];
 
   const [postsRes, pinnedRes] = await Promise.all([
     getApiBoardsBoardidPosts(
       COMMUNITY_BOARD_ID,
       { page, size: POSTS_PER_PAGE, sort },
-      token ? { headers: withToken(token).headers } : undefined,
+      withToken(token ?? undefined),
     ),
     getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
       { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
-      token ? { headers: withToken(token).headers } : undefined,
+      withToken(token ?? undefined),
     ),
   ]);
 

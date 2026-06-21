@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import PostForm from "../../../new/_components/PostForm";
 import { updatePostAction } from "../../../../actions";
+import type { FormState } from "../../../../actions";
 import type { PostResponse } from "@/apis/generated/api";
 
 interface PostEditContentProps {
@@ -10,10 +11,14 @@ interface PostEditContentProps {
 }
 
 export default function PostEditContent({ post }: PostEditContentProps) {
-  const [state, formAction] = useActionState(
-    updatePostAction.bind(null, post.id!),
-    null,
-  );
+  const boundAction = async (
+    _prev: FormState | null,
+    formData: FormData,
+  ): Promise<FormState> => {
+    return updatePostAction(post.id!, _prev, formData);
+  };
+
+  const [state, formAction] = useActionState(boundAction, null);
 
   return (
     <PostForm

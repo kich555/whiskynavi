@@ -78,7 +78,7 @@ export default function BoardContent({
     try {
       const nextPage = loadMorePageRef.current + 1;
       const token = await getAuthToken();
-      const opts = token ? { headers: withToken(token).headers } : undefined;
+      const opts = withToken(token ?? undefined);
       const res = await getApiBoardsBoardidPosts(
         COMMUNITY_BOARD_ID,
         { page: nextPage - 1, size: POSTS_PER_PAGE },

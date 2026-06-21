@@ -32,7 +32,7 @@ const postSchema = z.object({
     .min(1, "내용을 입력해주세요."),
 });
 
-export async function createPostAction(_prev: FormState, formData: FormData): Promise<FormState> {
+export async function createPostAction(_prev: FormState | null, formData: FormData): Promise<FormState> {
   const values: Record<string, string> = {
     title: (formData.get("title") as string) ?? "",
     content: (formData.get("content") as string) ?? "",
@@ -71,7 +71,7 @@ export async function createPostAction(_prev: FormState, formData: FormData): Pr
 
 export async function updatePostAction(
   postId: number,
-  _prev: FormState,
+  _prev: FormState | null,
   formData: FormData,
 ): Promise<FormState> {
   const values: Record<string, string> = {

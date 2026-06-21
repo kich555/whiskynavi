@@ -83,7 +83,6 @@ export default function PostList({
         showPagination={showPagination}
         currentPage={currentPage}
         totalPages={totalPages}
-        totalElements={0}
         loadMoreRemaining={loadMoreRemaining}
         isLoadingMore={isLoadingMore}
         onLoadMore={onLoadMore}
