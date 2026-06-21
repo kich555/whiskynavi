@@ -95,13 +95,13 @@ export default function BoardContent({
   return (
     <div className="mx-auto max-w-[1440px]">
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
-      <div className="sticky top-[64px] z-10 border-b border-gray-200 bg-white lg:top-20">
-        <div className="mx-auto max-w-4xl px-4">
+      <div className="sticky top-[64px] z-10 lg:top-20">
+        <div className="mx-auto px-4">
           <BoardTabs activeTab={tab} onTabChange={handleTabChange} />
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl px-4 py-6">
+      <div className="mx-auto min-h-[calc(100vh-200px)] px-4 py-6">
         <PostList
           posts={displayPosts}
           announcements={tab !== "announcement" ? initialAnnouncements : []}
