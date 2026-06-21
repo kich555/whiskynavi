@@ -37,7 +37,7 @@ export default function PostList({
 
   if (isEmpty) {
     return (
-      <div className="flex flex-col items-center justify-center py-20 text-gray-400">
+      <div className="flex min-h-[calc(100vh-200px)] flex-col items-center justify-center text-gray-400">
         <p className="text-sm">게시글이 없습니다.</p>
         <p className="text-xs mt-1">첫 번째 게시글을 작성해보세요!</p>
       </div>
