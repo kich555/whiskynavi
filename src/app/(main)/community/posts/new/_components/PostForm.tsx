@@ -154,6 +154,7 @@ export default function PostForm({
   }, []);
 
   return (
+    <div className="mt-20 min-h-screen bg-[#1d2429]">
     <form action={action} className="mx-auto max-w-3xl px-4 py-6">
       {/* 뒤로가기 */}
       <a
@@ -281,5 +282,6 @@ export default function PostForm({
         <SubmitButton label={submitLabel} />
       </div>
     </form>
+    </div>
   );
 }

@@ -44,7 +44,8 @@ export default function PostDetailContent({
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 py-6">
+    <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
+      <div className="mx-auto max-w-3xl px-4 py-6">
       {/* 뒤로가기 */}
       <Link
         href="/community"
@@ -82,7 +83,7 @@ export default function PostDetailContent({
 
         {/* 액션 */}
         {isAuthor && (
-          <div className="px-5 pb-5 flex items-center gap-3 border-t border-gray-100 pt-4">
+          <div className="px-5 pb-5 flex items-center gap-3 border-t border-white/10 pt-4">
             <Link
               href={`/community/posts/${post.id}/edit`}
               className="text-sm text-gray-400 border border-white/20 rounded-lg px-3 py-1.5 hover:bg-white/5 transition-colors"
@@ -101,6 +102,7 @@ export default function PostDetailContent({
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
