@@ -132,7 +132,7 @@ export function useNiceVerification(options?: UseNiceVerificationOptions) {
     };
 
     return () => channel.close();
-  }, [state.sessionId, state.requestNo]);
+  }, [state.sessionId, state.requestNo, options]);
 
   async function startVerification() {
     dispatch({ type: "START_VERIFICATION" });

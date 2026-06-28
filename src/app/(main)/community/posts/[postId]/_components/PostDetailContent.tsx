@@ -3,7 +3,6 @@
 import type { PostResponse } from "@/apis/generated/api";
 import { FormMessage } from "@/components/ui/form-message";
 import { useTransition, useState } from "react";
-import { useRouter } from "next/navigation";
 import { deletePostAction } from "../../../actions";
 import Link from "next/link";
 
@@ -16,7 +15,6 @@ export default function PostDetailContent({
   post,
   currentUserId,
 }: PostDetailContentProps) {
-  const router = useRouter();
   const [isDeleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const isAuthor =

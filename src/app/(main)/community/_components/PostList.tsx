@@ -1,4 +1,5 @@
 import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/apis/generated/api";
+import Link from "next/link";
 import AnnouncementItem from "./AnnouncementItem";
 import LoadMorePagination from "./LoadMorePagination";
 import PostCardList from "./PostCardList";
@@ -42,12 +43,12 @@ export default function PostList({
         <p className="text-sm">게시글이 없습니다.</p>
         <p className="mt-1 text-xs">첫 번째 게시글을 작성해보세요!</p>
         {currentUserId ? (
-          <a
+          <Link
             href="/community/posts/new"
             className="mt-4 shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
           >
             글쓰기
-          </a>
+          </Link>
         ) : null}
       </div>
     );
