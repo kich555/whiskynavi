@@ -3,25 +3,25 @@
 import { postApiBoardsUploads } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { FormMessage } from "@/components/ui/form-message";
-import { useCallback, useRef, useState } from "react";
-import { useFormStatus } from "react-dom";
-import { useEditor, EditorContent } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import { EditorContent, useEditor } from "@tiptap/react";
+import StarterKit from "@tiptap/starter-kit";
 import {
   Bold,
-  Italic,
-  Strikethrough,
   Heading2,
   Heading3,
+  ImageIcon,
+  Italic,
+  Link as LinkIcon,
   List,
   ListOrdered,
-  Link,
+  Strikethrough,
   Unlink,
-  ImageIcon,
 } from "lucide-react";
+import { useCallback, useRef, useState } from "react";
+import { useFormStatus } from "react-dom";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB } from "../../../_lib/constants";
 
 interface PostFormProps {
@@ -304,7 +304,7 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
                   if (url) handleToolbarAction("link", url);
                 }}
                 active={editor?.isActive("link") ?? false}
-                label={<Link className="h-3.5 w-3.5" />}
+                label={<LinkIcon className="h-3.5 w-3.5" />}
               />
               {editor?.isActive("link") && (
                 <ToolbarButton
@@ -322,7 +322,7 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
               />
             </div>
             {/* 에디터 영역 */}
-            <div className="min-h-[200px] rounded-b-lg border border-t-0 border-white/20 bg-white/5 px-3 py-2.5 text-sm text-white [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg">
+            <div className="min-h-[200px] rounded-b-lg border border-t-0 border-white/20 bg-white/5 px-3 py-2.5 text-sm text-white [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]">
               <EditorContent editor={editor} />
             </div>
             <input
@@ -334,9 +334,7 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
               className="hidden"
             />
             {uploadingCount > 0 && (
-              <p className="mt-1 text-[10px] text-gray-400">
-                이미지 업로드 중... ({uploadingCount}개)
-              </p>
+              <p className="mt-1 text-[10px] text-gray-400">이미지 업로드 중... ({uploadingCount}개)</p>
             )}
           </div>
 
@@ -365,9 +363,7 @@ function ToolbarButton({ onClick, active, label }: ToolbarButtonProps) {
       type="button"
       onClick={onClick}
       className={`rounded px-2 py-1 text-sm transition-colors ${
-        active
-          ? "bg-amber-600/30 text-amber-400"
-          : "text-gray-400 hover:bg-white/10 hover:text-white"
+        active ? "bg-amber-600/30 text-amber-400" : "text-gray-400 hover:bg-white/10 hover:text-white"
       }`}
     >
       {label}
