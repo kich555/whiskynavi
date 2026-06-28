@@ -128,6 +128,27 @@ export interface AdminBannerResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type AdminBoardResponseReadRole = typeof AdminBoardResponseReadRole[keyof typeof AdminBoardResponseReadRole];
+
+
+export const AdminBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
 export type AdminBoardResponseWriteRole = typeof AdminBoardResponseWriteRole[keyof typeof AdminBoardResponseWriteRole];
@@ -166,6 +187,8 @@ export interface AdminBoardResponse {
   name?: string;
   /** 읽기 전용 게시판 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: AdminBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
@@ -1523,6 +1546,27 @@ export interface AuthResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type BoardRequestReadRole = typeof BoardRequestReadRole[keyof typeof BoardRequestReadRole];
+
+
+export const BoardRequestReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type BoardRequestWriteRole = typeof BoardRequestWriteRole[keyof typeof BoardRequestWriteRole];
@@ -1544,7 +1588,7 @@ export const BoardRequestWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export interface BoardRequest {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -1565,6 +1609,8 @@ export interface BoardRequest {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: BoardRequestReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -1573,6 +1619,13 @@ export interface BoardRequest {
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
   writeRole?: BoardRequestWriteRole;
+}
+
+export interface BoardUploadResponse {
+  /** 업로드된 파일의 S3 key입니다. */
+  key?: string;
+  /** 업로드된 파일의 CloudFront URL입니다. */
+  url?: string;
 }
 
 export interface BottleAdminParameterValues {
@@ -3146,6 +3199,27 @@ export interface PagedModelUserBannerResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type UserBoardResponseReadRole = typeof UserBoardResponseReadRole[keyof typeof UserBoardResponseReadRole];
+
+
+export const UserBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
 export type UserBoardResponseWriteRole = typeof UserBoardResponseWriteRole[keyof typeof UserBoardResponseWriteRole];
@@ -3180,6 +3254,8 @@ export interface UserBoardResponse {
   name?: string;
   /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: UserBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
@@ -5192,6 +5268,27 @@ sort?: string[];
 };
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PostApiAdminBoardsBodyReadRole = typeof PostApiAdminBoardsBodyReadRole[keyof typeof PostApiAdminBoardsBodyReadRole];
+
+
+export const PostApiAdminBoardsBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type PostApiAdminBoardsBodyWriteRole = typeof PostApiAdminBoardsBodyWriteRole[keyof typeof PostApiAdminBoardsBodyWriteRole];
@@ -5213,7 +5310,7 @@ export const PostApiAdminBoardsBodyWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PostApiAdminBoardsBody = {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -5234,6 +5331,8 @@ export type PostApiAdminBoardsBody = {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PostApiAdminBoardsBodyReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -5352,6 +5451,27 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
 };
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PutApiAdminBoardsBoardidBodyReadRole = typeof PutApiAdminBoardsBoardidBodyReadRole[keyof typeof PutApiAdminBoardsBoardidBodyReadRole];
+
+
+export const PutApiAdminBoardsBoardidBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type PutApiAdminBoardsBoardidBodyWriteRole = typeof PutApiAdminBoardsBoardidBodyWriteRole[keyof typeof PutApiAdminBoardsBoardidBodyWriteRole];
@@ -5373,7 +5493,7 @@ export const PutApiAdminBoardsBoardidBodyWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PutApiAdminBoardsBoardidBody = {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -5394,6 +5514,8 @@ export type PutApiAdminBoardsBoardidBody = {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PutApiAdminBoardsBoardidBodyReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -7690,6 +7812,10 @@ size?: number;
  * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
  */
 sort?: string[];
+};
+
+export type PostApiBoardsUploadsBody = {
+  file: Blob;
 };
 
 export type GetApiBoardsBoardidAnnouncementsParams = {
@@ -14614,6 +14740,46 @@ export const getApiBoardsAnnouncementsAnnouncementid = async (announcementId: nu
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 게시판에서 사용하는 파일을 업로드하고 CloudFront URL을 반환합니다.
+ * @summary 게시판 파일 업로드
+ */
+export type postApiBoardsUploadsResponse200 = {
+  data: BoardUploadResponse
+  status: 200
+}
+    
+export type postApiBoardsUploadsResponseSuccess = (postApiBoardsUploadsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsUploadsResponse = (postApiBoardsUploadsResponseSuccess)
+
+export const getPostApiBoardsUploadsUrl = () => {
+
+
+  
+
+  return `/api/boards/uploads`
+}
+
+export const postApiBoardsUploads = async (postApiBoardsUploadsBody: PostApiBoardsUploadsBody, options?: RequestInit): Promise<postApiBoardsUploadsResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiBoardsUploadsBody.file);
+
+  return customFetch<postApiBoardsUploadsResponse>(getPostApiBoardsUploadsUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
   }
 );}
 
