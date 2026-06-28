@@ -6,17 +6,6 @@ import { useTransition, useState } from "react";
 import { useRouter } from "next/navigation";
 import { deletePostAction } from "../../../actions";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import remarkGfm from "remark-gfm";
-import rehypeSanitize from "rehype-sanitize";
-
-// bundle-dynamic-imports: react-markdown은 약 100KB+ 번들.
-// PostDetailContent에서만 사용되므로 next/dynamic으로 lazy-load (ssr: false).
-// (remark-gfm, rehype-sanitize 플러그인은 가벼워서 정적 import)
-const ReactMarkdown = dynamic(
-  () => import("react-markdown").then((m) => m.default),
-  { ssr: false },
-);
 
 interface PostDetailContentProps {
   post: PostResponse;
@@ -71,15 +60,11 @@ export default function PostDetailContent({
           </div>
         </div>
 
-        {/* 본문 (react-markdown) — lazy-loaded */}
-        <div className="px-5 py-5 prose prose-sm max-w-none prose-img:rounded-lg prose-img:my-4 [&_*]:text-white [&_img]:text-transparent">
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeSanitize]}
-          >
-            {post.content ?? ""}
-          </ReactMarkdown>
-        </div>
+        {/* 본문 (TipTap HTML) */}
+        <div
+          className="px-5 py-5 prose prose-sm max-w-none prose-img:rounded-lg prose-img:my-4 [&_*]:text-white [&_img]:text-transparent"
+          dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
+        />
 
         {/* 액션 */}
         {isAuthor && (
