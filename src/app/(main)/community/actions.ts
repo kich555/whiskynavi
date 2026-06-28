@@ -12,6 +12,7 @@ import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
+import sanitizeHtml from "sanitize-html";
 import { COMMUNITY_BOARD_ID } from "./_lib/constants";
 
 export type FormState = {
@@ -50,10 +51,23 @@ export async function createPostAction(_prev: FormState | null, formData: FormDa
     return { success: false, error: firstMessage, values };
   }
 
+  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
+  const sanitized = sanitizeHtml(parsed.data.content, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "img", "h1", "h2", "h3",
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ["src", "alt", "title", "width", "height"],
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https"],
+  });
+
   try {
     await postApiBoardsBoardidPosts(
       COMMUNITY_BOARD_ID,
-      { title: parsed.data.title, content: parsed.data.content },
+      { title: parsed.data.title, content: sanitized },
       withToken(token),
     );
   } catch (error) {
@@ -91,11 +105,24 @@ export async function updatePostAction(
     return { success: false, error: firstMessage, values };
   }
 
+  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
+  const sanitized = sanitizeHtml(parsed.data.content, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "img", "h1", "h2", "h3",
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ["src", "alt", "title", "width", "height"],
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https"],
+  });
+
   try {
     await putApiBoardsBoardidPostsPostid(
       COMMUNITY_BOARD_ID,
       postId,
-      { title: parsed.data.title, content: parsed.data.content },
+      { title: parsed.data.title, content: sanitized },
       withToken(token),
     );
   } catch (error) {
