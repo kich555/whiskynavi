@@ -10,6 +10,18 @@ import StarterKit from "@tiptap/starter-kit";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
+import {
+  Bold,
+  Italic,
+  Strikethrough,
+  Heading2,
+  Heading3,
+  List,
+  ListOrdered,
+  Link,
+  Unlink,
+  ImageIcon,
+} from "lucide-react";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB } from "../../../_lib/constants";
 
 interface PostFormProps {
@@ -251,44 +263,39 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
               <ToolbarButton
                 onClick={() => handleToolbarAction("bold")}
                 active={editor?.isActive("bold") ?? false}
-                label="B"
-                className="font-bold"
+                label={<Bold className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("italic")}
                 active={editor?.isActive("italic") ?? false}
-                label="I"
-                className="italic"
+                label={<Italic className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("strike")}
                 active={editor?.isActive("strike") ?? false}
-                label="S"
-                className="line-through"
+                label={<Strikethrough className="h-3.5 w-3.5" />}
               />
               <span className="mx-1 h-4 w-px bg-white/20" />
               <ToolbarButton
                 onClick={() => handleToolbarAction("h2")}
                 active={editor?.isActive("heading", { level: 2 }) ?? false}
-                label="H2"
-                className="text-xs"
+                label={<Heading2 className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("h3")}
                 active={editor?.isActive("heading", { level: 3 }) ?? false}
-                label="H3"
-                className="text-xs"
+                label={<Heading3 className="h-3.5 w-3.5" />}
               />
               <span className="mx-1 h-4 w-px bg-white/20" />
               <ToolbarButton
                 onClick={() => handleToolbarAction("bulletList")}
                 active={editor?.isActive("bulletList") ?? false}
-                label="• list"
+                label={<List className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("orderedList")}
                 active={editor?.isActive("orderedList") ?? false}
-                label="1. list"
+                label={<ListOrdered className="h-3.5 w-3.5" />}
               />
               <span className="mx-1 h-4 w-px bg-white/20" />
               <ToolbarButton
@@ -297,13 +304,13 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
                   if (url) handleToolbarAction("link", url);
                 }}
                 active={editor?.isActive("link") ?? false}
-                label="🔗"
+                label={<Link className="h-3.5 w-3.5" />}
               />
               {editor?.isActive("link") && (
                 <ToolbarButton
                   onClick={() => handleToolbarAction("unsetLink")}
                   active={false}
-                  label="✕"
+                  label={<Unlink className="h-3.5 w-3.5" />}
                 />
               )}
               <span className="mx-1 h-4 w-px bg-white/20" />
@@ -311,7 +318,7 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
               <ToolbarButton
                 onClick={() => fileInputRef.current?.click()}
                 active={false}
-                label="🖼"
+                label={<ImageIcon className="h-3.5 w-3.5" />}
               />
             </div>
             {/* 에디터 영역 */}
@@ -349,11 +356,10 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
 interface ToolbarButtonProps {
   onClick: () => void;
   active: boolean;
-  label: string;
-  className?: string;
+  label: React.ReactNode;
 }
 
-function ToolbarButton({ onClick, active, label, className = "" }: ToolbarButtonProps) {
+function ToolbarButton({ onClick, active, label }: ToolbarButtonProps) {
   return (
     <button
       type="button"
@@ -362,7 +368,7 @@ function ToolbarButton({ onClick, active, label, className = "" }: ToolbarButton
         active
           ? "bg-amber-600/30 text-amber-400"
           : "text-gray-400 hover:bg-white/10 hover:text-white"
-      } ${className}`}
+      }`}
     >
       {label}
     </button>
