@@ -8,9 +8,10 @@ import type { PostResponse } from "@/apis/generated/api";
 
 interface PostEditContentProps {
   post: PostResponse;
+  token: string;
 }
 
-export default function PostEditContent({ post }: PostEditContentProps) {
+export default function PostEditContent({ post, token }: PostEditContentProps) {
   const boundAction = async (
     _prev: FormState | null,
     formData: FormData,
@@ -25,6 +26,7 @@ export default function PostEditContent({ post }: PostEditContentProps) {
       action={formAction}
       state={state}
       defaultValues={{ title: post.title, content: post.content }}
+      token={token}
       submitLabel="수정하기"
     />
   );

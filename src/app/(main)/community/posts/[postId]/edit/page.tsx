@@ -1,6 +1,5 @@
 import { getApiBoardsBoardidPostsPostid } from "@/apis/generated/api";
-import { getAuthToken } from "@/lib/auth";
-import { authOptions } from "@/lib/auth";
+import { getAuthToken, authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import { notFound, redirect } from "next/navigation";
 import { COMMUNITY_BOARD_ID } from "../../../_lib/constants";
@@ -14,14 +13,16 @@ export default async function PostEditPage({ params }: PostEditPageProps) {
   const { postId } = await params;
   const id = Number(postId);
 
-  // async-parallel: session 먼저 체크 (early redirect)
-  const session = await getServerSession(authOptions);
+  // async-parallel: session + token 병렬 fetch
+  const [session, token] = await Promise.all([
+    getServerSession(authOptions),
+    getAuthToken(),
+  ]);
   if (!session) {
     redirect(`/sign-in?callbackUrl=/community/posts/${id}/edit`);
   }
 
-  // async-parallel: token + API fetch 병렬
-  // (getApiBoardsBoardidPostsPostid는 public read-only API이므로 token 불필요)
+  // async-parallel: API fetch
   const apiRes = await getApiBoardsBoardidPostsPostid(
     COMMUNITY_BOARD_ID,
     id,
@@ -37,5 +38,5 @@ export default async function PostEditPage({ params }: PostEditPageProps) {
     redirect(`/community/posts/${id}`);
   }
 
-  return <PostEditContent post={post} />;
+  return <PostEditContent post={post} token={token ?? ""} />;
 }
