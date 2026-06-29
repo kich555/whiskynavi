@@ -2,7 +2,7 @@
 
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
@@ -18,9 +18,11 @@ export default function BoardCreateContent() {
     success: false,
   });
 
-  if (state.success) {
-    toast.success("게시판을 생성했습니다.");
-  }
+  useEffect(() => {
+    if (state.success) {
+      toast.success("게시판을 생성했습니다.");
+    }
+  }, [state.success]);
 
   return (
     <>

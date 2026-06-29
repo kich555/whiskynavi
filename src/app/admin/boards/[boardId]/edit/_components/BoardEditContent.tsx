@@ -3,7 +3,7 @@
 import type { AdminBoardResponse } from "@/apis/generated/api";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { toast } from "sonner";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
@@ -22,9 +22,11 @@ export default function BoardEditContent({ board }: BoardEditContentProps) {
   const boundAction = updateBoardFormAction.bind(null, board.id!);
   const [state, formAction, isPending] = useActionState<FormState, FormData>(boundAction, { success: false });
 
-  if (state.success) {
-    toast.success("게시판을 수정했습니다.");
-  }
+  useEffect(() => {
+    if (state.success) {
+      toast.success("게시판을 수정했습니다.");
+    }
+  }, [state.success]);
 
   return (
     <>
