@@ -5,6 +5,7 @@ import { FormMessage } from "@/components/ui/form-message";
 import { useTransition, useState } from "react";
 import { deletePostAction } from "../../../actions";
 import Link from "next/link";
+import PostDetailShell from "../../../_components/PostDetailShell";
 
 interface PostDetailContentProps {
   post: PostResponse;
@@ -31,20 +32,10 @@ export default function PostDetailContent({
   };
 
   return (
-    <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
-      <div className="mx-auto max-w-3xl px-4 py-6">
-      {/* 뒤로가기 */}
-      <Link
-        href="/community"
-        className="inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white mb-4"
-      >
-        ← 목록으로
-      </Link>
-
-      <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
-        {/* 헤더 */}
-        <div className="px-5 pt-5 pb-3 border-b border-white/10">
-          <h1 className="text-lg font-bold text-white leading-snug mb-2">
+    <PostDetailShell
+      header={
+        <>
+          <h1 className="mb-2 text-lg font-bold leading-snug text-white">
             {post.title}
           </h1>
           <div className="flex items-center gap-2 text-xs text-gray-500">
@@ -56,20 +47,15 @@ export default function PostDetailContent({
                 : ""}
             </span>
           </div>
-        </div>
-
-        {/* 본문 (TipTap HTML) */}
-        <div
-          className="px-5 py-5 prose prose-sm max-w-none prose-img:rounded-lg prose-img:my-4 [&_*]:text-white [&_img]:text-transparent"
-          dangerouslySetInnerHTML={{ __html: post.content ?? "" }}
-        />
-
-        {/* 액션 */}
-        {isAuthor && (
-          <div className="px-5 pb-5 flex items-center gap-3 border-t border-white/10 pt-4">
+        </>
+      }
+      content={post.content ?? ""}
+      actions={
+        isAuthor ? (
+          <>
             <Link
               href={`/community/posts/${post.id}/edit`}
-              className="text-sm text-gray-400 border border-white/20 rounded-lg px-3 py-1.5 hover:bg-white/5 transition-colors"
+              className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5"
             >
               수정
             </Link>
@@ -77,15 +63,14 @@ export default function PostDetailContent({
               type="button"
               onClick={handleDelete}
               disabled={isDeleting}
-              className="text-sm text-red-600 border border-red-300 rounded-lg px-3 py-1.5 hover:bg-red-50 transition-colors disabled:opacity-50"
+              className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
             >
               {isDeleting ? "삭제 중..." : "삭제"}
             </button>
             <FormMessage message={deleteError} variant="error" />
-          </div>
-        )}
-      </div>
-    </div>
-    </div>
+          </>
+        ) : undefined
+      }
+    />
   );
 }

@@ -4,7 +4,7 @@ import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
 import { getServerSession } from "next-auth";
 import BoardContent from "./_components/BoardContent";
-import { COMMUNITY_BOARD_ID, PINNED_ANNOUNCEMENT_COUNT, POSTS_PER_PAGE } from "./_lib/constants";
+import { COMMUNITY_BOARD_ID, ALL_ANNOUNCEMENT_PAGE_SIZE, PINNED_ANNOUNCEMENT_COUNT, POSTS_PER_PAGE } from "./_lib/constants";
 
 interface CommunityPageProps {
   searchParams: Promise<{
@@ -36,8 +36,10 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
         tab={tab}
         currentPage={Number(params.page) || 1}
         currentUserId={currentUserId}
+        // 공지 탭에서는 게시글 영역에 공지를 표시 (페이지네이션 적용)
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
+        allAnnouncements={announcementsRes.data.content ?? []}
         totalElements={announcementsRes.data.page?.totalElements ?? 0}
         totalPages={announcementsRes.data.page?.totalPages ?? 0}
       />
@@ -48,15 +50,20 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   // 인기 탭은 createdAt 내림차순 사용 (API가 viewCount를 지원하지 않음)
   const sort: string[] = ["createdAt,desc"];
 
-  const [postsRes, pinnedRes] = await Promise.all([
+  const [postsRes, pinnedRes, allAnnouncementsRes] = await Promise.all([
     getApiBoardsBoardidPosts(COMMUNITY_BOARD_ID, { page, size: POSTS_PER_PAGE, sort }, withToken(token ?? undefined)),
     getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
       { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
       withToken(token ?? undefined),
     ),
+    getApiBoardsBoardidAnnouncements(
+      COMMUNITY_BOARD_ID,
+      { page: 0, size: ALL_ANNOUNCEMENT_PAGE_SIZE },
+      withToken(token ?? undefined),
+    ),
   ]);
-
+  console.log("postsRes??", pinnedRes.data.content);
   return (
     <BoardContent
       tab={tab}
@@ -64,6 +71,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       currentUserId={currentUserId}
       initialPosts={postsRes.data.content ?? []}
       initialAnnouncements={pinnedRes.data.content ?? []}
+      allAnnouncements={allAnnouncementsRes.data.content ?? []}
       totalElements={postsRes.data.page?.totalElements ?? 0}
       totalPages={postsRes.data.page?.totalPages ?? 0}
     />

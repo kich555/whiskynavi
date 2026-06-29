@@ -17,6 +17,7 @@ interface BoardContentProps {
   currentUserId?: number;
   initialPosts: PostSummaryResponse[];
   initialAnnouncements: UserAnnouncementSummaryResponse[];
+  allAnnouncements: UserAnnouncementSummaryResponse[];
   totalElements: number;
   totalPages: number;
 }
@@ -27,6 +28,7 @@ export default function BoardContent({
   currentUserId,
   initialPosts,
   initialAnnouncements,
+  allAnnouncements,
   totalElements,
   totalPages,
 }: BoardContentProps) {
@@ -104,7 +106,8 @@ export default function BoardContent({
       <div className="mx-auto max-w-4xl px-4 py-6">
         <PostList
           posts={displayPosts}
-          announcements={tab !== "announcement" ? initialAnnouncements : []}
+          announcements={initialAnnouncements}
+          allAnnouncements={allAnnouncements}
           currentUserId={currentUserId}
           isMobile={isMobile}
           isLoadMoreMode={isLoadMoreMode}

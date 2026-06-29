@@ -1,5 +1,8 @@
+"use client";
+
 import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/apis/generated/api";
 import Link from "next/link";
+import { useState } from "react";
 import AnnouncementItem from "./AnnouncementItem";
 import LoadMorePagination from "./LoadMorePagination";
 import PostCardList from "./PostCardList";
@@ -8,6 +11,7 @@ import PostItem from "./PostItem";
 interface PostListProps {
   posts: PostSummaryResponse[];
   announcements: UserAnnouncementSummaryResponse[];
+  allAnnouncements: UserAnnouncementSummaryResponse[];
   currentUserId?: number;
   isMobile: boolean;
   isLoadMoreMode: boolean;
@@ -24,6 +28,7 @@ interface PostListProps {
 export default function PostList({
   posts,
   announcements,
+  allAnnouncements,
   isMobile,
   isLoadMoreMode,
   showPagination,
@@ -35,6 +40,8 @@ export default function PostList({
   onLoadMore,
   onPageChange,
 }: PostListProps) {
+  const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
+  const displayAnnouncements = showAllAnnouncements ? allAnnouncements : announcements;
   const isEmpty = posts.length === 0 && announcements.length === 0;
 
   if (isEmpty) {
@@ -59,45 +66,61 @@ export default function PostList({
       {/* 고정 공지 (일반/인기 탭에서만) */}
       {announcements.length > 0 && (
         <div className="divide-y divide-white/10">
-          {announcements.map((a) => (
+          {displayAnnouncements.map((a) => (
             <AnnouncementItem key={a.id} announcement={a} isMobile={isMobile} />
           ))}
-          {/* 공지와 게시글 사이 구분선 */}
-          <div className="border-b border-white/10" />
+          {/* 펼치기/접기 버튼: 전체 공지가 3개보다 많을 때만 표시 */}
+          {allAnnouncements.length > announcements.length && (
+            <button
+              type="button"
+              onClick={() => setShowAllAnnouncements((prev) => !prev)}
+              className="flex w-full items-center justify-center gap-1 border-b border-white/10 px-4 py-2 text-xs text-gray-400 transition-colors hover:text-amber-500"
+            >
+              {showAllAnnouncements ? "△ 접기" : `▽ 공지 전체보기 (${allAnnouncements.length}개)`}
+            </button>
+          )}
+          {/* 공지와 게시글 사이 구분선 (접혀있을 때만) */}
+          {!showAllAnnouncements && <div className="border-b border-white/10" />}
         </div>
       )}
 
-      {/* 게시글 목록 */}
-      {isMobile ? (
-        <PostCardList posts={posts} />
-      ) : (
-        <div>
-          {/* 데스크탑 테이블 헤더 */}
-          <div className="grid grid-cols-[1fr_80px_100px] items-center gap-3 border-b border-white/10 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
-            <span>제목</span>
-            <span className="text-right">작성자</span>
-            <span className="text-right">날짜</span>
-          </div>
-          <div className="divide-y divide-white/10">
-            {posts.map((post) => (
-              <PostItem key={post.id} post={post} isMobile={false} />
-            ))}
-          </div>
-        </div>
+      {/* 게시글 목록 — 공지 펼치기와 무관하게 항상 표시 */}
+      {posts.length > 0 && (
+        <>
+          {isMobile ? (
+            <PostCardList posts={posts} />
+          ) : (
+            <div>
+              {/* 데스크탑 테이블 헤더 */}
+              <div className="grid grid-cols-[1fr_80px_100px] items-center gap-3 border-b border-white/10 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
+                <span>제목</span>
+                <span className="text-right">작성자</span>
+                <span className="text-right">날짜</span>
+              </div>
+              <div className="divide-y divide-white/10">
+                {posts.map((post) => (
+                  <PostItem key={post.id} post={post} isMobile={false} />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* 페이지네이션 */}
-      <LoadMorePagination
-        isMobile={isMobile}
-        isLoadMoreMode={isLoadMoreMode}
-        showPagination={showPagination}
-        currentPage={currentPage}
-        totalPages={totalPages}
-        loadMoreRemaining={loadMoreRemaining}
-        isLoadingMore={isLoadingMore}
-        onLoadMore={onLoadMore}
-        onPageChange={onPageChange}
-      />
+      {/* 페이지네이션 — 게시글이 없어도 공지 탭에서 페이지네이션 필요 */}
+      {(posts.length > 0 || announcements.length > 0) && (
+        <LoadMorePagination
+          isMobile={isMobile}
+          isLoadMoreMode={isLoadMoreMode}
+          showPagination={showPagination}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          loadMoreRemaining={loadMoreRemaining}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={onLoadMore}
+          onPageChange={onPageChange}
+        />
+      )}
     </div>
   );
 }
