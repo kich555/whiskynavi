@@ -19,17 +19,15 @@ export default async function AnnouncementDetailPage({ params }: AnnouncementDet
 
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
 
-  let announcement;
-  try {
-    const res = await getApiBoardsBoardidAnnouncementsAnnouncementid(
-      COMMUNITY_BOARD_ID,
-      id,
-      withToken((await getAuthToken()) ?? undefined),
-    );
-    announcement = res.data;
-  } catch {
+  const res = await getApiBoardsBoardidAnnouncementsAnnouncementid(
+    COMMUNITY_BOARD_ID,
+    id,
+    withToken((await getAuthToken()) ?? undefined),
+  ).catch(() => null);
+
+  if (!res) {
     notFound();
   }
 
-  return <AnnouncementDetailContent announcement={announcement} currentUserId={currentUserId} />;
+  return <AnnouncementDetailContent announcement={res.data} currentUserId={currentUserId} />;
 }

@@ -23,17 +23,15 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
 
-  let post;
-  try {
-    const res = await getApiBoardsBoardidPostsPostid(
-      COMMUNITY_BOARD_ID,
-      id,
-      token ? withToken(token) : undefined,
-    );
-    post = res.data;
-  } catch {
+  const res = await getApiBoardsBoardidPostsPostid(
+    COMMUNITY_BOARD_ID,
+    id,
+    token ? withToken(token) : undefined,
+  ).catch(() => null);
+
+  if (!res) {
     notFound();
   }
 
-  return <PostDetailContent post={post} currentUserId={currentUserId} />;
+  return <PostDetailContent post={res.data} currentUserId={currentUserId} />;
 }
