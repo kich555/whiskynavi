@@ -45,7 +45,7 @@ const announcementFormSchema = z.object({
   visible: z
     .enum(["true", "false"], "노출 여부 값이 올바르지 않습니다.")
     .default("true")
-    .catch("true")
+    .catch("false")
     .transform((v) => v === "true"),
   pinned: z
     .enum(["true", "false"], "상단 고정 값이 올바르지 않습니다.")
@@ -94,9 +94,9 @@ const boardFormSchema = z.object({
     .string()
     .transform((v) => v.trim() || undefined)
     .optional(),
-  active: z.enum(["true", "false"]).transform((v) => v === "true"),
-  hidden: z.enum(["true", "false"]).transform((v) => v === "true"),
-  readOnly: z.enum(["true", "false"]).transform((v) => v === "true"),
+  active: z.enum(["true", "false"]).default("true").catch("false").transform((v) => v === "true"),
+  hidden: z.enum(["true", "false"]).default("false").catch("false").transform((v) => v === "true"),
+  readOnly: z.enum(["true", "false"]).default("false").catch("false").transform((v) => v === "true"),
   readRole: z.enum(ROLE_OPTIONS).default("ROLE_GUEST").catch("ROLE_GUEST"),
   writeRole: z.enum(ROLE_OPTIONS).default("ROLE_USER").catch("ROLE_USER"),
 });
