@@ -15,7 +15,7 @@ export default function AnnouncementItem({
     return (
       <Link
         href={`/community/announcements/${announcement.id}`}
-        className="flex items-center gap-2 bg-amber-500/15 border border-amber-500/30 rounded-lg px-3 py-2.5 hover:bg-amber-500/20 transition-colors"
+        className="flex items-center gap-2 bg-amber-500/15 border-b border-amber-500/30 px-3 py-2.5 hover:bg-amber-500/20 transition-colors"
         style={{ contentVisibility: "auto", containIntrinsicSize: "0 44px" }}
       >
         <span className="shrink-0 bg-amber-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded">

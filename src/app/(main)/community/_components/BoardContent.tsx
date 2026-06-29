@@ -3,7 +3,7 @@
 import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/apis/generated/api";
 import { getApiBoardsBoardidPosts } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getAuthToken } from "@/lib/auth";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useIsMobile } from "../_hooks/useIsMobile";
@@ -45,8 +45,8 @@ export default function BoardContent({
   const loadMorePageRef = useRef(loadMorePage);
   loadMorePageRef.current = loadMorePage;
 
-  // 더보기 모드인가?
-  const isLoadMoreMode = isMobile && loadMorePage <= LOAD_MORE_MAX_CLICKS;
+  // 더보기 모드인가? (게시글이 2페이지 이상 있을 때만)
+  const isLoadMoreMode = isMobile && totalPages > 1 && loadMorePage <= LOAD_MORE_MAX_CLICKS;
 
   const displayPosts =
     isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
@@ -77,7 +77,8 @@ export default function BoardContent({
     setIsLoadingMore(true);
     try {
       const nextPage = loadMorePageRef.current + 1;
-      const token = await getAuthToken();
+      const session = await getSession();
+      const token = session?.accessToken;
       const opts = withToken(token ?? undefined);
       const res = await getApiBoardsBoardidPosts(
         COMMUNITY_BOARD_ID,
