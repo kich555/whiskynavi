@@ -38,11 +38,16 @@ src/app/(main)/community/
 │   ├── BoardTabs.tsx                      # 공지·일반·인기 탭
 │   ├── PostList.tsx                       # 공지 3개 고정 + 게시글 목록 렌더링
 │   ├── PostItem.tsx                       # 게시글 행 (모바일 카드형 / 데스크탑 테이블 행)
-│   ├── AnnouncementItem.tsx               # 공지 행 (앰버 배경, 공지 뱃지)
+│   ├── AnnouncementItem.tsx               # 공지 행 (앰버 배경, 공지 뱃지, Link로 상세 이동)
 │   ├── LoadMorePagination.tsx             # 모바일: 더보기(×5) → 페이지 이동 / 데스크탑: URL 페이지네이션
 │   └── PostCardList.tsx                   # 모바일 카드형 목록 렌더러
 ├── _hooks/
 │   └── useIsMobile.ts                     # Tailwind md(768px) 기준 모바일 감지
+├── announcements/
+│   └── [announcementId]/
+│       ├── page.tsx                       # RSC: 공지사항 상세 fetch
+│       └── _components/
+│           └── AnnouncementDetailContent.tsx  # "use client": 공지 상세 렌더
 ├── posts/
 │   ├── new/
 │   │   ├── page.tsx                       # RSC: 로그인 체크 + PostCreateContent 렌더
