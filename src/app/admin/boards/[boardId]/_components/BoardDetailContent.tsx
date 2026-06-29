@@ -2,6 +2,11 @@
 
 import type { AdminAnnouncementSummaryResponse, AdminBoardResponse } from "@/apis/generated/api";
 import type { AdminAnnouncementResponse } from "@/apis/generated/api";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Edit, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useCallback, useEffect, useState, useTransition } from "react";
@@ -37,6 +42,21 @@ type AnnouncementFormData = Partial<Pick<AdminAnnouncementResponse, "id" | "titl
 interface BoardDetailContentProps {
   board: AdminBoardResponse;
   announcements: AdminAnnouncementSummaryResponse[];
+}
+
+/** 공통 DateInput — 추후 Calendar+Popover로 교체 가능 */
+function DateInput({ name, label, defaultValue }: { name: string; label: string; defaultValue?: string }) {
+  return (
+    <div>
+      <Label htmlFor={name} className="typo-bold-12 mb-1 block text-gray-700">{label}</Label>
+      <Input
+        id={name}
+        name={name}
+        type="datetime-local"
+        defaultValue={defaultValue ? defaultValue.slice(0, 16) : ""}
+      />
+    </div>
+  );
 }
 
 export default function BoardDetailContent({ board, announcements }: BoardDetailContentProps) {
@@ -117,7 +137,6 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
   }, []);
 
   const handleEditAnnouncement = useCallback((announcement: AdminAnnouncementSummaryResponse) => {
-    // 요약 데이터로 먼저 모달 표시 (content 제외)
     setEditingAnnouncement({
       id: announcement.id,
       title: announcement.title,
@@ -129,7 +148,6 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
       expiredAt: announcement.expiredAt,
       _loading: true,
     });
-    // 상세 데이터 비동기 로드
     if (announcement.id) {
       fetchAnnouncementDetail(announcement.id);
     }
@@ -166,19 +184,6 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
   const startCreate = useCallback(() => {
     setShowCreateForm(true);
   }, []);
-
-  const DateInput = ({ name, label, defaultValue }: { name: string; label: string; defaultValue?: string }) => (
-    <div>
-      <label htmlFor={name} className="typo-bold-12 mb-1 block text-gray-700">{label}</label>
-      <input
-        id={name}
-        name={name}
-        type="datetime-local"
-        defaultValue={defaultValue ? defaultValue.slice(0, 16) : ""}
-        className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
-      />
-    </div>
-  );
 
   return (
     <>
@@ -386,61 +391,66 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
 
               <form action={createFormAction} className="space-y-4">
                 <div>
-                  <label htmlFor="create-title" className="typo-bold-12 mb-1 block text-gray-700">제목 <span className="text-red-500">*</span></label>
-                  <input
+                  <Label htmlFor="create-title" className="typo-bold-12 mb-1 block text-gray-700">제목 <span className="text-red-500">*</span></Label>
+                  <Input
                     id="create-title"
                     name="title"
                     type="text"
                     maxLength={200}
                     required
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="create-content" className="typo-bold-12 mb-1 block text-gray-700">내용 <span className="text-red-500">*</span></label>
-                  <textarea
+                  <Label htmlFor="create-content" className="typo-bold-12 mb-1 block text-gray-700">내용 <span className="text-red-500">*</span></Label>
+                  <Textarea
                     id="create-content"
                     name="content"
                     required
                     rows={4}
-                    className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="min-h-[96px] resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="create-scope" className="typo-bold-12 mb-1 block text-gray-700">범위</label>
-                    <select
-                      id="create-scope"
-                      name="scope"
+                    <Label htmlFor="create-scope" className="typo-bold-12 mb-1 block text-gray-700">범위</Label>
+                    <input type="hidden" name="scope" id="create-scope-hidden" defaultValue="BOARD" />
+                    <Select
                       defaultValue="BOARD"
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onValueChange={(value) => {
+                        const hidden = document.getElementById("create-scope-hidden") as HTMLInputElement | null;
+                        if (hidden) hidden.value = value;
+                      }}
                     >
-                      <option value="BOARD">게시판 공지</option>
-                      <option value="GLOBAL">전체 공지</option>
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="BOARD">게시판 공지</SelectItem>
+                        <SelectItem value="GLOBAL">전체 공지</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label htmlFor="create-priority" className="typo-bold-12 mb-1 block text-gray-700">우선순위</label>
-                    <input
+                    <Label htmlFor="create-priority" className="typo-bold-12 mb-1 block text-gray-700">우선순위</Label>
+                    <Input
                       id="create-priority"
                       name="priority"
                       type="number"
                       min={0}
                       defaultValue={0}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                   </div>
                 </div>
 
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="visible" value="true" defaultChecked className="size-4 accent-amber-600" />
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <Checkbox name="visible" value="true" defaultChecked />
                     <span className="text-sm text-gray-700">노출</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="pinned" value="true" className="size-4 accent-amber-600" />
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <Checkbox name="pinned" value="true" />
                     <span className="text-sm text-gray-700">상단 고정</span>
                   </label>
                 </div>
@@ -481,63 +491,68 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
               </h3>
               <form onSubmit={handleEditSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="edit-title" className="typo-bold-12 mb-1 block text-gray-700">제목 <span className="text-red-500">*</span></label>
-                  <input
+                  <Label htmlFor="edit-title" className="typo-bold-12 mb-1 block text-gray-700">제목 <span className="text-red-500">*</span></Label>
+                  <Input
                     id="edit-title"
                     name="title"
                     type="text"
                     maxLength={200}
                     required
                     defaultValue={editingAnnouncement.title ?? ""}
-                    className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="edit-content" className="typo-bold-12 mb-1 block text-gray-700">내용 <span className="text-red-500">*</span></label>
-                  <textarea
+                  <Label htmlFor="edit-content" className="typo-bold-12 mb-1 block text-gray-700">내용 <span className="text-red-500">*</span></Label>
+                  <Textarea
                     id="edit-content"
                     name="content"
                     required
                     rows={4}
                     defaultValue={editingAnnouncement.content ?? ""}
-                    className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                    className="min-h-[96px] resize-none"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label htmlFor="edit-scope" className="typo-bold-12 mb-1 block text-gray-700">범위</label>
-                    <select
-                      id="edit-scope"
-                      name="scope"
+                    <Label htmlFor="edit-scope" className="typo-bold-12 mb-1 block text-gray-700">범위</Label>
+                    <input type="hidden" name="scope" id="edit-scope-hidden" defaultValue={editingAnnouncement.scope ?? "BOARD"} />
+                    <Select
                       defaultValue={editingAnnouncement.scope ?? "BOARD"}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                      onValueChange={(value) => {
+                        const hidden = document.getElementById("edit-scope-hidden") as HTMLInputElement | null;
+                        if (hidden) hidden.value = value;
+                      }}
                     >
-                      <option value="BOARD">게시판 공지</option>
-                      <option value="GLOBAL">전체 공지</option>
-                    </select>
+                      <SelectTrigger className="w-full">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="BOARD">게시판 공지</SelectItem>
+                        <SelectItem value="GLOBAL">전체 공지</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div>
-                    <label htmlFor="edit-priority" className="typo-bold-12 mb-1 block text-gray-700">우선순위</label>
-                    <input
+                    <Label htmlFor="edit-priority" className="typo-bold-12 mb-1 block text-gray-700">우선순위</Label>
+                    <Input
                       id="edit-priority"
                       name="priority"
                       type="number"
                       min={0}
                       defaultValue={editingAnnouncement.priority ?? 0}
-                      className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
                     />
                   </div>
                 </div>
 
                 <div className="flex gap-4">
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="visible" value="true" defaultChecked={editingAnnouncement.visible ?? true} className="size-4 accent-amber-600" />
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <Checkbox name="visible" value="true" defaultChecked={editingAnnouncement.visible ?? true} />
                     <span className="text-sm text-gray-700">노출</span>
                   </label>
-                  <label className="flex items-center gap-2">
-                    <input type="checkbox" name="pinned" value="true" defaultChecked={editingAnnouncement.pinned ?? false} className="size-4 accent-amber-600" />
+                  <label className="flex cursor-pointer items-center gap-2">
+                    <Checkbox name="pinned" value="true" defaultChecked={editingAnnouncement.pinned ?? false} />
                     <span className="text-sm text-gray-700">상단 고정</span>
                   </label>
                 </div>
