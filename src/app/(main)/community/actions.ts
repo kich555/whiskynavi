@@ -2,12 +2,15 @@
 
 import {
   deleteApiBoardsBoardidPostsPostid,
+  getApiBoardsBoardidPostsPostid,
   postApiBoardsBoardidPosts,
   putApiBoardsBoardidPostsPostid,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { getUserErrorMessage } from "@/apis/errors";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
@@ -99,6 +102,21 @@ export async function updatePostAction(
     return { success: false, error: "로그인이 필요합니다.", values };
   }
 
+  // server-auth-actions: 게시글 작성자 확인 (defense-in-depth)
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
+  if (currentUserId) {
+    try {
+      const post = await getApiBoardsBoardidPostsPostid(COMMUNITY_BOARD_ID, postId, withToken(token));
+      if (post.data.authorId !== currentUserId) {
+        return { success: false, error: "수정 권한이 없습니다.", values };
+      }
+    } catch {
+      return { success: false, error: "게시글을 찾을 수 없습니다.", values };
+    }
+  }
+
   const parsed = postSchema.safeParse(values);
   if (!parsed.success) {
     const firstMessage = parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
@@ -144,6 +162,21 @@ export async function deletePostAction(
   const token = await getAuthToken();
   if (!token) {
     return { success: false, error: "로그인이 필요합니다." };
+  }
+
+  // server-auth-actions: 게시글 작성자 확인 (defense-in-depth)
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
+  if (currentUserId) {
+    try {
+      const post = await getApiBoardsBoardidPostsPostid(COMMUNITY_BOARD_ID, postId, withToken(token));
+      if (post.data.authorId !== currentUserId) {
+        return { success: false, error: "삭제 권한이 없습니다." };
+      }
+    } catch {
+      return { success: false, error: "게시글을 찾을 수 없습니다." };
+    }
   }
 
   try {

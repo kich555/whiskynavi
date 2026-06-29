@@ -20,8 +20,6 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
 
   // async-parallel: session + token 독립적이므로 병렬 fetch
   const [session, token] = await Promise.all([getServerSession(authOptions), getAuthToken()]);
-  console.log("===>", token);
-  // 현재 사용자 ID (비로그인 시 undefined)
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
 
   if (tab === "announcement") {
@@ -63,7 +61,6 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       withToken(token ?? undefined),
     ),
   ]);
-  console.log("postsRes??", pinnedRes.data.content);
   return (
     <BoardContent
       tab={tab}
