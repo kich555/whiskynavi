@@ -13,11 +13,8 @@ export default async function PostEditPage({ params }: PostEditPageProps) {
   const { postId } = await params;
   const id = Number(postId);
 
-  // async-parallel: session + token 병렬 fetch
-  const [session, token] = await Promise.all([
-    getServerSession(authOptions),
-    getAuthToken(),
-  ]);
+  // async-parallel: session 체크
+  const session = await getServerSession(authOptions);
   if (!session) {
     redirect(`/sign-in?callbackUrl=/community/posts/${id}/edit`);
   }
@@ -38,5 +35,5 @@ export default async function PostEditPage({ params }: PostEditPageProps) {
     redirect(`/community/posts/${id}`);
   }
 
-  return <PostEditContent post={post} token={token ?? ""} />;
+  return <PostEditContent post={post} />;
 }

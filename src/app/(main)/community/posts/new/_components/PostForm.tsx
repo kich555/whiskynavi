@@ -3,6 +3,7 @@
 import { postApiBoardsUploads } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { FormMessage } from "@/components/ui/form-message";
+import { getSession } from "next-auth/react";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -33,7 +34,6 @@ interface PostFormProps {
   } | null;
   defaultValues?: { title?: string; content?: string };
   submitLabel?: string;
-  token?: string;
 }
 
 function SubmitButton({ label }: { label: string }) {
@@ -49,7 +49,7 @@ function SubmitButton({ label }: { label: string }) {
   );
 }
 
-export default function PostForm({ action, state, defaultValues, submitLabel = "등록하기", token }: PostFormProps) {
+export default function PostForm({ action, state, defaultValues, submitLabel = "등록하기" }: PostFormProps) {
   const contentInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -136,9 +136,11 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
       setUploadingCount((c) => c + 1);
 
       try {
-        if (!token) throw new Error("인증 필요");
+        const session = await getSession();
+        const accessToken = session?.accessToken;
+        if (!accessToken) throw new Error("인증 필요");
 
-        const res = await postApiBoardsUploads({ file }, withToken(token));
+        const res = await postApiBoardsUploads({ file }, withToken(accessToken));
         const realUrl = res.data.url;
         if (!realUrl) throw new Error("업로드 응답에 URL이 없습니다.");
 
@@ -153,7 +155,7 @@ export default function PostForm({ action, state, defaultValues, submitLabel = "
         URL.revokeObjectURL(blobUrl);
       }
     },
-    [editor, token, replaceBlobUrl],
+    [editor, replaceBlobUrl],
   );
 
   /** Toolbar 버튼 핸들러 */
