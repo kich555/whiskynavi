@@ -13,7 +13,7 @@ import { useActionState, useCallback, useEffect, useState, useTransition } from 
 import { toast } from "sonner";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
-import DateTimePicker from "../../_components/DateTimePicker";
+import DateTimePicker from "@/app/admin/_components/DateTimePicker";
 import {
   createAnnouncementFormAction,
   deleteAnnouncementAction,
@@ -442,8 +442,14 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <DateTimePicker name="publishedAt" label="예약 게시" />
-                  <DateTimePicker name="expiredAt" label="만료" />
+                  <div>
+                    <Label className="typo-bold-12 mb-1 block text-gray-700">예약 게시</Label>
+                    <DateTimePicker name="publishedAt" />
+                  </div>
+                  <div>
+                    <Label className="typo-bold-12 mb-1 block text-gray-700">만료</Label>
+                    <DateTimePicker name="expiredAt" />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
@@ -544,8 +550,14 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <DateInput name="publishedAt" label="예약 게시" defaultValue={editingAnnouncement.publishedAt} />
-                  <DateInput name="expiredAt" label="만료" defaultValue={editingAnnouncement.expiredAt} />
+                  <div>
+                    <Label className="typo-bold-12 mb-1 block text-gray-700">예약 게시</Label>
+                    <DateTimePicker name="publishedAt" defaultValue={editingAnnouncement.publishedAt} />
+                  </div>
+                  <div>
+                    <Label className="typo-bold-12 mb-1 block text-gray-700">만료</Label>
+                    <DateTimePicker name="expiredAt" defaultValue={editingAnnouncement.expiredAt} />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
