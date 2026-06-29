@@ -17,6 +17,7 @@ vi.mock("./actions", () => ({
 
 vi.mock("../../delivery-order/actions", () => ({
   createDeliveryAddress: vi.fn(),
+  createDeliveryAddressFormAction: vi.fn(),
 }));
 
 type MockPostcodeData = {

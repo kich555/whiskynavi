@@ -5,7 +5,12 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
-function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimitive.Root>) {
+type LabelProps = React.ComponentProps<typeof LabelPrimitive.Root> & {
+  required?: boolean;
+  requiredClassName?: string;
+};
+
+function Label({ className, required = false, requiredClassName, children, ...props }: LabelProps) {
   return (
     <LabelPrimitive.Root
       data-slot="label"
@@ -14,8 +19,19 @@ function Label({ className, ...props }: React.ComponentProps<typeof LabelPrimiti
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+      {required && <RequiredMark className={requiredClassName} />}
+    </LabelPrimitive.Root>
   );
 }
 
-export { Label };
+export { Label, RequiredMark };
+
+function RequiredMark({ className }: { className?: string }) {
+  return (
+    <span className={cn("text-red-500", className)} aria-label="필수">
+      *
+    </span>
+  );
+}
