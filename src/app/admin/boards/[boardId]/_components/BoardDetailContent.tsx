@@ -13,6 +13,7 @@ import { useActionState, useCallback, useEffect, useState, useTransition } from 
 import { toast } from "sonner";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
+import DateTimePicker from "../../_components/DateTimePicker";
 import {
   createAnnouncementFormAction,
   deleteAnnouncementAction,
@@ -42,21 +43,6 @@ type AnnouncementFormData = Partial<Pick<AdminAnnouncementResponse, "id" | "titl
 interface BoardDetailContentProps {
   board: AdminBoardResponse;
   announcements: AdminAnnouncementSummaryResponse[];
-}
-
-/** 공통 DateInput — 추후 Calendar+Popover로 교체 가능 */
-function DateInput({ name, label, defaultValue }: { name: string; label: string; defaultValue?: string }) {
-  return (
-    <div>
-      <Label htmlFor={name} className="typo-bold-12 mb-1 block text-gray-700">{label}</Label>
-      <Input
-        id={name}
-        name={name}
-        type="datetime-local"
-        defaultValue={defaultValue ? defaultValue.slice(0, 16) : ""}
-      />
-    </div>
-  );
 }
 
 export default function BoardDetailContent({ board, announcements }: BoardDetailContentProps) {
@@ -456,8 +442,8 @@ export default function BoardDetailContent({ board, announcements }: BoardDetail
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <DateInput name="publishedAt" label="예약 게시" />
-                  <DateInput name="expiredAt" label="만료" />
+                  <DateTimePicker name="publishedAt" label="예약 게시" />
+                  <DateTimePicker name="expiredAt" label="만료" />
                 </div>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
