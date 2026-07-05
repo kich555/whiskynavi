@@ -55,7 +55,7 @@ const Hero = ({ backgroundText, title, subtitle }: HeroProps) => {
       {/* Hero Content */}
       <div className="relative z-10 flex h-full items-center justify-center px-6">
         <div className="mx-auto w-full max-w-[1440px]">
-          <div className="mx-auto max-w-4xl text-center">
+          <div className="mx-auto text-center">
             <h1
               className="typo-bold-36 mb-5 tracking-tight text-white md:text-5xl lg:text-6xl"
               style={{ textShadow: "0 0 40px rgba(255,255,255,0.15)" }}

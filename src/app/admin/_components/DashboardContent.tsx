@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Ban, Calendar, FileSpreadsheet, Package, ShoppingCart, Users } from "lucide-react";
+import { Award, Ban, Calendar, FileSpreadsheet, MessageSquare, Package, ShoppingCart, Users } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import AdminHeader from "./AdminHeader";
@@ -90,6 +90,13 @@ const quickLinks = [
     icon: Ban,
     href: "/admin/blacklist",
     color: "bg-red-500",
+  },
+  {
+    title: "게시판 관리",
+    description: "커뮤니티 게시판 설정",
+    icon: MessageSquare,
+    href: "/admin/boards",
+    color: "bg-indigo-500",
   },
 ];
 

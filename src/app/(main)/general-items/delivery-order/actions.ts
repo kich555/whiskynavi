@@ -178,6 +178,32 @@ export async function createDeliveryAddress(
   }
 }
 
+export type AddressFormState =
+  | { success: true; data: UserDeliveryAddressResponse }
+  | { success: false; error?: string };
+
+export async function createDeliveryAddressFormAction(
+  _prevState: AddressFormState,
+  formData: FormData,
+): Promise<AddressFormState> {
+  const result = await createDeliveryAddress({
+    addressName: String(formData.get("addressName") ?? ""),
+    receiverName: String(formData.get("receiverName") ?? ""),
+    receiverPhone: String(formData.get("receiverPhone") ?? ""),
+    postalCode: String(formData.get("postalCode") ?? ""),
+    address: String(formData.get("address") ?? ""),
+    addressDetail: String(formData.get("addressDetail") ?? ""),
+    deliveryMemo: String(formData.get("deliveryMemo") ?? ""),
+    defaultAddress: formData.get("defaultAddress") === "on",
+  });
+
+  if (!result.success || !result.data) {
+    return { success: false, error: result.error ?? "배송지 저장에 실패했습니다." };
+  }
+
+  return { success: true, data: result.data };
+}
+
 export async function createGeneralItemTossTicket(
   input: GeneralItemDeliveryOrderInput,
   idempotencyKey: string,

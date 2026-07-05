@@ -1,0 +1,193 @@
+"use server";
+
+import {
+  deleteApiBoardsBoardidPostsPostid,
+  getApiBoardsBoardidPostsPostid,
+  postApiBoardsBoardidPosts,
+  putApiBoardsBoardidPostsPostid,
+} from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
+import { getAuthToken } from "@/lib/auth";
+import { getUserErrorMessage } from "@/apis/errors";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
+import { z } from "zod/v4";
+import sanitizeHtml from "sanitize-html";
+import { COMMUNITY_BOARD_ID } from "./_lib/constants";
+
+export type FormState = {
+  success: boolean;
+  error?: string;
+  values?: Record<string, string>;
+};
+
+const postSchema = z.object({
+  title: z
+    .string()
+    .trim()
+    .min(1, "제목을 입력해주세요.")
+    .max(200, "제목은 최대 200자까지 입력 가능합니다."),
+  content: z
+    .string()
+    .trim()
+    .min(1, "내용을 입력해주세요."),
+});
+
+export async function createPostAction(_prev: FormState | null, formData: FormData): Promise<FormState> {
+  const values: Record<string, string> = {
+    title: (formData.get("title") as string) ?? "",
+    content: (formData.get("content") as string) ?? "",
+  };
+
+  // server-auth-actions: Server Action 내부에서 인증 재검증
+  const token = await getAuthToken();
+  if (!token) {
+    return { success: false, error: "로그인이 필요합니다.", values };
+  }
+
+  const parsed = postSchema.safeParse(values);
+  if (!parsed.success) {
+    const firstMessage = parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
+    return { success: false, error: firstMessage, values };
+  }
+
+  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
+  const sanitized = sanitizeHtml(parsed.data.content, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "img", "h1", "h2", "h3",
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ["src", "alt", "title", "width", "height"],
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https"],
+  });
+
+  try {
+    await postApiBoardsBoardidPosts(
+      COMMUNITY_BOARD_ID,
+      { title: parsed.data.title, content: sanitized },
+      withToken(token),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글 작성에 실패했습니다."),
+      values,
+    };
+  }
+
+  revalidatePath("/community");
+  redirect("/community");
+}
+
+export async function updatePostAction(
+  postId: number,
+  _prev: FormState | null,
+  formData: FormData,
+): Promise<FormState> {
+  const values: Record<string, string> = {
+    title: (formData.get("title") as string) ?? "",
+    content: (formData.get("content") as string) ?? "",
+  };
+
+  // server-auth-actions: Server Action 내부에서 인증 재검증
+  const token = await getAuthToken();
+  if (!token) {
+    return { success: false, error: "로그인이 필요합니다.", values };
+  }
+
+  // server-auth-actions: 게시글 작성자 확인 (defense-in-depth)
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
+  if (currentUserId) {
+    try {
+      const post = await getApiBoardsBoardidPostsPostid(COMMUNITY_BOARD_ID, postId, withToken(token));
+      if (post.data.authorId !== currentUserId) {
+        return { success: false, error: "수정 권한이 없습니다.", values };
+      }
+    } catch {
+      return { success: false, error: "게시글을 찾을 수 없습니다.", values };
+    }
+  }
+
+  const parsed = postSchema.safeParse(values);
+  if (!parsed.success) {
+    const firstMessage = parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
+    return { success: false, error: firstMessage, values };
+  }
+
+  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
+  const sanitized = sanitizeHtml(parsed.data.content, {
+    allowedTags: sanitizeHtml.defaults.allowedTags.concat([
+      "img", "h1", "h2", "h3",
+    ]),
+    allowedAttributes: {
+      ...sanitizeHtml.defaults.allowedAttributes,
+      img: ["src", "alt", "title", "width", "height"],
+      a: ["href", "target", "rel"],
+    },
+    allowedSchemes: ["http", "https"],
+  });
+
+  try {
+    await putApiBoardsBoardidPostsPostid(
+      COMMUNITY_BOARD_ID,
+      postId,
+      { title: parsed.data.title, content: sanitized },
+      withToken(token),
+    );
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글 수정에 실패했습니다."),
+      values,
+    };
+  }
+
+  revalidatePath(`/community/posts/${postId}`);
+  redirect(`/community/posts/${postId}`);
+}
+
+export async function deletePostAction(
+  postId: number,
+): Promise<{ success: boolean; error?: string }> {
+  const token = await getAuthToken();
+  if (!token) {
+    return { success: false, error: "로그인이 필요합니다." };
+  }
+
+  // server-auth-actions: 게시글 작성자 확인 (defense-in-depth)
+  const session = await getServerSession(authOptions);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
+  if (currentUserId) {
+    try {
+      const post = await getApiBoardsBoardidPostsPostid(COMMUNITY_BOARD_ID, postId, withToken(token));
+      if (post.data.authorId !== currentUserId) {
+        return { success: false, error: "삭제 권한이 없습니다." };
+      }
+    } catch {
+      return { success: false, error: "게시글을 찾을 수 없습니다." };
+    }
+  }
+
+  try {
+    await deleteApiBoardsBoardidPostsPostid(COMMUNITY_BOARD_ID, postId, withToken(token));
+    revalidatePath("/community");
+    redirect("/community");
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글 삭제에 실패했습니다."),
+    };
+  }
+}

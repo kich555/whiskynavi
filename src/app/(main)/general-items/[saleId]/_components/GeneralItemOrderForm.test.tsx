@@ -1,44 +1,51 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { addGeneralItemToCart } from "../../cart/actions";
+import { addToCartFormAction } from "../actions";
 import GeneralItemOrderForm from "./GeneralItemOrderForm";
 
-const push = vi.fn();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
+vi.mock("../actions", () => ({
+  addToCartFormAction: vi.fn(),
 }));
 
-vi.mock("../../cart/actions", () => ({
-  addGeneralItemToCart: vi.fn(),
-}));
-
-const mockedAddGeneralItemToCart = vi.mocked(addGeneralItemToCart);
+const mockedAddToCartFormAction = vi.mocked(addToCartFormAction);
 
 describe("GeneralItemOrderForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("adds the selected quantity to cart before opening the cart order page", async () => {
+  it("submits with correct FormData when ordering now", async () => {
     const user = userEvent.setup();
-    mockedAddGeneralItemToCart.mockResolvedValue({ success: true });
+    mockedAddToCartFormAction.mockResolvedValue({ success: true });
 
-    const { container } = render(<GeneralItemOrderForm saleAnnouncementId={1001} quantityLimit={5} />);
-
-    expect(container.querySelector("form")).not.toHaveAttribute("action", "/general-items/delivery-order");
+    render(<GeneralItemOrderForm saleAnnouncementId={1001} quantityLimit={5} />);
 
     await user.click(screen.getByRole("button", { name: "수량 증가" }));
     await user.click(screen.getByRole("button", { name: "바로 주문" }));
 
-    expect(mockedAddGeneralItemToCart).toHaveBeenCalledWith({ saleAnnouncementId: 1001, quantity: 2 });
-    expect(push).toHaveBeenCalledWith("/general-items/cart/order");
+    expect(mockedAddToCartFormAction).toHaveBeenCalled();
+    const formData: FormData = mockedAddToCartFormAction.mock.calls[0][1];
+    expect(formData.get("saleAnnouncementId")).toBe("1001");
+    expect(formData.get("quantity")).toBe("2");
+    expect(formData.get("intent")).toBe("orderNow");
+  });
+
+  it("shows success banner when adding to cart succeeds", async () => {
+    const user = userEvent.setup();
+    mockedAddToCartFormAction.mockResolvedValue({ success: true });
+
+    render(<GeneralItemOrderForm saleAnnouncementId={1001} quantityLimit={5} />);
+
+    await user.click(screen.getByRole("button", { name: "장바구니 담기" }));
+
+    expect(screen.getByText("장바구니에 상품을 담았습니다.")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "장바구니 보기" })).toBeInTheDocument();
   });
 
   it("shows the action error when adding to cart fails", async () => {
     const user = userEvent.setup();
-    mockedAddGeneralItemToCart.mockResolvedValue({ success: false, error: "재고가 부족합니다." });
+    mockedAddToCartFormAction.mockResolvedValue({ success: false, error: "재고가 부족합니다." });
 
     render(<GeneralItemOrderForm saleAnnouncementId={1001} quantityLimit={5} />);
 

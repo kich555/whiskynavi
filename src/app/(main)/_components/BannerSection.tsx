@@ -53,7 +53,7 @@ export default function BannerSection({ banners }: BannerSectionProps) {
 
         <div className="relative flex h-full animate-[slideUp_1s_ease-out_0.3s_both] items-center justify-center px-4 md:px-6">
           <div className="mx-auto w-full max-w-[1440px]">
-            <div className="mx-auto max-w-4xl text-center">
+            <div className="mx-auto text-center">
               <h1 className="mb-2 text-xl leading-tight text-white md:mb-4 md:text-4xl lg:mb-6 lg:text-5xl xl:text-6xl">
                 {currentBanner.title}
               </h1>
