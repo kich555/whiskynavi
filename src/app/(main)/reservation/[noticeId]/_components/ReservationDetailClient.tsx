@@ -128,7 +128,13 @@ export default function ReservationDetailClient({
 
         <div className="flex flex-col">
           {displayStatus === "active" ? (
-            <ApplyForm onApply={handleApply} isPending={isPending} error={error} pickupLocations={pickupLocations} />
+            <ApplyForm
+              onApply={handleApply}
+              isPending={isPending}
+              error={error}
+              pickupLocations={pickupLocations}
+              maxQuantity={notice.maxOrderQuantity}
+            />
           ) : displayStatus === "pending" ? (
             <button
               type="button"
@@ -147,6 +153,7 @@ export default function ReservationDetailClient({
               pickupLocations={pickupLocations}
               initialQuantity={myApplication?.quantity}
               initialLocationId={myApplication?.pickupUserBusinessId}
+              maxQuantity={notice.maxOrderQuantity}
             />
           ) : displayStatus === "applied" ? (
             <div className="flex flex-col gap-3">

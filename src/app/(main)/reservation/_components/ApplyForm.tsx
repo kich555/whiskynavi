@@ -26,6 +26,7 @@ interface ApplyFormProps {
   initialQuantity?: number;
   initialLocationId?: number;
   onCancelEdit?: () => void;
+  maxQuantity?: number;
 }
 
 export default function ApplyForm({
@@ -37,6 +38,7 @@ export default function ApplyForm({
   initialQuantity,
   initialLocationId,
   onCancelEdit,
+  maxQuantity = 100,
 }: ApplyFormProps) {
   const initialLocationIdStr =
     initialLocationId != null && pickupLocations.some((loc) => loc.id === initialLocationId)
@@ -78,22 +80,22 @@ export default function ApplyForm({
             <input
               type="number"
               min="1"
-              max="10"
+              max={maxQuantity}
               value={quantityInput}
               onChange={(e) => {
                 const raw = e.target.value;
                 setQuantityInput(raw);
                 const parsed = parseInt(raw, 10);
                 if (!Number.isNaN(parsed)) {
-                  setQuantity(Math.max(1, Math.min(10, parsed)));
+                  setQuantity(Math.max(1, Math.min(maxQuantity, parsed)));
                 }
               }}
               onBlur={() => {
                 const parsed = parseInt(quantityInput, 10);
                 const original = Number.isNaN(parsed) ? 1 : parsed;
-                const clamped = Math.max(1, Math.min(100, original));
+                const clamped = Math.max(1, Math.min(maxQuantity, original));
                 if (clamped !== original) {
-                  toast.warning(`수량은 1~100병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
+                  toast.warning(`수량은 1~${maxQuantity}병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
                 }
                 setQuantity(clamped);
                 setQuantityInput(String(clamped));
