@@ -91,9 +91,9 @@ export default function ApplyForm({
               onBlur={() => {
                 const parsed = parseInt(quantityInput, 10);
                 const original = Number.isNaN(parsed) ? 1 : parsed;
-                const clamped = Math.max(1, Math.min(10, original));
+                const clamped = Math.max(1, Math.min(100, original));
                 if (clamped !== original) {
-                  toast.warning(`수량은 1~10병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
+                  toast.warning(`수량은 1~100병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
                 }
                 setQuantity(clamped);
                 setQuantityInput(String(clamped));
