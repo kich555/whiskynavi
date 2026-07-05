@@ -128,6 +128,27 @@ export interface AdminBannerResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type AdminBoardResponseReadRole = typeof AdminBoardResponseReadRole[keyof typeof AdminBoardResponseReadRole];
+
+
+export const AdminBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
 export type AdminBoardResponseWriteRole = typeof AdminBoardResponseWriteRole[keyof typeof AdminBoardResponseWriteRole];
@@ -166,6 +187,8 @@ export interface AdminBoardResponse {
   name?: string;
   /** 읽기 전용 게시판 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: AdminBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
@@ -276,6 +299,7 @@ export interface AdminBottleReservationNoticeResponse {
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
+  description?: string;
   editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
@@ -1523,6 +1547,27 @@ export interface AuthResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type BoardRequestReadRole = typeof BoardRequestReadRole[keyof typeof BoardRequestReadRole];
+
+
+export const BoardRequestReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type BoardRequestWriteRole = typeof BoardRequestWriteRole[keyof typeof BoardRequestWriteRole];
@@ -1544,7 +1589,7 @@ export const BoardRequestWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export interface BoardRequest {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -1565,6 +1610,8 @@ export interface BoardRequest {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: BoardRequestReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -1573,6 +1620,13 @@ export interface BoardRequest {
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
   writeRole?: BoardRequestWriteRole;
+}
+
+export interface BoardUploadResponse {
+  /** 업로드된 파일의 S3 key입니다. */
+  key?: string;
+  /** 업로드된 파일의 CloudFront URL입니다. */
+  url?: string;
 }
 
 export interface BottleAdminParameterValues {
@@ -1886,6 +1940,11 @@ export type BottleReservationNoticeRequestGradeConditionsItem = {
 export interface BottleReservationNoticeRequest {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: BottleReservationNoticeRequestGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -2113,6 +2172,69 @@ export interface ChangePasswordRequest {
 }
 
 /**
+ * 게시글 댓글의 답글 정보를 담은 응답 DTO입니다.
+ */
+export interface CommentReplyResponse {
+  /** 댓글 작성자 ID입니다. */
+  authorId?: number;
+  /** 댓글 내용입니다. */
+  content?: string;
+  /** 댓글 생성 일시입니다. */
+  createdAt?: string;
+  /** 댓글 식별자입니다. */
+  id?: number;
+  /** 부모 댓글 ID입니다. */
+  parentCommentId?: number;
+  /** 댓글이 속한 게시글 ID입니다. */
+  postId?: number;
+  /** 답글 수신자 사용자 ID입니다. */
+  replyToUserId?: number;
+  /** 최상위 댓글 ID입니다. */
+  rootCommentId?: number;
+  /** 댓글 최종 수정 일시입니다. */
+  updatedAt?: string;
+}
+
+/**
+ * 게시글 댓글 정보를 담은 응답 DTO입니다.
+ */
+export interface CommentResponse {
+  /** 댓글 작성자 ID입니다. */
+  authorId?: number;
+  /** 댓글 내용입니다. */
+  content?: string;
+  /** 댓글 생성 일시입니다. */
+  createdAt?: string;
+  /** 댓글 식별자입니다. */
+  id?: number;
+  /** 부모 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+  /** 댓글이 속한 게시글 ID입니다. */
+  postId?: number;
+  /** 이 댓글에 달린 답글 목록입니다. */
+  replies?: CommentReplyResponse[];
+  /** 답글 수신자 사용자 ID입니다. */
+  replyToUserId?: number;
+  /** 최상위 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  rootCommentId?: number;
+  /** 댓글 최종 수정 일시입니다. */
+  updatedAt?: string;
+}
+
+/**
+ * 게시글 댓글을 작성할 때 사용하는 요청 본문입니다.
+ */
+export interface CreateCommentRequest {
+  /**
+   * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+}
+
+/**
  * 게시글을 작성할 때 사용하는 요청 본문입니다. 읽기 전용 게시판이나 작성 권한이 부족한 게시판에는 작성할 수 없습니다.
  */
 export interface CreatePostRequest {
@@ -2121,6 +2243,8 @@ export interface CreatePostRequest {
    * @minLength 1
    */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
+  hasImage?: boolean;
   /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
@@ -3073,6 +3197,8 @@ export interface PostSummaryResponse {
   boardId?: number;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. */
+  hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
   /** 게시글 제목입니다. */
@@ -3146,6 +3272,27 @@ export interface PagedModelUserBannerResponse {
 }
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type UserBoardResponseReadRole = typeof UserBoardResponseReadRole[keyof typeof UserBoardResponseReadRole];
+
+
+export const UserBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
 export type UserBoardResponseWriteRole = typeof UserBoardResponseWriteRole[keyof typeof UserBoardResponseWriteRole];
@@ -3180,6 +3327,8 @@ export interface UserBoardResponse {
   name?: string;
   /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: UserBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
@@ -3257,6 +3406,7 @@ export interface UserBottleReservationNoticePublicResponse {
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
+  description?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
@@ -3909,6 +4059,8 @@ export interface PostResponse {
   content?: string;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. */
+  hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
   /** 게시글 제목입니다. */
@@ -4744,6 +4896,17 @@ export interface TossWebhookResponse {
 }
 
 /**
+ * 게시글 댓글을 수정할 때 사용하는 요청 본문입니다.
+ */
+export interface UpdateCommentRequest {
+  /**
+   * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+}
+
+/**
  * 이메일 변경 요청
  */
 export interface UpdateEmailRequest {
@@ -4774,6 +4937,8 @@ export interface UpdateNicknameRequest {
 export interface UpdatePostRequest {
   /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
+  hasImage?: boolean;
   /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
@@ -5206,6 +5371,27 @@ sort?: string[];
 };
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PostApiAdminBoardsBodyReadRole = typeof PostApiAdminBoardsBodyReadRole[keyof typeof PostApiAdminBoardsBodyReadRole];
+
+
+export const PostApiAdminBoardsBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type PostApiAdminBoardsBodyWriteRole = typeof PostApiAdminBoardsBodyWriteRole[keyof typeof PostApiAdminBoardsBodyWriteRole];
@@ -5227,7 +5413,7 @@ export const PostApiAdminBoardsBodyWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PostApiAdminBoardsBody = {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -5248,6 +5434,8 @@ export type PostApiAdminBoardsBody = {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PostApiAdminBoardsBodyReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -5366,6 +5554,27 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
 };
 
 /**
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PutApiAdminBoardsBoardidBodyReadRole = typeof PutApiAdminBoardsBoardidBodyReadRole[keyof typeof PutApiAdminBoardsBoardidBodyReadRole];
+
+
+export const PutApiAdminBoardsBoardidBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
  */
 export type PutApiAdminBoardsBoardidBodyWriteRole = typeof PutApiAdminBoardsBoardidBodyWriteRole[keyof typeof PutApiAdminBoardsBoardidBodyWriteRole];
@@ -5387,7 +5596,7 @@ export const PutApiAdminBoardsBoardidBodyWriteRole = {
 } as const;
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole로 사용자 노출과 작성 정책을 제어합니다.
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PutApiAdminBoardsBoardidBody = {
   /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -5408,6 +5617,8 @@ export type PutApiAdminBoardsBoardidBody = {
   name?: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PutApiAdminBoardsBoardidBodyReadRole;
   /**
    * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
@@ -5709,6 +5920,11 @@ export type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem = {
 export type PostApiAdminBottlesReservationsNoticesBody = {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -5744,6 +5960,11 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem
 export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -7706,6 +7927,10 @@ size?: number;
 sort?: string[];
 };
 
+export type PostApiBoardsUploadsBody = {
+  file: Blob;
+};
+
 export type GetApiBoardsBoardidAnnouncementsParams = {
 /**
  * Zero-based page index (0..N)
@@ -7763,6 +7988,8 @@ export type PostApiBoardsBoardidPostsBody = {
    * @minLength 1
    */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
+  hasImage?: boolean;
   /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
@@ -7777,12 +8004,38 @@ export type PostApiBoardsBoardidPostsBody = {
 export type PutApiBoardsBoardidPostsPostidBody = {
   /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
+  hasImage?: boolean;
   /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
    */
   title?: string;
+};
+
+/**
+ * 게시글 댓글을 작성할 때 사용하는 요청 본문입니다.
+ */
+export type PostApiBoardsBoardidPostsPostidCommentsBody = {
+  /**
+   * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+};
+
+/**
+ * 게시글 댓글을 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiBoardsBoardidPostsPostidCommentsCommentidBody = {
+  /**
+   * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
 };
 
 export type GetApiBottlesParams = {
@@ -14648,6 +14901,46 @@ export const getApiBoardsAnnouncementsAnnouncementid = async (announcementId: nu
 
 
 /**
+ * 게시판에서 사용하는 파일을 업로드하고 CloudFront URL을 반환합니다.
+ * @summary 게시판 파일 업로드
+ */
+export type postApiBoardsUploadsResponse200 = {
+  data: BoardUploadResponse
+  status: 200
+}
+    
+export type postApiBoardsUploadsResponseSuccess = (postApiBoardsUploadsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsUploadsResponse = (postApiBoardsUploadsResponseSuccess)
+
+export const getPostApiBoardsUploadsUrl = () => {
+
+
+  
+
+  return `/api/boards/uploads`
+}
+
+export const postApiBoardsUploads = async (postApiBoardsUploadsBody: PostApiBoardsUploadsBody, options?: RequestInit): Promise<postApiBoardsUploadsResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiBoardsUploadsBody.file);
+
+  return customFetch<postApiBoardsUploadsResponse>(getPostApiBoardsUploadsUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
+  }
+);}
+
+
+
+/**
  * 전체 공지와 해당 게시판 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 반환합니다. 고정 여부와 우선순위가 높은 공지가 먼저 정렬됩니다.
  * @summary 게시판 공지 조회
  */
@@ -14931,6 +15224,170 @@ export const putApiBoardsBoardidPostsPostid = async (boardId: number,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiBoardsBoardidPostsPostidBody,)
+  }
+);}
+
+
+
+/**
+ * 활성 상태이고 숨김이 아닌 게시글의 댓글과 답글 목록을 조회합니다.
+ * @summary 댓글 목록 조회
+ */
+export type getApiBoardsBoardidPostsPostidCommentsResponse200 = {
+  data: CommentResponse[]
+  status: 200
+}
+    
+export type getApiBoardsBoardidPostsPostidCommentsResponseSuccess = (getApiBoardsBoardidPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidPostsPostidCommentsResponse = (getApiBoardsBoardidPostsPostidCommentsResponseSuccess)
+
+export const getGetApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+    postId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}/comments`
+}
+
+export const getApiBoardsBoardidPostsPostidComments = async (boardId: number,
+    postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidCommentsResponse> => {
+  
+  return customFetch<getApiBoardsBoardidPostsPostidCommentsResponse>(getGetApiBoardsBoardidPostsPostidCommentsUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 선택한 게시글에 댓글 또는 답글을 등록합니다. 게시판의 writeRole 이상 권한이 필요합니다.
+ * @summary 댓글 작성
+ */
+export type postApiBoardsBoardidPostsPostidCommentsResponse200 = {
+  data: CommentResponse
+  status: 200
+}
+    
+export type postApiBoardsBoardidPostsPostidCommentsResponseSuccess = (postApiBoardsBoardidPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsBoardidPostsPostidCommentsResponse = (postApiBoardsBoardidPostsPostidCommentsResponseSuccess)
+
+export const getPostApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+    postId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}/comments`
+}
+
+export const postApiBoardsBoardidPostsPostidComments = async (boardId: number,
+    postId: number,
+    postApiBoardsBoardidPostsPostidCommentsBody: PostApiBoardsBoardidPostsPostidCommentsBody, options?: RequestInit): Promise<postApiBoardsBoardidPostsPostidCommentsResponse> => {
+  
+  return customFetch<postApiBoardsBoardidPostsPostidCommentsResponse>(getPostApiBoardsBoardidPostsPostidCommentsUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiBoardsBoardidPostsPostidCommentsBody,)
+  }
+);}
+
+
+
+/**
+ * 본인이 작성한 댓글을 soft delete 처리합니다. 삭제자 ID와 사용자 삭제 주체가 감사 정보로 기록됩니다.
+ * @summary 댓글 삭제
+ */
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = (deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse = (deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
+
+export const getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+    postId: number,
+    commentId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
+}
+
+export const deleteApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+    postId: number,
+    commentId: number, options?: RequestInit): Promise<deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
+  
+  return customFetch<deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse>(getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl(boardId,postId,commentId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 본인이 작성한 댓글 내용을 수정합니다. 게시판의 writeRole 이상 권한이 필요합니다.
+ * @summary 댓글 수정
+ */
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponse200 = {
+  data: CommentResponse
+  status: 200
+}
+    
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = (putApiBoardsBoardidPostsPostidCommentsCommentidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponse = (putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
+
+export const getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+    postId: number,
+    commentId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
+}
+
+export const putApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+    postId: number,
+    commentId: number,
+    putApiBoardsBoardidPostsPostidCommentsCommentidBody: PutApiBoardsBoardidPostsPostidCommentsCommentidBody, options?: RequestInit): Promise<putApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
+  
+  return customFetch<putApiBoardsBoardidPostsPostidCommentsCommentidResponse>(getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl(boardId,postId,commentId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiBoardsBoardidPostsPostidCommentsCommentidBody,)
   }
 );}
 
@@ -18835,7 +19292,7 @@ export type putApiUsersMeAgreementsResponse200 = {
   data: UserSelfResponse
   status: 200
 }
-
+    
 export type putApiUsersMeAgreementsResponseSuccess = (putApiUsersMeAgreementsResponse200) & {
   headers: Headers;
 };
@@ -18846,15 +19303,15 @@ export type putApiUsersMeAgreementsResponse = (putApiUsersMeAgreementsResponseSu
 export const getPutApiUsersMeAgreementsUrl = () => {
 
 
-
+  
 
   return `/api/users/me/agreements`
 }
 
 export const putApiUsersMeAgreements = async (putApiUsersMeAgreementsBody: PutApiUsersMeAgreementsBody, options?: RequestInit): Promise<putApiUsersMeAgreementsResponse> => {
-
+  
   return customFetch<putApiUsersMeAgreementsResponse>(getPutApiUsersMeAgreementsUrl(),
-  {
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
