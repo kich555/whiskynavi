@@ -2,13 +2,13 @@
 
 import type {
   AdminBusinessUserDetailResponse,
-  PatchApiAdminBusinessesMembersUseridBusinessBodyBusinessType,
+  PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType,
 } from "@/apis/generated/api";
-import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { formatDate } from "@/lib/formatters";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -20,7 +20,6 @@ import {
   updateBusinessAction,
   type BusinessMemberRole,
 } from "../actions";
-
 
 const BUSINESS_TYPE_LABEL: Record<string, string> = {
   HOUSEHOLD: "가정용",
@@ -73,7 +72,7 @@ const BUSINESS_ROLE_CONFIGS = [
   badgeClassName: string;
 }[];
 
-const isBusinessType = (value: string): value is PatchApiAdminBusinessesMembersUseridBusinessBodyBusinessType =>
+const isBusinessType = (value: string): value is PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType =>
   value === "HOUSEHOLD" || value === "ENTERTAINMENT";
 
 type BusinessEditForm = {
@@ -82,7 +81,7 @@ type BusinessEditForm = {
   bankName: string;
   businessName: string;
   businessRegistrationNumber: string;
-  businessType: PatchApiAdminBusinessesMembersUseridBusinessBodyBusinessType;
+  businessType: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType;
   contact: string;
   pickupAddress: string;
   storeManagerName: string;
@@ -179,7 +178,7 @@ export default function BusinessMemberDetailContent({
     setMessage(null);
   };
 
-  const handleBusinessTypeChange = (value: PatchApiAdminBusinessesMembersUseridBusinessBodyBusinessType) => {
+  const handleBusinessTypeChange = (value: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType) => {
     setForm((current) => ({
       ...current,
       businessType: value,
@@ -192,7 +191,7 @@ export default function BusinessMemberDetailContent({
     setMessage(null);
 
     try {
-      const result = await updateBusinessAction(member.userId!, {
+      const result = await updateBusinessAction(member.businessId!, {
         accountHolderName: form.accountHolderName,
         accountNumber: form.accountNumber,
         bankName: form.bankName,
@@ -236,8 +235,8 @@ export default function BusinessMemberDetailContent({
     try {
       const result =
         mode === "grant"
-          ? await grantBusinessRoleAction(member.userId!, role)
-          : await revokeBusinessRoleAction(member.userId!, role);
+          ? await grantBusinessRoleAction(member.businessId!, role)
+          : await revokeBusinessRoleAction(member.businessId!, role);
 
       if (result.success) {
         setMessage({
@@ -264,7 +263,7 @@ export default function BusinessMemberDetailContent({
 
   return (
     <>
-      <AdminHeader title="사업자 멤버 상세" onToggleSidebar={toggle} showSearch={false} />
+      <AdminHeader title="업장 상세" onToggleSidebar={toggle} showSearch={false} />
 
       <div className="p-8">
         <div className="mb-4 flex items-center justify-between">
@@ -274,7 +273,7 @@ export default function BusinessMemberDetailContent({
             className="flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={20} />
-            멤버 목록으로 돌아가기
+            업장 목록으로 돌아가기
           </button>
         </div>
 
