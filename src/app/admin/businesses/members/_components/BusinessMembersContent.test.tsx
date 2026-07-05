@@ -24,7 +24,7 @@ const defaultSearchParams = {
 const sortSearchParams = {
   page: "2",
   limit: "20",
-  sort: "userId,desc" as BusinessMembersSort,
+  sort: "businessId,desc" as BusinessMembersSort,
 };
 
 function renderContent({
@@ -42,12 +42,12 @@ describe("BusinessMembersContent", () => {
 
   it("renders page title", () => {
     renderContent();
-    expect(screen.getByText("사업자 멤버 관리")).toBeInTheDocument();
+    expect(screen.getByText("업장 관리")).toBeInTheDocument();
   });
 
   it("shows empty state when no members", () => {
     renderContent();
-    expect(screen.getByText("사업자 멤버가 없습니다.")).toBeInTheDocument();
+    expect(screen.getByText("업장이 없습니다.")).toBeInTheDocument();
   });
 
   it("shows total count", () => {
@@ -59,6 +59,7 @@ describe("BusinessMembersContent", () => {
     renderContent({
       members: [
         {
+          businessId: 100,
           userId: 10,
           businessName: "테스트 주류",
           businessType: "HOUSEHOLD",
@@ -72,7 +73,7 @@ describe("BusinessMembersContent", () => {
       totalElements: 1,
     });
 
-    expect(screen.getByText("사용자ID")).toBeInTheDocument();
+    expect(screen.getByText("업장ID")).toBeInTheDocument();
     expect(screen.getByText("테스트 주류")).toBeInTheDocument();
     expect(screen.getByText("가정용")).toBeInTheDocument();
     expect(screen.getByText("hong@example.com")).toBeInTheDocument();
@@ -86,6 +87,7 @@ describe("BusinessMembersContent", () => {
     renderContent({
       members: [
         {
+          businessId: 100,
           userId: 10,
           businessName: "테스트 주류",
           businessType: "HOUSEHOLD",
@@ -101,13 +103,13 @@ describe("BusinessMembersContent", () => {
 
     await user.click(screen.getByRole("button", { name: "상세" }));
 
-    expect(push).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(push).toHaveBeenCalledWith("/admin/businesses/members/100");
   });
 
   it("renders current sort option", () => {
     renderContent({ searchParams: sortSearchParams, totalElements: 25 });
 
-    expect(screen.getByLabelText("정렬")).toHaveValue("userId,desc");
+    expect(screen.getByLabelText("정렬")).toHaveValue("businessId,desc");
   });
 
   it("pushes a new query when sort is changed", async () => {
@@ -115,7 +117,7 @@ describe("BusinessMembersContent", () => {
 
     renderContent({ searchParams: sortSearchParams, totalElements: 25 });
 
-    await user.selectOptions(screen.getByLabelText("정렬"), "userId,asc");
+    await user.selectOptions(screen.getByLabelText("정렬"), "businessId,asc");
 
     expect(push).toHaveBeenCalledTimes(1);
 
@@ -125,7 +127,7 @@ describe("BusinessMembersContent", () => {
     expect(url.pathname).toBe("/admin/businesses/members");
     expect(url.searchParams.get("page")).toBe("1");
     expect(url.searchParams.get("limit")).toBe("20");
-    expect(url.searchParams.get("sort")).toBe("userId,asc");
+    expect(url.searchParams.get("sort")).toBe("businessId,asc");
   });
 
   it("pushes business name search query", async () => {

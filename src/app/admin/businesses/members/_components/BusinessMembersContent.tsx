@@ -126,7 +126,7 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
   return (
     <>
       <AdminHeader
-        title="사업자 멤버 관리"
+        title="업장 관리"
         onToggleSidebar={toggle}
         searchQuery={searchQuery}
         searchField={searchField}
@@ -163,7 +163,7 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">사용자ID</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">업장ID</th>
                   <FilterHeader
                     label="사업자 유형"
                     filterKey="businessType"
@@ -213,17 +213,17 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
                 {members.length === 0 ? (
                   <tr>
                     <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
-                      사업자 멤버가 없습니다.
+                      업장이 없습니다.
                     </td>
                   </tr>
                 ) : (
                   members.map((member) => (
                     <tr
-                      key={member.userId}
+                      key={member.businessId}
                       className="cursor-pointer transition-colors hover:bg-gray-50"
-                      onClick={() => router.push(`/admin/businesses/members/${member.userId}`)}
+                      onClick={() => router.push(`/admin/businesses/members/${member.businessId}`)}
                     >
-                      <td className="px-4 py-3 text-sm text-gray-900">{member.userId}</td>
+                      <td className="px-4 py-3 text-sm text-gray-900">{member.businessId}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{formatBusinessType(member.businessType)}</td>
                       <td className="typo-medium-14 max-w-[220px] truncate px-4 py-3 text-gray-900">
                         {member.businessName ?? "-"}
@@ -261,7 +261,7 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             type="button"
-                            onClick={() => router.push(`/admin/businesses/members/${member.userId}`)}
+                            onClick={() => router.push(`/admin/businesses/members/${member.businessId}`)}
                             className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
                             title="상세"
                             aria-label="상세"

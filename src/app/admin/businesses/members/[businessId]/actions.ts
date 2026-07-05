@@ -2,10 +2,10 @@
 
 import { getUserErrorMessage } from "@/apis/errors";
 import {
-  patchApiAdminBusinessesMembersUseridBusiness,
-  postApiAdminBusinessesMembersUseridRolesRoleGrant,
-  postApiAdminBusinessesMembersUseridRolesRoleRevoke,
-  type PatchApiAdminBusinessesMembersUseridBusinessBody,
+  patchApiAdminBusinessesBusinessesBusinessid,
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant,
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke,
+  type PatchApiAdminBusinessesBusinessesBusinessidBody,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
@@ -16,9 +16,9 @@ export type BusinessMemberActionResult = {
   error?: string;
 };
 
-export type UpdateBusinessInput = PatchApiAdminBusinessesMembersUseridBusinessBody;
+export type UpdateBusinessInput = PatchApiAdminBusinessesBusinessesBusinessidBody;
 export type BusinessMemberRole = Extract<
-  Parameters<typeof postApiAdminBusinessesMembersUseridRolesRoleGrant>[1],
+  Parameters<typeof postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant>[1],
   "ROLE_BUSINESS" | "ROLE_TRAILNTALE_BUSINESS" | "ROLE_COMMUNITY_BUSINESS" | "ROLE_PICK_UP_BUSINESS"
 >;
 
@@ -32,13 +32,13 @@ async function getAuthorizedOptions() {
   return withToken(token);
 }
 
-function revalidateBusinessMemberPaths(userId: number) {
-  revalidatePath(`/admin/businesses/members/${userId}`);
+function revalidateBusinessMemberPaths(businessId: number) {
+  revalidatePath(`/admin/businesses/members/${businessId}`);
   revalidatePath("/admin/businesses/members");
 }
 
 export async function updateBusinessAction(
-  userId: number,
+  businessId: number,
   input: UpdateBusinessInput,
 ): Promise<BusinessMemberActionResult> {
   const options = await getAuthorizedOptions();
@@ -48,8 +48,8 @@ export async function updateBusinessAction(
   }
 
   try {
-    await patchApiAdminBusinessesMembersUseridBusiness(userId, input, options);
-    revalidateBusinessMemberPaths(userId);
+    await patchApiAdminBusinessesBusinessesBusinessid(businessId, input, options);
+    revalidateBusinessMemberPaths(businessId);
     return { success: true };
   } catch (error) {
     return {
@@ -59,16 +59,16 @@ export async function updateBusinessAction(
   }
 }
 
-export async function grantPickupRoleAction(userId: number): Promise<BusinessMemberActionResult> {
-  return grantBusinessRoleAction(userId, "ROLE_PICK_UP_BUSINESS");
+export async function grantPickupRoleAction(businessId: number): Promise<BusinessMemberActionResult> {
+  return grantBusinessRoleAction(businessId, "ROLE_PICK_UP_BUSINESS");
 }
 
-export async function revokePickupRoleAction(userId: number): Promise<BusinessMemberActionResult> {
-  return revokeBusinessRoleAction(userId, "ROLE_PICK_UP_BUSINESS");
+export async function revokePickupRoleAction(businessId: number): Promise<BusinessMemberActionResult> {
+  return revokeBusinessRoleAction(businessId, "ROLE_PICK_UP_BUSINESS");
 }
 
 export async function grantBusinessRoleAction(
-  userId: number,
+  businessId: number,
   role: BusinessMemberRole,
 ): Promise<BusinessMemberActionResult> {
   const options = await getAuthorizedOptions();
@@ -78,8 +78,8 @@ export async function grantBusinessRoleAction(
   }
 
   try {
-    await postApiAdminBusinessesMembersUseridRolesRoleGrant(userId, role, options);
-    revalidateBusinessMemberPaths(userId);
+    await postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant(businessId, role, options);
+    revalidateBusinessMemberPaths(businessId);
     return { success: true };
   } catch (error) {
     return {
@@ -90,7 +90,7 @@ export async function grantBusinessRoleAction(
 }
 
 export async function revokeBusinessRoleAction(
-  userId: number,
+  businessId: number,
   role: BusinessMemberRole,
 ): Promise<BusinessMemberActionResult> {
   const options = await getAuthorizedOptions();
@@ -100,8 +100,8 @@ export async function revokeBusinessRoleAction(
   }
 
   try {
-    await postApiAdminBusinessesMembersUseridRolesRoleRevoke(userId, role, options);
-    revalidateBusinessMemberPaths(userId);
+    await postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke(businessId, role, options);
+    revalidateBusinessMemberPaths(businessId);
     return { success: true };
   } catch (error) {
     return {
