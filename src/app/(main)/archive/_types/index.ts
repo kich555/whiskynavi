@@ -22,7 +22,6 @@ export const FILTER_DEFAULTS = {
   ABV_MAX: 80,
   VINTAGE_MIN: 1960,
   VINTAGE_MAX: 2025,
-  DEFAULT_MALT_TYPE: "single malt",
   DEBOUNCE_MS: 300,
   KEYWORD_DEBOUNCE_MS: 800,
 } as const;
@@ -37,7 +36,7 @@ export const INITIAL_FILTER_STATE: FilterState = {
   names: [],
   series: [],
   companies: [],
-  maltTypes: [FILTER_DEFAULTS.DEFAULT_MALT_TYPE],
+  maltTypes: [],
   caskTypes: [],
   abv: [FILTER_DEFAULTS.ABV_MIN, FILTER_DEFAULTS.ABV_MAX],
   vintage: [FILTER_DEFAULTS.VINTAGE_MIN, FILTER_DEFAULTS.VINTAGE_MAX],

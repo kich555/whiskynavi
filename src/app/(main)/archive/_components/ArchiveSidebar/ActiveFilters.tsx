@@ -13,10 +13,7 @@ interface CurrentFiltersProps {
 const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) => {
   const filterConfigs = [
     { key: "brands" as const, items: filters.brands },
-    {
-      key: "maltTypes" as const,
-      items: filters.maltTypes.filter((m) => m !== FILTER_DEFAULTS.DEFAULT_MALT_TYPE),
-    },
+    { key: "maltTypes" as const, items: filters.maltTypes },
     { key: "distilleries" as const, items: filters.distilleries },
     { key: "caskTypes" as const, items: filters.caskTypes },
   ];
@@ -24,7 +21,7 @@ const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     count += filters.brands.length;
-    count += filters.maltTypes.filter((m) => m !== FILTER_DEFAULTS.DEFAULT_MALT_TYPE).length;
+    count += filters.maltTypes.length;
     count += filters.distilleries.length;
     count += filters.caskTypes.length;
     if (filters.abv[0] !== FILTER_DEFAULTS.ABV_MIN || filters.abv[1] !== FILTER_DEFAULTS.ABV_MAX) count++;
