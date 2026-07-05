@@ -8,6 +8,7 @@ import {
   postApiUsersMeEmailVerificationSend,
   postApiUsersMeEmailVerificationVerify,
   putApiAuthChangePassword,
+  putApiUsersMeAgreements,
   putApiUsersMeEmail,
   putApiUsersMeNickname,
 } from "@/apis/generated/api";
@@ -146,6 +147,14 @@ const updateProfileSchema = z.object({
   originalUsername: z.string(),
   originalEmail: z.string(),
   emailVerified: z.string(),
+  marketingAgree: z.enum(["true", "false"]),
+  emailAgree: z.enum(["true", "false"]),
+  smsAgree: z.enum(["true", "false"]),
+  snsAgree: z.enum(["true", "false"]),
+  originalMarketingAgree: z.enum(["true", "false"]),
+  originalEmailAgree: z.enum(["true", "false"]),
+  originalSmsAgree: z.enum(["true", "false"]),
+  originalSnsAgree: z.enum(["true", "false"]),
 });
 
 type UpdateProfileState = {
@@ -168,18 +177,45 @@ export async function updateProfile(_prevState: UpdateProfileState, formData: Fo
       originalUsername: formData.get("originalUsername"),
       originalEmail: formData.get("originalEmail"),
       emailVerified: formData.get("emailVerified"),
+      marketingAgree: formData.get("marketingAgree"),
+      emailAgree: formData.get("emailAgree"),
+      smsAgree: formData.get("smsAgree"),
+      snsAgree: formData.get("snsAgree"),
+      originalMarketingAgree: formData.get("originalMarketingAgree"),
+      originalEmailAgree: formData.get("originalEmailAgree"),
+      originalSmsAgree: formData.get("originalSmsAgree"),
+      originalSnsAgree: formData.get("originalSnsAgree"),
     });
 
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const { username, email, originalUsername, originalEmail, emailVerified } = parsed.data;
+    const {
+      username,
+      email,
+      originalUsername,
+      originalEmail,
+      emailVerified,
+      marketingAgree,
+      emailAgree,
+      smsAgree,
+      snsAgree,
+      originalMarketingAgree,
+      originalEmailAgree,
+      originalSmsAgree,
+      originalSnsAgree,
+    } = parsed.data;
 
     const nicknameChanged = username !== originalUsername;
     const emailChanged = email !== originalEmail;
+    const agreementsChanged =
+      marketingAgree !== originalMarketingAgree ||
+      emailAgree !== originalEmailAgree ||
+      smsAgree !== originalSmsAgree ||
+      snsAgree !== originalSnsAgree;
 
-    if (!nicknameChanged && !emailChanged) {
+    if (!nicknameChanged && !emailChanged && !agreementsChanged) {
       return { success: false, error: "변경된 정보가 없습니다." };
     }
 
@@ -193,6 +229,18 @@ export async function updateProfile(_prevState: UpdateProfileState, formData: Fo
 
     if (emailChanged) {
       await putApiUsersMeEmail({ newEmail: email }, withToken(token));
+    }
+
+    if (agreementsChanged) {
+      await putApiUsersMeAgreements(
+        {
+          marketingAgree: marketingAgree === "true",
+          emailAgree: emailAgree === "true",
+          smsAgree: smsAgree === "true",
+          snsAgree: snsAgree === "true",
+        },
+        withToken(token),
+      );
     }
 
     revalidatePath("/my-page");

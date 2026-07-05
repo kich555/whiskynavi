@@ -4783,6 +4783,20 @@ export interface UpdatePostRequest {
 }
 
 /**
+ * 수신동의 정보 변경 요청
+ */
+export interface UpdateUserAgreementsRequest {
+  /** 이메일 수신 동의 여부 */
+  emailAgree: boolean;
+  /** 마케팅 정보 수신 동의 여부 */
+  marketingAgree: boolean;
+  /** SMS 수신 동의 여부 */
+  smsAgree: boolean;
+  /** SNS 수신 동의 여부 */
+  snsAgree: boolean;
+}
+
+/**
  * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
@@ -9016,6 +9030,20 @@ export type PostApiUsersBusinessesBusinessidMembersBody = {
 
 export type PostApiUsersBusinessesBusinessidOwnershipTransferBody = {
   targetUserId: number;
+};
+
+/**
+ * 수신동의 정보 변경 요청
+ */
+export type PutApiUsersMeAgreementsBody = {
+  /** 이메일 수신 동의 여부 */
+  emailAgree: boolean;
+  /** 마케팅 정보 수신 동의 여부 */
+  marketingAgree: boolean;
+  /** SMS 수신 동의 여부 */
+  smsAgree: boolean;
+  /** SNS 수신 동의 여부 */
+  snsAgree: boolean;
 };
 
 /**
@@ -18794,6 +18822,44 @@ export const getApiUsersMe = async ( options?: RequestInit): Promise<getApiUsers
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 로그인한 사용자의 마케팅/이메일/SMS/SNS 수신동의 정보를 변경합니다.
+ * @summary 수신동의 정보 변경
+ */
+export type putApiUsersMeAgreementsResponse200 = {
+  data: UserSelfResponse
+  status: 200
+}
+
+export type putApiUsersMeAgreementsResponseSuccess = (putApiUsersMeAgreementsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiUsersMeAgreementsResponse = (putApiUsersMeAgreementsResponseSuccess)
+
+export const getPutApiUsersMeAgreementsUrl = () => {
+
+
+
+
+  return `/api/users/me/agreements`
+}
+
+export const putApiUsersMeAgreements = async (putApiUsersMeAgreementsBody: PutApiUsersMeAgreementsBody, options?: RequestInit): Promise<putApiUsersMeAgreementsResponse> => {
+
+  return customFetch<putApiUsersMeAgreementsResponse>(getPutApiUsersMeAgreementsUrl(),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiUsersMeAgreementsBody,)
   }
 );}
 
