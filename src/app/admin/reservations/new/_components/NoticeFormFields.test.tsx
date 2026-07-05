@@ -14,6 +14,7 @@ describe("NoticeFormFields", () => {
           maxOrderQuantity: "2",
           reservationStartAt: "2026-06-08T10:00:00.000Z",
           reservationEndAt: "2026-06-08T12:00:00.000Z",
+          description: "테스트 설명",
           gradeConditions: [
             {
               applicableFrom: "2026-06-08T10:00:00.000Z",
@@ -25,6 +26,7 @@ describe("NoticeFormFields", () => {
     );
 
     expect(screen.getByDisplayValue("테스트 보틀 (ID: 11)")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("테스트 설명")).toBeInTheDocument();
     expect(screen.getByDisplayValue("120,000")).toBeInTheDocument();
     expect(screen.getByDisplayValue("20")).toBeInTheDocument();
     expect(screen.getByDisplayValue("2")).toBeInTheDocument();
