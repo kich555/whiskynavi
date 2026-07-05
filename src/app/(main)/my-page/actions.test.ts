@@ -1,10 +1,10 @@
 import { ApiError } from "@/apis/errors";
-import { postApiUsersBusinessesApplications } from "@/apis/generated/api";
+import { postApiUsersBusinessesApplications, putApiUsersMeAgreements } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { submitBusinessApplication } from "./actions";
+import { submitBusinessApplication, updateProfile } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiOrdersOrderidCancel: vi.fn(),
@@ -12,6 +12,7 @@ vi.mock("@/apis/generated/api", () => ({
   postApiUsersBusinessesApplicationsApplicationidCancel: vi.fn(),
   postApiUsersMeEmailVerificationSend: vi.fn(),
   postApiUsersMeEmailVerificationVerify: vi.fn(),
+  putApiUsersMeAgreements: vi.fn(),
   putApiAuthChangePassword: vi.fn(),
   putApiUsersMeEmail: vi.fn(),
   putApiUsersMeNickname: vi.fn(),
@@ -30,6 +31,7 @@ vi.mock("next/cache", () => ({
 }));
 
 const mockedSubmitBusinessApplication = vi.mocked(postApiUsersBusinessesApplications);
+const mockedPutApiUsersMeAgreements = vi.mocked(putApiUsersMeAgreements);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedWithToken = vi.mocked(withToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
@@ -66,5 +68,35 @@ describe("my-page actions", () => {
     expect(mockedWithToken).toHaveBeenCalledWith("token");
     expect(mockedSubmitBusinessApplication).toHaveBeenCalledOnce();
     expect(mockedRevalidatePath).not.toHaveBeenCalled();
+  });
+
+  it("수신동의만 변경해도 프로필 변경으로 저장한다", async () => {
+    const formData = new FormData();
+    formData.set("username", "tester");
+    formData.set("email", "tester@example.com");
+    formData.set("originalUsername", "tester");
+    formData.set("originalEmail", "tester@example.com");
+    formData.set("emailVerified", "true");
+    formData.set("originalMarketingAgree", "true");
+    formData.set("originalEmailAgree", "false");
+    formData.set("originalSmsAgree", "true");
+    formData.set("originalSnsAgree", "false");
+    formData.set("marketingAgree", "false");
+    formData.set("emailAgree", "true");
+    formData.set("smsAgree", "false");
+    formData.set("snsAgree", "true");
+
+    await expect(updateProfile({ success: false }, formData)).resolves.toEqual({ success: true });
+
+    expect(mockedPutApiUsersMeAgreements).toHaveBeenCalledWith(
+      {
+        marketingAgree: false,
+        emailAgree: true,
+        smsAgree: false,
+        snsAgree: true,
+      },
+      { headers: { Authorization: "Bearer mocked" } },
+    );
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/my-page");
   });
 });
