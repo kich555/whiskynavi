@@ -29,10 +29,10 @@ export async function applyReservation(
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 신청 시점의 예약 기간을 서버에서 다시 검증한다.
-    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId);
-    if (getNoticeStatus(notice) !== "active") {
-      return { success: false, error: "지금은 예약 신청 기간이 아닙니다." };
-    }
+    // const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId);
+    // if (getNoticeStatus(notice) !== "active") {
+    //   return { success: false, error: "지금은 예약 신청 기간이 아닙니다." };
+    // }
 
     const { data: application } = await postApiBottlesReservationsNoticesNoticeidApplications(
       noticeId,
