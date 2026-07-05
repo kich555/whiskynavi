@@ -1,6 +1,7 @@
 "use client";
 
 import type { PickupLocationResponse, UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
+import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { useState, useTransition } from "react";
 import ApplyForm from "../../_components/ApplyForm";
 import InfoList from "../../_components/InfoList";
@@ -45,7 +46,12 @@ export default function ReservationDetailClient({
       <div className="mb-6 grid grid-cols-1 gap-6 lg:mb-8 lg:grid-cols-2 lg:gap-8">
         {/* Image */}
         <div className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-          <div className="text-4xl text-white/60 lg:text-6xl">{notice.bottleName ?? ""}</div>
+          <ImageWithFallback
+            src={notice.bottleImgUrl}
+            alt={notice.bottleName ?? ""}
+            fill
+            className="object-contain p-6"
+          />
           <StatusBadge status={displayStatus} className="absolute top-2 right-2 lg:top-4 lg:right-4" />
         </div>
 
@@ -53,6 +59,11 @@ export default function ReservationDetailClient({
         <div className="flex flex-col justify-center">
           <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">{notice.bottleName}</h3>
           <InfoList notice={notice} />
+          {notice.description && (
+            <p className="typo-medium-14 mt-4 whitespace-pre-line text-gray-300 lg:text-base">
+              {notice.description}
+            </p>
+          )}
         </div>
       </div>
 

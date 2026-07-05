@@ -143,6 +143,18 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             required
           />
         </div>
+
+        <div className="md:col-span-2">
+          <label className="typo-medium-14 mb-1 block text-gray-700">설명</label>
+          <textarea
+            name="description"
+            rows={4}
+            maxLength={5000}
+            defaultValue={formValues?.description ?? defaultValues?.description ?? ""}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            placeholder="예약 공고에 대한 설명을 입력하세요"
+          />
+        </div>
       </div>
 
       {/* 등급 조건 */}
