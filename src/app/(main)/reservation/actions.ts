@@ -22,8 +22,8 @@ export async function applyReservation(
       return { success: false, error: "로그인이 필요합니다." };
     }
 
-    if (quantity < 1 || quantity > 10) {
-      return { success: false, error: "수량은 1~10병 사이로 입력해주세요." };
+    if (quantity < 1 || quantity > 100) {
+      return { success: false, error: "수량은 1~100병 사이로 입력해주세요." };
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 신청 시점의 예약 기간을 서버에서 다시 검증한다.
@@ -60,8 +60,8 @@ export async function updateReservation(
       return { success: false, error: "로그인이 필요합니다." };
     }
 
-    if (quantity < 1 || quantity > 10) {
-      return { success: false, error: "수량은 1~10병 사이로 입력해주세요." };
+    if (quantity < 1 || quantity > 100) {
+      return { success: false, error: "수량은 1~100병 사이로 입력해주세요." };
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 수정 시점의 예약 기간을 서버에서 다시 검증한다.
