@@ -7,7 +7,7 @@
  */
 import { customFetch } from '../mutator';
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AdminAnnouncementResponseScope = typeof AdminAnnouncementResponseScope[keyof typeof AdminAnnouncementResponseScope];
 
@@ -18,7 +18,7 @@ export const AdminAnnouncementResponseScope = {
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 관리자 공지사항 상세 응답입니다. 사용자 노출 정책과 본문을 함께 제공합니다.
  */
 export interface AdminAnnouncementResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -27,16 +27,26 @@ export interface AdminAnnouncementResponse {
   content?: string;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
+  /** 공지 만료 일시입니다. null이면 만료되지 않습니다. */
+  expiredAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
+  priority?: number;
+  /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: AdminAnnouncementResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
+  /** 사용자 노출 여부입니다. false이면 사용자 공지 API에서 제외됩니다. */
+  visible?: boolean;
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AdminAnnouncementSummaryResponseScope = typeof AdminAnnouncementSummaryResponseScope[keyof typeof AdminAnnouncementSummaryResponseScope];
 
@@ -47,19 +57,29 @@ export const AdminAnnouncementSummaryResponseScope = {
 } as const;
 
 /**
- * 관리자 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ * 관리자 공지사항 목록 요약 응답입니다. 사용자 노출 정책을 목록에서 확인할 수 있습니다.
  */
 export interface AdminAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
   boardId?: number;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
+  /** 공지 만료 일시입니다. null이면 만료되지 않습니다. */
+  expiredAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
+  priority?: number;
+  /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: AdminAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
+  /** 사용자 노출 여부입니다. false이면 사용자 공지 API에서 제외됩니다. */
+  visible?: boolean;
 }
 
 /**
@@ -131,11 +151,36 @@ export const AdminBoardResponseReadRole = {
 /**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
+export type AdminBoardResponseWriteRole = typeof AdminBoardResponseWriteRole[keyof typeof AdminBoardResponseWriteRole];
+
+
+export const AdminBoardResponseWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 관리자 게시판 응답입니다. 사용자 노출 상태와 작성 제한 정책을 함께 제공합니다.
+ */
 export interface AdminBoardResponse {
+  /** 게시판 활성 여부입니다. false이면 사용자 API에서 노출되지 않습니다. */
+  active?: boolean;
   /** 게시판 생성 일시입니다. */
   createdAt?: string;
   /** 게시판에 표시할 설명입니다. */
   description?: string;
+  /** 사용자 목록 및 사용자 게시판 API 접근 숨김 여부입니다. */
+  hidden?: boolean;
   /** 게시판 식별자입니다. */
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
@@ -146,6 +191,8 @@ export interface AdminBoardResponse {
   readRole?: AdminBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
+  writeRole?: AdminBoardResponseWriteRole;
 }
 
 export interface AdminBottleReservationApplicantResponse {
@@ -748,6 +795,80 @@ export interface AdminItemReservationNoticeResponse {
 }
 
 /**
+ * 관리자 수동 구매내역 생성 요청
+ */
+export interface AdminManualPurchaseCreateRequest {
+  /** 구매내역으로 추가할 보틀 ID */
+  bottleId: number;
+  /**
+   * 관리자 메모
+   * @minLength 0
+   * @maxLength 500
+   */
+  orderNote?: string;
+  /** 수동 구매 수량 */
+  requestedQuantity: number;
+  /** 수동 구매 단가. 생략하면 보틀 소비자가를 사용하고, 소비자가가 없으면 0으로 처리합니다. */
+  unitPrice?: number;
+}
+
+/**
+ * 업로드 모드
+ */
+export type AdminManualPurchaseImportResponseMode = typeof AdminManualPurchaseImportResponseMode[keyof typeof AdminManualPurchaseImportResponseMode];
+
+
+export const AdminManualPurchaseImportResponseMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 Excel 행 처리 결과
+ */
+export interface AdminManualPurchaseImportRowResponse {
+  /** 보틀 ID */
+  bottleId?: number;
+  /** 처리 결과 메시지 */
+  message?: string;
+  /**
+   * 생성된 주문 ID. dryRun 또는 실패 행이면 null이다.
+   * @nullable
+   */
+  orderId?: number | null;
+  /**
+   * 생성된 주문 번호. dryRun 또는 실패 행이면 null이다.
+   * @nullable
+   */
+  orderNumber?: string | null;
+  /** Excel 행 번호. 헤더는 1번이고 데이터는 2번부터 시작한다. */
+  rowNumber?: number;
+  /** 처리 성공 여부 */
+  success?: boolean;
+  /** 사용자 ID */
+  userId?: number;
+}
+
+/**
+ * 관리자 수동 구매내역 Excel 업로드 결과
+ */
+export interface AdminManualPurchaseImportResponse {
+  /** 검증만 수행했는지 여부 */
+  dryRun?: boolean;
+  /** 실패 행 수 */
+  failureCount?: number;
+  /** 업로드 모드 */
+  mode?: AdminManualPurchaseImportResponseMode;
+  /** 행별 처리 결과 */
+  results?: AdminManualPurchaseImportRowResponse[];
+  /** 성공 행 수 */
+  successCount?: number;
+  /** 데이터 행 수 */
+  totalRows?: number;
+}
+
+/**
  * 주문 고객 정보
  */
 export interface AdminOrderCustomerResponse {
@@ -807,18 +928,6 @@ export const AdminOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매 공고 유형
- */
-export type AdminOrderItemResponseSaleType = typeof AdminOrderItemResponseSaleType[keyof typeof AdminOrderItemResponseSaleType];
-
-
-export const AdminOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface AdminOrderItemResponse {
@@ -834,12 +943,13 @@ export interface AdminOrderItemResponse {
   productType?: AdminOrderItemResponseProductType;
   /** 수량 */
   quantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: AdminOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -895,6 +1005,17 @@ export interface AdminOrderPriceSummaryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type AdminOrderResponseFulfillmentMethod = typeof AdminOrderResponseFulfillmentMethod[keyof typeof AdminOrderResponseFulfillmentMethod];
+
+
+export const AdminOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 주문 상태.
 일반 아이템 배송 주문 주요 흐름:
 PAYMENT_PENDING -> ORDER_PREPARING -> SHIPPING -> DELIVERY_COMPLETED,
@@ -920,18 +1041,6 @@ export const AdminOrderResponseOrderStatus = {
 } as const;
 
 /**
- * 판매 유형
- */
-export type AdminOrderResponseOrderType = typeof AdminOrderResponseOrderType[keyof typeof AdminOrderResponseOrderType];
-
-
-export const AdminOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType[keyof typeof AdminOrderResponseProductType];
@@ -940,6 +1049,17 @@ export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType
 export const AdminOrderResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
+} as const;
+
+/**
+ * 판매/배송 시기
+ */
+export type AdminOrderResponseSaleTiming = typeof AdminOrderResponseSaleTiming[keyof typeof AdminOrderResponseSaleTiming];
+
+
+export const AdminOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
 } as const;
 
 /**
@@ -974,6 +1094,8 @@ export interface AdminOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: AdminOrderResponseFulfillmentMethod;
   /** 비회원 주문 안내 이메일 */
   guestEmail?: string;
   /** 비회원 주문 안내 휴대폰 번호 */
@@ -1005,8 +1127,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: AdminOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: AdminOrderResponseOrderType;
   payment?: AdminOrderPaymentResponse;
   priceSummary?: AdminOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -1017,8 +1137,13 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   refundReason?: string;
   /** 요청 수량 */
   requestedQuantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: AdminOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -1037,6 +1162,18 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   updatedAt?: string;
   /** 주문자 사용자 ID */
   userId?: number;
+}
+
+/**
+ * 관리자가 게시글을 삭제할 때 사용하는 요청 본문입니다. 삭제 사유는 감사 정보로 게시글에 함께 기록됩니다.
+ */
+export interface AdminPostDeleteRequest {
+  /**
+   * 관리자 삭제 사유입니다. 공백일 수 없고 최대 500자까지 입력할 수 있습니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  deleteReason?: string;
 }
 
 export type AdminReservationBusinessDeliveryResponseCarrierCode = typeof AdminReservationBusinessDeliveryResponseCarrierCode[keyof typeof AdminReservationBusinessDeliveryResponseCarrierCode];
@@ -1306,7 +1443,7 @@ export interface AdminUserStatusUpdateRequest {
 }
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AnnouncementRequestScope = typeof AnnouncementRequestScope[keyof typeof AnnouncementRequestScope];
 
@@ -1317,17 +1454,28 @@ export const AnnouncementRequestScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export interface AnnouncementRequest {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: AnnouncementRequestScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -1335,6 +1483,8 @@ export interface AnnouncementRequest {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 }
 
 /**
@@ -1442,12 +1592,16 @@ export const BoardRequestWriteRole = {
  * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export interface BoardRequest {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
@@ -1459,11 +1613,13 @@ export interface BoardRequest {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: BoardRequestReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: BoardRequestWriteRole;
 }
 
 export interface BoardUploadResponse {
@@ -2083,14 +2239,14 @@ export interface CreateCommentRequest {
  */
 export interface CreatePostRequest {
   /**
-   * 게시글 본문 내용입니다.
+   * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
-   * 게시글 제목입니다.
+   * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -2105,6 +2261,12 @@ export interface DeliveryCompanyResponse {
   code?: string;
   /** 택배사 표시명 */
   displayName?: string;
+}
+
+export interface DependencyHealth {
+  down?: boolean;
+  message?: string;
+  status?: string;
 }
 
 /**
@@ -2315,7 +2477,10 @@ export interface GuestOrderCancelRequest {
   reason?: string;
 }
 
+export type HealthCheckResponseDependencies = {[key: string]: DependencyHealth};
+
 export interface HealthCheckResponse {
+  dependencies?: HealthCheckResponseDependencies;
   service?: string;
   status?: string;
   timestamp?: string;
@@ -2661,18 +2826,6 @@ export interface OrderCancelRequest {
 }
 
 /**
- * 판매 유형
- */
-export type OrderCreateRequestOrderType = typeof OrderCreateRequestOrderType[keyof typeof OrderCreateRequestOrderType];
-
-
-export const OrderCreateRequestOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type OrderCreateRequestProductType = typeof OrderCreateRequestProductType[keyof typeof OrderCreateRequestProductType];
@@ -2717,8 +2870,6 @@ export interface OrderCreateRequest {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: OrderCreateRequestOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -2743,7 +2894,7 @@ export interface OrderCreateRequest {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -3062,7 +3213,7 @@ export interface PagedModelPostSummaryResponse {
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type UserAnnouncementSummaryResponseScope = typeof UserAnnouncementSummaryResponseScope[keyof typeof UserAnnouncementSummaryResponseScope];
 
@@ -3073,7 +3224,7 @@ export const UserAnnouncementSummaryResponseScope = {
 } as const;
 
 /**
- * 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ * 사용자에게 노출 가능한 공지사항 목록 요약 응답입니다. visible, 예약 게시, 만료 조건을 통과한 공지만 반환됩니다.
  */
 export interface UserAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -3082,7 +3233,11 @@ export interface UserAnnouncementSummaryResponse {
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: UserAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
@@ -3140,6 +3295,27 @@ export const UserBoardResponseReadRole = {
 /**
  * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
  */
+export type UserBoardResponseWriteRole = typeof UserBoardResponseWriteRole[keyof typeof UserBoardResponseWriteRole];
+
+
+export const UserBoardResponseWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 사용자에게 노출 가능한 게시판 응답입니다. 숨김/비활성 게시판은 이 응답에 포함되지 않습니다.
+ */
 export interface UserBoardResponse {
   /** 게시판 생성 일시입니다. */
   createdAt?: string;
@@ -3155,6 +3331,8 @@ export interface UserBoardResponse {
   readRole?: UserBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
+  writeRole?: UserBoardResponseWriteRole;
 }
 
 export interface PagedModelUserBoardResponse {
@@ -3547,6 +3725,17 @@ export interface UserOrderDeliveryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type UserOrderResponseFulfillmentMethod = typeof UserOrderResponseFulfillmentMethod[keyof typeof UserOrderResponseFulfillmentMethod];
+
+
+export const UserOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 판매 상품 유형
  */
 export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProductType[keyof typeof UserOrderItemResponseProductType];
@@ -3555,18 +3744,6 @@ export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProdu
 export const UserOrderItemResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type UserOrderItemResponseSaleType = typeof UserOrderItemResponseSaleType[keyof typeof UserOrderItemResponseSaleType];
-
-
-export const UserOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
 } as const;
 
 /**
@@ -3585,12 +3762,13 @@ export interface UserOrderItemResponse {
   productType?: UserOrderItemResponseProductType;
   /** 수량 */
   quantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: UserOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -3618,18 +3796,6 @@ export const UserOrderResponseOrderStatus = {
   ORDER_CANCELED: 'ORDER_CANCELED',
   CANCEL_REQUESTED: 'CANCEL_REQUESTED',
   CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-/**
- * 판매 유형
- */
-export type UserOrderResponseOrderType = typeof UserOrderResponseOrderType[keyof typeof UserOrderResponseOrderType];
-
-
-export const UserOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
 } as const;
 
 /**
@@ -3690,6 +3856,17 @@ export const UserOrderResponseProductType = {
 } as const;
 
 /**
+ * 판매/배송 시기
+ */
+export type UserOrderResponseSaleTiming = typeof UserOrderResponseSaleTiming[keyof typeof UserOrderResponseSaleTiming];
+
+
+export const UserOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
+/**
  * 판매 공고 유형
  */
 export type UserOrderResponseSaleType = typeof UserOrderResponseSaleType[keyof typeof UserOrderResponseSaleType];
@@ -3718,6 +3895,8 @@ export interface UserOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: UserOrderResponseFulfillmentMethod;
   /** 주문 ID */
   id?: number;
   /** 수입사 ID */
@@ -3745,8 +3924,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: UserOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: UserOrderResponseOrderType;
   payment?: UserOrderPaymentResponse;
   priceSummary?: UserOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -3757,8 +3934,13 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   refundReason?: string;
   /** 요청 수량 */
   requestedQuantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: UserOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -4750,15 +4932,15 @@ export interface UpdateNicknameRequest {
 }
 
 /**
- * 기존 게시글을 수정할 때 사용하는 요청 본문입니다.
+ * 기존 게시글을 수정할 때 사용하는 요청 본문입니다. 제목과 본문 중 하나 이상을 보내야 하며, 읽기 전용 게시판에서는 수정할 수 없습니다.
  */
 export interface UpdatePostRequest {
-  /** 수정할 게시글 본문입니다. */
+  /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
   /**
-   * 수정할 게시글 제목입니다.
+   * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -4766,7 +4948,7 @@ export interface UpdatePostRequest {
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
 
@@ -4777,7 +4959,7 @@ export const UserAnnouncementResponseScope = {
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 사용자에게 노출 가능한 공지사항 상세 응답입니다. visible, 예약 게시, 만료 조건을 통과한 공지만 반환됩니다.
  */
 export interface UserAnnouncementResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -4788,7 +4970,11 @@ export interface UserAnnouncementResponse {
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: UserAnnouncementResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
@@ -5216,12 +5402,16 @@ export const PostApiAdminBoardsBodyWriteRole = {
  * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PostApiAdminBoardsBody = {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
@@ -5233,11 +5423,13 @@ export type PostApiAdminBoardsBody = {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: PostApiAdminBoardsBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: PostApiAdminBoardsBodyWriteRole;
 };
 
 export type GetApiAdminBoardsAnnouncementsParams = {
@@ -5258,7 +5450,7 @@ sort?: string[];
 };
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type PostApiAdminBoardsAnnouncementsBodyScope = typeof PostApiAdminBoardsAnnouncementsBodyScope[keyof typeof PostApiAdminBoardsAnnouncementsBodyScope];
 
@@ -5269,17 +5461,28 @@ export const PostApiAdminBoardsAnnouncementsBodyScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export type PostApiAdminBoardsAnnouncementsBody = {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: PostApiAdminBoardsAnnouncementsBodyScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -5287,10 +5490,12 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 };
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope[keyof typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope];
 
@@ -5301,17 +5506,28 @@ export const PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -5319,6 +5535,8 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 };
 
 /**
@@ -5367,12 +5585,16 @@ export const PutApiAdminBoardsBoardidBodyWriteRole = {
  * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PutApiAdminBoardsBoardidBody = {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
@@ -5384,11 +5606,25 @@ export type PutApiAdminBoardsBoardidBody = {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: PutApiAdminBoardsBoardidBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: PutApiAdminBoardsBoardidBodyWriteRole;
+};
+
+/**
+ * 관리자가 게시글을 삭제할 때 사용하는 요청 본문입니다. 삭제 사유는 감사 정보로 게시글에 함께 기록됩니다.
+ */
+export type PostApiAdminBoardsBoardidPostsPostidDeleteBody = {
+  /**
+   * 관리자 삭제 사유입니다. 공백일 수 없고 최대 500자까지 입력할 수 있습니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  deleteReason?: string;
 };
 
 export type GetApiAdminBottlesParams = {
@@ -6317,10 +6553,6 @@ size?: number;
  */
 sort?: string[];
 /**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersOrderType;
-/**
  * 주문 상태
  */
 orderStatus?: GetApiAdminOrdersOrderStatus;
@@ -6328,6 +6560,14 @@ orderStatus?: GetApiAdminOrdersOrderStatus;
  * 상품 유형
  */
 productType?: GetApiAdminOrdersProductType;
+/**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersSaleTiming;
 /**
  * 판매 공고 ID
  */
@@ -6381,15 +6621,6 @@ createdFrom?: string;
  */
 createdTo?: string;
 };
-
-export type GetApiAdminOrdersOrderType = typeof GetApiAdminOrdersOrderType[keyof typeof GetApiAdminOrdersOrderType];
-
-
-export const GetApiAdminOrdersOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
 
 export type GetApiAdminOrdersOrderStatus = typeof GetApiAdminOrdersOrderStatus[keyof typeof GetApiAdminOrdersOrderStatus];
 
@@ -6416,11 +6647,23 @@ export const GetApiAdminOrdersProductType = {
   ITEM: 'ITEM',
 } as const;
 
+export type GetApiAdminOrdersFulfillmentMethod = typeof GetApiAdminOrdersFulfillmentMethod[keyof typeof GetApiAdminOrdersFulfillmentMethod];
+
+
+export const GetApiAdminOrdersFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersSaleTiming = typeof GetApiAdminOrdersSaleTiming[keyof typeof GetApiAdminOrdersSaleTiming];
+
+
+export const GetApiAdminOrdersSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
 export type GetApiAdminOrdersDeliveryExportParams = {
-/**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersDeliveryExportOrderType;
 /**
  * 주문 상태
  */
@@ -6429,6 +6672,14 @@ orderStatus?: GetApiAdminOrdersDeliveryExportOrderStatus;
  * 상품 유형
  */
 productType?: GetApiAdminOrdersDeliveryExportProductType;
+/**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersDeliveryExportFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersDeliveryExportSaleTiming;
 /**
  * 판매 공고 ID
  */
@@ -6483,15 +6734,6 @@ createdFrom?: string;
 createdTo?: string;
 };
 
-export type GetApiAdminOrdersDeliveryExportOrderType = typeof GetApiAdminOrdersDeliveryExportOrderType[keyof typeof GetApiAdminOrdersDeliveryExportOrderType];
-
-
-export const GetApiAdminOrdersDeliveryExportOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
 export type GetApiAdminOrdersDeliveryExportOrderStatus = typeof GetApiAdminOrdersDeliveryExportOrderStatus[keyof typeof GetApiAdminOrdersDeliveryExportOrderStatus];
 
 
@@ -6517,6 +6759,22 @@ export const GetApiAdminOrdersDeliveryExportProductType = {
   ITEM: 'ITEM',
 } as const;
 
+export type GetApiAdminOrdersDeliveryExportFulfillmentMethod = typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod[keyof typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod];
+
+
+export const GetApiAdminOrdersDeliveryExportFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersDeliveryExportSaleTiming = typeof GetApiAdminOrdersDeliveryExportSaleTiming[keyof typeof GetApiAdminOrdersDeliveryExportSaleTiming];
+
+
+export const GetApiAdminOrdersDeliveryExportSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
 export type PostApiAdminOrdersDeliveryImportParams = {
 dryRun?: boolean;
 };
@@ -6532,6 +6790,39 @@ dryRun?: boolean;
 export type PostApiAdminOrdersDeliveryImportResultCsvBody = {
   file: Blob;
 };
+
+export type PostApiAdminOrdersManualPurchasesImportParams = {
+mode?: PostApiAdminOrdersManualPurchasesImportMode;
+dryRun?: boolean;
+};
+
+export type PostApiAdminOrdersManualPurchasesImportMode = typeof PostApiAdminOrdersManualPurchasesImportMode[keyof typeof PostApiAdminOrdersManualPurchasesImportMode];
+
+
+export const PostApiAdminOrdersManualPurchasesImportMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
+
+export type PostApiAdminOrdersManualPurchasesImportBody = {
+  file: Blob;
+};
+
+export type GetApiAdminOrdersManualPurchasesImportTemplateParams = {
+mode?: GetApiAdminOrdersManualPurchasesImportTemplateMode;
+userId?: number;
+bottleId?: number;
+};
+
+export type GetApiAdminOrdersManualPurchasesImportTemplateMode = typeof GetApiAdminOrdersManualPurchasesImportTemplateMode[keyof typeof GetApiAdminOrdersManualPurchasesImportTemplateMode];
+
+
+export const GetApiAdminOrdersManualPurchasesImportTemplateMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
 
 export type GetApiAdminOrdersUsersUseridParams = {
 /**
@@ -6551,6 +6842,24 @@ sort?: string[];
 };
 
 /**
+ * 관리자 수동 구매내역 생성 요청
+ */
+export type PostApiAdminOrdersUsersUseridManualPurchasesBody = {
+  /** 구매내역으로 추가할 보틀 ID */
+  bottleId: number;
+  /**
+   * 관리자 메모
+   * @minLength 0
+   * @maxLength 500
+   */
+  orderNote?: string;
+  /** 수동 구매 수량 */
+  requestedQuantity: number;
+  /** 수동 구매 단가. 생략하면 보틀 소비자가를 사용하고, 소비자가가 없으면 0으로 처리합니다. */
+  unitPrice?: number;
+};
+
+/**
  * 주문 승인/수량 조정 요청
  */
 export type PatchApiAdminOrdersOrderidApproveBody = {
@@ -6560,7 +6869,7 @@ export type PatchApiAdminOrdersOrderidApproveBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6615,7 +6924,7 @@ export type PatchApiAdminOrdersOrderidDeliveryBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6670,7 +6979,7 @@ export type PatchApiAdminOrdersOrderidDeliveryCompleteBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -7657,18 +7966,18 @@ export const GetApiBoardsBoardidPostsSearchType = {
 } as const;
 
 /**
- * 게시글을 작성할 때 사용하는 요청 본문입니다.
+ * 게시글을 작성할 때 사용하는 요청 본문입니다. 읽기 전용 게시판이나 작성 권한이 부족한 게시판에는 작성할 수 없습니다.
  */
 export type PostApiBoardsBoardidPostsBody = {
   /**
-   * 게시글 본문 내용입니다.
+   * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
-   * 게시글 제목입니다.
+   * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -7676,15 +7985,15 @@ export type PostApiBoardsBoardidPostsBody = {
 };
 
 /**
- * 기존 게시글을 수정할 때 사용하는 요청 본문입니다.
+ * 기존 게시글을 수정할 때 사용하는 요청 본문입니다. 제목과 본문 중 하나 이상을 보내야 하며, 읽기 전용 게시판에서는 수정할 수 없습니다.
  */
 export type PutApiBoardsBoardidPostsPostidBody = {
-  /** 수정할 게시글 본문입니다. */
+  /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
   /**
-   * 수정할 게시글 제목입니다.
+   * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -8057,18 +8366,6 @@ userId?: number;
 };
 
 /**
- * 판매 유형
- */
-export type PostApiOrdersBodyOrderType = typeof PostApiOrdersBodyOrderType[keyof typeof PostApiOrdersBodyOrderType];
-
-
-export const PostApiOrdersBodyOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type PostApiOrdersBodyProductType = typeof PostApiOrdersBodyProductType[keyof typeof PostApiOrdersBodyProductType];
@@ -8113,8 +8410,6 @@ export type PostApiOrdersBody = {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: PostApiOrdersBodyOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -9469,7 +9764,7 @@ export const patchApiAdminBannersIdUnpublish = async (id: number, options?: Requ
 
 
 /**
- * 관리자가 게시판 목록을 조회합니다.
+ * 관리자가 활성/숨김/읽기 전용/작성 권한 정책을 포함한 게시판 목록을 조회합니다.
  * @summary 게시판 목록 조회(관리자)
  */
 export type getApiAdminBoardsResponse200 = {
@@ -9513,7 +9808,7 @@ export const getApiAdminBoards = async (params?: GetApiAdminBoardsParams, option
 
 
 /**
- * 게시글과 공지사항을 담을 새 게시판을 생성합니다.
+ * 게시글과 공지사항을 담을 새 게시판을 생성합니다. active, hidden, readOnly, writeRole로 사용자 노출과 작성 가능 역할을 설정할 수 있습니다.
  * @summary 게시판 생성(관리자)
  */
 export type postApiAdminBoardsResponse200 = {
@@ -9551,7 +9846,7 @@ export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoa
 
 
 /**
- * 관리자가 공지 목록을 조회합니다.
+ * 관리자가 전체/게시판 공지를 노출 여부, 고정 여부, 예약 게시, 만료 일시, 우선순위 정책과 함께 조회합니다.
  * @summary 공지 목록 조회(관리자)
  */
 export type getApiAdminBoardsAnnouncementsResponse200 = {
@@ -9595,7 +9890,7 @@ export const getApiAdminBoardsAnnouncements = async (params?: GetApiAdminBoardsA
 
 
 /**
- * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다.
+ * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다. visible, pinned, publishedAt, expiredAt, priority로 노출/고정/예약/만료/정렬 정책을 설정합니다.
  * @summary 공지 등록(관리자)
  */
 export type postApiAdminBoardsAnnouncementsResponse200 = {
@@ -9633,7 +9928,7 @@ export const postApiAdminBoardsAnnouncements = async (postApiAdminBoardsAnnounce
 
 
 /**
- * 관리자가 공지를 삭제합니다.
+ * 관리자가 전체 또는 게시판 공지를 삭제합니다.
  * @summary 공지 삭제(관리자)
  */
 export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
@@ -9670,7 +9965,7 @@ export const deleteApiAdminBoardsAnnouncementsAnnouncementid = async (announceme
 
 
 /**
- * 관리자가 공지 본문을 포함해 상세 조회합니다.
+ * 관리자가 공지 본문과 노출 정책 전체를 조회합니다. 사용자 API와 달리 숨김/예약/만료 상태의 공지도 조회할 수 있습니다.
  * @summary 공지 상세 조회(관리자)
  */
 export type getApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
@@ -9707,7 +10002,7 @@ export const getApiAdminBoardsAnnouncementsAnnouncementid = async (announcementI
 
 
 /**
- * 공지 제목, 내용, 범위를 수정합니다.
+ * 공지 제목, 내용, 범위와 노출 정책을 수정합니다. publishedAt/expiredAt을 null로 보내면 예약/만료 일시를 제거합니다.
  * @summary 공지 수정(관리자)
  */
 export type putApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
@@ -9746,7 +10041,7 @@ export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementI
 
 
 /**
- * 게시글이나 공지가 없는 게시판을 삭제합니다.
+ * 게시글이나 게시판 공지가 하나도 없는 게시판만 삭제합니다. 삭제된 게시글도 존재 여부 검증에 포함됩니다.
  * @summary 게시판 삭제(관리자)
  */
 export type deleteApiAdminBoardsBoardidResponse200 = {
@@ -9783,7 +10078,7 @@ export const deleteApiAdminBoardsBoardid = async (boardId: number, options?: Req
 
 
 /**
- * 관리자가 게시판 상세 정보를 조회합니다.
+ * 관리자가 게시판 기본 정보와 사용자 노출 상태, 작성 제한 정책을 조회합니다.
  * @summary 게시판 상세 조회(관리자)
  */
 export type getApiAdminBoardsBoardidResponse200 = {
@@ -9820,7 +10115,7 @@ export const getApiAdminBoardsBoardid = async (boardId: number, options?: Reques
 
 
 /**
- * 게시판 이름, 슬러그, 설명을 수정합니다.
+ * 게시판 이름, 슬러그, 설명과 active, hidden, readOnly, writeRole 운영 정책을 수정합니다. 운영 필드를 생략하면 기존 값을 유지합니다.
  * @summary 게시판 수정(관리자)
  */
 export type putApiAdminBoardsBoardidResponse200 = {
@@ -9859,39 +10154,41 @@ export const putApiAdminBoardsBoardid = async (boardId: number,
 
 
 /**
- * 관리자가 지정한 게시판의 모든 게시글을 삭제합니다.
+ * 관리자가 지정한 게시판의 특정 게시글을 사유와 함께 soft delete 처리합니다. 삭제자 관리자 ID, 삭제 주체, 삭제 사유가 감사 정보로 기록됩니다.
  * @summary 관리자 게시글 삭제
  */
-export type deleteApiAdminBoardsBoardidPostsPostidResponse200 = {
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponse200 = {
   data: boolean
   status: 200
 }
     
-export type deleteApiAdminBoardsBoardidPostsPostidResponseSuccess = (deleteApiAdminBoardsBoardidPostsPostidResponse200) & {
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponseSuccess = (postApiAdminBoardsBoardidPostsPostidDeleteResponse200) & {
   headers: Headers;
 };
 ;
 
-export type deleteApiAdminBoardsBoardidPostsPostidResponse = (deleteApiAdminBoardsBoardidPostsPostidResponseSuccess)
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponse = (postApiAdminBoardsBoardidPostsPostidDeleteResponseSuccess)
 
-export const getDeleteApiAdminBoardsBoardidPostsPostidUrl = (boardId: number,
+export const getPostApiAdminBoardsBoardidPostsPostidDeleteUrl = (boardId: number,
     postId: number,) => {
 
 
   
 
-  return `/api/admin/boards/${boardId}/posts/${postId}`
+  return `/api/admin/boards/${boardId}/posts/${postId}/delete`
 }
 
-export const deleteApiAdminBoardsBoardidPostsPostid = async (boardId: number,
-    postId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidPostsPostidResponse> => {
+export const postApiAdminBoardsBoardidPostsPostidDelete = async (boardId: number,
+    postId: number,
+    postApiAdminBoardsBoardidPostsPostidDeleteBody: PostApiAdminBoardsBoardidPostsPostidDeleteBody, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostsPostidDeleteResponse> => {
   
-  return customFetch<deleteApiAdminBoardsBoardidPostsPostidResponse>(getDeleteApiAdminBoardsBoardidPostsPostidUrl(boardId,postId),
+  return customFetch<postApiAdminBoardsBoardidPostsPostidDeleteResponse>(getPostApiAdminBoardsBoardidPostsPostidDeleteUrl(boardId,postId),
   {      
     ...options,
-    method: 'DELETE'
-    
-    
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminBoardsBoardidPostsPostidDeleteBody,)
   }
 );}
 
@@ -11937,7 +12234,8 @@ export const getApiAdminNiceidStatus = async (requestNo: string, options?: Reque
  * 관리자 대시보드와 주문 운영 큐에서 사용하는 주문 목록 API다.
 
 주요 검색 조건:
-- orderType, orderStatus, productType: 주문/상품/상태 기준 필터
+- orderStatus: 주문 상태 기준 필터
+- productType, fulfillmentMethod, saleTiming: 물품 종류/전달 방식/판매 시기 기준 필터
 - paymentMethod, paymentStatus: 계좌이체 입금 대기, 토스 완료 등 결제 기준 필터
 - depositOverdue=true: 입금 기한이 지난 계좌이체 입금 대기 주문만 조회
 - orderNumber, keyword: 주문번호와 고객명/이메일/휴대폰/상품명/공고명 검색
@@ -12330,6 +12628,48 @@ export const getApiAdminOrdersUsersUserid = async (userId: number,
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 판매공고 없이 보틀 기준으로 특정 사용자의 구매내역을 수동 추가한다.
+픽업지는 서버에서 UserBusiness.id=1로 고정하고, 주문 상태는 RECEIPT_COMPLETED로 저장한다.
+상품명은 보틀명으로 고정하며, 단가를 생략하면 보틀 소비자가를 사용하고 소비자가가 없으면 0으로 처리한다.
+
+ * @summary 관리자 사용자 수동 구매내역 생성
+ */
+export type postApiAdminOrdersUsersUseridManualPurchasesResponse200 = {
+  data: AdminOrderResponse
+  status: 200
+}
+    
+export type postApiAdminOrdersUsersUseridManualPurchasesResponseSuccess = (postApiAdminOrdersUsersUseridManualPurchasesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminOrdersUsersUseridManualPurchasesResponse = (postApiAdminOrdersUsersUseridManualPurchasesResponseSuccess)
+
+export const getPostApiAdminOrdersUsersUseridManualPurchasesUrl = (userId: number,) => {
+
+
+  
+
+  return `/api/admin/orders/users/${userId}/manual-purchases`
+}
+
+export const postApiAdminOrdersUsersUseridManualPurchases = async (userId: number,
+    postApiAdminOrdersUsersUseridManualPurchasesBody: PostApiAdminOrdersUsersUseridManualPurchasesBody, options?: RequestInit): Promise<postApiAdminOrdersUsersUseridManualPurchasesResponse> => {
+  
+  return customFetch<postApiAdminOrdersUsersUseridManualPurchasesResponse>(getPostApiAdminOrdersUsersUseridManualPurchasesUrl(userId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminOrdersUsersUseridManualPurchasesBody,)
   }
 );}
 
@@ -14362,7 +14702,7 @@ export const getApiBannersId = async (id: number, options?: RequestInit): Promis
 
 
 /**
- * 작성 및 열람이 가능한 전체 게시판을 조회합니다.
+ * 사용자에게 노출 가능한 활성 게시판만 조회합니다. 숨김 게시판과 비활성 게시판은 사용자 API에서 제외됩니다.
  * @summary 게시판 목록 조회
  */
 export type getApiBoardsResponse200 = {
@@ -14406,7 +14746,7 @@ export const getApiBoards = async (params?: GetApiBoardsParams, options?: Reques
 
 
 /**
- * 지정한 게시판에만 적용되는 공지사항을 조회합니다.
+ * 지정한 게시판에 적용되는 전체 공지와 게시판 공지를 함께 조회합니다. 숨김/비활성 게시판이거나 노출 기간 조건을 만족하지 않는 공지는 제외됩니다.
  * @summary 게시판별 공지 조회
  */
 export type getApiBoardsAnnouncementsBoardBoardidResponse200 = {
@@ -14452,7 +14792,7 @@ export const getApiBoardsAnnouncementsBoardBoardid = async (boardId: number,
 
 
 /**
- * 모든 사용자와 게시판에 공통으로 적용되는 공지 목록을 조회합니다.
+ * 모든 사용자와 게시판에 공통으로 적용되는 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 조회합니다.
  * @summary 전체 공지 조회
  */
 export type getApiBoardsAnnouncementsGlobalResponse200 = {
@@ -14496,7 +14836,7 @@ export const getApiBoardsAnnouncementsGlobal = async (params?: GetApiBoardsAnnou
 
 
 /**
- * 공지 본문을 포함해 상세 조회합니다.
+ * 전체 공지만 ID로 상세 조회합니다. 게시판 공지는 /api/boards/{boardId}/announcements/{announcementId} 경로로 조회해야 합니다.
  * @summary 공지 상세 조회
  */
 export type getApiBoardsAnnouncementsAnnouncementidResponse200 = {
@@ -14619,7 +14959,46 @@ export const getApiBoardsBoardidAnnouncements = async (boardId: number,
 
 
 /**
- * 선택한 게시판의 게시글을 페이지 단위로 조회하며 검색 조건을 적용할 수 있습니다.
+ * 전체 공지 또는 해당 게시판 공지 중 현재 사용자에게 노출 가능한 공지만 본문 포함 상세 조회합니다.
+ * @summary 게시판 공지 상세 조회
+ */
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponse200 = {
+  data: UserAnnouncementResponse
+  status: 200
+}
+    
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess = (getApiBoardsBoardidAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponse = (getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl = (boardId: number,
+    announcementId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/announcements/${announcementId}`
+}
+
+export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: number,
+    announcementId: number, options?: RequestInit): Promise<getApiBoardsBoardidAnnouncementsAnnouncementidResponse> => {
+  
+  return customFetch<getApiBoardsBoardidAnnouncementsAnnouncementidResponse>(getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl(boardId,announcementId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있습니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
@@ -14665,7 +15044,7 @@ export const getApiBoardsBoardidPosts = async (boardId: number,
 
 
 /**
- * 선택한 게시판에 새 글을 등록합니다.
+ * 선택한 게시판에 새 글을 등록합니다. 읽기 전용 게시판에는 작성할 수 없으며, 게시판의 writeRole 이상 권한이 필요합니다.
  * @summary 게시글 작성
  */
 export type postApiBoardsBoardidPostsResponse200 = {
@@ -14704,7 +15083,7 @@ export const postApiBoardsBoardidPosts = async (boardId: number,
 
 
 /**
- * 본인이 작성한 게시글을 삭제합니다.
+ * 본인이 작성한 게시글을 soft delete 처리합니다. 읽기 전용 게시판에서는 삭제할 수 없으며 삭제자 ID와 사용자 삭제 주체가 감사 정보로 기록됩니다.
  * @summary 게시글 삭제
  */
 export type deleteApiBoardsBoardidPostsPostidResponse200 = {
@@ -14743,7 +15122,7 @@ export const deleteApiBoardsBoardidPostsPostid = async (boardId: number,
 
 
 /**
- * 선택한 게시판의 게시글 본문을 포함해 상세 조회합니다.
+ * 활성 상태이고 숨김이 아닌 게시판에 속한 게시글만 본문 포함 상세 조회합니다. 삭제된 게시글은 조회되지 않습니다.
  * @summary 게시글 상세 조회
  */
 export type getApiBoardsBoardidPostsPostidResponse200 = {
@@ -14782,7 +15161,7 @@ export const getApiBoardsBoardidPostsPostid = async (boardId: number,
 
 
 /**
- * 본인이 작성한 게시글의 제목과 내용을 수정합니다.
+ * 본인이 작성한 게시글의 제목과 내용을 수정합니다. 읽기 전용 게시판에서는 수정할 수 없으며, 게시판의 writeRole 이상 권한이 필요합니다.
  * @summary 게시글 수정
  */
 export type putApiBoardsBoardidPostsPostidResponse200 = {
