@@ -2,11 +2,11 @@
 
 import type { AdminDeliveryCsvUploadResponse, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
-import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { Download, Eye, FileCheck2, FileUp, Search, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -27,7 +27,6 @@ export interface AdminOrdersSearchParams extends Record<string, string | undefin
   page?: string;
   limit?: string;
   keyword?: string;
-  orderType?: "RESERVATION" | "PICKUP" | "GENERAL";
   productType?: "BOTTLE" | "ITEM";
   orderStatus?: string;
   paymentMethod?: string;
@@ -68,12 +67,6 @@ const PAYMENT_STATUS_OPTIONS = [
   { value: "DONE", label: "결제 완료" },
   { value: "CANCELED", label: "결제 취소" },
 ];
-
-const ORDER_TYPE_LABEL: Record<string, string> = {
-  RESERVATION: "예약",
-  PICKUP: "픽업",
-  GENERAL: "일반배송",
-};
 
 const SALE_TYPE_LABEL: Record<string, string> = {
   RESERVATION: "예약공고",
@@ -553,9 +546,6 @@ export default function AdminOrdersContent({
                             </>
                           ) : (
                             <>
-                              <div>
-                                {order.orderType ? (ORDER_TYPE_LABEL[order.orderType] ?? order.orderType) : "-"}
-                              </div>
                               <div>{order.saleType ? (SALE_TYPE_LABEL[order.saleType] ?? order.saleType) : "-"}</div>
                               <div className="text-xs text-gray-500">
                                 {order.businessId ? `사업장 ${order.businessId}` : "보틀 주문"}

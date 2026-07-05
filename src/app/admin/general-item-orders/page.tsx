@@ -22,7 +22,6 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
     page: toApiPage(page),
     size,
     sort: ["createdAt,desc"],
-    orderType: "GENERAL",
     productType: "ITEM",
     orderStatus: emptyToUndefined(params.orderStatus) as GetApiAdminOrdersParams["orderStatus"],
     paymentMethod: emptyToUndefined(params.paymentMethod),
@@ -43,7 +42,6 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
         ...params,
         page: String(page),
         limit: String(size),
-        orderType: "GENERAL",
         productType: "ITEM",
       }}
       orders={response.data.content ?? []}

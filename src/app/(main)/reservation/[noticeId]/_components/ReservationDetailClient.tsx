@@ -52,6 +52,11 @@ export default function ReservationDetailClient({
         {/* Info */}
         <div className="flex flex-col justify-center">
           <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">{notice.bottleName}</h3>
+          {notice.description && (
+            <p className="mb-4 text-sm leading-6 whitespace-pre-line text-gray-300 lg:mb-6 lg:text-base">
+              {notice.description}
+            </p>
+          )}
           <InfoList notice={notice} />
         </div>
       </div>

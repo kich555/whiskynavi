@@ -1,22 +1,22 @@
 "use server";
 
 import {
-  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
-  type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
-  type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
-  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
-  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
   getApiAdminBottles,
   postApiAdminBottlesReservationsApplicationsApplicationidCancel,
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm,
   postApiAdminBottlesReservationsApplicationsApplicationidReject,
   postApiAdminBottlesReservationsNotices,
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm,
   putApiAdminBottlesReservationsNoticesNoticeid,
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid,
+  type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
+  type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
+  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
+  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
@@ -32,6 +32,7 @@ interface GradeConditionFormValue {
 export interface NoticeFormValues {
   bottleId: string;
   bottleName: string;
+  description: string;
   price: string;
   availableQuantity: string;
   maxOrderQuantity: string;
@@ -43,7 +44,8 @@ export interface NoticeFormValues {
 export type FormState = { success: boolean; error?: string; values?: NoticeFormValues };
 
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
-const DEFAULT_RESERVATION_REQUIRED_ROLE = PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
+const DEFAULT_RESERVATION_REQUIRED_ROLE =
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
 
 function isReservationRequiredRole(role: string): role is ReservationRequiredRole {
   return Object.values(PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole).includes(
@@ -68,6 +70,7 @@ const noticeFormSchema = z.object({
     if (!v.trim() || Number.isNaN(n)) throw new Error("bottleId is required");
     return n;
   }),
+  description: z.string().max(5000, "공고 설명은 5000자 이하로 입력하세요.").optional(),
   price: z.string().transform((v) => {
     const n = Number(v);
     if (!v.trim() || Number.isNaN(n) || n < 0) throw new Error("price must be >= 0");
@@ -103,6 +106,7 @@ function extractNoticeFormValues(formData: FormData): NoticeFormValues {
   return {
     bottleId: (formData.get("bottleId") as string) ?? "",
     bottleName: (formData.get("bottleName") as string) ?? "",
+    description: (formData.get("description") as string) ?? "",
     price: (formData.get("price") as string) ?? "",
     availableQuantity: (formData.get("availableQuantity") as string) ?? "",
     maxOrderQuantity: (formData.get("maxOrderQuantity") as string) ?? "",
@@ -211,6 +215,7 @@ function buildGradeConditions(
 function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
   return {
     bottleId: data.bottleId,
+    description: data.description?.trim() || undefined,
     price: data.price,
     reservationStartAt: new Date(data.reservationStartAt).toISOString(),
     reservationEndAt: new Date(data.reservationEndAt).toISOString(),

@@ -14,6 +14,12 @@ interface OrderDetailClientProps {
   order: UserOrderResponse;
 }
 
+const SALE_TYPE_LABEL: Record<string, string> = {
+  GENERAL: "일반 주문",
+  RESERVATION: "예약 주문",
+  PICKUP: "픽업 주문",
+};
+
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
@@ -84,7 +90,10 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
               </h3>
               <div className="space-y-3 sm:space-y-4">
                 <InfoRow label="주문일시" value={formatDate(order.createdAt)} />
-                <InfoRow label="주문 유형" value={order.orderType ?? "-"} />
+                <InfoRow
+                  label="주문 유형"
+                  value={order.saleType ? (SALE_TYPE_LABEL[order.saleType] ?? order.saleType) : "-"}
+                />
                 {order.orderNote && <InfoRow label="주문 메모" value={order.orderNote} />}
                 {order.cancelReason && <InfoRow label="취소 사유" value={order.cancelReason} />}
               </div>

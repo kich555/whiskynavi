@@ -40,6 +40,13 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
         ))}
       </div>
 
+      {notice.description && (
+        <div className="mt-4 border-t border-gray-100 pt-4">
+          <span className="mb-1 block text-xs text-gray-500">공고 설명</span>
+          <p className="text-sm leading-6 whitespace-pre-line text-gray-900">{notice.description}</p>
+        </div>
+      )}
+
       {notice.gradeConditions && notice.gradeConditions.length > 0 && (
         <div className="mt-4 border-t border-gray-100 pt-4">
           <span className="mb-2 block text-xs text-gray-500">등급 조건</span>

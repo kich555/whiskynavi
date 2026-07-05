@@ -49,6 +49,7 @@ function createValidFormData() {
   const formData = new FormData();
   formData.set("bottleId", "11");
   formData.set("bottleName", "테스트 보틀");
+  formData.set("description", "예약 공고 상세 설명");
   formData.set("price", "120000");
   formData.set("availableQuantity", "20");
   formData.set("maxOrderQuantity", "2");
@@ -74,6 +75,7 @@ describe("createNoticeFormAction", () => {
 
     expect(postApiAdminBottlesReservationsNotices).toHaveBeenCalledWith(
       expect.objectContaining({
+        description: "예약 공고 상세 설명",
         gradeConditions: [
           {
             applicableFrom: "2026-06-08T10:00:00.000Z",

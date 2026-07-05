@@ -7,7 +7,7 @@
  */
 import { customFetch } from '../mutator';
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AdminAnnouncementResponseScope = typeof AdminAnnouncementResponseScope[keyof typeof AdminAnnouncementResponseScope];
 
@@ -18,7 +18,7 @@ export const AdminAnnouncementResponseScope = {
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 관리자 공지사항 상세 응답입니다. 사용자 노출 정책과 본문을 함께 제공합니다.
  */
 export interface AdminAnnouncementResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -27,16 +27,26 @@ export interface AdminAnnouncementResponse {
   content?: string;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
+  /** 공지 만료 일시입니다. null이면 만료되지 않습니다. */
+  expiredAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
+  priority?: number;
+  /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: AdminAnnouncementResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
+  /** 사용자 노출 여부입니다. false이면 사용자 공지 API에서 제외됩니다. */
+  visible?: boolean;
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AdminAnnouncementSummaryResponseScope = typeof AdminAnnouncementSummaryResponseScope[keyof typeof AdminAnnouncementSummaryResponseScope];
 
@@ -47,19 +57,29 @@ export const AdminAnnouncementSummaryResponseScope = {
 } as const;
 
 /**
- * 관리자 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ * 관리자 공지사항 목록 요약 응답입니다. 사용자 노출 정책을 목록에서 확인할 수 있습니다.
  */
 export interface AdminAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
   boardId?: number;
   /** 공지 생성 일시입니다. */
   createdAt?: string;
+  /** 공지 만료 일시입니다. null이면 만료되지 않습니다. */
+  expiredAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
+  priority?: number;
+  /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: AdminAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
+  /** 사용자 노출 여부입니다. false이면 사용자 공지 API에서 제외됩니다. */
+  visible?: boolean;
 }
 
 /**
@@ -108,19 +128,71 @@ export interface AdminBannerResponse {
 }
 
 /**
- * 게시판 정의 정보를 담는 응답 DTO입니다.
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type AdminBoardResponseReadRole = typeof AdminBoardResponseReadRole[keyof typeof AdminBoardResponseReadRole];
+
+
+export const AdminBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
+ */
+export type AdminBoardResponseWriteRole = typeof AdminBoardResponseWriteRole[keyof typeof AdminBoardResponseWriteRole];
+
+
+export const AdminBoardResponseWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 관리자 게시판 응답입니다. 사용자 노출 상태와 작성 제한 정책을 함께 제공합니다.
  */
 export interface AdminBoardResponse {
+  /** 게시판 활성 여부입니다. false이면 사용자 API에서 노출되지 않습니다. */
+  active?: boolean;
   /** 게시판 생성 일시입니다. */
   createdAt?: string;
   /** 게시판에 표시할 설명입니다. */
   description?: string;
+  /** 사용자 목록 및 사용자 게시판 API 접근 숨김 여부입니다. */
+  hidden?: boolean;
   /** 게시판 식별자입니다. */
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
   name?: string;
+  /** 읽기 전용 게시판 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. */
+  readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: AdminBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
+  writeRole?: AdminBoardResponseWriteRole;
 }
 
 export interface AdminBottleReservationApplicantResponse {
@@ -227,6 +299,7 @@ export interface AdminBottleReservationNoticeResponse {
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
+  description?: string;
   editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
@@ -722,6 +795,80 @@ export interface AdminItemReservationNoticeResponse {
 }
 
 /**
+ * 관리자 수동 구매내역 생성 요청
+ */
+export interface AdminManualPurchaseCreateRequest {
+  /** 구매내역으로 추가할 보틀 ID */
+  bottleId: number;
+  /**
+   * 관리자 메모
+   * @minLength 0
+   * @maxLength 500
+   */
+  orderNote?: string;
+  /** 수동 구매 수량 */
+  requestedQuantity: number;
+  /** 수동 구매 단가. 생략하면 보틀 소비자가를 사용하고, 소비자가가 없으면 0으로 처리합니다. */
+  unitPrice?: number;
+}
+
+/**
+ * 업로드 모드
+ */
+export type AdminManualPurchaseImportResponseMode = typeof AdminManualPurchaseImportResponseMode[keyof typeof AdminManualPurchaseImportResponseMode];
+
+
+export const AdminManualPurchaseImportResponseMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 Excel 행 처리 결과
+ */
+export interface AdminManualPurchaseImportRowResponse {
+  /** 보틀 ID */
+  bottleId?: number;
+  /** 처리 결과 메시지 */
+  message?: string;
+  /**
+   * 생성된 주문 ID. dryRun 또는 실패 행이면 null이다.
+   * @nullable
+   */
+  orderId?: number | null;
+  /**
+   * 생성된 주문 번호. dryRun 또는 실패 행이면 null이다.
+   * @nullable
+   */
+  orderNumber?: string | null;
+  /** Excel 행 번호. 헤더는 1번이고 데이터는 2번부터 시작한다. */
+  rowNumber?: number;
+  /** 처리 성공 여부 */
+  success?: boolean;
+  /** 사용자 ID */
+  userId?: number;
+}
+
+/**
+ * 관리자 수동 구매내역 Excel 업로드 결과
+ */
+export interface AdminManualPurchaseImportResponse {
+  /** 검증만 수행했는지 여부 */
+  dryRun?: boolean;
+  /** 실패 행 수 */
+  failureCount?: number;
+  /** 업로드 모드 */
+  mode?: AdminManualPurchaseImportResponseMode;
+  /** 행별 처리 결과 */
+  results?: AdminManualPurchaseImportRowResponse[];
+  /** 성공 행 수 */
+  successCount?: number;
+  /** 데이터 행 수 */
+  totalRows?: number;
+}
+
+/**
  * 주문 고객 정보
  */
 export interface AdminOrderCustomerResponse {
@@ -781,18 +928,6 @@ export const AdminOrderItemResponseProductType = {
 } as const;
 
 /**
- * 판매 공고 유형
- */
-export type AdminOrderItemResponseSaleType = typeof AdminOrderItemResponseSaleType[keyof typeof AdminOrderItemResponseSaleType];
-
-
-export const AdminOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 주문 상품 라인 응답 정보
  */
 export interface AdminOrderItemResponse {
@@ -808,12 +943,13 @@ export interface AdminOrderItemResponse {
   productType?: AdminOrderItemResponseProductType;
   /** 수량 */
   quantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: AdminOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -869,6 +1005,17 @@ export interface AdminOrderPriceSummaryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type AdminOrderResponseFulfillmentMethod = typeof AdminOrderResponseFulfillmentMethod[keyof typeof AdminOrderResponseFulfillmentMethod];
+
+
+export const AdminOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 주문 상태.
 일반 아이템 배송 주문 주요 흐름:
 PAYMENT_PENDING -> ORDER_PREPARING -> SHIPPING -> DELIVERY_COMPLETED,
@@ -894,18 +1041,6 @@ export const AdminOrderResponseOrderStatus = {
 } as const;
 
 /**
- * 판매 유형
- */
-export type AdminOrderResponseOrderType = typeof AdminOrderResponseOrderType[keyof typeof AdminOrderResponseOrderType];
-
-
-export const AdminOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType[keyof typeof AdminOrderResponseProductType];
@@ -914,6 +1049,17 @@ export type AdminOrderResponseProductType = typeof AdminOrderResponseProductType
 export const AdminOrderResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
+} as const;
+
+/**
+ * 판매/배송 시기
+ */
+export type AdminOrderResponseSaleTiming = typeof AdminOrderResponseSaleTiming[keyof typeof AdminOrderResponseSaleTiming];
+
+
+export const AdminOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
 } as const;
 
 /**
@@ -948,6 +1094,8 @@ export interface AdminOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: AdminOrderResponseFulfillmentMethod;
   /** 비회원 주문 안내 이메일 */
   guestEmail?: string;
   /** 비회원 주문 안내 휴대폰 번호 */
@@ -979,8 +1127,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: AdminOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: AdminOrderResponseOrderType;
   payment?: AdminOrderPaymentResponse;
   priceSummary?: AdminOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -991,8 +1137,13 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   refundReason?: string;
   /** 요청 수량 */
   requestedQuantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: AdminOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -1011,6 +1162,18 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   updatedAt?: string;
   /** 주문자 사용자 ID */
   userId?: number;
+}
+
+/**
+ * 관리자가 게시글을 삭제할 때 사용하는 요청 본문입니다. 삭제 사유는 감사 정보로 게시글에 함께 기록됩니다.
+ */
+export interface AdminPostDeleteRequest {
+  /**
+   * 관리자 삭제 사유입니다. 공백일 수 없고 최대 500자까지 입력할 수 있습니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  deleteReason?: string;
 }
 
 export type AdminReservationBusinessDeliveryResponseCarrierCode = typeof AdminReservationBusinessDeliveryResponseCarrierCode[keyof typeof AdminReservationBusinessDeliveryResponseCarrierCode];
@@ -1280,7 +1443,7 @@ export interface AdminUserStatusUpdateRequest {
 }
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type AnnouncementRequestScope = typeof AnnouncementRequestScope[keyof typeof AnnouncementRequestScope];
 
@@ -1291,17 +1454,28 @@ export const AnnouncementRequestScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export interface AnnouncementRequest {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: AnnouncementRequestScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -1309,6 +1483,8 @@ export interface AnnouncementRequest {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 }
 
 /**
@@ -1371,27 +1547,86 @@ export interface AuthResponse {
 }
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type BoardRequestReadRole = typeof BoardRequestReadRole[keyof typeof BoardRequestReadRole];
+
+
+export const BoardRequestReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type BoardRequestWriteRole = typeof BoardRequestWriteRole[keyof typeof BoardRequestWriteRole];
+
+
+export const BoardRequestWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export interface BoardRequest {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
    * @maxLength 150
    */
   name?: string;
+  /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: BoardRequestReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: BoardRequestWriteRole;
+}
+
+export interface BoardUploadResponse {
+  /** 업로드된 파일의 S3 key입니다. */
+  key?: string;
+  /** 업로드된 파일의 CloudFront URL입니다. */
+  url?: string;
 }
 
 export interface BottleAdminParameterValues {
@@ -1705,6 +1940,11 @@ export type BottleReservationNoticeRequestGradeConditionsItem = {
 export interface BottleReservationNoticeRequest {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: BottleReservationNoticeRequestGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -1932,16 +2172,81 @@ export interface ChangePasswordRequest {
 }
 
 /**
- * 게시글을 작성할 때 사용하는 요청 본문입니다.
+ * 게시글 댓글의 답글 정보를 담은 응답 DTO입니다.
  */
-export interface CreatePostRequest {
+export interface CommentReplyResponse {
+  /** 댓글 작성자 ID입니다. */
+  authorId?: number;
+  /** 댓글 내용입니다. */
+  content?: string;
+  /** 댓글 생성 일시입니다. */
+  createdAt?: string;
+  /** 댓글 식별자입니다. */
+  id?: number;
+  /** 부모 댓글 ID입니다. */
+  parentCommentId?: number;
+  /** 댓글이 속한 게시글 ID입니다. */
+  postId?: number;
+  /** 답글 수신자 사용자 ID입니다. */
+  replyToUserId?: number;
+  /** 최상위 댓글 ID입니다. */
+  rootCommentId?: number;
+  /** 댓글 최종 수정 일시입니다. */
+  updatedAt?: string;
+}
+
+/**
+ * 게시글 댓글 정보를 담은 응답 DTO입니다.
+ */
+export interface CommentResponse {
+  /** 댓글 작성자 ID입니다. */
+  authorId?: number;
+  /** 댓글 내용입니다. */
+  content?: string;
+  /** 댓글 생성 일시입니다. */
+  createdAt?: string;
+  /** 댓글 식별자입니다. */
+  id?: number;
+  /** 부모 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+  /** 댓글이 속한 게시글 ID입니다. */
+  postId?: number;
+  /** 이 댓글에 달린 답글 목록입니다. */
+  replies?: CommentReplyResponse[];
+  /** 답글 수신자 사용자 ID입니다. */
+  replyToUserId?: number;
+  /** 최상위 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  rootCommentId?: number;
+  /** 댓글 최종 수정 일시입니다. */
+  updatedAt?: string;
+}
+
+/**
+ * 게시글 댓글을 작성할 때 사용하는 요청 본문입니다.
+ */
+export interface CreateCommentRequest {
   /**
-   * 게시글 본문 내용입니다.
+   * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
   content?: string;
+  /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+}
+
+/**
+ * 게시글을 작성할 때 사용하는 요청 본문입니다. 읽기 전용 게시판이나 작성 권한이 부족한 게시판에는 작성할 수 없습니다.
+ */
+export interface CreatePostRequest {
   /**
-   * 게시글 제목입니다.
+   * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
+  hasImage?: boolean;
+  /**
+   * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -1956,6 +2261,12 @@ export interface DeliveryCompanyResponse {
   code?: string;
   /** 택배사 표시명 */
   displayName?: string;
+}
+
+export interface DependencyHealth {
+  down?: boolean;
+  message?: string;
+  status?: string;
 }
 
 /**
@@ -2166,7 +2477,10 @@ export interface GuestOrderCancelRequest {
   reason?: string;
 }
 
+export type HealthCheckResponseDependencies = {[key: string]: DependencyHealth};
+
 export interface HealthCheckResponse {
+  dependencies?: HealthCheckResponseDependencies;
   service?: string;
   status?: string;
   timestamp?: string;
@@ -2512,18 +2826,6 @@ export interface OrderCancelRequest {
 }
 
 /**
- * 판매 유형
- */
-export type OrderCreateRequestOrderType = typeof OrderCreateRequestOrderType[keyof typeof OrderCreateRequestOrderType];
-
-
-export const OrderCreateRequestOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type OrderCreateRequestProductType = typeof OrderCreateRequestProductType[keyof typeof OrderCreateRequestProductType];
@@ -2568,8 +2870,6 @@ export interface OrderCreateRequest {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: OrderCreateRequestOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -2594,7 +2894,7 @@ export interface OrderCreateRequest {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -2897,6 +3197,8 @@ export interface PostSummaryResponse {
   boardId?: number;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. */
+  hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
   /** 게시글 제목입니다. */
@@ -2911,7 +3213,7 @@ export interface PagedModelPostSummaryResponse {
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type UserAnnouncementSummaryResponseScope = typeof UserAnnouncementSummaryResponseScope[keyof typeof UserAnnouncementSummaryResponseScope];
 
@@ -2922,7 +3224,7 @@ export const UserAnnouncementSummaryResponseScope = {
 } as const;
 
 /**
- * 공지사항 목록에 사용하는 요약 응답 DTO입니다.
+ * 사용자에게 노출 가능한 공지사항 목록 요약 응답입니다. visible, 예약 게시, 만료 조건을 통과한 공지만 반환됩니다.
  */
 export interface UserAnnouncementSummaryResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -2931,7 +3233,11 @@ export interface UserAnnouncementSummaryResponse {
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: UserAnnouncementSummaryResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
@@ -2966,7 +3272,49 @@ export interface PagedModelUserBannerResponse {
 }
 
 /**
- * 게시판 정의 정보를 담는 응답 DTO입니다.
+ * 게시판 조회에 필요한 최소 역할입니다.
+ */
+export type UserBoardResponseReadRole = typeof UserBoardResponseReadRole[keyof typeof UserBoardResponseReadRole];
+
+
+export const UserBoardResponseReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시글 작성/수정/삭제에 필요한 최소 역할입니다.
+ */
+export type UserBoardResponseWriteRole = typeof UserBoardResponseWriteRole[keyof typeof UserBoardResponseWriteRole];
+
+
+export const UserBoardResponseWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 사용자에게 노출 가능한 게시판 응답입니다. 숨김/비활성 게시판은 이 응답에 포함되지 않습니다.
  */
 export interface UserBoardResponse {
   /** 게시판 생성 일시입니다. */
@@ -2977,8 +3325,14 @@ export interface UserBoardResponse {
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
   name?: string;
+  /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
+  readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. */
+  readRole?: UserBoardResponseReadRole;
   /** 라우팅에 사용하는 고유 슬러그입니다. */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
+  writeRole?: UserBoardResponseWriteRole;
 }
 
 export interface PagedModelUserBoardResponse {
@@ -3052,6 +3406,7 @@ export interface UserBottleReservationNoticePublicResponse {
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
+  description?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
@@ -3370,6 +3725,17 @@ export interface UserOrderDeliveryResponse {
 }
 
 /**
+ * 상품 전달 방식
+ */
+export type UserOrderResponseFulfillmentMethod = typeof UserOrderResponseFulfillmentMethod[keyof typeof UserOrderResponseFulfillmentMethod];
+
+
+export const UserOrderResponseFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+/**
  * 판매 상품 유형
  */
 export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProductType[keyof typeof UserOrderItemResponseProductType];
@@ -3378,18 +3744,6 @@ export type UserOrderItemResponseProductType = typeof UserOrderItemResponseProdu
 export const UserOrderItemResponseProductType = {
   BOTTLE: 'BOTTLE',
   ITEM: 'ITEM',
-} as const;
-
-/**
- * 판매 공고 유형
- */
-export type UserOrderItemResponseSaleType = typeof UserOrderItemResponseSaleType[keyof typeof UserOrderItemResponseSaleType];
-
-
-export const UserOrderItemResponseSaleType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
 } as const;
 
 /**
@@ -3408,12 +3762,13 @@ export interface UserOrderItemResponse {
   productType?: UserOrderItemResponseProductType;
   /** 수량 */
   quantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
   /** 판매 공고 제목 */
   saleTitle?: string;
-  /** 판매 공고 유형 */
-  saleType?: UserOrderItemResponseSaleType;
   /** 단가 */
   unitPrice?: number;
 }
@@ -3441,18 +3796,6 @@ export const UserOrderResponseOrderStatus = {
   ORDER_CANCELED: 'ORDER_CANCELED',
   CANCEL_REQUESTED: 'CANCEL_REQUESTED',
   CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-/**
- * 판매 유형
- */
-export type UserOrderResponseOrderType = typeof UserOrderResponseOrderType[keyof typeof UserOrderResponseOrderType];
-
-
-export const UserOrderResponseOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
 } as const;
 
 /**
@@ -3513,6 +3856,17 @@ export const UserOrderResponseProductType = {
 } as const;
 
 /**
+ * 판매/배송 시기
+ */
+export type UserOrderResponseSaleTiming = typeof UserOrderResponseSaleTiming[keyof typeof UserOrderResponseSaleTiming];
+
+
+export const UserOrderResponseSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
+/**
  * 판매 공고 유형
  */
 export type UserOrderResponseSaleType = typeof UserOrderResponseSaleType[keyof typeof UserOrderResponseSaleType];
@@ -3541,6 +3895,8 @@ export interface UserOrderResponse {
   freeShippingApplied?: boolean;
   /** 무료배송 기준 금액 */
   freeShippingThreshold?: number;
+  /** 상품 전달 방식 */
+  fulfillmentMethod?: UserOrderResponseFulfillmentMethod;
   /** 주문 ID */
   id?: number;
   /** 수입사 ID */
@@ -3568,8 +3924,6 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: UserOrderResponseOrderStatus;
-  /** 판매 유형 */
-  orderType?: UserOrderResponseOrderType;
   payment?: UserOrderPaymentResponse;
   priceSummary?: UserOrderPriceSummaryResponse;
   /** 판매 상품 ID */
@@ -3580,8 +3934,13 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
   refundReason?: string;
   /** 요청 수량 */
   requestedQuantity?: number;
-  /** 판매 공고 ID */
-  saleAnnouncementId?: number;
+  /**
+   * 판매 공고 ID
+   * @nullable
+   */
+  saleAnnouncementId?: number | null;
+  /** 판매/배송 시기 */
+  saleTiming?: UserOrderResponseSaleTiming;
   /** 판매 공고 제목 */
   saleTitle?: string;
   /** 판매 공고 유형 */
@@ -3700,6 +4059,8 @@ export interface PostResponse {
   content?: string;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. */
+  hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
   /** 게시글 제목입니다. */
@@ -4535,6 +4896,17 @@ export interface TossWebhookResponse {
 }
 
 /**
+ * 게시글 댓글을 수정할 때 사용하는 요청 본문입니다.
+ */
+export interface UpdateCommentRequest {
+  /**
+   * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+}
+
+/**
  * 이메일 변경 요청
  */
 export interface UpdateEmailRequest {
@@ -4560,13 +4932,15 @@ export interface UpdateNicknameRequest {
 }
 
 /**
- * 기존 게시글을 수정할 때 사용하는 요청 본문입니다.
+ * 기존 게시글을 수정할 때 사용하는 요청 본문입니다. 제목과 본문 중 하나 이상을 보내야 하며, 읽기 전용 게시판에서는 수정할 수 없습니다.
  */
 export interface UpdatePostRequest {
-  /** 수정할 게시글 본문입니다. */
+  /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
+  hasImage?: boolean;
   /**
-   * 수정할 게시글 제목입니다.
+   * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -4574,7 +4948,7 @@ export interface UpdatePostRequest {
 }
 
 /**
- * 공지 범위(전체/게시판)를 나타냅니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type UserAnnouncementResponseScope = typeof UserAnnouncementResponseScope[keyof typeof UserAnnouncementResponseScope];
 
@@ -4585,7 +4959,7 @@ export const UserAnnouncementResponseScope = {
 } as const;
 
 /**
- * 공지사항 정보를 담은 응답 DTO입니다.
+ * 사용자에게 노출 가능한 공지사항 상세 응답입니다. visible, 예약 게시, 만료 조건을 통과한 공지만 반환됩니다.
  */
 export interface UserAnnouncementResponse {
   /** 게시판 공지일 때 대상 게시판 ID입니다. */
@@ -4596,7 +4970,11 @@ export interface UserAnnouncementResponse {
   createdAt?: string;
   /** 공지사항 식별자입니다. */
   id?: number;
-  /** 공지 범위(전체/게시판)를 나타냅니다. */
+  /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
+  pinned?: boolean;
+  /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope?: UserAnnouncementResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
@@ -4979,27 +5357,79 @@ sort?: string[];
 };
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PostApiAdminBoardsBodyReadRole = typeof PostApiAdminBoardsBodyReadRole[keyof typeof PostApiAdminBoardsBodyReadRole];
+
+
+export const PostApiAdminBoardsBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PostApiAdminBoardsBodyWriteRole = typeof PostApiAdminBoardsBodyWriteRole[keyof typeof PostApiAdminBoardsBodyWriteRole];
+
+
+export const PostApiAdminBoardsBodyWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PostApiAdminBoardsBody = {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
    * @maxLength 150
    */
   name?: string;
+  /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PostApiAdminBoardsBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: PostApiAdminBoardsBodyWriteRole;
 };
 
 export type GetApiAdminBoardsAnnouncementsParams = {
@@ -5020,7 +5450,7 @@ sort?: string[];
 };
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type PostApiAdminBoardsAnnouncementsBodyScope = typeof PostApiAdminBoardsAnnouncementsBodyScope[keyof typeof PostApiAdminBoardsAnnouncementsBodyScope];
 
@@ -5031,17 +5461,28 @@ export const PostApiAdminBoardsAnnouncementsBodyScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export type PostApiAdminBoardsAnnouncementsBody = {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: PostApiAdminBoardsAnnouncementsBodyScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -5049,10 +5490,12 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 };
 
 /**
- * 공지 범위(전체 또는 게시판별)를 지정합니다.
+ * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
 export type PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope[keyof typeof PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope];
 
@@ -5063,17 +5506,28 @@ export const PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope = {
 } as const;
 
 /**
- * 새 공지사항을 등록할 때 사용하는 요청 본문입니다.
+ * 공지사항을 등록하거나 수정할 때 사용하는 요청 본문입니다. 노출 여부, 상단 고정, 예약 게시, 만료, 우선순위를 함께 설정합니다.
  */
 export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
-  /** 범위가 게시판일 때 대상 게시판 ID입니다. */
+  /** scope가 BOARD일 때 필수인 대상 게시판 ID입니다. GLOBAL 공지에는 지정할 수 없습니다. */
   boardId?: number;
   /**
    * 공지 상세 내용입니다.
    * @minLength 1
    */
   content?: string;
-  /** 공지 범위(전체 또는 게시판별)를 지정합니다. */
+  /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
+  expiredAt?: string;
+  /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  pinned?: boolean;
+  /**
+   * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
+   * @minimum 0
+   */
+  priority?: number;
+  /** 예약 게시 일시입니다. 이 시각 이후 사용자 API에 노출됩니다. null이면 즉시 노출 대상으로 처리하며, 수정 시 null을 보내면 기존 예약 게시 일시를 제거합니다. */
+  publishedAt?: string;
+  /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
   scope: PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope;
   /**
    * 사용자에게 보여줄 공지 제목입니다.
@@ -5081,30 +5535,96 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
    * @maxLength 200
    */
   title?: string;
+  /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  visible?: boolean;
 };
 
 /**
- * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PutApiAdminBoardsBoardidBodyReadRole = typeof PutApiAdminBoardsBoardidBodyReadRole[keyof typeof PutApiAdminBoardsBoardidBodyReadRole];
+
+
+export const PutApiAdminBoardsBoardidBodyReadRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다.
+ */
+export type PutApiAdminBoardsBoardidBodyWriteRole = typeof PutApiAdminBoardsBoardidBodyWriteRole[keyof typeof PutApiAdminBoardsBoardidBodyWriteRole];
+
+
+export const PutApiAdminBoardsBoardidBodyWriteRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+/**
+ * 게시판을 생성하거나 수정할 때 사용하는 요청 본문입니다. active/hidden/readOnly/writeRole/readRole로 사용자 노출과 권한 정책을 제어합니다.
  */
 export type PutApiAdminBoardsBoardidBody = {
+  /** 게시판 활성 여부입니다. false이면 사용자 목록/게시글/공지 사용자 API에서 조회되지 않습니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
+  active?: boolean;
   /**
    * 게시판에 표시할 선택 설명입니다.
    * @minLength 0
    * @maxLength 500
    */
   description?: string;
+  /** 사용자 목록에서 숨길지 여부입니다. true이면 사용자 API에서 게시판과 게시글/공지 접근이 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  hidden?: boolean;
   /**
    * 사용자에게 노출되는 게시판명입니다.
    * @minLength 0
    * @maxLength 150
    */
   name?: string;
+  /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
+  readOnly?: boolean;
+  /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
+  readRole?: PutApiAdminBoardsBoardidBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다.
+   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
    * @minLength 0
    * @maxLength 150
    */
   slug?: string;
+  /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
+  writeRole?: PutApiAdminBoardsBoardidBodyWriteRole;
+};
+
+/**
+ * 관리자가 게시글을 삭제할 때 사용하는 요청 본문입니다. 삭제 사유는 감사 정보로 게시글에 함께 기록됩니다.
+ */
+export type PostApiAdminBoardsBoardidPostsPostidDeleteBody = {
+  /**
+   * 관리자 삭제 사유입니다. 공백일 수 없고 최대 500자까지 입력할 수 있습니다.
+   * @minLength 0
+   * @maxLength 500
+   */
+  deleteReason?: string;
 };
 
 export type GetApiAdminBottlesParams = {
@@ -5386,6 +5906,11 @@ export type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem = {
 export type PostApiAdminBottlesReservationsNoticesBody = {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -5421,6 +5946,11 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem
 export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   availableQuantity?: number;
   bottleId: number;
+  /**
+   * @minLength 0
+   * @maxLength 5000
+   */
+  description?: string;
   /** @minItems 1 */
   gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
@@ -6023,10 +6553,6 @@ size?: number;
  */
 sort?: string[];
 /**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersOrderType;
-/**
  * 주문 상태
  */
 orderStatus?: GetApiAdminOrdersOrderStatus;
@@ -6034,6 +6560,14 @@ orderStatus?: GetApiAdminOrdersOrderStatus;
  * 상품 유형
  */
 productType?: GetApiAdminOrdersProductType;
+/**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersSaleTiming;
 /**
  * 판매 공고 ID
  */
@@ -6087,15 +6621,6 @@ createdFrom?: string;
  */
 createdTo?: string;
 };
-
-export type GetApiAdminOrdersOrderType = typeof GetApiAdminOrdersOrderType[keyof typeof GetApiAdminOrdersOrderType];
-
-
-export const GetApiAdminOrdersOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
 
 export type GetApiAdminOrdersOrderStatus = typeof GetApiAdminOrdersOrderStatus[keyof typeof GetApiAdminOrdersOrderStatus];
 
@@ -6122,11 +6647,23 @@ export const GetApiAdminOrdersProductType = {
   ITEM: 'ITEM',
 } as const;
 
+export type GetApiAdminOrdersFulfillmentMethod = typeof GetApiAdminOrdersFulfillmentMethod[keyof typeof GetApiAdminOrdersFulfillmentMethod];
+
+
+export const GetApiAdminOrdersFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersSaleTiming = typeof GetApiAdminOrdersSaleTiming[keyof typeof GetApiAdminOrdersSaleTiming];
+
+
+export const GetApiAdminOrdersSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
 export type GetApiAdminOrdersDeliveryExportParams = {
-/**
- * 주문 유형
- */
-orderType?: GetApiAdminOrdersDeliveryExportOrderType;
 /**
  * 주문 상태
  */
@@ -6135,6 +6672,14 @@ orderStatus?: GetApiAdminOrdersDeliveryExportOrderStatus;
  * 상품 유형
  */
 productType?: GetApiAdminOrdersDeliveryExportProductType;
+/**
+ * 상품 전달 방식
+ */
+fulfillmentMethod?: GetApiAdminOrdersDeliveryExportFulfillmentMethod;
+/**
+ * 판매/배송 시기
+ */
+saleTiming?: GetApiAdminOrdersDeliveryExportSaleTiming;
 /**
  * 판매 공고 ID
  */
@@ -6189,15 +6734,6 @@ createdFrom?: string;
 createdTo?: string;
 };
 
-export type GetApiAdminOrdersDeliveryExportOrderType = typeof GetApiAdminOrdersDeliveryExportOrderType[keyof typeof GetApiAdminOrdersDeliveryExportOrderType];
-
-
-export const GetApiAdminOrdersDeliveryExportOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
 export type GetApiAdminOrdersDeliveryExportOrderStatus = typeof GetApiAdminOrdersDeliveryExportOrderStatus[keyof typeof GetApiAdminOrdersDeliveryExportOrderStatus];
 
 
@@ -6223,6 +6759,22 @@ export const GetApiAdminOrdersDeliveryExportProductType = {
   ITEM: 'ITEM',
 } as const;
 
+export type GetApiAdminOrdersDeliveryExportFulfillmentMethod = typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod[keyof typeof GetApiAdminOrdersDeliveryExportFulfillmentMethod];
+
+
+export const GetApiAdminOrdersDeliveryExportFulfillmentMethod = {
+  DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  PICKUP: 'PICKUP',
+} as const;
+
+export type GetApiAdminOrdersDeliveryExportSaleTiming = typeof GetApiAdminOrdersDeliveryExportSaleTiming[keyof typeof GetApiAdminOrdersDeliveryExportSaleTiming];
+
+
+export const GetApiAdminOrdersDeliveryExportSaleTiming = {
+  IMMEDIATE: 'IMMEDIATE',
+  RESERVATION: 'RESERVATION',
+} as const;
+
 export type PostApiAdminOrdersDeliveryImportParams = {
 dryRun?: boolean;
 };
@@ -6238,6 +6790,39 @@ dryRun?: boolean;
 export type PostApiAdminOrdersDeliveryImportResultCsvBody = {
   file: Blob;
 };
+
+export type PostApiAdminOrdersManualPurchasesImportParams = {
+mode?: PostApiAdminOrdersManualPurchasesImportMode;
+dryRun?: boolean;
+};
+
+export type PostApiAdminOrdersManualPurchasesImportMode = typeof PostApiAdminOrdersManualPurchasesImportMode[keyof typeof PostApiAdminOrdersManualPurchasesImportMode];
+
+
+export const PostApiAdminOrdersManualPurchasesImportMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
+
+export type PostApiAdminOrdersManualPurchasesImportBody = {
+  file: Blob;
+};
+
+export type GetApiAdminOrdersManualPurchasesImportTemplateParams = {
+mode?: GetApiAdminOrdersManualPurchasesImportTemplateMode;
+userId?: number;
+bottleId?: number;
+};
+
+export type GetApiAdminOrdersManualPurchasesImportTemplateMode = typeof GetApiAdminOrdersManualPurchasesImportTemplateMode[keyof typeof GetApiAdminOrdersManualPurchasesImportTemplateMode];
+
+
+export const GetApiAdminOrdersManualPurchasesImportTemplateMode = {
+  ONE_USER_MANY_BOTTLES: 'ONE_USER_MANY_BOTTLES',
+  ONE_BOTTLE_MANY_USERS: 'ONE_BOTTLE_MANY_USERS',
+  MANY_USERS_MANY_BOTTLES: 'MANY_USERS_MANY_BOTTLES',
+} as const;
 
 export type GetApiAdminOrdersUsersUseridParams = {
 /**
@@ -6257,6 +6842,24 @@ sort?: string[];
 };
 
 /**
+ * 관리자 수동 구매내역 생성 요청
+ */
+export type PostApiAdminOrdersUsersUseridManualPurchasesBody = {
+  /** 구매내역으로 추가할 보틀 ID */
+  bottleId: number;
+  /**
+   * 관리자 메모
+   * @minLength 0
+   * @maxLength 500
+   */
+  orderNote?: string;
+  /** 수동 구매 수량 */
+  requestedQuantity: number;
+  /** 수동 구매 단가. 생략하면 보틀 소비자가를 사용하고, 소비자가가 없으면 0으로 처리합니다. */
+  unitPrice?: number;
+};
+
+/**
  * 주문 승인/수량 조정 요청
  */
 export type PatchApiAdminOrdersOrderidApproveBody = {
@@ -6266,7 +6869,7 @@ export type PatchApiAdminOrdersOrderidApproveBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6321,7 +6924,7 @@ export type PatchApiAdminOrdersOrderidDeliveryBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -6376,7 +6979,7 @@ export type PatchApiAdminOrdersOrderidDeliveryCompleteBody = {
 
 /**
  * 주문 배송 정보 수정 요청.
-일반 아이템 배송 주문(orderType=GENERAL, productType=ITEM)에만 사용할 수 있다.
+아이템 직배송 주문(productType=ITEM, fulfillmentMethod=DIRECT_DELIVERY)에 사용할 수 있다.
 배송 정보 수정 API는 상태를 변경하지 않으며, 발송 처리와 배송 완료 처리는 각각 전용 API에서 수행한다.
 
  */
@@ -7310,6 +7913,10 @@ size?: number;
 sort?: string[];
 };
 
+export type PostApiBoardsUploadsBody = {
+  file: Blob;
+};
+
 export type GetApiBoardsBoardidAnnouncementsParams = {
 /**
  * Zero-based page index (0..N)
@@ -7359,16 +7966,18 @@ export const GetApiBoardsBoardidPostsSearchType = {
 } as const;
 
 /**
- * 게시글을 작성할 때 사용하는 요청 본문입니다.
+ * 게시글을 작성할 때 사용하는 요청 본문입니다. 읽기 전용 게시판이나 작성 권한이 부족한 게시판에는 작성할 수 없습니다.
  */
 export type PostApiBoardsBoardidPostsBody = {
   /**
-   * 게시글 본문 내용입니다.
+   * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
+  hasImage?: boolean;
   /**
-   * 게시글 제목입니다.
+   * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
    */
@@ -7376,17 +7985,43 @@ export type PostApiBoardsBoardidPostsBody = {
 };
 
 /**
- * 기존 게시글을 수정할 때 사용하는 요청 본문입니다.
+ * 기존 게시글을 수정할 때 사용하는 요청 본문입니다. 제목과 본문 중 하나 이상을 보내야 하며, 읽기 전용 게시판에서는 수정할 수 없습니다.
  */
 export type PutApiBoardsBoardidPostsPostidBody = {
-  /** 수정할 게시글 본문입니다. */
+  /** 수정할 게시글 본문입니다. null이면 본문을 수정하지 않고, 공백만 보내면 오류입니다. */
   content?: string;
+  /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
+  hasImage?: boolean;
   /**
-   * 수정할 게시글 제목입니다.
+   * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
    */
   title?: string;
+};
+
+/**
+ * 게시글 댓글을 작성할 때 사용하는 요청 본문입니다.
+ */
+export type PostApiBoardsBoardidPostsPostidCommentsBody = {
+  /**
+   * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
+  /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
+  parentCommentId?: number;
+};
+
+/**
+ * 게시글 댓글을 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiBoardsBoardidPostsPostidCommentsCommentidBody = {
+  /**
+   * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
+   * @minLength 1
+   */
+  content?: string;
 };
 
 export type GetApiBottlesParams = {
@@ -7731,18 +8366,6 @@ userId?: number;
 };
 
 /**
- * 판매 유형
- */
-export type PostApiOrdersBodyOrderType = typeof PostApiOrdersBodyOrderType[keyof typeof PostApiOrdersBodyOrderType];
-
-
-export const PostApiOrdersBodyOrderType = {
-  RESERVATION: 'RESERVATION',
-  PICKUP: 'PICKUP',
-  GENERAL: 'GENERAL',
-} as const;
-
-/**
  * 판매 상품 유형
  */
 export type PostApiOrdersBodyProductType = typeof PostApiOrdersBodyProductType[keyof typeof PostApiOrdersBodyProductType];
@@ -7787,8 +8410,6 @@ export type PostApiOrdersBody = {
    * @maxLength 500
    */
   orderNote?: string;
-  /** 판매 유형 */
-  orderType?: PostApiOrdersBodyOrderType;
   /** 판매 상품 ID */
   productId?: number;
   /** 판매 상품 유형 */
@@ -8814,7 +9435,7 @@ export type getApiAdminBannersResponse200 = {
   data: PagedModelAdminBannerResponse
   status: 200
 }
-    
+
 export type getApiAdminBannersResponseSuccess = (getApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -8826,7 +9447,7 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -8838,13 +9459,13 @@ export const getGetApiAdminBannersUrl = (params?: GetApiAdminBannersParams,) => 
 }
 
 export const getApiAdminBanners = async (params?: GetApiAdminBannersParams, options?: RequestInit): Promise<getApiAdminBannersResponse> => {
-  
+
   return customFetch<getApiAdminBannersResponse>(getGetApiAdminBannersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -8858,7 +9479,7 @@ export type postApiAdminBannersResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type postApiAdminBannersResponseSuccess = (postApiAdminBannersResponse200) & {
   headers: Headers;
 };
@@ -8870,7 +9491,7 @@ export const getPostApiAdminBannersUrl = (params: PostApiAdminBannersParams,) =>
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -8890,11 +9511,11 @@ if(postApiAdminBannersBody.mainImg !== undefined) {
  }
 
   return customFetch<postApiAdminBannersResponse>(getPostApiAdminBannersUrl(params),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -8909,7 +9530,7 @@ export type patchApiAdminBannersOrdersResponse200 = {
   data: AdminBannerResponse[]
   status: 200
 }
-    
+
 export type patchApiAdminBannersOrdersResponseSuccess = (patchApiAdminBannersOrdersResponse200) & {
   headers: Headers;
 };
@@ -8920,15 +9541,15 @@ export type patchApiAdminBannersOrdersResponse = (patchApiAdminBannersOrdersResp
 export const getPatchApiAdminBannersOrdersUrl = () => {
 
 
-  
+
 
   return `/api/admin/banners/orders`
 }
 
 export const patchApiAdminBannersOrders = async (patchApiAdminBannersOrdersBody: PatchApiAdminBannersOrdersBody, options?: RequestInit): Promise<patchApiAdminBannersOrdersResponse> => {
-  
+
   return customFetch<patchApiAdminBannersOrdersResponse>(getPatchApiAdminBannersOrdersUrl(),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -8947,7 +9568,7 @@ export type deleteApiAdminBannersIdResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiAdminBannersIdResponseSuccess = (deleteApiAdminBannersIdResponse200) & {
   headers: Headers;
 };
@@ -8958,19 +9579,19 @@ export type deleteApiAdminBannersIdResponse = (deleteApiAdminBannersIdResponseSu
 export const getDeleteApiAdminBannersIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/banners/${id}`
 }
 
 export const deleteApiAdminBannersId = async (id: number, options?: RequestInit): Promise<deleteApiAdminBannersIdResponse> => {
-  
+
   return customFetch<deleteApiAdminBannersIdResponse>(getDeleteApiAdminBannersIdUrl(id),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -8984,7 +9605,7 @@ export type getApiAdminBannersIdResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type getApiAdminBannersIdResponseSuccess = (getApiAdminBannersIdResponse200) & {
   headers: Headers;
 };
@@ -8995,19 +9616,19 @@ export type getApiAdminBannersIdResponse = (getApiAdminBannersIdResponseSuccess)
 export const getGetApiAdminBannersIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/banners/${id}`
 }
 
 export const getApiAdminBannersId = async (id: number, options?: RequestInit): Promise<getApiAdminBannersIdResponse> => {
-  
+
   return customFetch<getApiAdminBannersIdResponse>(getGetApiAdminBannersIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9021,7 +9642,7 @@ export type patchApiAdminBannersIdResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type patchApiAdminBannersIdResponseSuccess = (patchApiAdminBannersIdResponse200) & {
   headers: Headers;
 };
@@ -9034,7 +9655,7 @@ export const getPatchApiAdminBannersIdUrl = (id: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9057,11 +9678,11 @@ if(patchApiAdminBannersIdBody.mainImg !== undefined) {
  }
 
   return customFetch<patchApiAdminBannersIdResponse>(getPatchApiAdminBannersIdUrl(id,params),
-  {      
+  {
     ...options,
     method: 'PATCH'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -9076,7 +9697,7 @@ export type patchApiAdminBannersIdPublishResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type patchApiAdminBannersIdPublishResponseSuccess = (patchApiAdminBannersIdPublishResponse200) & {
   headers: Headers;
 };
@@ -9087,19 +9708,19 @@ export type patchApiAdminBannersIdPublishResponse = (patchApiAdminBannersIdPubli
 export const getPatchApiAdminBannersIdPublishUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/banners/${id}/publish`
 }
 
 export const patchApiAdminBannersIdPublish = async (id: number, options?: RequestInit): Promise<patchApiAdminBannersIdPublishResponse> => {
-  
+
   return customFetch<patchApiAdminBannersIdPublishResponse>(getPatchApiAdminBannersIdPublishUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH'
-    
-    
+
+
   }
 );}
 
@@ -9113,7 +9734,7 @@ export type patchApiAdminBannersIdUnpublishResponse200 = {
   data: AdminBannerResponse
   status: 200
 }
-    
+
 export type patchApiAdminBannersIdUnpublishResponseSuccess = (patchApiAdminBannersIdUnpublishResponse200) & {
   headers: Headers;
 };
@@ -9124,33 +9745,33 @@ export type patchApiAdminBannersIdUnpublishResponse = (patchApiAdminBannersIdUnp
 export const getPatchApiAdminBannersIdUnpublishUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/banners/${id}/unpublish`
 }
 
 export const patchApiAdminBannersIdUnpublish = async (id: number, options?: RequestInit): Promise<patchApiAdminBannersIdUnpublishResponse> => {
-  
+
   return customFetch<patchApiAdminBannersIdUnpublishResponse>(getPatchApiAdminBannersIdUnpublishUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 관리자가 게시판 목록을 조회합니다.
+ * 관리자가 활성/숨김/읽기 전용/작성 권한 정책을 포함한 게시판 목록을 조회합니다.
  * @summary 게시판 목록 조회(관리자)
  */
 export type getApiAdminBoardsResponse200 = {
   data: PagedModelAdminBoardResponse
   status: 200
 }
-    
+
 export type getApiAdminBoardsResponseSuccess = (getApiAdminBoardsResponse200) & {
   headers: Headers;
 };
@@ -9162,7 +9783,7 @@ export const getGetApiAdminBoardsUrl = (params?: GetApiAdminBoardsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9174,27 +9795,27 @@ export const getGetApiAdminBoardsUrl = (params?: GetApiAdminBoardsParams,) => {
 }
 
 export const getApiAdminBoards = async (params?: GetApiAdminBoardsParams, options?: RequestInit): Promise<getApiAdminBoardsResponse> => {
-  
+
   return customFetch<getApiAdminBoardsResponse>(getGetApiAdminBoardsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 게시글과 공지사항을 담을 새 게시판을 생성합니다.
+ * 게시글과 공지사항을 담을 새 게시판을 생성합니다. active, hidden, readOnly, writeRole로 사용자 노출과 작성 가능 역할을 설정할 수 있습니다.
  * @summary 게시판 생성(관리자)
  */
 export type postApiAdminBoardsResponse200 = {
   data: AdminBoardResponse
   status: 200
 }
-    
+
 export type postApiAdminBoardsResponseSuccess = (postApiAdminBoardsResponse200) & {
   headers: Headers;
 };
@@ -9205,15 +9826,15 @@ export type postApiAdminBoardsResponse = (postApiAdminBoardsResponseSuccess)
 export const getPostApiAdminBoardsUrl = () => {
 
 
-  
+
 
   return `/api/admin/boards`
 }
 
 export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoardsBody, options?: RequestInit): Promise<postApiAdminBoardsResponse> => {
-  
+
   return customFetch<postApiAdminBoardsResponse>(getPostApiAdminBoardsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9225,14 +9846,14 @@ export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoa
 
 
 /**
- * 관리자가 공지 목록을 조회합니다.
+ * 관리자가 전체/게시판 공지를 노출 여부, 고정 여부, 예약 게시, 만료 일시, 우선순위 정책과 함께 조회합니다.
  * @summary 공지 목록 조회(관리자)
  */
 export type getApiAdminBoardsAnnouncementsResponse200 = {
   data: PagedModelAdminAnnouncementSummaryResponse
   status: 200
 }
-    
+
 export type getApiAdminBoardsAnnouncementsResponseSuccess = (getApiAdminBoardsAnnouncementsResponse200) & {
   headers: Headers;
 };
@@ -9244,7 +9865,7 @@ export const getGetApiAdminBoardsAnnouncementsUrl = (params?: GetApiAdminBoardsA
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9256,27 +9877,27 @@ export const getGetApiAdminBoardsAnnouncementsUrl = (params?: GetApiAdminBoardsA
 }
 
 export const getApiAdminBoardsAnnouncements = async (params?: GetApiAdminBoardsAnnouncementsParams, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsResponse> => {
-  
+
   return customFetch<getApiAdminBoardsAnnouncementsResponse>(getGetApiAdminBoardsAnnouncementsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다.
+ * 전체 또는 특정 게시판에 노출될 공지사항을 등록합니다. visible, pinned, publishedAt, expiredAt, priority로 노출/고정/예약/만료/정렬 정책을 설정합니다.
  * @summary 공지 등록(관리자)
  */
 export type postApiAdminBoardsAnnouncementsResponse200 = {
   data: AdminAnnouncementResponse
   status: 200
 }
-    
+
 export type postApiAdminBoardsAnnouncementsResponseSuccess = (postApiAdminBoardsAnnouncementsResponse200) & {
   headers: Headers;
 };
@@ -9287,15 +9908,15 @@ export type postApiAdminBoardsAnnouncementsResponse = (postApiAdminBoardsAnnounc
 export const getPostApiAdminBoardsAnnouncementsUrl = () => {
 
 
-  
+
 
   return `/api/admin/boards/announcements`
 }
 
 export const postApiAdminBoardsAnnouncements = async (postApiAdminBoardsAnnouncementsBody: PostApiAdminBoardsAnnouncementsBody, options?: RequestInit): Promise<postApiAdminBoardsAnnouncementsResponse> => {
-  
+
   return customFetch<postApiAdminBoardsAnnouncementsResponse>(getPostApiAdminBoardsAnnouncementsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9307,14 +9928,14 @@ export const postApiAdminBoardsAnnouncements = async (postApiAdminBoardsAnnounce
 
 
 /**
- * 관리자가 공지를 삭제합니다.
+ * 관리자가 전체 또는 게시판 공지를 삭제합니다.
  * @summary 공지 삭제(관리자)
  */
 export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (deleteApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
   headers: Headers;
 };
@@ -9325,33 +9946,33 @@ export type deleteApiAdminBoardsAnnouncementsAnnouncementidResponse = (deleteApi
 export const getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/announcements/${announcementId}`
 }
 
 export const deleteApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
-  
+
   return customFetch<deleteApiAdminBoardsAnnouncementsAnnouncementidResponse>(getDeleteApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 관리자가 공지 본문을 포함해 상세 조회합니다.
+ * 관리자가 공지 본문과 노출 정책 전체를 조회합니다. 사용자 API와 달리 숨김/예약/만료 상태의 공지도 조회할 수 있습니다.
  * @summary 공지 상세 조회(관리자)
  */
 export type getApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
   data: AdminAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
   headers: Headers;
 };
@@ -9362,33 +9983,33 @@ export type getApiAdminBoardsAnnouncementsAnnouncementidResponse = (getApiAdminB
 export const getGetApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/announcements/${announcementId}`
 }
 
 export const getApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
-  
+
   return customFetch<getApiAdminBoardsAnnouncementsAnnouncementidResponse>(getGetApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 공지 제목, 내용, 범위를 수정합니다.
+ * 공지 제목, 내용, 범위와 노출 정책을 수정합니다. publishedAt/expiredAt을 null로 보내면 예약/만료 일시를 제거합니다.
  * @summary 공지 수정(관리자)
  */
 export type putApiAdminBoardsAnnouncementsAnnouncementidResponse200 = {
   data: AdminAnnouncementResponse
   status: 200
 }
-    
+
 export type putApiAdminBoardsAnnouncementsAnnouncementidResponseSuccess = (putApiAdminBoardsAnnouncementsAnnouncementidResponse200) & {
   headers: Headers;
 };
@@ -9399,16 +10020,16 @@ export type putApiAdminBoardsAnnouncementsAnnouncementidResponse = (putApiAdminB
 export const getPutApiAdminBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/announcements/${announcementId}`
 }
 
 export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementId: number,
     putApiAdminBoardsAnnouncementsAnnouncementidBody: PutApiAdminBoardsAnnouncementsAnnouncementidBody, options?: RequestInit): Promise<putApiAdminBoardsAnnouncementsAnnouncementidResponse> => {
-  
+
   return customFetch<putApiAdminBoardsAnnouncementsAnnouncementidResponse>(getPutApiAdminBoardsAnnouncementsAnnouncementidUrl(announcementId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9420,14 +10041,14 @@ export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementI
 
 
 /**
- * 게시글이나 공지가 없는 게시판을 삭제합니다.
+ * 게시글이나 게시판 공지가 하나도 없는 게시판만 삭제합니다. 삭제된 게시글도 존재 여부 검증에 포함됩니다.
  * @summary 게시판 삭제(관리자)
  */
 export type deleteApiAdminBoardsBoardidResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiAdminBoardsBoardidResponseSuccess = (deleteApiAdminBoardsBoardidResponse200) & {
   headers: Headers;
 };
@@ -9438,33 +10059,33 @@ export type deleteApiAdminBoardsBoardidResponse = (deleteApiAdminBoardsBoardidRe
 export const getDeleteApiAdminBoardsBoardidUrl = (boardId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/${boardId}`
 }
 
 export const deleteApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidResponse> => {
-  
+
   return customFetch<deleteApiAdminBoardsBoardidResponse>(getDeleteApiAdminBoardsBoardidUrl(boardId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 관리자가 게시판 상세 정보를 조회합니다.
+ * 관리자가 게시판 기본 정보와 사용자 노출 상태, 작성 제한 정책을 조회합니다.
  * @summary 게시판 상세 조회(관리자)
  */
 export type getApiAdminBoardsBoardidResponse200 = {
   data: AdminBoardResponse
   status: 200
 }
-    
+
 export type getApiAdminBoardsBoardidResponseSuccess = (getApiAdminBoardsBoardidResponse200) & {
   headers: Headers;
 };
@@ -9475,33 +10096,33 @@ export type getApiAdminBoardsBoardidResponse = (getApiAdminBoardsBoardidResponse
 export const getGetApiAdminBoardsBoardidUrl = (boardId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/${boardId}`
 }
 
 export const getApiAdminBoardsBoardid = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidResponse> => {
-  
+
   return customFetch<getApiAdminBoardsBoardidResponse>(getGetApiAdminBoardsBoardidUrl(boardId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 게시판 이름, 슬러그, 설명을 수정합니다.
+ * 게시판 이름, 슬러그, 설명과 active, hidden, readOnly, writeRole 운영 정책을 수정합니다. 운영 필드를 생략하면 기존 값을 유지합니다.
  * @summary 게시판 수정(관리자)
  */
 export type putApiAdminBoardsBoardidResponse200 = {
   data: AdminBoardResponse
   status: 200
 }
-    
+
 export type putApiAdminBoardsBoardidResponseSuccess = (putApiAdminBoardsBoardidResponse200) & {
   headers: Headers;
 };
@@ -9512,16 +10133,16 @@ export type putApiAdminBoardsBoardidResponse = (putApiAdminBoardsBoardidResponse
 export const getPutApiAdminBoardsBoardidUrl = (boardId: number,) => {
 
 
-  
+
 
   return `/api/admin/boards/${boardId}`
 }
 
 export const putApiAdminBoardsBoardid = async (boardId: number,
     putApiAdminBoardsBoardidBody: PutApiAdminBoardsBoardidBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidResponse> => {
-  
+
   return customFetch<putApiAdminBoardsBoardidResponse>(getPutApiAdminBoardsBoardidUrl(boardId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9533,39 +10154,41 @@ export const putApiAdminBoardsBoardid = async (boardId: number,
 
 
 /**
- * 관리자가 지정한 게시판의 모든 게시글을 삭제합니다.
+ * 관리자가 지정한 게시판의 특정 게시글을 사유와 함께 soft delete 처리합니다. 삭제자 관리자 ID, 삭제 주체, 삭제 사유가 감사 정보로 기록됩니다.
  * @summary 관리자 게시글 삭제
  */
-export type deleteApiAdminBoardsBoardidPostsPostidResponse200 = {
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponse200 = {
   data: boolean
   status: 200
 }
-    
-export type deleteApiAdminBoardsBoardidPostsPostidResponseSuccess = (deleteApiAdminBoardsBoardidPostsPostidResponse200) & {
+
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponseSuccess = (postApiAdminBoardsBoardidPostsPostidDeleteResponse200) & {
   headers: Headers;
 };
 ;
 
-export type deleteApiAdminBoardsBoardidPostsPostidResponse = (deleteApiAdminBoardsBoardidPostsPostidResponseSuccess)
+export type postApiAdminBoardsBoardidPostsPostidDeleteResponse = (postApiAdminBoardsBoardidPostsPostidDeleteResponseSuccess)
 
-export const getDeleteApiAdminBoardsBoardidPostsPostidUrl = (boardId: number,
+export const getPostApiAdminBoardsBoardidPostsPostidDeleteUrl = (boardId: number,
     postId: number,) => {
 
 
-  
 
-  return `/api/admin/boards/${boardId}/posts/${postId}`
+
+  return `/api/admin/boards/${boardId}/posts/${postId}/delete`
 }
 
-export const deleteApiAdminBoardsBoardidPostsPostid = async (boardId: number,
-    postId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidPostsPostidResponse> => {
-  
-  return customFetch<deleteApiAdminBoardsBoardidPostsPostidResponse>(getDeleteApiAdminBoardsBoardidPostsPostidUrl(boardId,postId),
-  {      
+export const postApiAdminBoardsBoardidPostsPostidDelete = async (boardId: number,
+    postId: number,
+    postApiAdminBoardsBoardidPostsPostidDeleteBody: PostApiAdminBoardsBoardidPostsPostidDeleteBody, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostsPostidDeleteResponse> => {
+
+  return customFetch<postApiAdminBoardsBoardidPostsPostidDeleteResponse>(getPostApiAdminBoardsBoardidPostsPostidDeleteUrl(boardId,postId),
+  {
     ...options,
-    method: 'DELETE'
-    
-    
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminBoardsBoardidPostsPostidDeleteBody,)
   }
 );}
 
@@ -9579,7 +10202,7 @@ export type getApiAdminBottlesResponse200 = {
   data: PagedModelBottleAdminResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesResponseSuccess = (getApiAdminBottlesResponse200) & {
   headers: Headers;
 };
@@ -9591,7 +10214,7 @@ export const getGetApiAdminBottlesUrl = (params?: GetApiAdminBottlesParams,) => 
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9603,13 +10226,13 @@ export const getGetApiAdminBottlesUrl = (params?: GetApiAdminBottlesParams,) => 
 }
 
 export const getApiAdminBottles = async (params?: GetApiAdminBottlesParams, options?: RequestInit): Promise<getApiAdminBottlesResponse> => {
-  
+
   return customFetch<getApiAdminBottlesResponse>(getGetApiAdminBottlesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9623,7 +10246,7 @@ export type postApiAdminBottlesResponse200 = {
   data: BottleAdminResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesResponseSuccess = (postApiAdminBottlesResponse200) & {
   headers: Headers;
 };
@@ -9634,15 +10257,15 @@ export type postApiAdminBottlesResponse = (postApiAdminBottlesResponseSuccess)
 export const getPostApiAdminBottlesUrl = () => {
 
 
-  
+
 
   return `/api/admin/bottles`
 }
 
 export const postApiAdminBottles = async (postApiAdminBottlesBody: PostApiAdminBottlesBody, options?: RequestInit): Promise<postApiAdminBottlesResponse> => {
-  
+
   return customFetch<postApiAdminBottlesResponse>(getPostApiAdminBottlesUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9661,7 +10284,7 @@ export type getApiAdminBottlesParametersResponse200 = {
   data: BottleAdminParameterValues
   status: 200
 }
-    
+
 export type getApiAdminBottlesParametersResponseSuccess = (getApiAdminBottlesParametersResponse200) & {
   headers: Headers;
 };
@@ -9672,19 +10295,19 @@ export type getApiAdminBottlesParametersResponse = (getApiAdminBottlesParameters
 export const getGetApiAdminBottlesParametersUrl = () => {
 
 
-  
+
 
   return `/api/admin/bottles/parameters`
 }
 
 export const getApiAdminBottlesParameters = async ( options?: RequestInit): Promise<getApiAdminBottlesParametersResponse> => {
-  
+
   return customFetch<getApiAdminBottlesParametersResponse>(getGetApiAdminBottlesParametersUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9698,7 +10321,7 @@ export type getApiAdminBottlesReferenceValuesResponse200 = {
   data: BottleAdminReferenceValues
   status: 200
 }
-    
+
 export type getApiAdminBottlesReferenceValuesResponseSuccess = (getApiAdminBottlesReferenceValuesResponse200) & {
   headers: Headers;
 };
@@ -9709,19 +10332,19 @@ export type getApiAdminBottlesReferenceValuesResponse = (getApiAdminBottlesRefer
 export const getGetApiAdminBottlesReferenceValuesUrl = () => {
 
 
-  
+
 
   return `/api/admin/bottles/reference-values`
 }
 
 export const getApiAdminBottlesReferenceValues = async ( options?: RequestInit): Promise<getApiAdminBottlesReferenceValuesResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReferenceValuesResponse>(getGetApiAdminBottlesReferenceValuesUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9735,7 +10358,7 @@ export type getApiAdminBottlesReservationsApplicationsResponse200 = {
   data: PagedModelAdminBottleReservationApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsApplicationsResponseSuccess = (getApiAdminBottlesReservationsApplicationsResponse200) & {
   headers: Headers;
 };
@@ -9747,7 +10370,7 @@ export const getGetApiAdminBottlesReservationsApplicationsUrl = (params?: GetApi
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9759,13 +10382,13 @@ export const getGetApiAdminBottlesReservationsApplicationsUrl = (params?: GetApi
 }
 
 export const getApiAdminBottlesReservationsApplications = async (params?: GetApiAdminBottlesReservationsApplicationsParams, options?: RequestInit): Promise<getApiAdminBottlesReservationsApplicationsResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsApplicationsResponse>(getGetApiAdminBottlesReservationsApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9779,7 +10402,7 @@ export type getApiAdminBottlesReservationsApplicationsApplicationidResponse200 =
   data: AdminBottleReservationApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsApplicationsApplicationidResponseSuccess = (getApiAdminBottlesReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -9790,19 +10413,19 @@ export type getApiAdminBottlesReservationsApplicationsApplicationidResponse = (g
 export const getGetApiAdminBottlesReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/applications/${applicationId}`
 }
 
 export const getApiAdminBottlesReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsApplicationsApplicationidResponse>(getGetApiAdminBottlesReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9816,7 +10439,7 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidCancelRespon
   data: AdminBottleReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesReservationsApplicationsApplicationidCancelResponseSuccess = (postApiAdminBottlesReservationsApplicationsApplicationidCancelResponse200) & {
   headers: Headers;
 };
@@ -9827,16 +10450,16 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidCancelRespon
 export const getPostApiAdminBottlesReservationsApplicationsApplicationidCancelUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/applications/${applicationId}/cancel`
 }
 
 export const postApiAdminBottlesReservationsApplicationsApplicationidCancel = async (applicationId: number,
     postApiAdminBottlesReservationsApplicationsApplicationidCancelBody: PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsApplicationsApplicationidCancelResponse> => {
-  
+
   return customFetch<postApiAdminBottlesReservationsApplicationsApplicationidCancelResponse>(getPostApiAdminBottlesReservationsApplicationsApplicationidCancelUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9855,7 +10478,7 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidConfirmRespo
   data: AdminBottleReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesReservationsApplicationsApplicationidConfirmResponseSuccess = (postApiAdminBottlesReservationsApplicationsApplicationidConfirmResponse200) & {
   headers: Headers;
 };
@@ -9866,16 +10489,16 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidConfirmRespo
 export const getPostApiAdminBottlesReservationsApplicationsApplicationidConfirmUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/applications/${applicationId}/confirm`
 }
 
 export const postApiAdminBottlesReservationsApplicationsApplicationidConfirm = async (applicationId: number,
     postApiAdminBottlesReservationsApplicationsApplicationidConfirmBody: PostApiAdminBottlesReservationsApplicationsApplicationidConfirmBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsApplicationsApplicationidConfirmResponse> => {
-  
+
   return customFetch<postApiAdminBottlesReservationsApplicationsApplicationidConfirmResponse>(getPostApiAdminBottlesReservationsApplicationsApplicationidConfirmUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9894,7 +10517,7 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidRejectRespon
   data: AdminBottleReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesReservationsApplicationsApplicationidRejectResponseSuccess = (postApiAdminBottlesReservationsApplicationsApplicationidRejectResponse200) & {
   headers: Headers;
 };
@@ -9905,16 +10528,16 @@ export type postApiAdminBottlesReservationsApplicationsApplicationidRejectRespon
 export const getPostApiAdminBottlesReservationsApplicationsApplicationidRejectUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/applications/${applicationId}/reject`
 }
 
 export const postApiAdminBottlesReservationsApplicationsApplicationidReject = async (applicationId: number,
     postApiAdminBottlesReservationsApplicationsApplicationidRejectBody: PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsApplicationsApplicationidRejectResponse> => {
-  
+
   return customFetch<postApiAdminBottlesReservationsApplicationsApplicationidRejectResponse>(getPostApiAdminBottlesReservationsApplicationsApplicationidRejectUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -9933,7 +10556,7 @@ export type getApiAdminBottlesReservationsNoticesResponse200 = {
   data: PagedModelAdminBottleReservationNoticeResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsNoticesResponseSuccess = (getApiAdminBottlesReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -9945,7 +10568,7 @@ export const getGetApiAdminBottlesReservationsNoticesUrl = (params?: GetApiAdmin
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -9957,13 +10580,13 @@ export const getGetApiAdminBottlesReservationsNoticesUrl = (params?: GetApiAdmin
 }
 
 export const getApiAdminBottlesReservationsNotices = async (params?: GetApiAdminBottlesReservationsNoticesParams, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsNoticesResponse>(getGetApiAdminBottlesReservationsNoticesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -9977,7 +10600,7 @@ export type postApiAdminBottlesReservationsNoticesResponse200 = {
   data: AdminBottleReservationNoticeResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesReservationsNoticesResponseSuccess = (postApiAdminBottlesReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -9988,15 +10611,15 @@ export type postApiAdminBottlesReservationsNoticesResponse = (postApiAdminBottle
 export const getPostApiAdminBottlesReservationsNoticesUrl = () => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices`
 }
 
 export const postApiAdminBottlesReservationsNotices = async (postApiAdminBottlesReservationsNoticesBody: PostApiAdminBottlesReservationsNoticesBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesResponse> => {
-  
+
   return customFetch<postApiAdminBottlesReservationsNoticesResponse>(getPostApiAdminBottlesReservationsNoticesUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10015,7 +10638,7 @@ export type getApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
   data: AdminBottleReservationNoticeResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsNoticesNoticeidResponseSuccess = (getApiAdminBottlesReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -10026,19 +10649,19 @@ export type getApiAdminBottlesReservationsNoticesNoticeidResponse = (getApiAdmin
 export const getGetApiAdminBottlesReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}`
 }
 
 export const getApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsNoticesNoticeidResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10052,7 +10675,7 @@ export type putApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
   data: AdminBottleReservationNoticeResponse
   status: 200
 }
-    
+
 export type putApiAdminBottlesReservationsNoticesNoticeidResponseSuccess = (putApiAdminBottlesReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -10063,16 +10686,16 @@ export type putApiAdminBottlesReservationsNoticesNoticeidResponse = (putApiAdmin
 export const getPutApiAdminBottlesReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}`
 }
 
 export const putApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: number,
     putApiAdminBottlesReservationsNoticesNoticeidBody: PutApiAdminBottlesReservationsNoticesNoticeidBody, options?: RequestInit): Promise<putApiAdminBottlesReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<putApiAdminBottlesReservationsNoticesNoticeidResponse>(getPutApiAdminBottlesReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10091,7 +10714,7 @@ export type postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200
   data: AdminBottleReservationAutoConfirmResponse
   status: 200
 }
-    
+
 export type postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200) & {
   headers: Headers;
 };
@@ -10102,19 +10725,19 @@ export type postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse = 
 export const getPostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}/auto-confirm`
 }
 
 export const postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm = async (noticeId: number, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse> => {
-  
+
   return customFetch<postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10128,7 +10751,7 @@ export type getApiAdminBottlesReservationsNoticesNoticeidExcelResponse200 = {
   data: Blob
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsNoticesNoticeidExcelResponseSuccess = (getApiAdminBottlesReservationsNoticesNoticeidExcelResponse200) & {
   headers: Headers;
 };
@@ -10139,19 +10762,19 @@ export type getApiAdminBottlesReservationsNoticesNoticeidExcelResponse = (getApi
 export const getGetApiAdminBottlesReservationsNoticesNoticeidExcelUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}/excel`
 }
 
 export const getApiAdminBottlesReservationsNoticesNoticeidExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidExcelResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsNoticesNoticeidExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidExcelUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10165,7 +10788,7 @@ export type deleteApiAdminBottlesIdResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiAdminBottlesIdResponseSuccess = (deleteApiAdminBottlesIdResponse200) & {
   headers: Headers;
 };
@@ -10176,19 +10799,19 @@ export type deleteApiAdminBottlesIdResponse = (deleteApiAdminBottlesIdResponseSu
 export const getDeleteApiAdminBottlesIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/${id}`
 }
 
 export const deleteApiAdminBottlesId = async (id: number, options?: RequestInit): Promise<deleteApiAdminBottlesIdResponse> => {
-  
+
   return customFetch<deleteApiAdminBottlesIdResponse>(getDeleteApiAdminBottlesIdUrl(id),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -10202,7 +10825,7 @@ export type getApiAdminBottlesIdResponse200 = {
   data: BottleAdminResponse
   status: 200
 }
-    
+
 export type getApiAdminBottlesIdResponseSuccess = (getApiAdminBottlesIdResponse200) & {
   headers: Headers;
 };
@@ -10213,19 +10836,19 @@ export type getApiAdminBottlesIdResponse = (getApiAdminBottlesIdResponseSuccess)
 export const getGetApiAdminBottlesIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/${id}`
 }
 
 export const getApiAdminBottlesId = async (id: number, options?: RequestInit): Promise<getApiAdminBottlesIdResponse> => {
-  
+
   return customFetch<getApiAdminBottlesIdResponse>(getGetApiAdminBottlesIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10239,7 +10862,7 @@ export type patchApiAdminBottlesIdResponse200 = {
   data: BottleAdminResponse
   status: 200
 }
-    
+
 export type patchApiAdminBottlesIdResponseSuccess = (patchApiAdminBottlesIdResponse200) & {
   headers: Headers;
 };
@@ -10250,16 +10873,16 @@ export type patchApiAdminBottlesIdResponse = (patchApiAdminBottlesIdResponseSucc
 export const getPatchApiAdminBottlesIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/${id}`
 }
 
 export const patchApiAdminBottlesId = async (id: number,
     patchApiAdminBottlesIdBody: PatchApiAdminBottlesIdBody, options?: RequestInit): Promise<patchApiAdminBottlesIdResponse> => {
-  
+
   return customFetch<patchApiAdminBottlesIdResponse>(getPatchApiAdminBottlesIdUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10278,7 +10901,7 @@ export type getApiAdminBusinessesApplicationsResponse200 = {
   data: PagedModelAdminBusinessApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminBusinessesApplicationsResponseSuccess = (getApiAdminBusinessesApplicationsResponse200) & {
   headers: Headers;
 };
@@ -10290,7 +10913,7 @@ export const getGetApiAdminBusinessesApplicationsUrl = (params?: GetApiAdminBusi
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -10302,13 +10925,13 @@ export const getGetApiAdminBusinessesApplicationsUrl = (params?: GetApiAdminBusi
 }
 
 export const getApiAdminBusinessesApplications = async (params?: GetApiAdminBusinessesApplicationsParams, options?: RequestInit): Promise<getApiAdminBusinessesApplicationsResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesApplicationsResponse>(getGetApiAdminBusinessesApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10322,7 +10945,7 @@ export type getApiAdminBusinessesApplicationsApplicationidResponse200 = {
   data: AdminBusinessApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminBusinessesApplicationsApplicationidResponseSuccess = (getApiAdminBusinessesApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -10333,19 +10956,19 @@ export type getApiAdminBusinessesApplicationsApplicationidResponse = (getApiAdmi
 export const getGetApiAdminBusinessesApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/applications/${applicationId}`
 }
 
 export const getApiAdminBusinessesApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiAdminBusinessesApplicationsApplicationidResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesApplicationsApplicationidResponse>(getGetApiAdminBusinessesApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10359,7 +10982,7 @@ export type postApiAdminBusinessesApplicationsApplicationidApproveResponse200 = 
   data: AdminBusinessApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesApplicationsApplicationidApproveResponseSuccess = (postApiAdminBusinessesApplicationsApplicationidApproveResponse200) & {
   headers: Headers;
 };
@@ -10370,19 +10993,19 @@ export type postApiAdminBusinessesApplicationsApplicationidApproveResponse = (po
 export const getPostApiAdminBusinessesApplicationsApplicationidApproveUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/applications/${applicationId}/approve`
 }
 
 export const postApiAdminBusinessesApplicationsApplicationidApprove = async (applicationId: number, options?: RequestInit): Promise<postApiAdminBusinessesApplicationsApplicationidApproveResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesApplicationsApplicationidApproveResponse>(getPostApiAdminBusinessesApplicationsApplicationidApproveUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10396,7 +11019,7 @@ export type getApiAdminBusinessesApplicationsApplicationidAuditLogsResponse200 =
   data: AdminBusinessApplicationAuditLogResponse[]
   status: 200
 }
-    
+
 export type getApiAdminBusinessesApplicationsApplicationidAuditLogsResponseSuccess = (getApiAdminBusinessesApplicationsApplicationidAuditLogsResponse200) & {
   headers: Headers;
 };
@@ -10407,19 +11030,19 @@ export type getApiAdminBusinessesApplicationsApplicationidAuditLogsResponse = (g
 export const getGetApiAdminBusinessesApplicationsApplicationidAuditLogsUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/applications/${applicationId}/audit-logs`
 }
 
 export const getApiAdminBusinessesApplicationsApplicationidAuditLogs = async (applicationId: number, options?: RequestInit): Promise<getApiAdminBusinessesApplicationsApplicationidAuditLogsResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesApplicationsApplicationidAuditLogsResponse>(getGetApiAdminBusinessesApplicationsApplicationidAuditLogsUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10433,7 +11056,7 @@ export type postApiAdminBusinessesApplicationsApplicationidRejectResponse200 = {
   data: AdminBusinessApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesApplicationsApplicationidRejectResponseSuccess = (postApiAdminBusinessesApplicationsApplicationidRejectResponse200) & {
   headers: Headers;
 };
@@ -10444,16 +11067,16 @@ export type postApiAdminBusinessesApplicationsApplicationidRejectResponse = (pos
 export const getPostApiAdminBusinessesApplicationsApplicationidRejectUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/applications/${applicationId}/reject`
 }
 
 export const postApiAdminBusinessesApplicationsApplicationidReject = async (applicationId: number,
     postApiAdminBusinessesApplicationsApplicationidRejectBody: PostApiAdminBusinessesApplicationsApplicationidRejectBody, options?: RequestInit): Promise<postApiAdminBusinessesApplicationsApplicationidRejectResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesApplicationsApplicationidRejectResponse>(getPostApiAdminBusinessesApplicationsApplicationidRejectUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10472,7 +11095,7 @@ export type getApiAdminBusinessesBusinessesBusinessidResponse200 = {
   data: AdminBusinessUserDetailResponse
   status: 200
 }
-    
+
 export type getApiAdminBusinessesBusinessesBusinessidResponseSuccess = (getApiAdminBusinessesBusinessesBusinessidResponse200) & {
   headers: Headers;
 };
@@ -10483,19 +11106,19 @@ export type getApiAdminBusinessesBusinessesBusinessidResponse = (getApiAdminBusi
 export const getGetApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/businesses/${businessId}`
 }
 
 export const getApiAdminBusinessesBusinessesBusinessid = async (businessId: number, options?: RequestInit): Promise<getApiAdminBusinessesBusinessesBusinessidResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesBusinessesBusinessidResponse>(getGetApiAdminBusinessesBusinessesBusinessidUrl(businessId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10509,7 +11132,7 @@ export type patchApiAdminBusinessesBusinessesBusinessidResponse200 = {
   data: AdminBusinessUserDetailResponse
   status: 200
 }
-    
+
 export type patchApiAdminBusinessesBusinessesBusinessidResponseSuccess = (patchApiAdminBusinessesBusinessesBusinessidResponse200) & {
   headers: Headers;
 };
@@ -10520,16 +11143,16 @@ export type patchApiAdminBusinessesBusinessesBusinessidResponse = (patchApiAdmin
 export const getPatchApiAdminBusinessesBusinessesBusinessidUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/businesses/${businessId}`
 }
 
 export const patchApiAdminBusinessesBusinessesBusinessid = async (businessId: number,
     patchApiAdminBusinessesBusinessesBusinessidBody: PatchApiAdminBusinessesBusinessesBusinessidBody, options?: RequestInit): Promise<patchApiAdminBusinessesBusinessesBusinessidResponse> => {
-  
+
   return customFetch<patchApiAdminBusinessesBusinessesBusinessidResponse>(getPatchApiAdminBusinessesBusinessesBusinessidUrl(businessId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10548,7 +11171,7 @@ export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200 
   data: AdminBusinessUserResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200) & {
   headers: Headers;
 };
@@ -10560,20 +11183,20 @@ export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl = (b
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
 
 
-  
+
 
   return `/api/admin/businesses/businesses/${businessId}/roles/${role}/grant`
 }
 
 export const postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant = async (businessId: number,
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleGrantUrl(businessId,role),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10587,7 +11210,7 @@ export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200
   data: AdminBusinessUserResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponseSuccess = (postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200) & {
   headers: Headers;
 };
@@ -10599,20 +11222,20 @@ export const getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl = (
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
 
 
-  
+
 
   return `/api/admin/businesses/businesses/${businessId}/roles/${role}/revoke`
 }
 
 export const postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke = async (businessId: number,
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse>(getPostApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeUrl(businessId,role),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10626,7 +11249,7 @@ export type getApiAdminBusinessesMembersResponse200 = {
   data: PagedModelAdminBusinessUserResponse
   status: 200
 }
-    
+
 export type getApiAdminBusinessesMembersResponseSuccess = (getApiAdminBusinessesMembersResponse200) & {
   headers: Headers;
 };
@@ -10638,7 +11261,7 @@ export const getGetApiAdminBusinessesMembersUrl = (params?: GetApiAdminBusinesse
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -10650,13 +11273,13 @@ export const getGetApiAdminBusinessesMembersUrl = (params?: GetApiAdminBusinesse
 }
 
 export const getApiAdminBusinessesMembers = async (params?: GetApiAdminBusinessesMembersParams, options?: RequestInit): Promise<getApiAdminBusinessesMembersResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesMembersResponse>(getGetApiAdminBusinessesMembersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10670,7 +11293,7 @@ export type getApiAdminBusinessesMembersUseridResponse200 = {
   data: AdminBusinessUserDetailResponse
   status: 200
 }
-    
+
 export type getApiAdminBusinessesMembersUseridResponseSuccess = (getApiAdminBusinessesMembersUseridResponse200) & {
   headers: Headers;
 };
@@ -10681,19 +11304,19 @@ export type getApiAdminBusinessesMembersUseridResponse = (getApiAdminBusinessesM
 export const getGetApiAdminBusinessesMembersUseridUrl = (userId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/members/${userId}`
 }
 
 export const getApiAdminBusinessesMembersUserid = async (userId: number, options?: RequestInit): Promise<getApiAdminBusinessesMembersUseridResponse> => {
-  
+
   return customFetch<getApiAdminBusinessesMembersUseridResponse>(getGetApiAdminBusinessesMembersUseridUrl(userId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10707,7 +11330,7 @@ export type patchApiAdminBusinessesMembersUseridBusinessResponse200 = {
   data: AdminBusinessUserDetailResponse
   status: 200
 }
-    
+
 export type patchApiAdminBusinessesMembersUseridBusinessResponseSuccess = (patchApiAdminBusinessesMembersUseridBusinessResponse200) & {
   headers: Headers;
 };
@@ -10718,16 +11341,16 @@ export type patchApiAdminBusinessesMembersUseridBusinessResponse = (patchApiAdmi
 export const getPatchApiAdminBusinessesMembersUseridBusinessUrl = (userId: number,) => {
 
 
-  
+
 
   return `/api/admin/businesses/members/${userId}/business`
 }
 
 export const patchApiAdminBusinessesMembersUseridBusiness = async (userId: number,
     patchApiAdminBusinessesMembersUseridBusinessBody: PatchApiAdminBusinessesMembersUseridBusinessBody, options?: RequestInit): Promise<patchApiAdminBusinessesMembersUseridBusinessResponse> => {
-  
+
   return customFetch<patchApiAdminBusinessesMembersUseridBusinessResponse>(getPatchApiAdminBusinessesMembersUseridBusinessUrl(userId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10746,7 +11369,7 @@ export type postApiAdminBusinessesMembersUseridRolesRoleGrantResponse200 = {
   data: AdminBusinessUserResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesMembersUseridRolesRoleGrantResponseSuccess = (postApiAdminBusinessesMembersUseridRolesRoleGrantResponse200) & {
   headers: Headers;
 };
@@ -10758,20 +11381,20 @@ export const getPostApiAdminBusinessesMembersUseridRolesRoleGrantUrl = (userId: 
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
 
 
-  
+
 
   return `/api/admin/businesses/members/${userId}/roles/${role}/grant`
 }
 
 export const postApiAdminBusinessesMembersUseridRolesRoleGrant = async (userId: number,
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesMembersUseridRolesRoleGrantResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesMembersUseridRolesRoleGrantResponse>(getPostApiAdminBusinessesMembersUseridRolesRoleGrantUrl(userId,role),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10785,7 +11408,7 @@ export type postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse200 = {
   data: AdminBusinessUserResponse
   status: 200
 }
-    
+
 export type postApiAdminBusinessesMembersUseridRolesRoleRevokeResponseSuccess = (postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse200) & {
   headers: Headers;
 };
@@ -10797,20 +11420,20 @@ export const getPostApiAdminBusinessesMembersUseridRolesRoleRevokeUrl = (userId:
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS',) => {
 
 
-  
+
 
   return `/api/admin/businesses/members/${userId}/roles/${role}/revoke`
 }
 
 export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId: number,
     role: 'ROLE_GUEST' | 'ROLE_USER' | 'ROLE_ADMIN' | 'ROLE_SUPER_ADMIN' | 'ROLE_CONSUMER' | 'ROLE_WHISKYNAVI_MEMBER' | 'ROLE_WHISKYTALES_MEMBER' | 'ROLE_BLIND_MEMBER' | 'ROLE_BUSINESS' | 'ROLE_TRAILNTALE_BUSINESS' | 'ROLE_COMMUNITY_BUSINESS' | 'ROLE_PICK_UP_BUSINESS', options?: RequestInit): Promise<postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse> => {
-  
+
   return customFetch<postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse>(getPostApiAdminBusinessesMembersUseridRolesRoleRevokeUrl(userId,role),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -10823,7 +11446,7 @@ export type getApiAdminItemsResponse200 = {
   data: PagedModelItemAdminResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsResponseSuccess = (getApiAdminItemsResponse200) & {
   headers: Headers;
 };
@@ -10835,7 +11458,7 @@ export const getGetApiAdminItemsUrl = (params?: GetApiAdminItemsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -10847,13 +11470,13 @@ export const getGetApiAdminItemsUrl = (params?: GetApiAdminItemsParams,) => {
 }
 
 export const getApiAdminItems = async (params?: GetApiAdminItemsParams, options?: RequestInit): Promise<getApiAdminItemsResponse> => {
-  
+
   return customFetch<getApiAdminItemsResponse>(getGetApiAdminItemsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10866,7 +11489,7 @@ export type postApiAdminItemsResponse200 = {
   data: ItemAdminResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsResponseSuccess = (postApiAdminItemsResponse200) & {
   headers: Headers;
 };
@@ -10877,15 +11500,15 @@ export type postApiAdminItemsResponse = (postApiAdminItemsResponseSuccess)
 export const getPostApiAdminItemsUrl = () => {
 
 
-  
+
 
   return `/api/admin/items`
 }
 
 export const postApiAdminItems = async (postApiAdminItemsBody: PostApiAdminItemsBody, options?: RequestInit): Promise<postApiAdminItemsResponse> => {
-  
+
   return customFetch<postApiAdminItemsResponse>(getPostApiAdminItemsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -10904,7 +11527,7 @@ export type getApiAdminItemsReservationsApplicationsResponse200 = {
   data: PagedModelAdminItemReservationApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsReservationsApplicationsResponseSuccess = (getApiAdminItemsReservationsApplicationsResponse200) & {
   headers: Headers;
 };
@@ -10916,7 +11539,7 @@ export const getGetApiAdminItemsReservationsApplicationsUrl = (params?: GetApiAd
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -10928,13 +11551,13 @@ export const getGetApiAdminItemsReservationsApplicationsUrl = (params?: GetApiAd
 }
 
 export const getApiAdminItemsReservationsApplications = async (params?: GetApiAdminItemsReservationsApplicationsParams, options?: RequestInit): Promise<getApiAdminItemsReservationsApplicationsResponse> => {
-  
+
   return customFetch<getApiAdminItemsReservationsApplicationsResponse>(getGetApiAdminItemsReservationsApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10948,7 +11571,7 @@ export type getApiAdminItemsReservationsApplicationsApplicationidResponse200 = {
   data: AdminItemReservationApplicationResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsReservationsApplicationsApplicationidResponseSuccess = (getApiAdminItemsReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -10959,19 +11582,19 @@ export type getApiAdminItemsReservationsApplicationsApplicationidResponse = (get
 export const getGetApiAdminItemsReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/applications/${applicationId}`
 }
 
 export const getApiAdminItemsReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiAdminItemsReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<getApiAdminItemsReservationsApplicationsApplicationidResponse>(getGetApiAdminItemsReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -10985,7 +11608,7 @@ export type postApiAdminItemsReservationsApplicationsApplicationidCancelResponse
   data: AdminItemReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsReservationsApplicationsApplicationidCancelResponseSuccess = (postApiAdminItemsReservationsApplicationsApplicationidCancelResponse200) & {
   headers: Headers;
 };
@@ -10996,16 +11619,16 @@ export type postApiAdminItemsReservationsApplicationsApplicationidCancelResponse
 export const getPostApiAdminItemsReservationsApplicationsApplicationidCancelUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/applications/${applicationId}/cancel`
 }
 
 export const postApiAdminItemsReservationsApplicationsApplicationidCancel = async (applicationId: number,
     postApiAdminItemsReservationsApplicationsApplicationidCancelBody: PostApiAdminItemsReservationsApplicationsApplicationidCancelBody, options?: RequestInit): Promise<postApiAdminItemsReservationsApplicationsApplicationidCancelResponse> => {
-  
+
   return customFetch<postApiAdminItemsReservationsApplicationsApplicationidCancelResponse>(getPostApiAdminItemsReservationsApplicationsApplicationidCancelUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11024,7 +11647,7 @@ export type postApiAdminItemsReservationsApplicationsApplicationidConfirmRespons
   data: AdminItemReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsReservationsApplicationsApplicationidConfirmResponseSuccess = (postApiAdminItemsReservationsApplicationsApplicationidConfirmResponse200) & {
   headers: Headers;
 };
@@ -11035,16 +11658,16 @@ export type postApiAdminItemsReservationsApplicationsApplicationidConfirmRespons
 export const getPostApiAdminItemsReservationsApplicationsApplicationidConfirmUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/applications/${applicationId}/confirm`
 }
 
 export const postApiAdminItemsReservationsApplicationsApplicationidConfirm = async (applicationId: number,
     postApiAdminItemsReservationsApplicationsApplicationidConfirmBody: PostApiAdminItemsReservationsApplicationsApplicationidConfirmBody, options?: RequestInit): Promise<postApiAdminItemsReservationsApplicationsApplicationidConfirmResponse> => {
-  
+
   return customFetch<postApiAdminItemsReservationsApplicationsApplicationidConfirmResponse>(getPostApiAdminItemsReservationsApplicationsApplicationidConfirmUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11063,7 +11686,7 @@ export type postApiAdminItemsReservationsApplicationsApplicationidRejectResponse
   data: AdminItemReservationApplicationResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsReservationsApplicationsApplicationidRejectResponseSuccess = (postApiAdminItemsReservationsApplicationsApplicationidRejectResponse200) & {
   headers: Headers;
 };
@@ -11074,16 +11697,16 @@ export type postApiAdminItemsReservationsApplicationsApplicationidRejectResponse
 export const getPostApiAdminItemsReservationsApplicationsApplicationidRejectUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/applications/${applicationId}/reject`
 }
 
 export const postApiAdminItemsReservationsApplicationsApplicationidReject = async (applicationId: number,
     postApiAdminItemsReservationsApplicationsApplicationidRejectBody: PostApiAdminItemsReservationsApplicationsApplicationidRejectBody, options?: RequestInit): Promise<postApiAdminItemsReservationsApplicationsApplicationidRejectResponse> => {
-  
+
   return customFetch<postApiAdminItemsReservationsApplicationsApplicationidRejectResponse>(getPostApiAdminItemsReservationsApplicationsApplicationidRejectUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11102,7 +11725,7 @@ export type getApiAdminItemsReservationsNoticesResponse200 = {
   data: PagedModelAdminItemReservationNoticeResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsReservationsNoticesResponseSuccess = (getApiAdminItemsReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -11114,7 +11737,7 @@ export const getGetApiAdminItemsReservationsNoticesUrl = (params?: GetApiAdminIt
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11126,13 +11749,13 @@ export const getGetApiAdminItemsReservationsNoticesUrl = (params?: GetApiAdminIt
 }
 
 export const getApiAdminItemsReservationsNotices = async (params?: GetApiAdminItemsReservationsNoticesParams, options?: RequestInit): Promise<getApiAdminItemsReservationsNoticesResponse> => {
-  
+
   return customFetch<getApiAdminItemsReservationsNoticesResponse>(getGetApiAdminItemsReservationsNoticesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11146,7 +11769,7 @@ export type postApiAdminItemsReservationsNoticesResponse200 = {
   data: AdminItemReservationNoticeResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsReservationsNoticesResponseSuccess = (postApiAdminItemsReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -11157,15 +11780,15 @@ export type postApiAdminItemsReservationsNoticesResponse = (postApiAdminItemsRes
 export const getPostApiAdminItemsReservationsNoticesUrl = () => {
 
 
-  
+
 
   return `/api/admin/items/reservations/notices`
 }
 
 export const postApiAdminItemsReservationsNotices = async (postApiAdminItemsReservationsNoticesBody: PostApiAdminItemsReservationsNoticesBody, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesResponse> => {
-  
+
   return customFetch<postApiAdminItemsReservationsNoticesResponse>(getPostApiAdminItemsReservationsNoticesUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11184,7 +11807,7 @@ export type getApiAdminItemsReservationsNoticesNoticeidResponse200 = {
   data: AdminItemReservationNoticeResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsReservationsNoticesNoticeidResponseSuccess = (getApiAdminItemsReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -11195,19 +11818,19 @@ export type getApiAdminItemsReservationsNoticesNoticeidResponse = (getApiAdminIt
 export const getGetApiAdminItemsReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/notices/${noticeId}`
 }
 
 export const getApiAdminItemsReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiAdminItemsReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<getApiAdminItemsReservationsNoticesNoticeidResponse>(getGetApiAdminItemsReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11221,7 +11844,7 @@ export type putApiAdminItemsReservationsNoticesNoticeidResponse200 = {
   data: AdminItemReservationNoticeResponse
   status: 200
 }
-    
+
 export type putApiAdminItemsReservationsNoticesNoticeidResponseSuccess = (putApiAdminItemsReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -11232,16 +11855,16 @@ export type putApiAdminItemsReservationsNoticesNoticeidResponse = (putApiAdminIt
 export const getPutApiAdminItemsReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/notices/${noticeId}`
 }
 
 export const putApiAdminItemsReservationsNoticesNoticeid = async (noticeId: number,
     putApiAdminItemsReservationsNoticesNoticeidBody: PutApiAdminItemsReservationsNoticesNoticeidBody, options?: RequestInit): Promise<putApiAdminItemsReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<putApiAdminItemsReservationsNoticesNoticeidResponse>(getPutApiAdminItemsReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11260,7 +11883,7 @@ export type postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse200 =
   data: AdminItemReservationAutoConfirmResponse
   status: 200
 }
-    
+
 export type postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponseSuccess = (postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse200) & {
   headers: Headers;
 };
@@ -11271,19 +11894,19 @@ export type postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse = (p
 export const getPostApiAdminItemsReservationsNoticesNoticeidAutoConfirmUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/notices/${noticeId}/auto-confirm`
 }
 
 export const postApiAdminItemsReservationsNoticesNoticeidAutoConfirm = async (noticeId: number, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse> => {
-  
+
   return customFetch<postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiAdminItemsReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -11297,7 +11920,7 @@ export type getApiAdminItemsReservationsNoticesNoticeidExcelResponse200 = {
   data: Blob
   status: 200
 }
-    
+
 export type getApiAdminItemsReservationsNoticesNoticeidExcelResponseSuccess = (getApiAdminItemsReservationsNoticesNoticeidExcelResponse200) & {
   headers: Headers;
 };
@@ -11308,19 +11931,19 @@ export type getApiAdminItemsReservationsNoticesNoticeidExcelResponse = (getApiAd
 export const getGetApiAdminItemsReservationsNoticesNoticeidExcelUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/items/reservations/notices/${noticeId}/excel`
 }
 
 export const getApiAdminItemsReservationsNoticesNoticeidExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminItemsReservationsNoticesNoticeidExcelResponse> => {
-  
+
   return customFetch<getApiAdminItemsReservationsNoticesNoticeidExcelResponse>(getGetApiAdminItemsReservationsNoticesNoticeidExcelUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11333,7 +11956,7 @@ export type deleteApiAdminItemsIdResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiAdminItemsIdResponseSuccess = (deleteApiAdminItemsIdResponse200) & {
   headers: Headers;
 };
@@ -11344,19 +11967,19 @@ export type deleteApiAdminItemsIdResponse = (deleteApiAdminItemsIdResponseSucces
 export const getDeleteApiAdminItemsIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/items/${id}`
 }
 
 export const deleteApiAdminItemsId = async (id: number, options?: RequestInit): Promise<deleteApiAdminItemsIdResponse> => {
-  
+
   return customFetch<deleteApiAdminItemsIdResponse>(getDeleteApiAdminItemsIdUrl(id),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -11369,7 +11992,7 @@ export type getApiAdminItemsIdResponse200 = {
   data: ItemAdminResponse
   status: 200
 }
-    
+
 export type getApiAdminItemsIdResponseSuccess = (getApiAdminItemsIdResponse200) & {
   headers: Headers;
 };
@@ -11380,19 +12003,19 @@ export type getApiAdminItemsIdResponse = (getApiAdminItemsIdResponseSuccess)
 export const getGetApiAdminItemsIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/items/${id}`
 }
 
 export const getApiAdminItemsId = async (id: number, options?: RequestInit): Promise<getApiAdminItemsIdResponse> => {
-  
+
   return customFetch<getApiAdminItemsIdResponse>(getGetApiAdminItemsIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11405,7 +12028,7 @@ export type patchApiAdminItemsIdResponse200 = {
   data: ItemAdminResponse
   status: 200
 }
-    
+
 export type patchApiAdminItemsIdResponseSuccess = (patchApiAdminItemsIdResponse200) & {
   headers: Headers;
 };
@@ -11416,16 +12039,16 @@ export type patchApiAdminItemsIdResponse = (patchApiAdminItemsIdResponseSuccess)
 export const getPatchApiAdminItemsIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/items/${id}`
 }
 
 export const patchApiAdminItemsId = async (id: number,
     patchApiAdminItemsIdBody: PatchApiAdminItemsIdBody, options?: RequestInit): Promise<patchApiAdminItemsIdResponse> => {
-  
+
   return customFetch<patchApiAdminItemsIdResponse>(getPatchApiAdminItemsIdUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11440,7 +12063,7 @@ export type getAllApiAdminKvStoreResponse200 = {
   data: KvStoreResponse[]
   status: 200
 }
-    
+
 export type getAllApiAdminKvStoreResponseSuccess = (getAllApiAdminKvStoreResponse200) & {
   headers: Headers;
 };
@@ -11451,19 +12074,19 @@ export type getAllApiAdminKvStoreResponse = (getAllApiAdminKvStoreResponseSucces
 export const getGetAllApiAdminKvStoreUrl = () => {
 
 
-  
+
 
   return `/api/admin/kv-stores`
 }
 
 export const getAllApiAdminKvStore = async ( options?: RequestInit): Promise<getAllApiAdminKvStoreResponse> => {
-  
+
   return customFetch<getAllApiAdminKvStoreResponse>(getGetAllApiAdminKvStoreUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11473,7 +12096,7 @@ export type postApiAdminKvStoreResponse200 = {
   data: KvStoreResponse
   status: 200
 }
-    
+
 export type postApiAdminKvStoreResponseSuccess = (postApiAdminKvStoreResponse200) & {
   headers: Headers;
 };
@@ -11484,15 +12107,15 @@ export type postApiAdminKvStoreResponse = (postApiAdminKvStoreResponseSuccess)
 export const getPostApiAdminKvStoreUrl = () => {
 
 
-  
+
 
   return `/api/admin/kv-stores`
 }
 
 export const postApiAdminKvStore = async (postApiAdminKvStoreBody: PostApiAdminKvStoreBody, options?: RequestInit): Promise<postApiAdminKvStoreResponse> => {
-  
+
   return customFetch<postApiAdminKvStoreResponse>(getPostApiAdminKvStoreUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11507,7 +12130,7 @@ export type putApiAdminKvStoreResponse200 = {
   data: KvStoreResponse
   status: 200
 }
-    
+
 export type putApiAdminKvStoreResponseSuccess = (putApiAdminKvStoreResponse200) & {
   headers: Headers;
 };
@@ -11518,15 +12141,15 @@ export type putApiAdminKvStoreResponse = (putApiAdminKvStoreResponseSuccess)
 export const getPutApiAdminKvStoreUrl = () => {
 
 
-  
+
 
   return `/api/admin/kv-stores`
 }
 
 export const putApiAdminKvStore = async (putApiAdminKvStoreBody: PutApiAdminKvStoreBody, options?: RequestInit): Promise<putApiAdminKvStoreResponse> => {
-  
+
   return customFetch<putApiAdminKvStoreResponse>(getPutApiAdminKvStoreUrl(),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11541,7 +12164,7 @@ export type getApiAdminKvStoreResponse200 = {
   data: KvStoreResponse
   status: 200
 }
-    
+
 export type getApiAdminKvStoreResponseSuccess = (getApiAdminKvStoreResponse200) & {
   headers: Headers;
 };
@@ -11552,19 +12175,19 @@ export type getApiAdminKvStoreResponse = (getApiAdminKvStoreResponseSuccess)
 export const getGetApiAdminKvStoreUrl = (key: string,) => {
 
 
-  
+
 
   return `/api/admin/kv-stores/${key}`
 }
 
 export const getApiAdminKvStore = async (key: string, options?: RequestInit): Promise<getApiAdminKvStoreResponse> => {
-  
+
   return customFetch<getApiAdminKvStoreResponse>(getGetApiAdminKvStoreUrl(key),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11578,7 +12201,7 @@ export type getApiAdminNiceidStatusResponse200 = {
   data: NiceIdAdminSessionStatusResponse
   status: 200
 }
-    
+
 export type getApiAdminNiceidStatusResponseSuccess = (getApiAdminNiceidStatusResponse200) & {
   headers: Headers;
 };
@@ -11589,19 +12212,19 @@ export type getApiAdminNiceidStatusResponse = (getApiAdminNiceidStatusResponseSu
 export const getGetApiAdminNiceidStatusUrl = (requestNo: string,) => {
 
 
-  
+
 
   return `/api/admin/niceid/session/${requestNo}`
 }
 
 export const getApiAdminNiceidStatus = async (requestNo: string, options?: RequestInit): Promise<getApiAdminNiceidStatusResponse> => {
-  
+
   return customFetch<getApiAdminNiceidStatusResponse>(getGetApiAdminNiceidStatusUrl(requestNo),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11611,7 +12234,8 @@ export const getApiAdminNiceidStatus = async (requestNo: string, options?: Reque
  * 관리자 대시보드와 주문 운영 큐에서 사용하는 주문 목록 API다.
 
 주요 검색 조건:
-- orderType, orderStatus, productType: 주문/상품/상태 기준 필터
+- orderStatus: 주문 상태 기준 필터
+- productType, fulfillmentMethod, saleTiming: 물품 종류/전달 방식/판매 시기 기준 필터
 - paymentMethod, paymentStatus: 계좌이체 입금 대기, 토스 완료 등 결제 기준 필터
 - depositOverdue=true: 입금 기한이 지난 계좌이체 입금 대기 주문만 조회
 - orderNumber, keyword: 주문번호와 고객명/이메일/휴대폰/상품명/공고명 검색
@@ -11627,7 +12251,7 @@ export type getApiAdminOrdersResponse200 = {
   data: PagedModelAdminOrderResponse
   status: 200
 }
-    
+
 export type getApiAdminOrdersResponseSuccess = (getApiAdminOrdersResponse200) & {
   headers: Headers;
 };
@@ -11639,7 +12263,7 @@ export const getGetApiAdminOrdersUrl = (params?: GetApiAdminOrdersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11651,13 +12275,13 @@ export const getGetApiAdminOrdersUrl = (params?: GetApiAdminOrdersParams,) => {
 }
 
 export const getApiAdminOrders = async (params?: GetApiAdminOrdersParams, options?: RequestInit): Promise<getApiAdminOrdersResponse> => {
-  
+
   return customFetch<getApiAdminOrdersResponse>(getGetApiAdminOrdersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11676,7 +12300,7 @@ export type getApiAdminOrdersDeliveryExportResponse200 = {
   data: string
   status: 200
 }
-    
+
 export type getApiAdminOrdersDeliveryExportResponseSuccess = (getApiAdminOrdersDeliveryExportResponse200) & {
   headers: Headers;
 };
@@ -11688,7 +12312,7 @@ export const getGetApiAdminOrdersDeliveryExportUrl = (params?: GetApiAdminOrders
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11700,13 +12324,13 @@ export const getGetApiAdminOrdersDeliveryExportUrl = (params?: GetApiAdminOrders
 }
 
 export const getApiAdminOrdersDeliveryExport = async (params?: GetApiAdminOrdersDeliveryExportParams, options?: RequestInit): Promise<getApiAdminOrdersDeliveryExportResponse> => {
-  
+
   return customFetch<getApiAdminOrdersDeliveryExportResponse>(getGetApiAdminOrdersDeliveryExportUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11728,7 +12352,7 @@ export type postApiAdminOrdersDeliveryImportResponse200 = {
   data: AdminDeliveryCsvUploadResponse
   status: 200
 }
-    
+
 export type postApiAdminOrdersDeliveryImportResponseSuccess = (postApiAdminOrdersDeliveryImportResponse200) & {
   headers: Headers;
 };
@@ -11740,7 +12364,7 @@ export const getPostApiAdminOrdersDeliveryImportUrl = (params?: PostApiAdminOrde
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11757,11 +12381,11 @@ export const postApiAdminOrdersDeliveryImport = async (postApiAdminOrdersDeliver
 formData.append(`file`, postApiAdminOrdersDeliveryImportBody.file);
 
   return customFetch<postApiAdminOrdersDeliveryImportResponse>(getPostApiAdminOrdersDeliveryImportUrl(params),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -11780,7 +12404,7 @@ export type postApiAdminOrdersDeliveryImportResultCsvResponse200 = {
   data: string
   status: 200
 }
-    
+
 export type postApiAdminOrdersDeliveryImportResultCsvResponseSuccess = (postApiAdminOrdersDeliveryImportResultCsvResponse200) & {
   headers: Headers;
 };
@@ -11792,7 +12416,7 @@ export const getPostApiAdminOrdersDeliveryImportResultCsvUrl = (params?: PostApi
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11809,12 +12433,119 @@ export const postApiAdminOrdersDeliveryImportResultCsv = async (postApiAdminOrde
 formData.append(`file`, postApiAdminOrdersDeliveryImportResultCsvBody.file);
 
   return customFetch<postApiAdminOrdersDeliveryImportResultCsvResponse>(getPostApiAdminOrdersDeliveryImportResultCsvUrl(params),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
+  }
+);}
+
+
+
+/**
+ * Excel 파일을 업로드해 수동 구매내역을 대량 검증하거나 등록한다.
+dryRun=true면 검증만 수행하고, dryRun=false면 성공 행마다 판매공고 없는 수령완료 주문을 생성한다.
+
+mode:
+- ONE_USER_MANY_BOTTLES: 하나의 사용자 ID에 여러 보틀 등록. 파일 내 사용자 ID는 하나만 허용한다.
+- ONE_BOTTLE_MANY_USERS: 하나의 보틀 ID를 여러 사용자에게 등록. 파일 내 보틀 ID는 하나만 허용한다.
+- MANY_USERS_MANY_BOTTLES: 여러 사용자와 여러 보틀 조합을 허용한다.
+
+ * @summary 관리자 수동 구매내역 Excel 업로드
+ */
+export type postApiAdminOrdersManualPurchasesImportResponse200 = {
+  data: AdminManualPurchaseImportResponse
+  status: 200
+}
+
+export type postApiAdminOrdersManualPurchasesImportResponseSuccess = (postApiAdminOrdersManualPurchasesImportResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminOrdersManualPurchasesImportResponse = (postApiAdminOrdersManualPurchasesImportResponseSuccess)
+
+export const getPostApiAdminOrdersManualPurchasesImportUrl = (params?: PostApiAdminOrdersManualPurchasesImportParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/orders/manual-purchases/import?${stringifiedParams}` : `/api/admin/orders/manual-purchases/import`
+}
+
+export const postApiAdminOrdersManualPurchasesImport = async (postApiAdminOrdersManualPurchasesImportBody: PostApiAdminOrdersManualPurchasesImportBody,
+    params?: PostApiAdminOrdersManualPurchasesImportParams, options?: RequestInit): Promise<postApiAdminOrdersManualPurchasesImportResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiAdminOrdersManualPurchasesImportBody.file);
+
+  return customFetch<postApiAdminOrdersManualPurchasesImportResponse>(getPostApiAdminOrdersManualPurchasesImportUrl(params),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+/**
+ * 수동 구매내역 대량 등록에 사용할 xlsx 템플릿을 내려받는다.
+구매내역 시트는 사용자, 보틀, 수량, 단가, 메모 순서이며 사용자와 보틀은 템플릿의 목록 시트 값을 선택한다.
+단가를 비우면 보틀 소비자가를 사용하고 없으면 0으로 처리한다.
+
+mode:
+- ONE_USER_MANY_BOTTLES: userId를 먼저 선택해 사용자 값을 고정한 템플릿을 내려받는다.
+- ONE_BOTTLE_MANY_USERS: bottleId를 먼저 선택해 보틀 값을 고정한 템플릿을 내려받는다.
+- MANY_USERS_MANY_BOTTLES: 사용자와 보틀을 모두 Excel 목록에서 선택한다.
+
+ * @summary 관리자 수동 구매내역 Excel 템플릿 다운로드
+ */
+export type getApiAdminOrdersManualPurchasesImportTemplateResponse200 = {
+  data: Blob
+  status: 200
+}
+
+export type getApiAdminOrdersManualPurchasesImportTemplateResponseSuccess = (getApiAdminOrdersManualPurchasesImportTemplateResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminOrdersManualPurchasesImportTemplateResponse = (getApiAdminOrdersManualPurchasesImportTemplateResponseSuccess)
+
+export const getGetApiAdminOrdersManualPurchasesImportTemplateUrl = (params?: GetApiAdminOrdersManualPurchasesImportTemplateParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/orders/manual-purchases/import/template?${stringifiedParams}` : `/api/admin/orders/manual-purchases/import/template`
+}
+
+export const getApiAdminOrdersManualPurchasesImportTemplate = async (params?: GetApiAdminOrdersManualPurchasesImportTemplateParams, options?: RequestInit): Promise<getApiAdminOrdersManualPurchasesImportTemplateResponse> => {
+
+  return customFetch<getApiAdminOrdersManualPurchasesImportTemplateResponse>(getGetApiAdminOrdersManualPurchasesImportTemplateUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
   }
 );}
 
@@ -11828,7 +12559,7 @@ export type getApiAdminOrdersNumbersOrdernumberResponse200 = {
   data: AdminOrderResponse
   status: 200
 }
-    
+
 export type getApiAdminOrdersNumbersOrdernumberResponseSuccess = (getApiAdminOrdersNumbersOrdernumberResponse200) & {
   headers: Headers;
 };
@@ -11839,19 +12570,19 @@ export type getApiAdminOrdersNumbersOrdernumberResponse = (getApiAdminOrdersNumb
 export const getGetApiAdminOrdersNumbersOrdernumberUrl = (orderNumber: string,) => {
 
 
-  
+
 
   return `/api/admin/orders/numbers/${orderNumber}`
 }
 
 export const getApiAdminOrdersNumbersOrdernumber = async (orderNumber: string, options?: RequestInit): Promise<getApiAdminOrdersNumbersOrdernumberResponse> => {
-  
+
   return customFetch<getApiAdminOrdersNumbersOrdernumberResponse>(getGetApiAdminOrdersNumbersOrdernumberUrl(orderNumber),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11864,7 +12595,7 @@ export type getApiAdminOrdersUsersUseridResponse200 = {
   data: AdminUserOrderSummaryResponse
   status: 200
 }
-    
+
 export type getApiAdminOrdersUsersUseridResponseSuccess = (getApiAdminOrdersUsersUseridResponse200) & {
   headers: Headers;
 };
@@ -11877,7 +12608,7 @@ export const getGetApiAdminOrdersUsersUseridUrl = (userId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -11890,13 +12621,55 @@ export const getGetApiAdminOrdersUsersUseridUrl = (userId: number,
 
 export const getApiAdminOrdersUsersUserid = async (userId: number,
     params?: GetApiAdminOrdersUsersUseridParams, options?: RequestInit): Promise<getApiAdminOrdersUsersUseridResponse> => {
-  
+
   return customFetch<getApiAdminOrdersUsersUseridResponse>(getGetApiAdminOrdersUsersUseridUrl(userId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
+  }
+);}
+
+
+
+/**
+ * 판매공고 없이 보틀 기준으로 특정 사용자의 구매내역을 수동 추가한다.
+픽업지는 서버에서 UserBusiness.id=1로 고정하고, 주문 상태는 RECEIPT_COMPLETED로 저장한다.
+상품명은 보틀명으로 고정하며, 단가를 생략하면 보틀 소비자가를 사용하고 소비자가가 없으면 0으로 처리한다.
+
+ * @summary 관리자 사용자 수동 구매내역 생성
+ */
+export type postApiAdminOrdersUsersUseridManualPurchasesResponse200 = {
+  data: AdminOrderResponse
+  status: 200
+}
+
+export type postApiAdminOrdersUsersUseridManualPurchasesResponseSuccess = (postApiAdminOrdersUsersUseridManualPurchasesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminOrdersUsersUseridManualPurchasesResponse = (postApiAdminOrdersUsersUseridManualPurchasesResponseSuccess)
+
+export const getPostApiAdminOrdersUsersUseridManualPurchasesUrl = (userId: number,) => {
+
+
+
+
+  return `/api/admin/orders/users/${userId}/manual-purchases`
+}
+
+export const postApiAdminOrdersUsersUseridManualPurchases = async (userId: number,
+    postApiAdminOrdersUsersUseridManualPurchasesBody: PostApiAdminOrdersUsersUseridManualPurchasesBody, options?: RequestInit): Promise<postApiAdminOrdersUsersUseridManualPurchasesResponse> => {
+
+  return customFetch<postApiAdminOrdersUsersUseridManualPurchasesResponse>(getPostApiAdminOrdersUsersUseridManualPurchasesUrl(userId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminOrdersUsersUseridManualPurchasesBody,)
   }
 );}
 
@@ -11910,7 +12683,7 @@ export type getApiAdminOrdersOrderidResponse200 = {
   data: AdminOrderResponse
   status: 200
 }
-    
+
 export type getApiAdminOrdersOrderidResponseSuccess = (getApiAdminOrdersOrderidResponse200) & {
   headers: Headers;
 };
@@ -11921,19 +12694,19 @@ export type getApiAdminOrdersOrderidResponse = (getApiAdminOrdersOrderidResponse
 export const getGetApiAdminOrdersOrderidUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}`
 }
 
 export const getApiAdminOrdersOrderid = async (orderId: number, options?: RequestInit): Promise<getApiAdminOrdersOrderidResponse> => {
-  
+
   return customFetch<getApiAdminOrdersOrderidResponse>(getGetApiAdminOrdersOrderidUrl(orderId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11946,7 +12719,7 @@ export type patchApiAdminOrdersOrderidApproveResponse200 = {
   data: AdminOrderResponse
   status: 200
 }
-    
+
 export type patchApiAdminOrdersOrderidApproveResponseSuccess = (patchApiAdminOrdersOrderidApproveResponse200) & {
   headers: Headers;
 };
@@ -11957,16 +12730,16 @@ export type patchApiAdminOrdersOrderidApproveResponse = (patchApiAdminOrdersOrde
 export const getPatchApiAdminOrdersOrderidApproveUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/approve`
 }
 
 export const patchApiAdminOrdersOrderidApprove = async (orderId: number,
     patchApiAdminOrdersOrderidApproveBody: PatchApiAdminOrdersOrderidApproveBody, options?: RequestInit): Promise<patchApiAdminOrdersOrderidApproveResponse> => {
-  
+
   return customFetch<patchApiAdminOrdersOrderidApproveResponse>(getPatchApiAdminOrdersOrderidApproveUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -11984,7 +12757,7 @@ export type getApiAdminOrdersOrderidDeliveryResponse200 = {
   data: AdminOrderDeliveryResponse
   status: 200
 }
-    
+
 export type getApiAdminOrdersOrderidDeliveryResponseSuccess = (getApiAdminOrdersOrderidDeliveryResponse200) & {
   headers: Headers;
 };
@@ -11995,19 +12768,19 @@ export type getApiAdminOrdersOrderidDeliveryResponse = (getApiAdminOrdersOrderid
 export const getGetApiAdminOrdersOrderidDeliveryUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/delivery`
 }
 
 export const getApiAdminOrdersOrderidDelivery = async (orderId: number, options?: RequestInit): Promise<getApiAdminOrdersOrderidDeliveryResponse> => {
-  
+
   return customFetch<getApiAdminOrdersOrderidDeliveryResponse>(getGetApiAdminOrdersOrderidDeliveryUrl(orderId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12025,7 +12798,7 @@ export type patchApiAdminOrdersOrderidDeliveryResponse200 = {
   data: AdminOrderDeliveryResponse
   status: 200
 }
-    
+
 export type patchApiAdminOrdersOrderidDeliveryResponseSuccess = (patchApiAdminOrdersOrderidDeliveryResponse200) & {
   headers: Headers;
 };
@@ -12036,16 +12809,16 @@ export type patchApiAdminOrdersOrderidDeliveryResponse = (patchApiAdminOrdersOrd
 export const getPatchApiAdminOrdersOrderidDeliveryUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/delivery`
 }
 
 export const patchApiAdminOrdersOrderidDelivery = async (orderId: number,
     patchApiAdminOrdersOrderidDeliveryBody: PatchApiAdminOrdersOrderidDeliveryBody, options?: RequestInit): Promise<patchApiAdminOrdersOrderidDeliveryResponse> => {
-  
+
   return customFetch<patchApiAdminOrdersOrderidDeliveryResponse>(getPatchApiAdminOrdersOrderidDeliveryUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12064,7 +12837,7 @@ export type patchApiAdminOrdersOrderidDeliveryCompleteResponse200 = {
   data: AdminOrderDeliveryResponse
   status: 200
 }
-    
+
 export type patchApiAdminOrdersOrderidDeliveryCompleteResponseSuccess = (patchApiAdminOrdersOrderidDeliveryCompleteResponse200) & {
   headers: Headers;
 };
@@ -12075,16 +12848,16 @@ export type patchApiAdminOrdersOrderidDeliveryCompleteResponse = (patchApiAdminO
 export const getPatchApiAdminOrdersOrderidDeliveryCompleteUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/delivery/complete`
 }
 
 export const patchApiAdminOrdersOrderidDeliveryComplete = async (orderId: number,
     patchApiAdminOrdersOrderidDeliveryCompleteBody: PatchApiAdminOrdersOrderidDeliveryCompleteBody, options?: RequestInit): Promise<patchApiAdminOrdersOrderidDeliveryCompleteResponse> => {
-  
+
   return customFetch<patchApiAdminOrdersOrderidDeliveryCompleteResponse>(getPatchApiAdminOrdersOrderidDeliveryCompleteUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12106,7 +12879,7 @@ export type patchApiAdminOrdersOrderidDeliveryShipResponse200 = {
   data: AdminOrderDeliveryResponse
   status: 200
 }
-    
+
 export type patchApiAdminOrdersOrderidDeliveryShipResponseSuccess = (patchApiAdminOrdersOrderidDeliveryShipResponse200) & {
   headers: Headers;
 };
@@ -12117,16 +12890,16 @@ export type patchApiAdminOrdersOrderidDeliveryShipResponse = (patchApiAdminOrder
 export const getPatchApiAdminOrdersOrderidDeliveryShipUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/delivery/ship`
 }
 
 export const patchApiAdminOrdersOrderidDeliveryShip = async (orderId: number,
     patchApiAdminOrdersOrderidDeliveryShipBody: PatchApiAdminOrdersOrderidDeliveryShipBody, options?: RequestInit): Promise<patchApiAdminOrdersOrderidDeliveryShipResponse> => {
-  
+
   return customFetch<patchApiAdminOrdersOrderidDeliveryShipResponse>(getPatchApiAdminOrdersOrderidDeliveryShipUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12157,7 +12930,7 @@ export type patchApiAdminOrdersOrderidStatusResponse200 = {
   data: AdminOrderResponse
   status: 200
 }
-    
+
 export type patchApiAdminOrdersOrderidStatusResponseSuccess = (patchApiAdminOrdersOrderidStatusResponse200) & {
   headers: Headers;
 };
@@ -12168,16 +12941,16 @@ export type patchApiAdminOrdersOrderidStatusResponse = (patchApiAdminOrdersOrder
 export const getPatchApiAdminOrdersOrderidStatusUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/admin/orders/${orderId}/status`
 }
 
 export const patchApiAdminOrdersOrderidStatus = async (orderId: number,
     patchApiAdminOrdersOrderidStatusBody: PatchApiAdminOrdersOrderidStatusBody, options?: RequestInit): Promise<patchApiAdminOrdersOrderidStatusResponse> => {
-  
+
   return customFetch<patchApiAdminOrdersOrderidStatusResponse>(getPatchApiAdminOrdersOrderidStatusUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12196,7 +12969,7 @@ export type getApiAdminReservationDeliveriesCompaniesResponse200 = {
   data: DeliveryCompanyResponse[]
   status: 200
 }
-    
+
 export type getApiAdminReservationDeliveriesCompaniesResponseSuccess = (getApiAdminReservationDeliveriesCompaniesResponse200) & {
   headers: Headers;
 };
@@ -12207,19 +12980,19 @@ export type getApiAdminReservationDeliveriesCompaniesResponse = (getApiAdminRese
 export const getGetApiAdminReservationDeliveriesCompaniesUrl = () => {
 
 
-  
+
 
   return `/api/admin/reservation-deliveries/companies`
 }
 
 export const getApiAdminReservationDeliveriesCompanies = async ( options?: RequestInit): Promise<getApiAdminReservationDeliveriesCompaniesResponse> => {
-  
+
   return customFetch<getApiAdminReservationDeliveriesCompaniesResponse>(getGetApiAdminReservationDeliveriesCompaniesUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12233,7 +13006,7 @@ export type getApiAdminReservationDeliveriesNoticesNoticeidResponse200 = {
   data: AdminReservationBusinessDeliveryResponse[]
   status: 200
 }
-    
+
 export type getApiAdminReservationDeliveriesNoticesNoticeidResponseSuccess = (getApiAdminReservationDeliveriesNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -12244,19 +13017,19 @@ export type getApiAdminReservationDeliveriesNoticesNoticeidResponse = (getApiAdm
 export const getGetApiAdminReservationDeliveriesNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/reservation-deliveries/notices/${noticeId}`
 }
 
 export const getApiAdminReservationDeliveriesNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiAdminReservationDeliveriesNoticesNoticeidResponse> => {
-  
+
   return customFetch<getApiAdminReservationDeliveriesNoticesNoticeidResponse>(getGetApiAdminReservationDeliveriesNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12270,7 +13043,7 @@ export type getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidR
   data: AdminReservationBusinessDeliveryResponse
   status: 200
 }
-    
+
 export type getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponseSuccess = (getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse200) & {
   headers: Headers;
 };
@@ -12282,20 +13055,20 @@ export const getGetApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusines
     businessId: number,) => {
 
 
-  
+
 
   return `/api/admin/reservation-deliveries/notices/${noticeId}/businesses/${businessId}`
 }
 
 export const getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid = async (noticeId: number,
     businessId: number, options?: RequestInit): Promise<getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse> => {
-  
+
   return customFetch<getApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse>(getGetApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidUrl(noticeId,businessId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12309,7 +13082,7 @@ export type putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidR
   data: AdminReservationBusinessDeliveryResponse
   status: 200
 }
-    
+
 export type putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponseSuccess = (putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse200) & {
   headers: Headers;
 };
@@ -12321,7 +13094,7 @@ export const getPutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusines
     businessId: number,) => {
 
 
-  
+
 
   return `/api/admin/reservation-deliveries/notices/${noticeId}/businesses/${businessId}`
 }
@@ -12329,9 +13102,9 @@ export const getPutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusines
 export const putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid = async (noticeId: number,
     businessId: number,
     putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBody: PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBody, options?: RequestInit): Promise<putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse> => {
-  
+
   return customFetch<putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidResponse>(getPutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidUrl(noticeId,businessId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12350,7 +13123,7 @@ export type patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessi
   data: AdminReservationBusinessDeliveryResponse
   status: 200
 }
-    
+
 export type patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberResponseSuccess = (patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberResponse200) & {
   headers: Headers;
 };
@@ -12362,7 +13135,7 @@ export const getPatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusin
     businessId: number,) => {
 
 
-  
+
 
   return `/api/admin/reservation-deliveries/notices/${noticeId}/businesses/${businessId}/tracking-number`
 }
@@ -12370,9 +13143,9 @@ export const getPatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusin
 export const patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumber = async (noticeId: number,
     businessId: number,
     patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberBody: PatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberBody, options?: RequestInit): Promise<patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberResponse> => {
-  
+
   return customFetch<patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberResponse>(getPatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidTrackingNumberUrl(noticeId,businessId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12390,7 +13163,7 @@ export type getApiAdminSalesResponse200 = {
   data: PagedModelAdminSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiAdminSalesResponseSuccess = (getApiAdminSalesResponse200) & {
   headers: Headers;
 };
@@ -12402,7 +13175,7 @@ export const getGetApiAdminSalesUrl = (params?: GetApiAdminSalesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12414,13 +13187,13 @@ export const getGetApiAdminSalesUrl = (params?: GetApiAdminSalesParams,) => {
 }
 
 export const getApiAdminSales = async (params?: GetApiAdminSalesParams, options?: RequestInit): Promise<getApiAdminSalesResponse> => {
-  
+
   return customFetch<getApiAdminSalesResponse>(getGetApiAdminSalesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12433,7 +13206,7 @@ export type postApiAdminSalesResponse200 = {
   data: AdminSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type postApiAdminSalesResponseSuccess = (postApiAdminSalesResponse200) & {
   headers: Headers;
 };
@@ -12444,15 +13217,15 @@ export type postApiAdminSalesResponse = (postApiAdminSalesResponseSuccess)
 export const getPostApiAdminSalesUrl = () => {
 
 
-  
+
 
   return `/api/admin/sales`
 }
 
 export const postApiAdminSales = async (postApiAdminSalesBody: PostApiAdminSalesBody, options?: RequestInit): Promise<postApiAdminSalesResponse> => {
-  
+
   return customFetch<postApiAdminSalesResponse>(getPostApiAdminSalesUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12470,7 +13243,7 @@ export type getApiAdminSalesSaleidResponse200 = {
   data: AdminSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiAdminSalesSaleidResponseSuccess = (getApiAdminSalesSaleidResponse200) & {
   headers: Headers;
 };
@@ -12481,19 +13254,19 @@ export type getApiAdminSalesSaleidResponse = (getApiAdminSalesSaleidResponseSucc
 export const getGetApiAdminSalesSaleidUrl = (saleId: number,) => {
 
 
-  
+
 
   return `/api/admin/sales/${saleId}`
 }
 
 export const getApiAdminSalesSaleid = async (saleId: number, options?: RequestInit): Promise<getApiAdminSalesSaleidResponse> => {
-  
+
   return customFetch<getApiAdminSalesSaleidResponse>(getGetApiAdminSalesSaleidUrl(saleId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12506,7 +13279,7 @@ export type patchApiAdminSalesSaleidResponse200 = {
   data: AdminSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type patchApiAdminSalesSaleidResponseSuccess = (patchApiAdminSalesSaleidResponse200) & {
   headers: Headers;
 };
@@ -12517,16 +13290,16 @@ export type patchApiAdminSalesSaleidResponse = (patchApiAdminSalesSaleidResponse
 export const getPatchApiAdminSalesSaleidUrl = (saleId: number,) => {
 
 
-  
+
 
   return `/api/admin/sales/${saleId}`
 }
 
 export const patchApiAdminSalesSaleid = async (saleId: number,
     patchApiAdminSalesSaleidBody: PatchApiAdminSalesSaleidBody, options?: RequestInit): Promise<patchApiAdminSalesSaleidResponse> => {
-  
+
   return customFetch<patchApiAdminSalesSaleidResponse>(getPatchApiAdminSalesSaleidUrl(saleId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12541,7 +13314,7 @@ export type getResponse200 = {
   data: ShippingPolicyResponse
   status: 200
 }
-    
+
 export type getResponseSuccess = (getResponse200) & {
   headers: Headers;
 };
@@ -12552,19 +13325,19 @@ export type getResponse = (getResponseSuccess)
 export const getGetUrl = () => {
 
 
-  
+
 
   return `/api/admin/shipping-policy`
 }
 
 export const get = async ( options?: RequestInit): Promise<getResponse> => {
-  
+
   return customFetch<getResponse>(getGetUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12574,7 +13347,7 @@ export type updateResponse200 = {
   data: ShippingPolicyResponse
   status: 200
 }
-    
+
 export type updateResponseSuccess = (updateResponse200) & {
   headers: Headers;
 };
@@ -12585,15 +13358,15 @@ export type updateResponse = (updateResponseSuccess)
 export const getUpdateUrl = () => {
 
 
-  
+
 
   return `/api/admin/shipping-policy`
 }
 
 export const update = async (updateBody: UpdateBody, options?: RequestInit): Promise<updateResponse> => {
-  
+
   return customFetch<updateResponse>(getUpdateUrl(),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12611,7 +13384,7 @@ export type getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfRespon
   data: Blob
   status: 200
 }
-    
+
 export type getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfResponseSuccess = (getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfResponse200) & {
   headers: Headers;
 };
@@ -12624,7 +13397,7 @@ export const getGetApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfUr
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12637,13 +13410,13 @@ export const getGetApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfUr
 
 export const getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdf = async (businessId: number,
     params: GetApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfParams, options?: RequestInit): Promise<getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfResponse> => {
-  
+
   return customFetch<getApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfResponse>(getGetApiAdminTaxInvoicesBusinessesBusinessidTaxInvoiceMonthlyPdfUrl(businessId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12656,7 +13429,7 @@ export type getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfRespons
   data: Blob
   status: 200
 }
-    
+
 export type getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfResponseSuccess = (getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfResponse200) & {
   headers: Headers;
 };
@@ -12669,7 +13442,7 @@ export const getGetApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfUrl
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12682,13 +13455,13 @@ export const getGetApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfUrl
 
 export const getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdf = async (businessId: number,
     params: GetApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfParams, options?: RequestInit): Promise<getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfResponse> => {
-  
+
   return customFetch<getApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfResponse>(getGetApiAdminTaxInvoicesBusinessesBusinessidVatReportMonthlyPdfUrl(businessId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12702,7 +13475,7 @@ export type getApiAdminUsersResponse200 = {
   data: PagedModelAdminUserResponse
   status: 200
 }
-    
+
 export type getApiAdminUsersResponseSuccess = (getApiAdminUsersResponse200) & {
   headers: Headers;
 };
@@ -12714,7 +13487,7 @@ export const getGetApiAdminUsersUrl = (params?: GetApiAdminUsersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -12726,13 +13499,13 @@ export const getGetApiAdminUsersUrl = (params?: GetApiAdminUsersParams,) => {
 }
 
 export const getApiAdminUsers = async (params?: GetApiAdminUsersParams, options?: RequestInit): Promise<getApiAdminUsersResponse> => {
-  
+
   return customFetch<getApiAdminUsersResponse>(getGetApiAdminUsersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12746,7 +13519,7 @@ export type deleteApiAdminUsersIdResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiAdminUsersIdResponseSuccess = (deleteApiAdminUsersIdResponse200) & {
   headers: Headers;
 };
@@ -12757,19 +13530,19 @@ export type deleteApiAdminUsersIdResponse = (deleteApiAdminUsersIdResponseSucces
 export const getDeleteApiAdminUsersIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}`
 }
 
 export const deleteApiAdminUsersId = async (id: number, options?: RequestInit): Promise<deleteApiAdminUsersIdResponse> => {
-  
+
   return customFetch<deleteApiAdminUsersIdResponse>(getDeleteApiAdminUsersIdUrl(id),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -12783,7 +13556,7 @@ export type getApiAdminUsersIdResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type getApiAdminUsersIdResponseSuccess = (getApiAdminUsersIdResponse200) & {
   headers: Headers;
 };
@@ -12794,19 +13567,19 @@ export type getApiAdminUsersIdResponse = (getApiAdminUsersIdResponseSuccess)
 export const getGetApiAdminUsersIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}`
 }
 
 export const getApiAdminUsersId = async (id: number, options?: RequestInit): Promise<getApiAdminUsersIdResponse> => {
-  
+
   return customFetch<getApiAdminUsersIdResponse>(getGetApiAdminUsersIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -12820,7 +13593,7 @@ export type patchApiAdminUsersIdBanResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersIdBanResponseSuccess = (patchApiAdminUsersIdBanResponse200) & {
   headers: Headers;
 };
@@ -12831,16 +13604,16 @@ export type patchApiAdminUsersIdBanResponse = (patchApiAdminUsersIdBanResponseSu
 export const getPatchApiAdminUsersIdBanUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}/ban`
 }
 
 export const patchApiAdminUsersIdBan = async (id: number,
     patchApiAdminUsersIdBanBody: PatchApiAdminUsersIdBanBody, options?: RequestInit): Promise<patchApiAdminUsersIdBanResponse> => {
-  
+
   return customFetch<patchApiAdminUsersIdBanResponse>(getPatchApiAdminUsersIdBanUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12859,7 +13632,7 @@ export type patchApiAdminUsersIdBanUpdateResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersIdBanUpdateResponseSuccess = (patchApiAdminUsersIdBanUpdateResponse200) & {
   headers: Headers;
 };
@@ -12870,16 +13643,16 @@ export type patchApiAdminUsersIdBanUpdateResponse = (patchApiAdminUsersIdBanUpda
 export const getPatchApiAdminUsersIdBanUpdateUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}/ban/update`
 }
 
 export const patchApiAdminUsersIdBanUpdate = async (id: number,
     patchApiAdminUsersIdBanUpdateBody: PatchApiAdminUsersIdBanUpdateBody, options?: RequestInit): Promise<patchApiAdminUsersIdBanUpdateResponse> => {
-  
+
   return customFetch<patchApiAdminUsersIdBanUpdateResponse>(getPatchApiAdminUsersIdBanUpdateUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12898,7 +13671,7 @@ export type patchApiAdminUsersIdRolesAddResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersIdRolesAddResponseSuccess = (patchApiAdminUsersIdRolesAddResponse200) & {
   headers: Headers;
 };
@@ -12909,16 +13682,16 @@ export type patchApiAdminUsersIdRolesAddResponse = (patchApiAdminUsersIdRolesAdd
 export const getPatchApiAdminUsersIdRolesAddUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}/roles/add`
 }
 
 export const patchApiAdminUsersIdRolesAdd = async (id: number,
     patchApiAdminUsersIdRolesAddBody: PatchApiAdminUsersIdRolesAddBody, options?: RequestInit): Promise<patchApiAdminUsersIdRolesAddResponse> => {
-  
+
   return customFetch<patchApiAdminUsersIdRolesAddResponse>(getPatchApiAdminUsersIdRolesAddUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12937,7 +13710,7 @@ export type patchApiAdminUsersIdRolesRemoveResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersIdRolesRemoveResponseSuccess = (patchApiAdminUsersIdRolesRemoveResponse200) & {
   headers: Headers;
 };
@@ -12948,16 +13721,16 @@ export type patchApiAdminUsersIdRolesRemoveResponse = (patchApiAdminUsersIdRoles
 export const getPatchApiAdminUsersIdRolesRemoveUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}/roles/remove`
 }
 
 export const patchApiAdminUsersIdRolesRemove = async (id: number,
     patchApiAdminUsersIdRolesRemoveBody: PatchApiAdminUsersIdRolesRemoveBody, options?: RequestInit): Promise<patchApiAdminUsersIdRolesRemoveResponse> => {
-  
+
   return customFetch<patchApiAdminUsersIdRolesRemoveResponse>(getPatchApiAdminUsersIdRolesRemoveUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -12976,7 +13749,7 @@ export type patchApiAdminUsersIdStatusResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersIdStatusResponseSuccess = (patchApiAdminUsersIdStatusResponse200) & {
   headers: Headers;
 };
@@ -12987,16 +13760,16 @@ export type patchApiAdminUsersIdStatusResponse = (patchApiAdminUsersIdStatusResp
 export const getPatchApiAdminUsersIdStatusUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${id}/status`
 }
 
 export const patchApiAdminUsersIdStatus = async (id: number,
     patchApiAdminUsersIdStatusBody: PatchApiAdminUsersIdStatusBody, options?: RequestInit): Promise<patchApiAdminUsersIdStatusResponse> => {
-  
+
   return customFetch<patchApiAdminUsersIdStatusResponse>(getPatchApiAdminUsersIdStatusUrl(id),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13014,7 +13787,7 @@ export type getApiAdminUsersUseridDeliveryAddressesResponse200 = {
   data: AdminDeliveryAddressResponse[]
   status: 200
 }
-    
+
 export type getApiAdminUsersUseridDeliveryAddressesResponseSuccess = (getApiAdminUsersUseridDeliveryAddressesResponse200) & {
   headers: Headers;
 };
@@ -13025,19 +13798,19 @@ export type getApiAdminUsersUseridDeliveryAddressesResponse = (getApiAdminUsersU
 export const getGetApiAdminUsersUseridDeliveryAddressesUrl = (userId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses`
 }
 
 export const getApiAdminUsersUseridDeliveryAddresses = async (userId: number, options?: RequestInit): Promise<getApiAdminUsersUseridDeliveryAddressesResponse> => {
-  
+
   return customFetch<getApiAdminUsersUseridDeliveryAddressesResponse>(getGetApiAdminUsersUseridDeliveryAddressesUrl(userId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13050,7 +13823,7 @@ export type postApiAdminUsersUseridDeliveryAddressesResponse200 = {
   data: AdminDeliveryAddressResponse
   status: 200
 }
-    
+
 export type postApiAdminUsersUseridDeliveryAddressesResponseSuccess = (postApiAdminUsersUseridDeliveryAddressesResponse200) & {
   headers: Headers;
 };
@@ -13061,16 +13834,16 @@ export type postApiAdminUsersUseridDeliveryAddressesResponse = (postApiAdminUser
 export const getPostApiAdminUsersUseridDeliveryAddressesUrl = (userId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses`
 }
 
 export const postApiAdminUsersUseridDeliveryAddresses = async (userId: number,
     postApiAdminUsersUseridDeliveryAddressesBody: PostApiAdminUsersUseridDeliveryAddressesBody, options?: RequestInit): Promise<postApiAdminUsersUseridDeliveryAddressesResponse> => {
-  
+
   return customFetch<postApiAdminUsersUseridDeliveryAddressesResponse>(getPostApiAdminUsersUseridDeliveryAddressesUrl(userId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13088,7 +13861,7 @@ export type deleteApiAdminUsersUseridDeliveryAddressesDefaultResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiAdminUsersUseridDeliveryAddressesDefaultResponseSuccess = (deleteApiAdminUsersUseridDeliveryAddressesDefaultResponse200) & {
   headers: Headers;
 };
@@ -13099,19 +13872,19 @@ export type deleteApiAdminUsersUseridDeliveryAddressesDefaultResponse = (deleteA
 export const getDeleteApiAdminUsersUseridDeliveryAddressesDefaultUrl = (userId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses/default`
 }
 
 export const deleteApiAdminUsersUseridDeliveryAddressesDefault = async (userId: number, options?: RequestInit): Promise<deleteApiAdminUsersUseridDeliveryAddressesDefaultResponse> => {
-  
+
   return customFetch<deleteApiAdminUsersUseridDeliveryAddressesDefaultResponse>(getDeleteApiAdminUsersUseridDeliveryAddressesDefaultUrl(userId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -13124,7 +13897,7 @@ export type deleteApiAdminUsersUseridDeliveryAddressesAddressidResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiAdminUsersUseridDeliveryAddressesAddressidResponseSuccess = (deleteApiAdminUsersUseridDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -13136,20 +13909,20 @@ export const getDeleteApiAdminUsersUseridDeliveryAddressesAddressidUrl = (userId
     addressId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses/${addressId}`
 }
 
 export const deleteApiAdminUsersUseridDeliveryAddressesAddressid = async (userId: number,
     addressId: number, options?: RequestInit): Promise<deleteApiAdminUsersUseridDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<deleteApiAdminUsersUseridDeliveryAddressesAddressidResponse>(getDeleteApiAdminUsersUseridDeliveryAddressesAddressidUrl(userId,addressId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -13162,7 +13935,7 @@ export type getApiAdminUsersUseridDeliveryAddressesAddressidResponse200 = {
   data: AdminDeliveryAddressResponse
   status: 200
 }
-    
+
 export type getApiAdminUsersUseridDeliveryAddressesAddressidResponseSuccess = (getApiAdminUsersUseridDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -13174,20 +13947,20 @@ export const getGetApiAdminUsersUseridDeliveryAddressesAddressidUrl = (userId: n
     addressId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses/${addressId}`
 }
 
 export const getApiAdminUsersUseridDeliveryAddressesAddressid = async (userId: number,
     addressId: number, options?: RequestInit): Promise<getApiAdminUsersUseridDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<getApiAdminUsersUseridDeliveryAddressesAddressidResponse>(getGetApiAdminUsersUseridDeliveryAddressesAddressidUrl(userId,addressId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13200,7 +13973,7 @@ export type putApiAdminUsersUseridDeliveryAddressesAddressidResponse200 = {
   data: AdminDeliveryAddressResponse
   status: 200
 }
-    
+
 export type putApiAdminUsersUseridDeliveryAddressesAddressidResponseSuccess = (putApiAdminUsersUseridDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -13212,7 +13985,7 @@ export const getPutApiAdminUsersUseridDeliveryAddressesAddressidUrl = (userId: n
     addressId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses/${addressId}`
 }
@@ -13220,9 +13993,9 @@ export const getPutApiAdminUsersUseridDeliveryAddressesAddressidUrl = (userId: n
 export const putApiAdminUsersUseridDeliveryAddressesAddressid = async (userId: number,
     addressId: number,
     putApiAdminUsersUseridDeliveryAddressesAddressidBody: PutApiAdminUsersUseridDeliveryAddressesAddressidBody, options?: RequestInit): Promise<putApiAdminUsersUseridDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<putApiAdminUsersUseridDeliveryAddressesAddressidResponse>(getPutApiAdminUsersUseridDeliveryAddressesAddressidUrl(userId,addressId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13240,7 +14013,7 @@ export type patchApiAdminUsersUseridDeliveryAddressesAddressidDefaultResponse200
   data: AdminDeliveryAddressResponse
   status: 200
 }
-    
+
 export type patchApiAdminUsersUseridDeliveryAddressesAddressidDefaultResponseSuccess = (patchApiAdminUsersUseridDeliveryAddressesAddressidDefaultResponse200) & {
   headers: Headers;
 };
@@ -13252,20 +14025,20 @@ export const getPatchApiAdminUsersUseridDeliveryAddressesAddressidDefaultUrl = (
     addressId: number,) => {
 
 
-  
+
 
   return `/api/admin/users/${userId}/delivery-addresses/${addressId}/default`
 }
 
 export const patchApiAdminUsersUseridDeliveryAddressesAddressidDefault = async (userId: number,
     addressId: number, options?: RequestInit): Promise<patchApiAdminUsersUseridDeliveryAddressesAddressidDefaultResponse> => {
-  
+
   return customFetch<patchApiAdminUsersUseridDeliveryAddressesAddressidDefaultResponse>(getPatchApiAdminUsersUseridDeliveryAddressesAddressidDefaultUrl(userId,addressId),
-  {      
+  {
     ...options,
     method: 'PATCH'
-    
-    
+
+
   }
 );}
 
@@ -13279,7 +14052,7 @@ export type putApiAuthChangePasswordResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type putApiAuthChangePasswordResponseSuccess = (putApiAuthChangePasswordResponse200) & {
   headers: Headers;
 };
@@ -13290,15 +14063,15 @@ export type putApiAuthChangePasswordResponse = (putApiAuthChangePasswordResponse
 export const getPutApiAuthChangePasswordUrl = () => {
 
 
-  
+
 
   return `/api/auth/change-password`
 }
 
 export const putApiAuthChangePassword = async (putApiAuthChangePasswordBody: PutApiAuthChangePasswordBody, options?: RequestInit): Promise<putApiAuthChangePasswordResponse> => {
-  
+
   return customFetch<putApiAuthChangePasswordResponse>(getPutApiAuthChangePasswordUrl(),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13317,7 +14090,7 @@ export type postApiAuthCheckEmailResponse200 = {
   data: EmailAvailabilityResponse
   status: 200
 }
-    
+
 export type postApiAuthCheckEmailResponseSuccess = (postApiAuthCheckEmailResponse200) & {
   headers: Headers;
 };
@@ -13328,15 +14101,15 @@ export type postApiAuthCheckEmailResponse = (postApiAuthCheckEmailResponseSucces
 export const getPostApiAuthCheckEmailUrl = () => {
 
 
-  
+
 
   return `/api/auth/check-email`
 }
 
 export const postApiAuthCheckEmail = async (postApiAuthCheckEmailBody: PostApiAuthCheckEmailBody, options?: RequestInit): Promise<postApiAuthCheckEmailResponse> => {
-  
+
   return customFetch<postApiAuthCheckEmailResponse>(getPostApiAuthCheckEmailUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13355,7 +14128,7 @@ export type postApiAuthCheckUsernameResponse200 = {
   data: UsernameAvailabilityResponse
   status: 200
 }
-    
+
 export type postApiAuthCheckUsernameResponseSuccess = (postApiAuthCheckUsernameResponse200) & {
   headers: Headers;
 };
@@ -13366,15 +14139,15 @@ export type postApiAuthCheckUsernameResponse = (postApiAuthCheckUsernameResponse
 export const getPostApiAuthCheckUsernameUrl = () => {
 
 
-  
+
 
   return `/api/auth/check-username`
 }
 
 export const postApiAuthCheckUsername = async (postApiAuthCheckUsernameBody: PostApiAuthCheckUsernameBody, options?: RequestInit): Promise<postApiAuthCheckUsernameResponse> => {
-  
+
   return customFetch<postApiAuthCheckUsernameResponse>(getPostApiAuthCheckUsernameUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13393,7 +14166,7 @@ export type postApiAuthEmailVerificationResetSendResponse200 = {
   data: PostApiAuthEmailVerificationResetSend200
   status: 200
 }
-    
+
 export type postApiAuthEmailVerificationResetSendResponseSuccess = (postApiAuthEmailVerificationResetSendResponse200) & {
   headers: Headers;
 };
@@ -13404,15 +14177,15 @@ export type postApiAuthEmailVerificationResetSendResponse = (postApiAuthEmailVer
 export const getPostApiAuthEmailVerificationResetSendUrl = () => {
 
 
-  
+
 
   return `/api/auth/email-verification/reset/send`
 }
 
 export const postApiAuthEmailVerificationResetSend = async (postApiAuthEmailVerificationResetSendBody: PostApiAuthEmailVerificationResetSendBody, options?: RequestInit): Promise<postApiAuthEmailVerificationResetSendResponse> => {
-  
+
   return customFetch<postApiAuthEmailVerificationResetSendResponse>(getPostApiAuthEmailVerificationResetSendUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13431,7 +14204,7 @@ export type postApiAuthEmailVerificationResetVerifyResponse200 = {
   data: PostApiAuthEmailVerificationResetVerify200
   status: 200
 }
-    
+
 export type postApiAuthEmailVerificationResetVerifyResponseSuccess = (postApiAuthEmailVerificationResetVerifyResponse200) & {
   headers: Headers;
 };
@@ -13442,15 +14215,15 @@ export type postApiAuthEmailVerificationResetVerifyResponse = (postApiAuthEmailV
 export const getPostApiAuthEmailVerificationResetVerifyUrl = () => {
 
 
-  
+
 
   return `/api/auth/email-verification/reset/verify`
 }
 
 export const postApiAuthEmailVerificationResetVerify = async (postApiAuthEmailVerificationResetVerifyBody: PostApiAuthEmailVerificationResetVerifyBody, options?: RequestInit): Promise<postApiAuthEmailVerificationResetVerifyResponse> => {
-  
+
   return customFetch<postApiAuthEmailVerificationResetVerifyResponse>(getPostApiAuthEmailVerificationResetVerifyUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13469,7 +14242,7 @@ export type postApiAuthEmailVerificationSendResponse200 = {
   data: PostApiAuthEmailVerificationSend200
   status: 200
 }
-    
+
 export type postApiAuthEmailVerificationSendResponseSuccess = (postApiAuthEmailVerificationSendResponse200) & {
   headers: Headers;
 };
@@ -13480,15 +14253,15 @@ export type postApiAuthEmailVerificationSendResponse = (postApiAuthEmailVerifica
 export const getPostApiAuthEmailVerificationSendUrl = () => {
 
 
-  
+
 
   return `/api/auth/email-verification/send`
 }
 
 export const postApiAuthEmailVerificationSend = async (postApiAuthEmailVerificationSendBody: PostApiAuthEmailVerificationSendBody, options?: RequestInit): Promise<postApiAuthEmailVerificationSendResponse> => {
-  
+
   return customFetch<postApiAuthEmailVerificationSendResponse>(getPostApiAuthEmailVerificationSendUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13507,7 +14280,7 @@ export type postApiAuthEmailVerificationVerifyResponse200 = {
   data: PostApiAuthEmailVerificationVerify200
   status: 200
 }
-    
+
 export type postApiAuthEmailVerificationVerifyResponseSuccess = (postApiAuthEmailVerificationVerifyResponse200) & {
   headers: Headers;
 };
@@ -13518,15 +14291,15 @@ export type postApiAuthEmailVerificationVerifyResponse = (postApiAuthEmailVerifi
 export const getPostApiAuthEmailVerificationVerifyUrl = () => {
 
 
-  
+
 
   return `/api/auth/email-verification/verify`
 }
 
 export const postApiAuthEmailVerificationVerify = async (postApiAuthEmailVerificationVerifyBody: PostApiAuthEmailVerificationVerifyBody, options?: RequestInit): Promise<postApiAuthEmailVerificationVerifyResponse> => {
-  
+
   return customFetch<postApiAuthEmailVerificationVerifyResponse>(getPostApiAuthEmailVerificationVerifyUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13545,7 +14318,7 @@ export type postApiAuthLoginResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type postApiAuthLoginResponseSuccess = (postApiAuthLoginResponse200) & {
   headers: Headers;
 };
@@ -13556,15 +14329,15 @@ export type postApiAuthLoginResponse = (postApiAuthLoginResponseSuccess)
 export const getPostApiAuthLoginUrl = () => {
 
 
-  
+
 
   return `/api/auth/login`
 }
 
 export const postApiAuthLogin = async (postApiAuthLoginBody: PostApiAuthLoginBody, options?: RequestInit): Promise<postApiAuthLoginResponse> => {
-  
+
   return customFetch<postApiAuthLoginResponse>(getPostApiAuthLoginUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13583,7 +14356,7 @@ export type postApiAuthOauthCompleteResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type postApiAuthOauthCompleteResponseSuccess = (postApiAuthOauthCompleteResponse200) & {
   headers: Headers;
 };
@@ -13594,15 +14367,15 @@ export type postApiAuthOauthCompleteResponse = (postApiAuthOauthCompleteResponse
 export const getPostApiAuthOauthCompleteUrl = () => {
 
 
-  
+
 
   return `/api/auth/oauth/complete`
 }
 
 export const postApiAuthOauthComplete = async (postApiAuthOauthCompleteBody: PostApiAuthOauthCompleteBody, options?: RequestInit): Promise<postApiAuthOauthCompleteResponse> => {
-  
+
   return customFetch<postApiAuthOauthCompleteResponse>(getPostApiAuthOauthCompleteUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13621,7 +14394,7 @@ export type getApiAuthOauthProviderCallbackResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type getApiAuthOauthProviderCallbackResponseSuccess = (getApiAuthOauthProviderCallbackResponse200) & {
   headers: Headers;
 };
@@ -13634,7 +14407,7 @@ export const getGetApiAuthOauthProviderCallbackUrl = (provider: string,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -13647,13 +14420,13 @@ export const getGetApiAuthOauthProviderCallbackUrl = (provider: string,
 
 export const getApiAuthOauthProviderCallback = async (provider: string,
     params?: GetApiAuthOauthProviderCallbackParams, options?: RequestInit): Promise<getApiAuthOauthProviderCallbackResponse> => {
-  
+
   return customFetch<getApiAuthOauthProviderCallbackResponse>(getGetApiAuthOauthProviderCallbackUrl(provider,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13667,7 +14440,7 @@ export type getApiAuthOauthProviderLinkResponse200 = {
   data: SocialAuthorizeResponse
   status: 200
 }
-    
+
 export type getApiAuthOauthProviderLinkResponseSuccess = (getApiAuthOauthProviderLinkResponse200) & {
   headers: Headers;
 };
@@ -13678,19 +14451,19 @@ export type getApiAuthOauthProviderLinkResponse = (getApiAuthOauthProviderLinkRe
 export const getGetApiAuthOauthProviderLinkUrl = (provider: string,) => {
 
 
-  
+
 
   return `/api/auth/oauth/${provider}/link`
 }
 
 export const getApiAuthOauthProviderLink = async (provider: string, options?: RequestInit): Promise<getApiAuthOauthProviderLinkResponse> => {
-  
+
   return customFetch<getApiAuthOauthProviderLinkResponse>(getGetApiAuthOauthProviderLinkUrl(provider),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13704,7 +14477,7 @@ export type getApiAuthOauthProviderLoginResponse200 = {
   data: SocialAuthorizeResponse
   status: 200
 }
-    
+
 export type getApiAuthOauthProviderLoginResponseSuccess = (getApiAuthOauthProviderLoginResponse200) & {
   headers: Headers;
 };
@@ -13715,19 +14488,19 @@ export type getApiAuthOauthProviderLoginResponse = (getApiAuthOauthProviderLogin
 export const getGetApiAuthOauthProviderLoginUrl = (provider: string,) => {
 
 
-  
+
 
   return `/api/auth/oauth/${provider}/login`
 }
 
 export const getApiAuthOauthProviderLogin = async (provider: string, options?: RequestInit): Promise<getApiAuthOauthProviderLoginResponse> => {
-  
+
   return customFetch<getApiAuthOauthProviderLoginResponse>(getGetApiAuthOauthProviderLoginUrl(provider),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13741,7 +14514,7 @@ export type postApiAuthRefreshResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type postApiAuthRefreshResponseSuccess = (postApiAuthRefreshResponse200) & {
   headers: Headers;
 };
@@ -13752,15 +14525,15 @@ export type postApiAuthRefreshResponse = (postApiAuthRefreshResponseSuccess)
 export const getPostApiAuthRefreshUrl = () => {
 
 
-  
+
 
   return `/api/auth/refresh`
 }
 
 export const postApiAuthRefresh = async (postApiAuthRefreshBody: PostApiAuthRefreshBody, options?: RequestInit): Promise<postApiAuthRefreshResponse> => {
-  
+
   return customFetch<postApiAuthRefreshResponse>(getPostApiAuthRefreshUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13779,7 +14552,7 @@ export type postApiAuthResetPasswordResponse200 = {
   data: ResetPasswordResponse
   status: 200
 }
-    
+
 export type postApiAuthResetPasswordResponseSuccess = (postApiAuthResetPasswordResponse200) & {
   headers: Headers;
 };
@@ -13790,15 +14563,15 @@ export type postApiAuthResetPasswordResponse = (postApiAuthResetPasswordResponse
 export const getPostApiAuthResetPasswordUrl = () => {
 
 
-  
+
 
   return `/api/auth/reset-password`
 }
 
 export const postApiAuthResetPassword = async (postApiAuthResetPasswordBody: PostApiAuthResetPasswordBody, options?: RequestInit): Promise<postApiAuthResetPasswordResponse> => {
-  
+
   return customFetch<postApiAuthResetPasswordResponse>(getPostApiAuthResetPasswordUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13817,7 +14590,7 @@ export type postApiAuthSignupResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type postApiAuthSignupResponseSuccess = (postApiAuthSignupResponse200) & {
   headers: Headers;
 };
@@ -13828,15 +14601,15 @@ export type postApiAuthSignupResponse = (postApiAuthSignupResponseSuccess)
 export const getPostApiAuthSignupUrl = () => {
 
 
-  
+
 
   return `/api/auth/signup`
 }
 
 export const postApiAuthSignup = async (postApiAuthSignupBody: PostApiAuthSignupBody, options?: RequestInit): Promise<postApiAuthSignupResponse> => {
-  
+
   return customFetch<postApiAuthSignupResponse>(getPostApiAuthSignupUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -13855,7 +14628,7 @@ export type getApiBannersResponse200 = {
   data: PagedModelUserBannerResponse
   status: 200
 }
-    
+
 export type getApiBannersResponseSuccess = (getApiBannersResponse200) & {
   headers: Headers;
 };
@@ -13867,7 +14640,7 @@ export const getGetApiBannersUrl = (params?: GetApiBannersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -13879,13 +14652,13 @@ export const getGetApiBannersUrl = (params?: GetApiBannersParams,) => {
 }
 
 export const getApiBanners = async (params?: GetApiBannersParams, options?: RequestInit): Promise<getApiBannersResponse> => {
-  
+
   return customFetch<getApiBannersResponse>(getGetApiBannersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -13899,7 +14672,7 @@ export type getApiBannersIdResponse200 = {
   data: UserBannerResponse
   status: 200
 }
-    
+
 export type getApiBannersIdResponseSuccess = (getApiBannersIdResponse200) & {
   headers: Headers;
 };
@@ -13910,33 +14683,33 @@ export type getApiBannersIdResponse = (getApiBannersIdResponseSuccess)
 export const getGetApiBannersIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/banners/${id}`
 }
 
 export const getApiBannersId = async (id: number, options?: RequestInit): Promise<getApiBannersIdResponse> => {
-  
+
   return customFetch<getApiBannersIdResponse>(getGetApiBannersIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 작성 및 열람이 가능한 전체 게시판을 조회합니다.
+ * 사용자에게 노출 가능한 활성 게시판만 조회합니다. 숨김 게시판과 비활성 게시판은 사용자 API에서 제외됩니다.
  * @summary 게시판 목록 조회
  */
 export type getApiBoardsResponse200 = {
   data: PagedModelUserBoardResponse
   status: 200
 }
-    
+
 export type getApiBoardsResponseSuccess = (getApiBoardsResponse200) & {
   headers: Headers;
 };
@@ -13948,7 +14721,7 @@ export const getGetApiBoardsUrl = (params?: GetApiBoardsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -13960,27 +14733,27 @@ export const getGetApiBoardsUrl = (params?: GetApiBoardsParams,) => {
 }
 
 export const getApiBoards = async (params?: GetApiBoardsParams, options?: RequestInit): Promise<getApiBoardsResponse> => {
-  
+
   return customFetch<getApiBoardsResponse>(getGetApiBoardsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 지정한 게시판에만 적용되는 공지사항을 조회합니다.
+ * 지정한 게시판에 적용되는 전체 공지와 게시판 공지를 함께 조회합니다. 숨김/비활성 게시판이거나 노출 기간 조건을 만족하지 않는 공지는 제외됩니다.
  * @summary 게시판별 공지 조회
  */
 export type getApiBoardsAnnouncementsBoardBoardidResponse200 = {
   data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
-    
+
 export type getApiBoardsAnnouncementsBoardBoardidResponseSuccess = (getApiBoardsAnnouncementsBoardBoardidResponse200) & {
   headers: Headers;
 };
@@ -13993,7 +14766,7 @@ export const getGetApiBoardsAnnouncementsBoardBoardidUrl = (boardId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14006,27 +14779,27 @@ export const getGetApiBoardsAnnouncementsBoardBoardidUrl = (boardId: number,
 
 export const getApiBoardsAnnouncementsBoardBoardid = async (boardId: number,
     params?: GetApiBoardsAnnouncementsBoardBoardidParams, options?: RequestInit): Promise<getApiBoardsAnnouncementsBoardBoardidResponse> => {
-  
+
   return customFetch<getApiBoardsAnnouncementsBoardBoardidResponse>(getGetApiBoardsAnnouncementsBoardBoardidUrl(boardId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 모든 사용자와 게시판에 공통으로 적용되는 공지 목록을 조회합니다.
+ * 모든 사용자와 게시판에 공통으로 적용되는 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 조회합니다.
  * @summary 전체 공지 조회
  */
 export type getApiBoardsAnnouncementsGlobalResponse200 = {
   data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
-    
+
 export type getApiBoardsAnnouncementsGlobalResponseSuccess = (getApiBoardsAnnouncementsGlobalResponse200) & {
   headers: Headers;
 };
@@ -14038,7 +14811,7 @@ export const getGetApiBoardsAnnouncementsGlobalUrl = (params?: GetApiBoardsAnnou
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14050,27 +14823,27 @@ export const getGetApiBoardsAnnouncementsGlobalUrl = (params?: GetApiBoardsAnnou
 }
 
 export const getApiBoardsAnnouncementsGlobal = async (params?: GetApiBoardsAnnouncementsGlobalParams, options?: RequestInit): Promise<getApiBoardsAnnouncementsGlobalResponse> => {
-  
+
   return customFetch<getApiBoardsAnnouncementsGlobalResponse>(getGetApiBoardsAnnouncementsGlobalUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 공지 본문을 포함해 상세 조회합니다.
+ * 전체 공지만 ID로 상세 조회합니다. 게시판 공지는 /api/boards/{boardId}/announcements/{announcementId} 경로로 조회해야 합니다.
  * @summary 공지 상세 조회
  */
 export type getApiBoardsAnnouncementsAnnouncementidResponse200 = {
   data: UserAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiBoardsAnnouncementsAnnouncementidResponseSuccess = (getApiBoardsAnnouncementsAnnouncementidResponse200) & {
   headers: Headers;
 };
@@ -14081,33 +14854,73 @@ export type getApiBoardsAnnouncementsAnnouncementidResponse = (getApiBoardsAnnou
 export const getGetApiBoardsAnnouncementsAnnouncementidUrl = (announcementId: number,) => {
 
 
-  
+
 
   return `/api/boards/announcements/${announcementId}`
 }
 
 export const getApiBoardsAnnouncementsAnnouncementid = async (announcementId: number, options?: RequestInit): Promise<getApiBoardsAnnouncementsAnnouncementidResponse> => {
-  
+
   return customFetch<getApiBoardsAnnouncementsAnnouncementidResponse>(getGetApiBoardsAnnouncementsAnnouncementidUrl(announcementId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 해당 게시판에만 적용되는 공지사항 목록을 반환합니다.
+ * 게시판에서 사용하는 파일을 업로드하고 CloudFront URL을 반환합니다.
+ * @summary 게시판 파일 업로드
+ */
+export type postApiBoardsUploadsResponse200 = {
+  data: BoardUploadResponse
+  status: 200
+}
+
+export type postApiBoardsUploadsResponseSuccess = (postApiBoardsUploadsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsUploadsResponse = (postApiBoardsUploadsResponseSuccess)
+
+export const getPostApiBoardsUploadsUrl = () => {
+
+
+
+
+  return `/api/boards/uploads`
+}
+
+export const postApiBoardsUploads = async (postApiBoardsUploadsBody: PostApiBoardsUploadsBody, options?: RequestInit): Promise<postApiBoardsUploadsResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiBoardsUploadsBody.file);
+
+  return customFetch<postApiBoardsUploadsResponse>(getPostApiBoardsUploadsUrl(),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
+  }
+);}
+
+
+
+/**
+ * 전체 공지와 해당 게시판 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 반환합니다. 고정 여부와 우선순위가 높은 공지가 먼저 정렬됩니다.
  * @summary 게시판 공지 조회
  */
 export type getApiBoardsBoardidAnnouncementsResponse200 = {
   data: PagedModelUserAnnouncementSummaryResponse
   status: 200
 }
-    
+
 export type getApiBoardsBoardidAnnouncementsResponseSuccess = (getApiBoardsBoardidAnnouncementsResponse200) & {
   headers: Headers;
 };
@@ -14120,7 +14933,7 @@ export const getGetApiBoardsBoardidAnnouncementsUrl = (boardId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14133,27 +14946,66 @@ export const getGetApiBoardsBoardidAnnouncementsUrl = (boardId: number,
 
 export const getApiBoardsBoardidAnnouncements = async (boardId: number,
     params?: GetApiBoardsBoardidAnnouncementsParams, options?: RequestInit): Promise<getApiBoardsBoardidAnnouncementsResponse> => {
-  
+
   return customFetch<getApiBoardsBoardidAnnouncementsResponse>(getGetApiBoardsBoardidAnnouncementsUrl(boardId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 선택한 게시판의 게시글을 페이지 단위로 조회하며 검색 조건을 적용할 수 있습니다.
+ * 전체 공지 또는 해당 게시판 공지 중 현재 사용자에게 노출 가능한 공지만 본문 포함 상세 조회합니다.
+ * @summary 게시판 공지 상세 조회
+ */
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponse200 = {
+  data: UserAnnouncementResponse
+  status: 200
+}
+
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess = (getApiBoardsBoardidAnnouncementsAnnouncementidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidAnnouncementsAnnouncementidResponse = (getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess)
+
+export const getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl = (boardId: number,
+    announcementId: number,) => {
+
+
+
+
+  return `/api/boards/${boardId}/announcements/${announcementId}`
+}
+
+export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: number,
+    announcementId: number, options?: RequestInit): Promise<getApiBoardsBoardidAnnouncementsAnnouncementidResponse> => {
+
+  return customFetch<getApiBoardsBoardidAnnouncementsAnnouncementidResponse>(getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl(boardId,announcementId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+/**
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있습니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
   data: PagedModelPostSummaryResponse
   status: 200
 }
-    
+
 export type getApiBoardsBoardidPostsResponseSuccess = (getApiBoardsBoardidPostsResponse200) & {
   headers: Headers;
 };
@@ -14166,7 +15018,7 @@ export const getGetApiBoardsBoardidPostsUrl = (boardId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14179,27 +15031,27 @@ export const getGetApiBoardsBoardidPostsUrl = (boardId: number,
 
 export const getApiBoardsBoardidPosts = async (boardId: number,
     params?: GetApiBoardsBoardidPostsParams, options?: RequestInit): Promise<getApiBoardsBoardidPostsResponse> => {
-  
+
   return customFetch<getApiBoardsBoardidPostsResponse>(getGetApiBoardsBoardidPostsUrl(boardId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 선택한 게시판에 새 글을 등록합니다.
+ * 선택한 게시판에 새 글을 등록합니다. 읽기 전용 게시판에는 작성할 수 없으며, 게시판의 writeRole 이상 권한이 필요합니다.
  * @summary 게시글 작성
  */
 export type postApiBoardsBoardidPostsResponse200 = {
   data: PostResponse
   status: 200
 }
-    
+
 export type postApiBoardsBoardidPostsResponseSuccess = (postApiBoardsBoardidPostsResponse200) & {
   headers: Headers;
 };
@@ -14210,16 +15062,16 @@ export type postApiBoardsBoardidPostsResponse = (postApiBoardsBoardidPostsRespon
 export const getPostApiBoardsBoardidPostsUrl = (boardId: number,) => {
 
 
-  
+
 
   return `/api/boards/${boardId}/posts`
 }
 
 export const postApiBoardsBoardidPosts = async (boardId: number,
     postApiBoardsBoardidPostsBody: PostApiBoardsBoardidPostsBody, options?: RequestInit): Promise<postApiBoardsBoardidPostsResponse> => {
-  
+
   return customFetch<postApiBoardsBoardidPostsResponse>(getPostApiBoardsBoardidPostsUrl(boardId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -14231,14 +15083,14 @@ export const postApiBoardsBoardidPosts = async (boardId: number,
 
 
 /**
- * 본인이 작성한 게시글을 삭제합니다.
+ * 본인이 작성한 게시글을 soft delete 처리합니다. 읽기 전용 게시판에서는 삭제할 수 없으며 삭제자 ID와 사용자 삭제 주체가 감사 정보로 기록됩니다.
  * @summary 게시글 삭제
  */
 export type deleteApiBoardsBoardidPostsPostidResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiBoardsBoardidPostsPostidResponseSuccess = (deleteApiBoardsBoardidPostsPostidResponse200) & {
   headers: Headers;
 };
@@ -14250,34 +15102,34 @@ export const getDeleteApiBoardsBoardidPostsPostidUrl = (boardId: number,
     postId: number,) => {
 
 
-  
+
 
   return `/api/boards/${boardId}/posts/${postId}`
 }
 
 export const deleteApiBoardsBoardidPostsPostid = async (boardId: number,
     postId: number, options?: RequestInit): Promise<deleteApiBoardsBoardidPostsPostidResponse> => {
-  
+
   return customFetch<deleteApiBoardsBoardidPostsPostidResponse>(getDeleteApiBoardsBoardidPostsPostidUrl(boardId,postId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 선택한 게시판의 게시글 본문을 포함해 상세 조회합니다.
+ * 활성 상태이고 숨김이 아닌 게시판에 속한 게시글만 본문 포함 상세 조회합니다. 삭제된 게시글은 조회되지 않습니다.
  * @summary 게시글 상세 조회
  */
 export type getApiBoardsBoardidPostsPostidResponse200 = {
   data: PostResponse
   status: 200
 }
-    
+
 export type getApiBoardsBoardidPostsPostidResponseSuccess = (getApiBoardsBoardidPostsPostidResponse200) & {
   headers: Headers;
 };
@@ -14289,34 +15141,34 @@ export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: number,
     postId: number,) => {
 
 
-  
+
 
   return `/api/boards/${boardId}/posts/${postId}`
 }
 
 export const getApiBoardsBoardidPostsPostid = async (boardId: number,
     postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidResponse> => {
-  
+
   return customFetch<getApiBoardsBoardidPostsPostidResponse>(getGetApiBoardsBoardidPostsPostidUrl(boardId,postId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
 
 
 /**
- * 본인이 작성한 게시글의 제목과 내용을 수정합니다.
+ * 본인이 작성한 게시글의 제목과 내용을 수정합니다. 읽기 전용 게시판에서는 수정할 수 없으며, 게시판의 writeRole 이상 권한이 필요합니다.
  * @summary 게시글 수정
  */
 export type putApiBoardsBoardidPostsPostidResponse200 = {
   data: PostResponse
   status: 200
 }
-    
+
 export type putApiBoardsBoardidPostsPostidResponseSuccess = (putApiBoardsBoardidPostsPostidResponse200) & {
   headers: Headers;
 };
@@ -14328,7 +15180,7 @@ export const getPutApiBoardsBoardidPostsPostidUrl = (boardId: number,
     postId: number,) => {
 
 
-  
+
 
   return `/api/boards/${boardId}/posts/${postId}`
 }
@@ -14336,14 +15188,178 @@ export const getPutApiBoardsBoardidPostsPostidUrl = (boardId: number,
 export const putApiBoardsBoardidPostsPostid = async (boardId: number,
     postId: number,
     putApiBoardsBoardidPostsPostidBody: PutApiBoardsBoardidPostsPostidBody, options?: RequestInit): Promise<putApiBoardsBoardidPostsPostidResponse> => {
-  
+
   return customFetch<putApiBoardsBoardidPostsPostidResponse>(getPutApiBoardsBoardidPostsPostidUrl(boardId,postId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiBoardsBoardidPostsPostidBody,)
+  }
+);}
+
+
+
+/**
+ * 활성 상태이고 숨김이 아닌 게시글의 댓글과 답글 목록을 조회합니다.
+ * @summary 댓글 목록 조회
+ */
+export type getApiBoardsBoardidPostsPostidCommentsResponse200 = {
+  data: CommentResponse[]
+  status: 200
+}
+
+export type getApiBoardsBoardidPostsPostidCommentsResponseSuccess = (getApiBoardsBoardidPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidPostsPostidCommentsResponse = (getApiBoardsBoardidPostsPostidCommentsResponseSuccess)
+
+export const getGetApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+    postId: number,) => {
+
+
+
+
+  return `/api/boards/${boardId}/posts/${postId}/comments`
+}
+
+export const getApiBoardsBoardidPostsPostidComments = async (boardId: number,
+    postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidCommentsResponse> => {
+
+  return customFetch<getApiBoardsBoardidPostsPostidCommentsResponse>(getGetApiBoardsBoardidPostsPostidCommentsUrl(boardId,postId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+/**
+ * 선택한 게시글에 댓글 또는 답글을 등록합니다. 게시판의 writeRole 이상 권한이 필요합니다.
+ * @summary 댓글 작성
+ */
+export type postApiBoardsBoardidPostsPostidCommentsResponse200 = {
+  data: CommentResponse
+  status: 200
+}
+
+export type postApiBoardsBoardidPostsPostidCommentsResponseSuccess = (postApiBoardsBoardidPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsBoardidPostsPostidCommentsResponse = (postApiBoardsBoardidPostsPostidCommentsResponseSuccess)
+
+export const getPostApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+    postId: number,) => {
+
+
+
+
+  return `/api/boards/${boardId}/posts/${postId}/comments`
+}
+
+export const postApiBoardsBoardidPostsPostidComments = async (boardId: number,
+    postId: number,
+    postApiBoardsBoardidPostsPostidCommentsBody: PostApiBoardsBoardidPostsPostidCommentsBody, options?: RequestInit): Promise<postApiBoardsBoardidPostsPostidCommentsResponse> => {
+
+  return customFetch<postApiBoardsBoardidPostsPostidCommentsResponse>(getPostApiBoardsBoardidPostsPostidCommentsUrl(boardId,postId),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiBoardsBoardidPostsPostidCommentsBody,)
+  }
+);}
+
+
+
+/**
+ * 본인이 작성한 댓글을 soft delete 처리합니다. 삭제자 ID와 사용자 삭제 주체가 감사 정보로 기록됩니다.
+ * @summary 댓글 삭제
+ */
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse200 = {
+  data: boolean
+  status: 200
+}
+
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = (deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse = (deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
+
+export const getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+    postId: number,
+    commentId: number,) => {
+
+
+
+
+  return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
+}
+
+export const deleteApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+    postId: number,
+    commentId: number, options?: RequestInit): Promise<deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
+
+  return customFetch<deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse>(getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl(boardId,postId,commentId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+/**
+ * 본인이 작성한 댓글 내용을 수정합니다. 게시판의 writeRole 이상 권한이 필요합니다.
+ * @summary 댓글 수정
+ */
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponse200 = {
+  data: CommentResponse
+  status: 200
+}
+
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = (putApiBoardsBoardidPostsPostidCommentsCommentidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiBoardsBoardidPostsPostidCommentsCommentidResponse = (putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
+
+export const getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+    postId: number,
+    commentId: number,) => {
+
+
+
+
+  return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
+}
+
+export const putApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+    postId: number,
+    commentId: number,
+    putApiBoardsBoardidPostsPostidCommentsCommentidBody: PutApiBoardsBoardidPostsPostidCommentsCommentidBody, options?: RequestInit): Promise<putApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
+
+  return customFetch<putApiBoardsBoardidPostsPostidCommentsCommentidResponse>(getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl(boardId,postId,commentId),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiBoardsBoardidPostsPostidCommentsCommentidBody,)
   }
 );}
 
@@ -14357,7 +15373,7 @@ export type getApiBottlesResponse200 = {
   data: PagedModelBottleResponse
   status: 200
 }
-    
+
 export type getApiBottlesResponseSuccess = (getApiBottlesResponse200) & {
   headers: Headers;
 };
@@ -14369,7 +15385,7 @@ export const getGetApiBottlesUrl = (params?: GetApiBottlesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14381,13 +15397,13 @@ export const getGetApiBottlesUrl = (params?: GetApiBottlesParams,) => {
 }
 
 export const getApiBottles = async (params?: GetApiBottlesParams, options?: RequestInit): Promise<getApiBottlesResponse> => {
-  
+
   return customFetch<getApiBottlesResponse>(getGetApiBottlesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14401,7 +15417,7 @@ export type getApiBottlesParametersResponse200 = {
   data: BottleSearchParameterValues
   status: 200
 }
-    
+
 export type getApiBottlesParametersResponseSuccess = (getApiBottlesParametersResponse200) & {
   headers: Headers;
 };
@@ -14412,19 +15428,19 @@ export type getApiBottlesParametersResponse = (getApiBottlesParametersResponseSu
 export const getGetApiBottlesParametersUrl = () => {
 
 
-  
+
 
   return `/api/bottles/parameters`
 }
 
 export const getApiBottlesParameters = async ( options?: RequestInit): Promise<getApiBottlesParametersResponse> => {
-  
+
   return customFetch<getApiBottlesParametersResponse>(getGetApiBottlesParametersUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14438,7 +15454,7 @@ export type getApiBottlesReservationsApplicationsMeResponse200 = {
   data: PagedModelUserBottleReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type getApiBottlesReservationsApplicationsMeResponseSuccess = (getApiBottlesReservationsApplicationsMeResponse200) & {
   headers: Headers;
 };
@@ -14450,7 +15466,7 @@ export const getGetApiBottlesReservationsApplicationsMeUrl = (params?: GetApiBot
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14462,13 +15478,13 @@ export const getGetApiBottlesReservationsApplicationsMeUrl = (params?: GetApiBot
 }
 
 export const getApiBottlesReservationsApplicationsMe = async (params?: GetApiBottlesReservationsApplicationsMeParams, options?: RequestInit): Promise<getApiBottlesReservationsApplicationsMeResponse> => {
-  
+
   return customFetch<getApiBottlesReservationsApplicationsMeResponse>(getGetApiBottlesReservationsApplicationsMeUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14482,7 +15498,7 @@ export type deleteApiBottlesReservationsApplicationsApplicationidResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiBottlesReservationsApplicationsApplicationidResponseSuccess = (deleteApiBottlesReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -14493,19 +15509,19 @@ export type deleteApiBottlesReservationsApplicationsApplicationidResponse = (del
 export const getDeleteApiBottlesReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/bottles/reservations/applications/${applicationId}`
 }
 
 export const deleteApiBottlesReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<deleteApiBottlesReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<deleteApiBottlesReservationsApplicationsApplicationidResponse>(getDeleteApiBottlesReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -14519,7 +15535,7 @@ export type putApiBottlesReservationsApplicationsApplicationidResponse200 = {
   data: UserBottleReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type putApiBottlesReservationsApplicationsApplicationidResponseSuccess = (putApiBottlesReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -14530,16 +15546,16 @@ export type putApiBottlesReservationsApplicationsApplicationidResponse = (putApi
 export const getPutApiBottlesReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/bottles/reservations/applications/${applicationId}`
 }
 
 export const putApiBottlesReservationsApplicationsApplicationid = async (applicationId: number,
     putApiBottlesReservationsApplicationsApplicationidBody: PutApiBottlesReservationsApplicationsApplicationidBody, options?: RequestInit): Promise<putApiBottlesReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<putApiBottlesReservationsApplicationsApplicationidResponse>(getPutApiBottlesReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -14558,7 +15574,7 @@ export type getApiBottlesReservationsNoticesResponse200 = {
   data: PagedModelUserBottleReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiBottlesReservationsNoticesResponseSuccess = (getApiBottlesReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -14570,7 +15586,7 @@ export const getGetApiBottlesReservationsNoticesUrl = (params?: GetApiBottlesRes
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -14582,13 +15598,13 @@ export const getGetApiBottlesReservationsNoticesUrl = (params?: GetApiBottlesRes
 }
 
 export const getApiBottlesReservationsNotices = async (params?: GetApiBottlesReservationsNoticesParams, options?: RequestInit): Promise<getApiBottlesReservationsNoticesResponse> => {
-  
+
   return customFetch<getApiBottlesReservationsNoticesResponse>(getGetApiBottlesReservationsNoticesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14602,7 +15618,7 @@ export type getApiBottlesReservationsNoticesLatestActiveResponse200 = {
   data: UserBottleReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiBottlesReservationsNoticesLatestActiveResponseSuccess = (getApiBottlesReservationsNoticesLatestActiveResponse200) & {
   headers: Headers;
 };
@@ -14613,19 +15629,19 @@ export type getApiBottlesReservationsNoticesLatestActiveResponse = (getApiBottle
 export const getGetApiBottlesReservationsNoticesLatestActiveUrl = () => {
 
 
-  
+
 
   return `/api/bottles/reservations/notices/latest-active`
 }
 
 export const getApiBottlesReservationsNoticesLatestActive = async ( options?: RequestInit): Promise<getApiBottlesReservationsNoticesLatestActiveResponse> => {
-  
+
   return customFetch<getApiBottlesReservationsNoticesLatestActiveResponse>(getGetApiBottlesReservationsNoticesLatestActiveUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14639,7 +15655,7 @@ export type getApiBottlesReservationsNoticesRecentEndedResponse200 = {
   data: UserBottleReservationNoticePublicResponse[]
   status: 200
 }
-    
+
 export type getApiBottlesReservationsNoticesRecentEndedResponseSuccess = (getApiBottlesReservationsNoticesRecentEndedResponse200) & {
   headers: Headers;
 };
@@ -14650,19 +15666,19 @@ export type getApiBottlesReservationsNoticesRecentEndedResponse = (getApiBottles
 export const getGetApiBottlesReservationsNoticesRecentEndedUrl = () => {
 
 
-  
+
 
   return `/api/bottles/reservations/notices/recent-ended`
 }
 
 export const getApiBottlesReservationsNoticesRecentEnded = async ( options?: RequestInit): Promise<getApiBottlesReservationsNoticesRecentEndedResponse> => {
-  
+
   return customFetch<getApiBottlesReservationsNoticesRecentEndedResponse>(getGetApiBottlesReservationsNoticesRecentEndedUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14676,7 +15692,7 @@ export type getApiBottlesReservationsNoticesNoticeidResponse200 = {
   data: UserBottleReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiBottlesReservationsNoticesNoticeidResponseSuccess = (getApiBottlesReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -14687,19 +15703,19 @@ export type getApiBottlesReservationsNoticesNoticeidResponse = (getApiBottlesRes
 export const getGetApiBottlesReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/bottles/reservations/notices/${noticeId}`
 }
 
 export const getApiBottlesReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiBottlesReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<getApiBottlesReservationsNoticesNoticeidResponse>(getGetApiBottlesReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14713,7 +15729,7 @@ export type postApiBottlesReservationsNoticesNoticeidApplicationsResponse200 = {
   data: UserBottleReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type postApiBottlesReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiBottlesReservationsNoticesNoticeidApplicationsResponse200) & {
   headers: Headers;
 };
@@ -14724,16 +15740,16 @@ export type postApiBottlesReservationsNoticesNoticeidApplicationsResponse = (pos
 export const getPostApiBottlesReservationsNoticesNoticeidApplicationsUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/bottles/reservations/notices/${noticeId}/applications`
 }
 
 export const postApiBottlesReservationsNoticesNoticeidApplications = async (noticeId: number,
     postApiBottlesReservationsNoticesNoticeidApplicationsBody: PostApiBottlesReservationsNoticesNoticeidApplicationsBody, options?: RequestInit): Promise<postApiBottlesReservationsNoticesNoticeidApplicationsResponse> => {
-  
+
   return customFetch<postApiBottlesReservationsNoticesNoticeidApplicationsResponse>(getPostApiBottlesReservationsNoticesNoticeidApplicationsUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -14752,7 +15768,7 @@ export type getApiBottlesIdResponse200 = {
   data: BottleResponse
   status: 200
 }
-    
+
 export type getApiBottlesIdResponseSuccess = (getApiBottlesIdResponse200) & {
   headers: Headers;
 };
@@ -14763,19 +15779,19 @@ export type getApiBottlesIdResponse = (getApiBottlesIdResponseSuccess)
 export const getGetApiBottlesIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/bottles/${id}`
 }
 
 export const getApiBottlesId = async (id: number, options?: RequestInit): Promise<getApiBottlesIdResponse> => {
-  
+
   return customFetch<getApiBottlesIdResponse>(getGetApiBottlesIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14785,7 +15801,7 @@ export type getOrCreateResponse200 = {
   data: CartResponse
   status: 200
 }
-    
+
 export type getOrCreateResponseSuccess = (getOrCreateResponse200) & {
   headers: Headers;
 };
@@ -14796,19 +15812,19 @@ export type getOrCreateResponse = (getOrCreateResponseSuccess)
 export const getGetOrCreateUrl = () => {
 
 
-  
+
 
   return `/api/carts`
 }
 
 export const getOrCreate = async ( options?: RequestInit): Promise<getOrCreateResponse> => {
-  
+
   return customFetch<getOrCreateResponse>(getGetOrCreateUrl(),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -14818,7 +15834,7 @@ export type getCurrentResponse200 = {
   data: CartResponse
   status: 200
 }
-    
+
 export type getCurrentResponseSuccess = (getCurrentResponse200) & {
   headers: Headers;
 };
@@ -14829,19 +15845,19 @@ export type getCurrentResponse = (getCurrentResponseSuccess)
 export const getGetCurrentUrl = () => {
 
 
-  
+
 
   return `/api/carts/current`
 }
 
 export const getCurrent = async ( options?: RequestInit): Promise<getCurrentResponse> => {
-  
+
   return customFetch<getCurrentResponse>(getGetCurrentUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14851,7 +15867,7 @@ export type addItemResponse200 = {
   data: CartResponse
   status: 200
 }
-    
+
 export type addItemResponseSuccess = (addItemResponse200) & {
   headers: Headers;
 };
@@ -14862,15 +15878,15 @@ export type addItemResponse = (addItemResponseSuccess)
 export const getAddItemUrl = () => {
 
 
-  
+
 
   return `/api/carts/items`
 }
 
 export const addItem = async (addItemBody: AddItemBody, options?: RequestInit): Promise<addItemResponse> => {
-  
+
   return customFetch<addItemResponse>(getAddItemUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -14885,7 +15901,7 @@ export type deleteItemResponse200 = {
   data: CartResponse
   status: 200
 }
-    
+
 export type deleteItemResponseSuccess = (deleteItemResponse200) & {
   headers: Headers;
 };
@@ -14896,19 +15912,19 @@ export type deleteItemResponse = (deleteItemResponseSuccess)
 export const getDeleteItemUrl = (cartItemId: number,) => {
 
 
-  
+
 
   return `/api/carts/items/${cartItemId}`
 }
 
 export const deleteItem = async (cartItemId: number, options?: RequestInit): Promise<deleteItemResponse> => {
-  
+
   return customFetch<deleteItemResponse>(getDeleteItemUrl(cartItemId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -14918,7 +15934,7 @@ export type updateQuantityResponse200 = {
   data: CartResponse
   status: 200
 }
-    
+
 export type updateQuantityResponseSuccess = (updateQuantityResponse200) & {
   headers: Headers;
 };
@@ -14929,16 +15945,16 @@ export type updateQuantityResponse = (updateQuantityResponseSuccess)
 export const getUpdateQuantityUrl = (cartItemId: number,) => {
 
 
-  
+
 
   return `/api/carts/items/${cartItemId}`
 }
 
 export const updateQuantity = async (cartItemId: number,
     updateQuantityBody: UpdateQuantityBody, options?: RequestInit): Promise<updateQuantityResponse> => {
-  
+
   return customFetch<updateQuantityResponse>(getUpdateQuantityUrl(cartItemId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -14953,7 +15969,7 @@ export type quoteResponse200 = {
   data: CartQuoteResponse
   status: 200
 }
-    
+
 export type quoteResponseSuccess = (quoteResponse200) & {
   headers: Headers;
 };
@@ -14964,19 +15980,19 @@ export type quoteResponse = (quoteResponseSuccess)
 export const getQuoteUrl = () => {
 
 
-  
+
 
   return `/api/carts/quote`
 }
 
 export const quote = async ( options?: RequestInit): Promise<quoteResponse> => {
-  
+
   return customFetch<quoteResponse>(getQuoteUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -14989,7 +16005,7 @@ export type getApiFundraisingCampaignsResponse200 = {
   data: PagedModelFundraisingCampaignResponse
   status: 200
 }
-    
+
 export type getApiFundraisingCampaignsResponseSuccess = (getApiFundraisingCampaignsResponse200) & {
   headers: Headers;
 };
@@ -15001,7 +16017,7 @@ export const getGetApiFundraisingCampaignsUrl = (params?: GetApiFundraisingCampa
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15013,13 +16029,13 @@ export const getGetApiFundraisingCampaignsUrl = (params?: GetApiFundraisingCampa
 }
 
 export const getApiFundraisingCampaigns = async (params?: GetApiFundraisingCampaignsParams, options?: RequestInit): Promise<getApiFundraisingCampaignsResponse> => {
-  
+
   return customFetch<getApiFundraisingCampaignsResponse>(getGetApiFundraisingCampaignsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15032,7 +16048,7 @@ export type getApiDonationLinksResponse200 = {
   data: PagedModelDonationLinkResponse
   status: 200
 }
-    
+
 export type getApiDonationLinksResponseSuccess = (getApiDonationLinksResponse200) & {
   headers: Headers;
 };
@@ -15045,7 +16061,7 @@ export const getGetApiDonationLinksUrl = (campaignId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15058,13 +16074,13 @@ export const getGetApiDonationLinksUrl = (campaignId: number,
 
 export const getApiDonationLinks = async (campaignId: number,
     params?: GetApiDonationLinksParams, options?: RequestInit): Promise<getApiDonationLinksResponse> => {
-  
+
   return customFetch<getApiDonationLinksResponse>(getGetApiDonationLinksUrl(campaignId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15077,7 +16093,7 @@ export type getApiDonationLinksIdResponse200 = {
   data: DonationLinkResponse
   status: 200
 }
-    
+
 export type getApiDonationLinksIdResponseSuccess = (getApiDonationLinksIdResponse200) & {
   headers: Headers;
 };
@@ -15089,20 +16105,20 @@ export const getGetApiDonationLinksIdUrl = (campaignId: number,
     id: number,) => {
 
 
-  
+
 
   return `/api/fundraising/campaigns/${campaignId}/donation-links/${id}`
 }
 
 export const getApiDonationLinksId = async (campaignId: number,
     id: number, options?: RequestInit): Promise<getApiDonationLinksIdResponse> => {
-  
+
   return customFetch<getApiDonationLinksIdResponse>(getGetApiDonationLinksIdUrl(campaignId,id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15115,7 +16131,7 @@ export type getApiDonationsResponse200 = {
   data: PagedModelDonationResponse
   status: 200
 }
-    
+
 export type getApiDonationsResponseSuccess = (getApiDonationsResponse200) & {
   headers: Headers;
 };
@@ -15128,7 +16144,7 @@ export const getGetApiDonationsUrl = (campaignId: number,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15141,13 +16157,13 @@ export const getGetApiDonationsUrl = (campaignId: number,
 
 export const getApiDonations = async (campaignId: number,
     params?: GetApiDonationsParams, options?: RequestInit): Promise<getApiDonationsResponse> => {
-  
+
   return customFetch<getApiDonationsResponse>(getGetApiDonationsUrl(campaignId,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15160,7 +16176,7 @@ export type getApiFundraisingCampaignDonationsCountResponse200 = {
   data: DonationCountResponse
   status: 200
 }
-    
+
 export type getApiFundraisingCampaignDonationsCountResponseSuccess = (getApiFundraisingCampaignDonationsCountResponse200) & {
   headers: Headers;
 };
@@ -15171,19 +16187,19 @@ export type getApiFundraisingCampaignDonationsCountResponse = (getApiFundraising
 export const getGetApiFundraisingCampaignDonationsCountUrl = (campaignId: number,) => {
 
 
-  
+
 
   return `/api/fundraising/campaigns/${campaignId}/donations/count`
 }
 
 export const getApiFundraisingCampaignDonationsCount = async (campaignId: number, options?: RequestInit): Promise<getApiFundraisingCampaignDonationsCountResponse> => {
-  
+
   return customFetch<getApiFundraisingCampaignDonationsCountResponse>(getGetApiFundraisingCampaignDonationsCountUrl(campaignId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15196,7 +16212,7 @@ export type getApiDonationsIdResponse200 = {
   data: DonationResponse
   status: 200
 }
-    
+
 export type getApiDonationsIdResponseSuccess = (getApiDonationsIdResponse200) & {
   headers: Headers;
 };
@@ -15208,20 +16224,20 @@ export const getGetApiDonationsIdUrl = (campaignId: number,
     id: number,) => {
 
 
-  
+
 
   return `/api/fundraising/campaigns/${campaignId}/donations/${id}`
 }
 
 export const getApiDonationsId = async (campaignId: number,
     id: number, options?: RequestInit): Promise<getApiDonationsIdResponse> => {
-  
+
   return customFetch<getApiDonationsIdResponse>(getGetApiDonationsIdUrl(campaignId,id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15234,7 +16250,7 @@ export type getApiFundraisingCampaignsIdResponse200 = {
   data: FundraisingCampaignResponse
   status: 200
 }
-    
+
 export type getApiFundraisingCampaignsIdResponseSuccess = (getApiFundraisingCampaignsIdResponse200) & {
   headers: Headers;
 };
@@ -15245,19 +16261,19 @@ export type getApiFundraisingCampaignsIdResponse = (getApiFundraisingCampaignsId
 export const getGetApiFundraisingCampaignsIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/fundraising/campaigns/${id}`
 }
 
 export const getApiFundraisingCampaignsId = async (id: number, options?: RequestInit): Promise<getApiFundraisingCampaignsIdResponse> => {
-  
+
   return customFetch<getApiFundraisingCampaignsIdResponse>(getGetApiFundraisingCampaignsIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15270,7 +16286,7 @@ export type getApiFundraisingDonationsCountResponse200 = {
   data: DonationCountResponse
   status: 200
 }
-    
+
 export type getApiFundraisingDonationsCountResponseSuccess = (getApiFundraisingDonationsCountResponse200) & {
   headers: Headers;
 };
@@ -15281,19 +16297,19 @@ export type getApiFundraisingDonationsCountResponse = (getApiFundraisingDonation
 export const getGetApiFundraisingDonationsCountUrl = () => {
 
 
-  
+
 
   return `/api/fundraising/donations/count`
 }
 
 export const getApiFundraisingDonationsCount = async ( options?: RequestInit): Promise<getApiFundraisingDonationsCountResponse> => {
-  
+
   return customFetch<getApiFundraisingDonationsCountResponse>(getGetApiFundraisingDonationsCountUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15307,7 +16323,7 @@ export type getApiHealthResponse200 = {
   data: HealthCheckResponse
   status: 200
 }
-    
+
 export type getApiHealthResponseSuccess = (getApiHealthResponse200) & {
   headers: Headers;
 };
@@ -15318,19 +16334,19 @@ export type getApiHealthResponse = (getApiHealthResponseSuccess)
 export const getGetApiHealthUrl = () => {
 
 
-  
+
 
   return `/api/health`
 }
 
 export const getApiHealth = async ( options?: RequestInit): Promise<getApiHealthResponse> => {
-  
+
   return customFetch<getApiHealthResponse>(getGetApiHealthUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15343,7 +16359,7 @@ export type getApiItemsResponse200 = {
   data: PagedModelItemResponse
   status: 200
 }
-    
+
 export type getApiItemsResponseSuccess = (getApiItemsResponse200) & {
   headers: Headers;
 };
@@ -15355,7 +16371,7 @@ export const getGetApiItemsUrl = (params?: GetApiItemsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15367,13 +16383,13 @@ export const getGetApiItemsUrl = (params?: GetApiItemsParams,) => {
 }
 
 export const getApiItems = async (params?: GetApiItemsParams, options?: RequestInit): Promise<getApiItemsResponse> => {
-  
+
   return customFetch<getApiItemsResponse>(getGetApiItemsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15387,7 +16403,7 @@ export type getApiItemsReservationsApplicationsMeResponse200 = {
   data: PagedModelUserItemReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type getApiItemsReservationsApplicationsMeResponseSuccess = (getApiItemsReservationsApplicationsMeResponse200) & {
   headers: Headers;
 };
@@ -15399,7 +16415,7 @@ export const getGetApiItemsReservationsApplicationsMeUrl = (params?: GetApiItems
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15411,13 +16427,13 @@ export const getGetApiItemsReservationsApplicationsMeUrl = (params?: GetApiItems
 }
 
 export const getApiItemsReservationsApplicationsMe = async (params?: GetApiItemsReservationsApplicationsMeParams, options?: RequestInit): Promise<getApiItemsReservationsApplicationsMeResponse> => {
-  
+
   return customFetch<getApiItemsReservationsApplicationsMeResponse>(getGetApiItemsReservationsApplicationsMeUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15431,7 +16447,7 @@ export type deleteApiItemsReservationsApplicationsApplicationidResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiItemsReservationsApplicationsApplicationidResponseSuccess = (deleteApiItemsReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -15442,19 +16458,19 @@ export type deleteApiItemsReservationsApplicationsApplicationidResponse = (delet
 export const getDeleteApiItemsReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/items/reservations/applications/${applicationId}`
 }
 
 export const deleteApiItemsReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<deleteApiItemsReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<deleteApiItemsReservationsApplicationsApplicationidResponse>(getDeleteApiItemsReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -15468,7 +16484,7 @@ export type putApiItemsReservationsApplicationsApplicationidResponse200 = {
   data: UserItemReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type putApiItemsReservationsApplicationsApplicationidResponseSuccess = (putApiItemsReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -15479,16 +16495,16 @@ export type putApiItemsReservationsApplicationsApplicationidResponse = (putApiIt
 export const getPutApiItemsReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/items/reservations/applications/${applicationId}`
 }
 
 export const putApiItemsReservationsApplicationsApplicationid = async (applicationId: number,
     putApiItemsReservationsApplicationsApplicationidBody: PutApiItemsReservationsApplicationsApplicationidBody, options?: RequestInit): Promise<putApiItemsReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<putApiItemsReservationsApplicationsApplicationidResponse>(getPutApiItemsReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15507,7 +16523,7 @@ export type getApiItemsReservationsNoticesResponse200 = {
   data: PagedModelUserItemReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiItemsReservationsNoticesResponseSuccess = (getApiItemsReservationsNoticesResponse200) & {
   headers: Headers;
 };
@@ -15519,7 +16535,7 @@ export const getGetApiItemsReservationsNoticesUrl = (params?: GetApiItemsReserva
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15531,13 +16547,13 @@ export const getGetApiItemsReservationsNoticesUrl = (params?: GetApiItemsReserva
 }
 
 export const getApiItemsReservationsNotices = async (params?: GetApiItemsReservationsNoticesParams, options?: RequestInit): Promise<getApiItemsReservationsNoticesResponse> => {
-  
+
   return customFetch<getApiItemsReservationsNoticesResponse>(getGetApiItemsReservationsNoticesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15551,7 +16567,7 @@ export type getApiItemsReservationsNoticesLatestActiveResponse200 = {
   data: UserItemReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiItemsReservationsNoticesLatestActiveResponseSuccess = (getApiItemsReservationsNoticesLatestActiveResponse200) & {
   headers: Headers;
 };
@@ -15562,19 +16578,19 @@ export type getApiItemsReservationsNoticesLatestActiveResponse = (getApiItemsRes
 export const getGetApiItemsReservationsNoticesLatestActiveUrl = () => {
 
 
-  
+
 
   return `/api/items/reservations/notices/latest-active`
 }
 
 export const getApiItemsReservationsNoticesLatestActive = async ( options?: RequestInit): Promise<getApiItemsReservationsNoticesLatestActiveResponse> => {
-  
+
   return customFetch<getApiItemsReservationsNoticesLatestActiveResponse>(getGetApiItemsReservationsNoticesLatestActiveUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15588,7 +16604,7 @@ export type getApiItemsReservationsNoticesRecentEndedResponse200 = {
   data: UserItemReservationNoticePublicResponse[]
   status: 200
 }
-    
+
 export type getApiItemsReservationsNoticesRecentEndedResponseSuccess = (getApiItemsReservationsNoticesRecentEndedResponse200) & {
   headers: Headers;
 };
@@ -15599,19 +16615,19 @@ export type getApiItemsReservationsNoticesRecentEndedResponse = (getApiItemsRese
 export const getGetApiItemsReservationsNoticesRecentEndedUrl = () => {
 
 
-  
+
 
   return `/api/items/reservations/notices/recent-ended`
 }
 
 export const getApiItemsReservationsNoticesRecentEnded = async ( options?: RequestInit): Promise<getApiItemsReservationsNoticesRecentEndedResponse> => {
-  
+
   return customFetch<getApiItemsReservationsNoticesRecentEndedResponse>(getGetApiItemsReservationsNoticesRecentEndedUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15625,7 +16641,7 @@ export type getApiItemsReservationsNoticesNoticeidResponse200 = {
   data: UserItemReservationNoticePublicResponse
   status: 200
 }
-    
+
 export type getApiItemsReservationsNoticesNoticeidResponseSuccess = (getApiItemsReservationsNoticesNoticeidResponse200) & {
   headers: Headers;
 };
@@ -15636,19 +16652,19 @@ export type getApiItemsReservationsNoticesNoticeidResponse = (getApiItemsReserva
 export const getGetApiItemsReservationsNoticesNoticeidUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/items/reservations/notices/${noticeId}`
 }
 
 export const getApiItemsReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiItemsReservationsNoticesNoticeidResponse> => {
-  
+
   return customFetch<getApiItemsReservationsNoticesNoticeidResponse>(getGetApiItemsReservationsNoticesNoticeidUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15662,7 +16678,7 @@ export type postApiItemsReservationsNoticesNoticeidApplicationsResponse200 = {
   data: UserItemReservationApplicationPublicResponse
   status: 200
 }
-    
+
 export type postApiItemsReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiItemsReservationsNoticesNoticeidApplicationsResponse200) & {
   headers: Headers;
 };
@@ -15673,16 +16689,16 @@ export type postApiItemsReservationsNoticesNoticeidApplicationsResponse = (postA
 export const getPostApiItemsReservationsNoticesNoticeidApplicationsUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/items/reservations/notices/${noticeId}/applications`
 }
 
 export const postApiItemsReservationsNoticesNoticeidApplications = async (noticeId: number,
     postApiItemsReservationsNoticesNoticeidApplicationsBody: PostApiItemsReservationsNoticesNoticeidApplicationsBody, options?: RequestInit): Promise<postApiItemsReservationsNoticesNoticeidApplicationsResponse> => {
-  
+
   return customFetch<postApiItemsReservationsNoticesNoticeidApplicationsResponse>(getPostApiItemsReservationsNoticesNoticeidApplicationsUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15700,7 +16716,7 @@ export type getApiItemsIdResponse200 = {
   data: ItemResponse
   status: 200
 }
-    
+
 export type getApiItemsIdResponseSuccess = (getApiItemsIdResponse200) & {
   headers: Headers;
 };
@@ -15711,19 +16727,19 @@ export type getApiItemsIdResponse = (getApiItemsIdResponseSuccess)
 export const getGetApiItemsIdUrl = (id: number,) => {
 
 
-  
+
 
   return `/api/items/${id}`
 }
 
 export const getApiItemsId = async (id: number, options?: RequestInit): Promise<getApiItemsIdResponse> => {
-  
+
   return customFetch<getApiItemsIdResponse>(getGetApiItemsIdUrl(id),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15733,7 +16749,7 @@ export type getApiKvStoreResponse200 = {
   data: KvStoreUserResponse
   status: 200
 }
-    
+
 export type getApiKvStoreResponseSuccess = (getApiKvStoreResponse200) & {
   headers: Headers;
 };
@@ -15744,19 +16760,19 @@ export type getApiKvStoreResponse = (getApiKvStoreResponseSuccess)
 export const getGetApiKvStoreUrl = (key: string,) => {
 
 
-  
+
 
   return `/api/kv-stores/${key}`
 }
 
 export const getApiKvStore = async (key: string, options?: RequestInit): Promise<getApiKvStoreResponse> => {
-  
+
   return customFetch<getApiKvStoreResponse>(getGetApiKvStoreUrl(key),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15769,7 +16785,7 @@ export type getApiOrdersResponse200 = {
   data: PagedModelUserOrderResponse
   status: 200
 }
-    
+
 export type getApiOrdersResponseSuccess = (getApiOrdersResponse200) & {
   headers: Headers;
 };
@@ -15781,7 +16797,7 @@ export const getGetApiOrdersUrl = (params?: GetApiOrdersParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -15793,13 +16809,13 @@ export const getGetApiOrdersUrl = (params?: GetApiOrdersParams,) => {
 }
 
 export const getApiOrders = async (params?: GetApiOrdersParams, options?: RequestInit): Promise<getApiOrdersResponse> => {
-  
+
   return customFetch<getApiOrdersResponse>(getGetApiOrdersUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -15812,7 +16828,7 @@ export type postApiOrdersResponse200 = {
   data: UserOrderResponse
   status: 200
 }
-    
+
 export type postApiOrdersResponseSuccess = (postApiOrdersResponse200) & {
   headers: Headers;
 };
@@ -15823,15 +16839,15 @@ export type postApiOrdersResponse = (postApiOrdersResponseSuccess)
 export const getPostApiOrdersUrl = () => {
 
 
-  
+
 
   return `/api/orders`
 }
 
 export const postApiOrders = async (postApiOrdersBody: PostApiOrdersBody, options?: RequestInit): Promise<postApiOrdersResponse> => {
-  
+
   return customFetch<postApiOrdersResponse>(getPostApiOrdersUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15849,7 +16865,7 @@ export type postApiOrdersGeneralItemsDeliveryCartTossConfirmResponse200 = {
   data: UserGeneralItemDeliveryOrderResponse
   status: 200
 }
-    
+
 export type postApiOrdersGeneralItemsDeliveryCartTossConfirmResponseSuccess = (postApiOrdersGeneralItemsDeliveryCartTossConfirmResponse200) & {
   headers: Headers;
 };
@@ -15860,15 +16876,15 @@ export type postApiOrdersGeneralItemsDeliveryCartTossConfirmResponse = (postApiO
 export const getPostApiOrdersGeneralItemsDeliveryCartTossConfirmUrl = () => {
 
 
-  
+
 
   return `/api/orders/general-items/delivery/cart/toss/confirm`
 }
 
 export const postApiOrdersGeneralItemsDeliveryCartTossConfirm = async (postApiOrdersGeneralItemsDeliveryCartTossConfirmBody: PostApiOrdersGeneralItemsDeliveryCartTossConfirmBody, options?: RequestInit): Promise<postApiOrdersGeneralItemsDeliveryCartTossConfirmResponse> => {
-  
+
   return customFetch<postApiOrdersGeneralItemsDeliveryCartTossConfirmResponse>(getPostApiOrdersGeneralItemsDeliveryCartTossConfirmUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15886,7 +16902,7 @@ export type postApiOrdersGeneralItemsDeliveryCartTossTicketsResponse200 = {
   data: GeneralItemDeliveryTicketResponse
   status: 200
 }
-    
+
 export type postApiOrdersGeneralItemsDeliveryCartTossTicketsResponseSuccess = (postApiOrdersGeneralItemsDeliveryCartTossTicketsResponse200) & {
   headers: Headers;
 };
@@ -15897,15 +16913,15 @@ export type postApiOrdersGeneralItemsDeliveryCartTossTicketsResponse = (postApiO
 export const getPostApiOrdersGeneralItemsDeliveryCartTossTicketsUrl = () => {
 
 
-  
+
 
   return `/api/orders/general-items/delivery/cart/toss/tickets`
 }
 
 export const postApiOrdersGeneralItemsDeliveryCartTossTickets = async (postApiOrdersGeneralItemsDeliveryCartTossTicketsBody: PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody, options?: RequestInit): Promise<postApiOrdersGeneralItemsDeliveryCartTossTicketsResponse> => {
-  
+
   return customFetch<postApiOrdersGeneralItemsDeliveryCartTossTicketsResponse>(getPostApiOrdersGeneralItemsDeliveryCartTossTicketsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15923,7 +16939,7 @@ export type postApiOrdersGeneralItemsDeliveryTossConfirmResponse200 = {
   data: UserGeneralItemDeliveryOrderResponse
   status: 200
 }
-    
+
 export type postApiOrdersGeneralItemsDeliveryTossConfirmResponseSuccess = (postApiOrdersGeneralItemsDeliveryTossConfirmResponse200) & {
   headers: Headers;
 };
@@ -15934,15 +16950,15 @@ export type postApiOrdersGeneralItemsDeliveryTossConfirmResponse = (postApiOrder
 export const getPostApiOrdersGeneralItemsDeliveryTossConfirmUrl = () => {
 
 
-  
+
 
   return `/api/orders/general-items/delivery/toss/confirm`
 }
 
 export const postApiOrdersGeneralItemsDeliveryTossConfirm = async (postApiOrdersGeneralItemsDeliveryTossConfirmBody: PostApiOrdersGeneralItemsDeliveryTossConfirmBody, options?: RequestInit): Promise<postApiOrdersGeneralItemsDeliveryTossConfirmResponse> => {
-  
+
   return customFetch<postApiOrdersGeneralItemsDeliveryTossConfirmResponse>(getPostApiOrdersGeneralItemsDeliveryTossConfirmUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15960,7 +16976,7 @@ export type postApiOrdersGeneralItemsDeliveryTossTicketsResponse200 = {
   data: GeneralItemDeliveryTicketResponse
   status: 200
 }
-    
+
 export type postApiOrdersGeneralItemsDeliveryTossTicketsResponseSuccess = (postApiOrdersGeneralItemsDeliveryTossTicketsResponse200) & {
   headers: Headers;
 };
@@ -15971,15 +16987,15 @@ export type postApiOrdersGeneralItemsDeliveryTossTicketsResponse = (postApiOrder
 export const getPostApiOrdersGeneralItemsDeliveryTossTicketsUrl = () => {
 
 
-  
+
 
   return `/api/orders/general-items/delivery/toss/tickets`
 }
 
 export const postApiOrdersGeneralItemsDeliveryTossTickets = async (postApiOrdersGeneralItemsDeliveryTossTicketsBody: PostApiOrdersGeneralItemsDeliveryTossTicketsBody, options?: RequestInit): Promise<postApiOrdersGeneralItemsDeliveryTossTicketsResponse> => {
-  
+
   return customFetch<postApiOrdersGeneralItemsDeliveryTossTicketsResponse>(getPostApiOrdersGeneralItemsDeliveryTossTicketsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -15997,7 +17013,7 @@ export type getApiOrdersGuestResponse200 = {
   data: UserOrderResponse
   status: 200
 }
-    
+
 export type getApiOrdersGuestResponseSuccess = (getApiOrdersGuestResponse200) & {
   headers: Headers;
 };
@@ -16009,7 +17025,7 @@ export const getGetApiOrdersGuestUrl = (params: GetApiOrdersGuestParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16021,13 +17037,13 @@ export const getGetApiOrdersGuestUrl = (params: GetApiOrdersGuestParams,) => {
 }
 
 export const getApiOrdersGuest = async (params: GetApiOrdersGuestParams, options?: RequestInit): Promise<getApiOrdersGuestResponse> => {
-  
+
   return customFetch<getApiOrdersGuestResponse>(getGetApiOrdersGuestUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16040,7 +17056,7 @@ export type patchApiOrdersGuestOrdernumberCancelResponse200 = {
   data: UserOrderResponse
   status: 200
 }
-    
+
 export type patchApiOrdersGuestOrdernumberCancelResponseSuccess = (patchApiOrdersGuestOrdernumberCancelResponse200) & {
   headers: Headers;
 };
@@ -16051,16 +17067,16 @@ export type patchApiOrdersGuestOrdernumberCancelResponse = (patchApiOrdersGuestO
 export const getPatchApiOrdersGuestOrdernumberCancelUrl = (orderNumber: string,) => {
 
 
-  
+
 
   return `/api/orders/guest/${orderNumber}/cancel`
 }
 
 export const patchApiOrdersGuestOrdernumberCancel = async (orderNumber: string,
     patchApiOrdersGuestOrdernumberCancelBody: PatchApiOrdersGuestOrdernumberCancelBody, options?: RequestInit): Promise<patchApiOrdersGuestOrdernumberCancelResponse> => {
-  
+
   return customFetch<patchApiOrdersGuestOrdernumberCancelResponse>(getPatchApiOrdersGuestOrdernumberCancelUrl(orderNumber),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16078,7 +17094,7 @@ export type getApiOrdersGuestOrdernumberDeliveryResponse200 = {
   data: UserOrderDeliveryResponse
   status: 200
 }
-    
+
 export type getApiOrdersGuestOrdernumberDeliveryResponseSuccess = (getApiOrdersGuestOrdernumberDeliveryResponse200) & {
   headers: Headers;
 };
@@ -16091,7 +17107,7 @@ export const getGetApiOrdersGuestOrdernumberDeliveryUrl = (orderNumber: string,
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16104,13 +17120,13 @@ export const getGetApiOrdersGuestOrdernumberDeliveryUrl = (orderNumber: string,
 
 export const getApiOrdersGuestOrdernumberDelivery = async (orderNumber: string,
     params: GetApiOrdersGuestOrdernumberDeliveryParams, options?: RequestInit): Promise<getApiOrdersGuestOrdernumberDeliveryResponse> => {
-  
+
   return customFetch<getApiOrdersGuestOrdernumberDeliveryResponse>(getGetApiOrdersGuestOrdernumberDeliveryUrl(orderNumber,params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16123,7 +17139,7 @@ export type postApiOrdersPaymentsConfirmResponse200 = {
   data: UserOrderPaymentConfirmResponse
   status: 200
 }
-    
+
 export type postApiOrdersPaymentsConfirmResponseSuccess = (postApiOrdersPaymentsConfirmResponse200) & {
   headers: Headers;
 };
@@ -16134,15 +17150,15 @@ export type postApiOrdersPaymentsConfirmResponse = (postApiOrdersPaymentsConfirm
 export const getPostApiOrdersPaymentsConfirmUrl = () => {
 
 
-  
+
 
   return `/api/orders/payments/confirm`
 }
 
 export const postApiOrdersPaymentsConfirm = async (postApiOrdersPaymentsConfirmBody: PostApiOrdersPaymentsConfirmBody, options?: RequestInit): Promise<postApiOrdersPaymentsConfirmResponse> => {
-  
+
   return customFetch<postApiOrdersPaymentsConfirmResponse>(getPostApiOrdersPaymentsConfirmUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16160,7 +17176,7 @@ export type postApiOrdersQueueJoinResponse200 = {
   data: UserOrderQueueStatusResponse
   status: 200
 }
-    
+
 export type postApiOrdersQueueJoinResponseSuccess = (postApiOrdersQueueJoinResponse200) & {
   headers: Headers;
 };
@@ -16171,15 +17187,15 @@ export type postApiOrdersQueueJoinResponse = (postApiOrdersQueueJoinResponseSucc
 export const getPostApiOrdersQueueJoinUrl = () => {
 
 
-  
+
 
   return `/api/orders/queue/join`
 }
 
 export const postApiOrdersQueueJoin = async (postApiOrdersQueueJoinBody: PostApiOrdersQueueJoinBody, options?: RequestInit): Promise<postApiOrdersQueueJoinResponse> => {
-  
+
   return customFetch<postApiOrdersQueueJoinResponse>(getPostApiOrdersQueueJoinUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16197,7 +17213,7 @@ export type getApiOrdersQueueStatusResponse200 = {
   data: UserOrderQueueStatusResponse
   status: 200
 }
-    
+
 export type getApiOrdersQueueStatusResponseSuccess = (getApiOrdersQueueStatusResponse200) & {
   headers: Headers;
 };
@@ -16209,7 +17225,7 @@ export const getGetApiOrdersQueueStatusUrl = (params: GetApiOrdersQueueStatusPar
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16221,13 +17237,13 @@ export const getGetApiOrdersQueueStatusUrl = (params: GetApiOrdersQueueStatusPar
 }
 
 export const getApiOrdersQueueStatus = async (params: GetApiOrdersQueueStatusParams, options?: RequestInit): Promise<getApiOrdersQueueStatusResponse> => {
-  
+
   return customFetch<getApiOrdersQueueStatusResponse>(getGetApiOrdersQueueStatusUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16240,7 +17256,7 @@ export type postApiOrdersTicketsResponse200 = {
   data: UserOrderTicketResponse
   status: 200
 }
-    
+
 export type postApiOrdersTicketsResponseSuccess = (postApiOrdersTicketsResponse200) & {
   headers: Headers;
 };
@@ -16251,15 +17267,15 @@ export type postApiOrdersTicketsResponse = (postApiOrdersTicketsResponseSuccess)
 export const getPostApiOrdersTicketsUrl = () => {
 
 
-  
+
 
   return `/api/orders/tickets`
 }
 
 export const postApiOrdersTickets = async (postApiOrdersTicketsBody: PostApiOrdersTicketsBody, options?: RequestInit): Promise<postApiOrdersTicketsResponse> => {
-  
+
   return customFetch<postApiOrdersTicketsResponse>(getPostApiOrdersTicketsUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16277,7 +17293,7 @@ export type getApiOrdersOrderidResponse200 = {
   data: UserOrderResponse
   status: 200
 }
-    
+
 export type getApiOrdersOrderidResponseSuccess = (getApiOrdersOrderidResponse200) & {
   headers: Headers;
 };
@@ -16288,19 +17304,19 @@ export type getApiOrdersOrderidResponse = (getApiOrdersOrderidResponseSuccess)
 export const getGetApiOrdersOrderidUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/orders/${orderId}`
 }
 
 export const getApiOrdersOrderid = async (orderId: number, options?: RequestInit): Promise<getApiOrdersOrderidResponse> => {
-  
+
   return customFetch<getApiOrdersOrderidResponse>(getGetApiOrdersOrderidUrl(orderId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16313,7 +17329,7 @@ export type patchApiOrdersOrderidCancelResponse200 = {
   data: UserOrderResponse
   status: 200
 }
-    
+
 export type patchApiOrdersOrderidCancelResponseSuccess = (patchApiOrdersOrderidCancelResponse200) & {
   headers: Headers;
 };
@@ -16324,16 +17340,16 @@ export type patchApiOrdersOrderidCancelResponse = (patchApiOrdersOrderidCancelRe
 export const getPatchApiOrdersOrderidCancelUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/orders/${orderId}/cancel`
 }
 
 export const patchApiOrdersOrderidCancel = async (orderId: number,
     patchApiOrdersOrderidCancelBody: PatchApiOrdersOrderidCancelBody, options?: RequestInit): Promise<patchApiOrdersOrderidCancelResponse> => {
-  
+
   return customFetch<patchApiOrdersOrderidCancelResponse>(getPatchApiOrdersOrderidCancelUrl(orderId),
-  {      
+  {
     ...options,
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16351,7 +17367,7 @@ export type getApiOrdersOrderidDeliveryResponse200 = {
   data: UserOrderDeliveryResponse
   status: 200
 }
-    
+
 export type getApiOrdersOrderidDeliveryResponseSuccess = (getApiOrdersOrderidDeliveryResponse200) & {
   headers: Headers;
 };
@@ -16362,19 +17378,19 @@ export type getApiOrdersOrderidDeliveryResponse = (getApiOrdersOrderidDeliveryRe
 export const getGetApiOrdersOrderidDeliveryUrl = (orderId: number,) => {
 
 
-  
+
 
   return `/api/orders/${orderId}/delivery`
 }
 
 export const getApiOrdersOrderidDelivery = async (orderId: number, options?: RequestInit): Promise<getApiOrdersOrderidDeliveryResponse> => {
-  
+
   return customFetch<getApiOrdersOrderidDeliveryResponse>(getGetApiOrdersOrderidDeliveryUrl(orderId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16388,7 +17404,7 @@ export type postApiPpurioCancelResponse200 = {
   data: PpurioResponse
   status: 200
 }
-    
+
 export type postApiPpurioCancelResponseSuccess = (postApiPpurioCancelResponse200) & {
   headers: Headers;
 };
@@ -16399,15 +17415,15 @@ export type postApiPpurioCancelResponse = (postApiPpurioCancelResponseSuccess)
 export const getPostApiPpurioCancelUrl = () => {
 
 
-  
+
 
   return `/api/ppurio/cancel`
 }
 
 export const postApiPpurioCancel = async (postApiPpurioCancelBody: PostApiPpurioCancelBody, options?: RequestInit): Promise<postApiPpurioCancelResponse> => {
-  
+
   return customFetch<postApiPpurioCancelResponse>(getPostApiPpurioCancelUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16426,7 +17442,7 @@ export type postApiPpurioCancelKakaoResponse200 = {
   data: PpurioResponse
   status: 200
 }
-    
+
 export type postApiPpurioCancelKakaoResponseSuccess = (postApiPpurioCancelKakaoResponse200) & {
   headers: Headers;
 };
@@ -16437,15 +17453,15 @@ export type postApiPpurioCancelKakaoResponse = (postApiPpurioCancelKakaoResponse
 export const getPostApiPpurioCancelKakaoUrl = () => {
 
 
-  
+
 
   return `/api/ppurio/cancel/kakao`
 }
 
 export const postApiPpurioCancelKakao = async (postApiPpurioCancelKakaoBody: PostApiPpurioCancelKakaoBody, options?: RequestInit): Promise<postApiPpurioCancelKakaoResponse> => {
-  
+
   return customFetch<postApiPpurioCancelKakaoResponse>(getPostApiPpurioCancelKakaoUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16464,7 +17480,7 @@ export type postApiPpurioKakaoResponse200 = {
   data: PpurioResponse
   status: 200
 }
-    
+
 export type postApiPpurioKakaoResponseSuccess = (postApiPpurioKakaoResponse200) & {
   headers: Headers;
 };
@@ -16475,15 +17491,15 @@ export type postApiPpurioKakaoResponse = (postApiPpurioKakaoResponseSuccess)
 export const getPostApiPpurioKakaoUrl = () => {
 
 
-  
+
 
   return `/api/ppurio/kakao`
 }
 
 export const postApiPpurioKakao = async (postApiPpurioKakaoBody: PostApiPpurioKakaoBody, options?: RequestInit): Promise<postApiPpurioKakaoResponse> => {
-  
+
   return customFetch<postApiPpurioKakaoResponse>(getPostApiPpurioKakaoUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16502,7 +17518,7 @@ export type postApiPpurioMessageResponse200 = {
   data: PpurioResponse
   status: 200
 }
-    
+
 export type postApiPpurioMessageResponseSuccess = (postApiPpurioMessageResponse200) & {
   headers: Headers;
 };
@@ -16513,15 +17529,15 @@ export type postApiPpurioMessageResponse = (postApiPpurioMessageResponseSuccess)
 export const getPostApiPpurioMessageUrl = () => {
 
 
-  
+
 
   return `/api/ppurio/message`
 }
 
 export const postApiPpurioMessage = async (postApiPpurioMessageBody: PostApiPpurioMessageBody, options?: RequestInit): Promise<postApiPpurioMessageResponse> => {
-  
+
   return customFetch<postApiPpurioMessageResponse>(getPostApiPpurioMessageUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16540,7 +17556,7 @@ export type postApiPpurioTokenResponse200 = {
   data: PpurioTokenResponse
   status: 200
 }
-    
+
 export type postApiPpurioTokenResponseSuccess = (postApiPpurioTokenResponse200) & {
   headers: Headers;
 };
@@ -16551,19 +17567,19 @@ export type postApiPpurioTokenResponse = (postApiPpurioTokenResponseSuccess)
 export const getPostApiPpurioTokenUrl = () => {
 
 
-  
+
 
   return `/api/ppurio/token`
 }
 
 export const postApiPpurioToken = async ( options?: RequestInit): Promise<postApiPpurioTokenResponse> => {
-  
+
   return customFetch<postApiPpurioTokenResponse>(getPostApiPpurioTokenUrl(),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -16577,7 +17593,7 @@ export type postApiPreRegisterResponse200 = {
   data: PreRegisterResponse
   status: 200
 }
-    
+
 export type postApiPreRegisterResponseSuccess = (postApiPreRegisterResponse200) & {
   headers: Headers;
 };
@@ -16588,15 +17604,15 @@ export type postApiPreRegisterResponse = (postApiPreRegisterResponseSuccess)
 export const getPostApiPreRegisterUrl = () => {
 
 
-  
+
 
   return `/api/pre-register`
 }
 
 export const postApiPreRegister = async (postApiPreRegisterBody: PostApiPreRegisterBody, options?: RequestInit): Promise<postApiPreRegisterResponse> => {
-  
+
   return customFetch<postApiPreRegisterResponse>(getPostApiPreRegisterUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16615,7 +17631,7 @@ export type getApiS3PresignedResponse200 = {
   data: PresignUrlResponse
   status: 200
 }
-    
+
 export type getApiS3PresignedResponseSuccess = (getApiS3PresignedResponse200) & {
   headers: Headers;
 };
@@ -16627,7 +17643,7 @@ export const getGetApiS3PresignedUrl = (params: GetApiS3PresignedParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16639,13 +17655,13 @@ export const getGetApiS3PresignedUrl = (params: GetApiS3PresignedParams,) => {
 }
 
 export const getApiS3Presigned = async (params: GetApiS3PresignedParams, options?: RequestInit): Promise<getApiS3PresignedResponse> => {
-  
+
   return customFetch<getApiS3PresignedResponse>(getGetApiS3PresignedUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16659,7 +17675,7 @@ export type postApiS3UploadResponse200 = {
   data: PostApiS3Upload200
   status: 200
 }
-    
+
 export type postApiS3UploadResponseSuccess = (postApiS3UploadResponse200) & {
   headers: Headers;
 };
@@ -16670,7 +17686,7 @@ export type postApiS3UploadResponse = (postApiS3UploadResponseSuccess)
 export const getPostApiS3UploadUrl = () => {
 
 
-  
+
 
   return `/api/s3/upload`
 }
@@ -16680,11 +17696,11 @@ export const postApiS3Upload = async (postApiS3UploadBody: PostApiS3UploadBody, 
 formData.append(`file`, postApiS3UploadBody.file);
 
   return customFetch<postApiS3UploadResponse>(getPostApiS3UploadUrl(),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -16698,7 +17714,7 @@ export type getApiSalesResponse200 = {
   data: PagedModelUserSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiSalesResponseSuccess = (getApiSalesResponse200) & {
   headers: Headers;
 };
@@ -16710,7 +17726,7 @@ export const getGetApiSalesUrl = (params?: GetApiSalesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16722,13 +17738,13 @@ export const getGetApiSalesUrl = (params?: GetApiSalesParams,) => {
 }
 
 export const getApiSales = async (params?: GetApiSalesParams, options?: RequestInit): Promise<getApiSalesResponse> => {
-  
+
   return customFetch<getApiSalesResponse>(getGetApiSalesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16741,7 +17757,7 @@ export type getApiSalesSaleidResponse200 = {
   data: UserSaleAnnouncementResponse
   status: 200
 }
-    
+
 export type getApiSalesSaleidResponseSuccess = (getApiSalesSaleidResponse200) & {
   headers: Headers;
 };
@@ -16752,19 +17768,19 @@ export type getApiSalesSaleidResponse = (getApiSalesSaleidResponseSuccess)
 export const getGetApiSalesSaleidUrl = (saleId: number,) => {
 
 
-  
+
 
   return `/api/sales/${saleId}`
 }
 
 export const getApiSalesSaleid = async (saleId: number, options?: RequestInit): Promise<getApiSalesSaleidResponse> => {
-  
+
   return customFetch<getApiSalesSaleidResponse>(getGetApiSalesSaleidUrl(saleId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16777,7 +17793,7 @@ export type getApiTaxInvoicesTaxInvoiceMonthlyPdfResponse200 = {
   data: Blob
   status: 200
 }
-    
+
 export type getApiTaxInvoicesTaxInvoiceMonthlyPdfResponseSuccess = (getApiTaxInvoicesTaxInvoiceMonthlyPdfResponse200) & {
   headers: Headers;
 };
@@ -16789,7 +17805,7 @@ export const getGetApiTaxInvoicesTaxInvoiceMonthlyPdfUrl = (params: GetApiTaxInv
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16801,13 +17817,13 @@ export const getGetApiTaxInvoicesTaxInvoiceMonthlyPdfUrl = (params: GetApiTaxInv
 }
 
 export const getApiTaxInvoicesTaxInvoiceMonthlyPdf = async (params: GetApiTaxInvoicesTaxInvoiceMonthlyPdfParams, options?: RequestInit): Promise<getApiTaxInvoicesTaxInvoiceMonthlyPdfResponse> => {
-  
+
   return customFetch<getApiTaxInvoicesTaxInvoiceMonthlyPdfResponse>(getGetApiTaxInvoicesTaxInvoiceMonthlyPdfUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16820,7 +17836,7 @@ export type getApiTaxInvoicesVatReportMonthlyPdfResponse200 = {
   data: Blob
   status: 200
 }
-    
+
 export type getApiTaxInvoicesVatReportMonthlyPdfResponseSuccess = (getApiTaxInvoicesVatReportMonthlyPdfResponse200) & {
   headers: Headers;
 };
@@ -16832,7 +17848,7 @@ export const getGetApiTaxInvoicesVatReportMonthlyPdfUrl = (params: GetApiTaxInvo
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16844,13 +17860,13 @@ export const getGetApiTaxInvoicesVatReportMonthlyPdfUrl = (params: GetApiTaxInvo
 }
 
 export const getApiTaxInvoicesVatReportMonthlyPdf = async (params: GetApiTaxInvoicesVatReportMonthlyPdfParams, options?: RequestInit): Promise<getApiTaxInvoicesVatReportMonthlyPdfResponse> => {
-  
+
   return customFetch<getApiTaxInvoicesVatReportMonthlyPdfResponse>(getGetApiTaxInvoicesVatReportMonthlyPdfUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16863,7 +17879,7 @@ export type postApiTossPaymentsWebhookResponse200 = {
   data: TossWebhookResponse
   status: 200
 }
-    
+
 export type postApiTossPaymentsWebhookResponseSuccess = (postApiTossPaymentsWebhookResponse200) & {
   headers: Headers;
 };
@@ -16874,15 +17890,15 @@ export type postApiTossPaymentsWebhookResponse = (postApiTossPaymentsWebhookResp
 export const getPostApiTossPaymentsWebhookUrl = () => {
 
 
-  
+
 
   return `/api/toss-payments/webhook`
 }
 
 export const postApiTossPaymentsWebhook = async (postApiTossPaymentsWebhookBody: PostApiTossPaymentsWebhookBody, options?: RequestInit): Promise<postApiTossPaymentsWebhookResponse> => {
-  
+
   return customFetch<postApiTossPaymentsWebhookResponse>(getPostApiTossPaymentsWebhookUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -16901,7 +17917,7 @@ export type getApiUserNiceidCallbackResponse200 = {
   data: string
   status: 200
 }
-    
+
 export type getApiUserNiceidCallbackResponseSuccess = (getApiUserNiceidCallbackResponse200) & {
   headers: Headers;
 };
@@ -16913,7 +17929,7 @@ export const getGetApiUserNiceidCallbackUrl = (params: GetApiUserNiceidCallbackP
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16925,13 +17941,13 @@ export const getGetApiUserNiceidCallbackUrl = (params: GetApiUserNiceidCallbackP
 }
 
 export const getApiUserNiceidCallback = async (params: GetApiUserNiceidCallbackParams, options?: RequestInit): Promise<getApiUserNiceidCallbackResponse> => {
-  
+
   return customFetch<getApiUserNiceidCallbackResponse>(getGetApiUserNiceidCallbackUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -16941,7 +17957,7 @@ export type callbackPostResponse200 = {
   data: string
   status: 200
 }
-    
+
 export type callbackPostResponseSuccess = (callbackPostResponse200) & {
   headers: Headers;
 };
@@ -16953,7 +17969,7 @@ export const getCallbackPostUrl = (params: CallbackPostParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -16965,13 +17981,13 @@ export const getCallbackPostUrl = (params: CallbackPostParams,) => {
 }
 
 export const callbackPost = async (params: CallbackPostParams, options?: RequestInit): Promise<callbackPostResponse> => {
-  
+
   return customFetch<callbackPostResponse>(getCallbackPostUrl(params),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -16985,7 +18001,7 @@ export type postApiUserNiceidResultResponse200 = {
   data: NiceIdVerificationResultResponse
   status: 200
 }
-    
+
 export type postApiUserNiceidResultResponseSuccess = (postApiUserNiceidResultResponse200) & {
   headers: Headers;
 };
@@ -16996,15 +18012,15 @@ export type postApiUserNiceidResultResponse = (postApiUserNiceidResultResponseSu
 export const getPostApiUserNiceidResultUrl = () => {
 
 
-  
+
 
   return `/api/user/niceid/result`
 }
 
 export const postApiUserNiceidResult = async (postApiUserNiceidResultBody: PostApiUserNiceidResultBody, options?: RequestInit): Promise<postApiUserNiceidResultResponse> => {
-  
+
   return customFetch<postApiUserNiceidResultResponse>(getPostApiUserNiceidResultUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -17023,7 +18039,7 @@ export type getApiUserNiceidSessionResponse200 = {
   data: NiceIdVerificationStartResponse
   status: 200
 }
-    
+
 export type getApiUserNiceidSessionResponseSuccess = (getApiUserNiceidSessionResponse200) & {
   headers: Headers;
 };
@@ -17035,7 +18051,7 @@ export const getGetApiUserNiceidSessionUrl = (params?: GetApiUserNiceidSessionPa
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17047,13 +18063,13 @@ export const getGetApiUserNiceidSessionUrl = (params?: GetApiUserNiceidSessionPa
 }
 
 export const getApiUserNiceidSession = async (params?: GetApiUserNiceidSessionParams, options?: RequestInit): Promise<getApiUserNiceidSessionResponse> => {
-  
+
   return customFetch<getApiUserNiceidSessionResponse>(getGetApiUserNiceidSessionUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17067,7 +18083,7 @@ export type postApiUserNiceidSessionResponse200 = {
   data: NiceIdVerificationStartResponse
   status: 200
 }
-    
+
 export type postApiUserNiceidSessionResponseSuccess = (postApiUserNiceidSessionResponse200) & {
   headers: Headers;
 };
@@ -17078,15 +18094,15 @@ export type postApiUserNiceidSessionResponse = (postApiUserNiceidSessionResponse
 export const getPostApiUserNiceidSessionUrl = () => {
 
 
-  
+
 
   return `/api/user/niceid/session`
 }
 
 export const postApiUserNiceidSession = async (postApiUserNiceidSessionBody: PostApiUserNiceidSessionBody, options?: RequestInit): Promise<postApiUserNiceidSessionResponse> => {
-  
+
   return customFetch<postApiUserNiceidSessionResponse>(getPostApiUserNiceidSessionUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -17105,7 +18121,7 @@ export type postApiUsersBusinessesApplicationsResponse200 = {
   data: UserBusinessApplicationSubmitResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesApplicationsResponseSuccess = (postApiUsersBusinessesApplicationsResponse200) & {
   headers: Headers;
 };
@@ -17117,7 +18133,7 @@ export const getPostApiUsersBusinessesApplicationsUrl = (params: PostApiUsersBus
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17134,11 +18150,11 @@ export const postApiUsersBusinessesApplications = async (postApiUsersBusinessesA
 formData.append(`document`, postApiUsersBusinessesApplicationsBody.document);
 
   return customFetch<postApiUsersBusinessesApplicationsResponse>(getPostApiUsersBusinessesApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -17153,7 +18169,7 @@ export type getApiUsersBusinessesApplicationsMeResponse200 = {
   data: UserBusinessApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesApplicationsMeResponseSuccess = (getApiUsersBusinessesApplicationsMeResponse200) & {
   headers: Headers;
 };
@@ -17164,19 +18180,19 @@ export type getApiUsersBusinessesApplicationsMeResponse = (getApiUsersBusinesses
 export const getGetApiUsersBusinessesApplicationsMeUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/applications/me`
 }
 
 export const getApiUsersBusinessesApplicationsMe = async ( options?: RequestInit): Promise<getApiUsersBusinessesApplicationsMeResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesApplicationsMeResponse>(getGetApiUsersBusinessesApplicationsMeUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17190,7 +18206,7 @@ export type getApiUsersBusinessesApplicationsMeHistoryResponse200 = {
   data: PagedModelUserBusinessApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesApplicationsMeHistoryResponseSuccess = (getApiUsersBusinessesApplicationsMeHistoryResponse200) & {
   headers: Headers;
 };
@@ -17202,7 +18218,7 @@ export const getGetApiUsersBusinessesApplicationsMeHistoryUrl = (params?: GetApi
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17214,13 +18230,13 @@ export const getGetApiUsersBusinessesApplicationsMeHistoryUrl = (params?: GetApi
 }
 
 export const getApiUsersBusinessesApplicationsMeHistory = async (params?: GetApiUsersBusinessesApplicationsMeHistoryParams, options?: RequestInit): Promise<getApiUsersBusinessesApplicationsMeHistoryResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesApplicationsMeHistoryResponse>(getGetApiUsersBusinessesApplicationsMeHistoryUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17234,7 +18250,7 @@ export type getApiUsersBusinessesApplicationsMeOverviewResponse200 = {
   data: UserBusinessApplicationOverviewResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesApplicationsMeOverviewResponseSuccess = (getApiUsersBusinessesApplicationsMeOverviewResponse200) & {
   headers: Headers;
 };
@@ -17245,19 +18261,19 @@ export type getApiUsersBusinessesApplicationsMeOverviewResponse = (getApiUsersBu
 export const getGetApiUsersBusinessesApplicationsMeOverviewUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/applications/me/overview`
 }
 
 export const getApiUsersBusinessesApplicationsMeOverview = async ( options?: RequestInit): Promise<getApiUsersBusinessesApplicationsMeOverviewResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesApplicationsMeOverviewResponse>(getGetApiUsersBusinessesApplicationsMeOverviewUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17271,7 +18287,7 @@ export type postApiUsersBusinessesApplicationsApplicationidCancelResponse200 = {
   data: UserBusinessApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess = (postApiUsersBusinessesApplicationsApplicationidCancelResponse200) & {
   headers: Headers;
 };
@@ -17282,16 +18298,16 @@ export type postApiUsersBusinessesApplicationsApplicationidCancelResponse = (pos
 export const getPostApiUsersBusinessesApplicationsApplicationidCancelUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/applications/${applicationId}/cancel`
 }
 
 export const postApiUsersBusinessesApplicationsApplicationidCancel = async (applicationId: number,
     postApiUsersBusinessesApplicationsApplicationidCancelBody: PostApiUsersBusinessesApplicationsApplicationidCancelBody, options?: RequestInit): Promise<postApiUsersBusinessesApplicationsApplicationidCancelResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesApplicationsApplicationidCancelResponse>(getPostApiUsersBusinessesApplicationsApplicationidCancelUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -17310,7 +18326,7 @@ export type getApiUsersBusinessesContextResponse200 = {
   data: BusinessMembershipContextResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesContextResponseSuccess = (getApiUsersBusinessesContextResponse200) & {
   headers: Headers;
 };
@@ -17321,19 +18337,19 @@ export type getApiUsersBusinessesContextResponse = (getApiUsersBusinessesContext
 export const getGetApiUsersBusinessesContextUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/context`
 }
 
 export const getApiUsersBusinessesContext = async ( options?: RequestInit): Promise<getApiUsersBusinessesContextResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesContextResponse>(getGetApiUsersBusinessesContextUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17347,7 +18363,7 @@ export type getApiUsersBusinessesItemsReservationsApplicationsResponse200 = {
   data: PagedModelUserItemReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesItemsReservationsApplicationsResponseSuccess = (getApiUsersBusinessesItemsReservationsApplicationsResponse200) & {
   headers: Headers;
 };
@@ -17359,7 +18375,7 @@ export const getGetApiUsersBusinessesItemsReservationsApplicationsUrl = (params?
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17371,13 +18387,13 @@ export const getGetApiUsersBusinessesItemsReservationsApplicationsUrl = (params?
 }
 
 export const getApiUsersBusinessesItemsReservationsApplications = async (params?: GetApiUsersBusinessesItemsReservationsApplicationsParams, options?: RequestInit): Promise<getApiUsersBusinessesItemsReservationsApplicationsResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesItemsReservationsApplicationsResponse>(getGetApiUsersBusinessesItemsReservationsApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17391,7 +18407,7 @@ export type postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResp
   data: UserItemReservationPickupBulkUpdateResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResponseSuccess = (postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResponse200) & {
   headers: Headers;
 };
@@ -17402,15 +18418,15 @@ export type postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResp
 export const getPostApiUsersBusinessesItemsReservationsApplicationsWaitingPickupUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/items/reservations/applications/waiting-pickup`
 }
 
 export const postApiUsersBusinessesItemsReservationsApplicationsWaitingPickup = async (postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupBody: PostApiUsersBusinessesItemsReservationsApplicationsWaitingPickupBody, options?: RequestInit): Promise<postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesItemsReservationsApplicationsWaitingPickupResponse>(getPostApiUsersBusinessesItemsReservationsApplicationsWaitingPickupUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -17429,7 +18445,7 @@ export type getApiUsersBusinessesItemsReservationsApplicationsApplicationidRespo
   data: UserItemReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesItemsReservationsApplicationsApplicationidResponseSuccess = (getApiUsersBusinessesItemsReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -17440,19 +18456,19 @@ export type getApiUsersBusinessesItemsReservationsApplicationsApplicationidRespo
 export const getGetApiUsersBusinessesItemsReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/items/reservations/applications/${applicationId}`
 }
 
 export const getApiUsersBusinessesItemsReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiUsersBusinessesItemsReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesItemsReservationsApplicationsApplicationidResponse>(getGetApiUsersBusinessesItemsReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17466,7 +18482,7 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaym
   data: UserItemReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteResponseSuccess = (postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteResponse200) & {
   headers: Headers;
 };
@@ -17477,19 +18493,19 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaym
 export const getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/items/reservations/applications/${applicationId}/payment-complete`
 }
 
 export const postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteResponse>(getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidPaymentCompleteUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17503,7 +18519,7 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidRece
   data: UserItemReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteResponseSuccess = (postApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteResponse200) & {
   headers: Headers;
 };
@@ -17514,19 +18530,19 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidRece
 export const getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/items/reservations/applications/${applicationId}/receive-complete`
 }
 
 export const postApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteResponse>(getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidReceiveCompleteUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17540,7 +18556,7 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidWait
   data: UserItemReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupResponseSuccess = (postApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupResponse200) & {
   headers: Headers;
 };
@@ -17551,19 +18567,19 @@ export type postApiUsersBusinessesItemsReservationsApplicationsApplicationidWait
 export const getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/items/reservations/applications/${applicationId}/waiting-pickup`
 }
 
 export const postApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickup = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupResponse>(getPostApiUsersBusinessesItemsReservationsApplicationsApplicationidWaitingPickupUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17577,7 +18593,7 @@ export type getApiUsersBusinessesMeResponse200 = {
   data: BusinessMembershipBusinessResponse[]
   status: 200
 }
-    
+
 export type getApiUsersBusinessesMeResponseSuccess = (getApiUsersBusinessesMeResponse200) & {
   headers: Headers;
 };
@@ -17588,19 +18604,19 @@ export type getApiUsersBusinessesMeResponse = (getApiUsersBusinessesMeResponseSu
 export const getGetApiUsersBusinessesMeUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/me`
 }
 
 export const getApiUsersBusinessesMe = async ( options?: RequestInit): Promise<getApiUsersBusinessesMeResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesMeResponse>(getGetApiUsersBusinessesMeUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17614,7 +18630,7 @@ export type patchApiUsersBusinessesMeBusinessidPrimaryResponse200 = {
   data: BusinessMembershipBusinessResponse
   status: 200
 }
-    
+
 export type patchApiUsersBusinessesMeBusinessidPrimaryResponseSuccess = (patchApiUsersBusinessesMeBusinessidPrimaryResponse200) & {
   headers: Headers;
 };
@@ -17625,19 +18641,19 @@ export type patchApiUsersBusinessesMeBusinessidPrimaryResponse = (patchApiUsersB
 export const getPatchApiUsersBusinessesMeBusinessidPrimaryUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/me/${businessId}/primary`
 }
 
 export const patchApiUsersBusinessesMeBusinessidPrimary = async (businessId: number, options?: RequestInit): Promise<patchApiUsersBusinessesMeBusinessidPrimaryResponse> => {
-  
+
   return customFetch<patchApiUsersBusinessesMeBusinessidPrimaryResponse>(getPatchApiUsersBusinessesMeBusinessidPrimaryUrl(businessId),
-  {      
+  {
     ...options,
     method: 'PATCH'
-    
-    
+
+
   }
 );}
 
@@ -17651,7 +18667,7 @@ export type getApiUsersBusinessesPickupLocationsResponse200 = {
   data: PagedModelPickupLocationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesPickupLocationsResponseSuccess = (getApiUsersBusinessesPickupLocationsResponse200) & {
   headers: Headers;
 };
@@ -17663,7 +18679,7 @@ export const getGetApiUsersBusinessesPickupLocationsUrl = (params?: GetApiUsersB
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17675,13 +18691,13 @@ export const getGetApiUsersBusinessesPickupLocationsUrl = (params?: GetApiUsersB
 }
 
 export const getApiUsersBusinessesPickupLocations = async (params?: GetApiUsersBusinessesPickupLocationsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupLocationsResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesPickupLocationsResponse>(getGetApiUsersBusinessesPickupLocationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17695,7 +18711,7 @@ export type getApiUsersBusinessesPickupReservationsApplicationsResponse200 = {
   data: PagedModelUserBottleReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesPickupReservationsApplicationsResponseSuccess = (getApiUsersBusinessesPickupReservationsApplicationsResponse200) & {
   headers: Headers;
 };
@@ -17707,7 +18723,7 @@ export const getGetApiUsersBusinessesPickupReservationsApplicationsUrl = (params
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17719,13 +18735,13 @@ export const getGetApiUsersBusinessesPickupReservationsApplicationsUrl = (params
 }
 
 export const getApiUsersBusinessesPickupReservationsApplications = async (params?: GetApiUsersBusinessesPickupReservationsApplicationsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsApplicationsResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesPickupReservationsApplicationsResponse>(getGetApiUsersBusinessesPickupReservationsApplicationsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17739,7 +18755,7 @@ export type postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupRes
   data: UserBottleReservationPickupBulkUpdateResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponseSuccess = (postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse200) & {
   headers: Headers;
 };
@@ -17750,15 +18766,15 @@ export type postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupRes
 export const getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl = () => {
 
 
-  
+
 
   return `/api/users/businesses/pickup-reservations/applications/waiting-pickup`
 }
 
 export const postApiUsersBusinessesPickupReservationsApplicationsWaitingPickup = async (postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody: PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -17777,7 +18793,7 @@ export type getApiUsersBusinessesPickupReservationsApplicationsApplicationidResp
   data: UserBottleReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponseSuccess = (getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse200) & {
   headers: Headers;
 };
@@ -17788,19 +18804,19 @@ export type getApiUsersBusinessesPickupReservationsApplicationsApplicationidResp
 export const getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/pickup-reservations/applications/${applicationId}`
 }
 
 export const getApiUsersBusinessesPickupReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse>(getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17814,7 +18830,7 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidPay
   data: UserBottleReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponseSuccess = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse200) & {
   headers: Headers;
 };
@@ -17825,19 +18841,19 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidPay
 export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/pickup-reservations/applications/${applicationId}/payment-complete`
 }
 
 export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17851,7 +18867,7 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidRec
   data: UserBottleReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponseSuccess = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse200) & {
   headers: Headers;
 };
@@ -17862,19 +18878,19 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidRec
 export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/pickup-reservations/applications/${applicationId}/receive-complete`
 }
 
 export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17888,7 +18904,7 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidWai
   data: UserBottleReservationPickupApplicationResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponseSuccess = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse200) & {
   headers: Headers;
 };
@@ -17899,19 +18915,19 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidWai
 export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl = (applicationId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/pickup-reservations/applications/${applicationId}/waiting-pickup`
 }
 
 export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickup = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl(applicationId),
-  {      
+  {
     ...options,
     method: 'POST'
-    
-    
+
+
   }
 );}
 
@@ -17925,7 +18941,7 @@ export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200 =
   data: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesPickupReservationsNoticeStatisticsResponseSuccess = (getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse200) & {
   headers: Headers;
 };
@@ -17937,7 +18953,7 @@ export const getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl = (pa
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17949,13 +18965,13 @@ export const getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl = (pa
 }
 
 export const getApiUsersBusinessesPickupReservationsNoticeStatistics = async (params?: GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesPickupReservationsNoticeStatisticsResponse>(getGetApiUsersBusinessesPickupReservationsNoticeStatisticsUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -17969,7 +18985,7 @@ export type getApiUsersBusinessesPickupReservationsNoticesStatusesResponse200 = 
   data: PagedModelUserBottleReservationPickupNoticeReservationStatusResponse
   status: 200
 }
-    
+
 export type getApiUsersBusinessesPickupReservationsNoticesStatusesResponseSuccess = (getApiUsersBusinessesPickupReservationsNoticesStatusesResponse200) & {
   headers: Headers;
 };
@@ -17981,7 +18997,7 @@ export const getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl = (par
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -17993,13 +19009,13 @@ export const getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl = (par
 }
 
 export const getApiUsersBusinessesPickupReservationsNoticesStatuses = async (params?: GetApiUsersBusinessesPickupReservationsNoticesStatusesParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse>(getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18013,7 +19029,7 @@ export type getApiUsersBusinessesReservationDeliveriesResponse200 = {
   data: UserReservationBusinessDeliveryResponse[]
   status: 200
 }
-    
+
 export type getApiUsersBusinessesReservationDeliveriesResponseSuccess = (getApiUsersBusinessesReservationDeliveriesResponse200) & {
   headers: Headers;
 };
@@ -18025,7 +19041,7 @@ export const getGetApiUsersBusinessesReservationDeliveriesUrl = (params?: GetApi
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
-    
+
     if (value !== undefined) {
       normalizedParams.append(key, value === null ? 'null' : value.toString())
     }
@@ -18037,13 +19053,13 @@ export const getGetApiUsersBusinessesReservationDeliveriesUrl = (params?: GetApi
 }
 
 export const getApiUsersBusinessesReservationDeliveries = async (params?: GetApiUsersBusinessesReservationDeliveriesParams, options?: RequestInit): Promise<getApiUsersBusinessesReservationDeliveriesResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesReservationDeliveriesResponse>(getGetApiUsersBusinessesReservationDeliveriesUrl(params),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18057,7 +19073,7 @@ export type getApiUsersBusinessesBusinessidMembersResponse200 = {
   data: BusinessMemberResponse[]
   status: 200
 }
-    
+
 export type getApiUsersBusinessesBusinessidMembersResponseSuccess = (getApiUsersBusinessesBusinessidMembersResponse200) & {
   headers: Headers;
 };
@@ -18068,19 +19084,19 @@ export type getApiUsersBusinessesBusinessidMembersResponse = (getApiUsersBusines
 export const getGetApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/${businessId}/members`
 }
 
 export const getApiUsersBusinessesBusinessidMembers = async (businessId: number, options?: RequestInit): Promise<getApiUsersBusinessesBusinessidMembersResponse> => {
-  
+
   return customFetch<getApiUsersBusinessesBusinessidMembersResponse>(getGetApiUsersBusinessesBusinessidMembersUrl(businessId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18094,7 +19110,7 @@ export type postApiUsersBusinessesBusinessidMembersResponse200 = {
   data: BusinessMemberResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesBusinessidMembersResponseSuccess = (postApiUsersBusinessesBusinessidMembersResponse200) & {
   headers: Headers;
 };
@@ -18105,16 +19121,16 @@ export type postApiUsersBusinessesBusinessidMembersResponse = (postApiUsersBusin
 export const getPostApiUsersBusinessesBusinessidMembersUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/${businessId}/members`
 }
 
 export const postApiUsersBusinessesBusinessidMembers = async (businessId: number,
     postApiUsersBusinessesBusinessidMembersBody: PostApiUsersBusinessesBusinessidMembersBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidMembersResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesBusinessidMembersResponse>(getPostApiUsersBusinessesBusinessidMembersUrl(businessId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18133,7 +19149,7 @@ export type deleteApiUsersBusinessesBusinessidMembersUseridResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiUsersBusinessesBusinessidMembersUseridResponseSuccess = (deleteApiUsersBusinessesBusinessidMembersUseridResponse200) & {
   headers: Headers;
 };
@@ -18145,20 +19161,20 @@ export const getDeleteApiUsersBusinessesBusinessidMembersUseridUrl = (businessId
     userId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/${businessId}/members/${userId}`
 }
 
 export const deleteApiUsersBusinessesBusinessidMembersUserid = async (businessId: number,
     userId: number, options?: RequestInit): Promise<deleteApiUsersBusinessesBusinessidMembersUseridResponse> => {
-  
+
   return customFetch<deleteApiUsersBusinessesBusinessidMembersUseridResponse>(getDeleteApiUsersBusinessesBusinessidMembersUseridUrl(businessId,userId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -18172,7 +19188,7 @@ export type postApiUsersBusinessesBusinessidOwnershipTransferResponse200 = {
   data: BusinessMemberResponse
   status: 200
 }
-    
+
 export type postApiUsersBusinessesBusinessidOwnershipTransferResponseSuccess = (postApiUsersBusinessesBusinessidOwnershipTransferResponse200) & {
   headers: Headers;
 };
@@ -18183,16 +19199,16 @@ export type postApiUsersBusinessesBusinessidOwnershipTransferResponse = (postApi
 export const getPostApiUsersBusinessesBusinessidOwnershipTransferUrl = (businessId: number,) => {
 
 
-  
+
 
   return `/api/users/businesses/${businessId}/ownership-transfer`
 }
 
 export const postApiUsersBusinessesBusinessidOwnershipTransfer = async (businessId: number,
     postApiUsersBusinessesBusinessidOwnershipTransferBody: PostApiUsersBusinessesBusinessidOwnershipTransferBody, options?: RequestInit): Promise<postApiUsersBusinessesBusinessidOwnershipTransferResponse> => {
-  
+
   return customFetch<postApiUsersBusinessesBusinessidOwnershipTransferResponse>(getPostApiUsersBusinessesBusinessidOwnershipTransferUrl(businessId),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18211,7 +19227,7 @@ export type getApiUsersMeResponse200 = {
   data: UserSelfResponse
   status: 200
 }
-    
+
 export type getApiUsersMeResponseSuccess = (getApiUsersMeResponse200) & {
   headers: Headers;
 };
@@ -18222,19 +19238,19 @@ export type getApiUsersMeResponse = (getApiUsersMeResponseSuccess)
 export const getGetApiUsersMeUrl = () => {
 
 
-  
+
 
   return `/api/users/me`
 }
 
 export const getApiUsersMe = async ( options?: RequestInit): Promise<getApiUsersMeResponse> => {
-  
+
   return customFetch<getApiUsersMeResponse>(getGetApiUsersMeUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18247,7 +19263,7 @@ export type getApiUsersMeDeliveryAddressesResponse200 = {
   data: UserDeliveryAddressResponse[]
   status: 200
 }
-    
+
 export type getApiUsersMeDeliveryAddressesResponseSuccess = (getApiUsersMeDeliveryAddressesResponse200) & {
   headers: Headers;
 };
@@ -18258,19 +19274,19 @@ export type getApiUsersMeDeliveryAddressesResponse = (getApiUsersMeDeliveryAddre
 export const getGetApiUsersMeDeliveryAddressesUrl = () => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses`
 }
 
 export const getApiUsersMeDeliveryAddresses = async ( options?: RequestInit): Promise<getApiUsersMeDeliveryAddressesResponse> => {
-  
+
   return customFetch<getApiUsersMeDeliveryAddressesResponse>(getGetApiUsersMeDeliveryAddressesUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18283,7 +19299,7 @@ export type postApiUsersMeDeliveryAddressesResponse200 = {
   data: UserDeliveryAddressResponse
   status: 200
 }
-    
+
 export type postApiUsersMeDeliveryAddressesResponseSuccess = (postApiUsersMeDeliveryAddressesResponse200) & {
   headers: Headers;
 };
@@ -18294,15 +19310,15 @@ export type postApiUsersMeDeliveryAddressesResponse = (postApiUsersMeDeliveryAdd
 export const getPostApiUsersMeDeliveryAddressesUrl = () => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses`
 }
 
 export const postApiUsersMeDeliveryAddresses = async (postApiUsersMeDeliveryAddressesBody: PostApiUsersMeDeliveryAddressesBody, options?: RequestInit): Promise<postApiUsersMeDeliveryAddressesResponse> => {
-  
+
   return customFetch<postApiUsersMeDeliveryAddressesResponse>(getPostApiUsersMeDeliveryAddressesUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18320,7 +19336,7 @@ export type deleteApiUsersMeDeliveryAddressesDefaultResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiUsersMeDeliveryAddressesDefaultResponseSuccess = (deleteApiUsersMeDeliveryAddressesDefaultResponse200) & {
   headers: Headers;
 };
@@ -18331,19 +19347,19 @@ export type deleteApiUsersMeDeliveryAddressesDefaultResponse = (deleteApiUsersMe
 export const getDeleteApiUsersMeDeliveryAddressesDefaultUrl = () => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses/default`
 }
 
 export const deleteApiUsersMeDeliveryAddressesDefault = async ( options?: RequestInit): Promise<deleteApiUsersMeDeliveryAddressesDefaultResponse> => {
-  
+
   return customFetch<deleteApiUsersMeDeliveryAddressesDefaultResponse>(getDeleteApiUsersMeDeliveryAddressesDefaultUrl(),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -18356,7 +19372,7 @@ export type deleteApiUsersMeDeliveryAddressesAddressidResponse200 = {
   data: void
   status: 200
 }
-    
+
 export type deleteApiUsersMeDeliveryAddressesAddressidResponseSuccess = (deleteApiUsersMeDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -18367,19 +19383,19 @@ export type deleteApiUsersMeDeliveryAddressesAddressidResponse = (deleteApiUsers
 export const getDeleteApiUsersMeDeliveryAddressesAddressidUrl = (addressId: number,) => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses/${addressId}`
 }
 
 export const deleteApiUsersMeDeliveryAddressesAddressid = async (addressId: number, options?: RequestInit): Promise<deleteApiUsersMeDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<deleteApiUsersMeDeliveryAddressesAddressidResponse>(getDeleteApiUsersMeDeliveryAddressesAddressidUrl(addressId),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}
 
@@ -18392,7 +19408,7 @@ export type getApiUsersMeDeliveryAddressesAddressidResponse200 = {
   data: UserDeliveryAddressResponse
   status: 200
 }
-    
+
 export type getApiUsersMeDeliveryAddressesAddressidResponseSuccess = (getApiUsersMeDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -18403,19 +19419,19 @@ export type getApiUsersMeDeliveryAddressesAddressidResponse = (getApiUsersMeDeli
 export const getGetApiUsersMeDeliveryAddressesAddressidUrl = (addressId: number,) => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses/${addressId}`
 }
 
 export const getApiUsersMeDeliveryAddressesAddressid = async (addressId: number, options?: RequestInit): Promise<getApiUsersMeDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<getApiUsersMeDeliveryAddressesAddressidResponse>(getGetApiUsersMeDeliveryAddressesAddressidUrl(addressId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18428,7 +19444,7 @@ export type putApiUsersMeDeliveryAddressesAddressidResponse200 = {
   data: UserDeliveryAddressResponse
   status: 200
 }
-    
+
 export type putApiUsersMeDeliveryAddressesAddressidResponseSuccess = (putApiUsersMeDeliveryAddressesAddressidResponse200) & {
   headers: Headers;
 };
@@ -18439,16 +19455,16 @@ export type putApiUsersMeDeliveryAddressesAddressidResponse = (putApiUsersMeDeli
 export const getPutApiUsersMeDeliveryAddressesAddressidUrl = (addressId: number,) => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses/${addressId}`
 }
 
 export const putApiUsersMeDeliveryAddressesAddressid = async (addressId: number,
     putApiUsersMeDeliveryAddressesAddressidBody: PutApiUsersMeDeliveryAddressesAddressidBody, options?: RequestInit): Promise<putApiUsersMeDeliveryAddressesAddressidResponse> => {
-  
+
   return customFetch<putApiUsersMeDeliveryAddressesAddressidResponse>(getPutApiUsersMeDeliveryAddressesAddressidUrl(addressId),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18466,7 +19482,7 @@ export type patchApiUsersMeDeliveryAddressesAddressidDefaultResponse200 = {
   data: UserDeliveryAddressResponse
   status: 200
 }
-    
+
 export type patchApiUsersMeDeliveryAddressesAddressidDefaultResponseSuccess = (patchApiUsersMeDeliveryAddressesAddressidDefaultResponse200) & {
   headers: Headers;
 };
@@ -18477,19 +19493,19 @@ export type patchApiUsersMeDeliveryAddressesAddressidDefaultResponse = (patchApi
 export const getPatchApiUsersMeDeliveryAddressesAddressidDefaultUrl = (addressId: number,) => {
 
 
-  
+
 
   return `/api/users/me/delivery-addresses/${addressId}/default`
 }
 
 export const patchApiUsersMeDeliveryAddressesAddressidDefault = async (addressId: number, options?: RequestInit): Promise<patchApiUsersMeDeliveryAddressesAddressidDefaultResponse> => {
-  
+
   return customFetch<patchApiUsersMeDeliveryAddressesAddressidDefaultResponse>(getPatchApiUsersMeDeliveryAddressesAddressidDefaultUrl(addressId),
-  {      
+  {
     ...options,
     method: 'PATCH'
-    
-    
+
+
   }
 );}
 
@@ -18503,7 +19519,7 @@ export type putApiUsersMeEmailResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type putApiUsersMeEmailResponseSuccess = (putApiUsersMeEmailResponse200) & {
   headers: Headers;
 };
@@ -18514,15 +19530,15 @@ export type putApiUsersMeEmailResponse = (putApiUsersMeEmailResponseSuccess)
 export const getPutApiUsersMeEmailUrl = () => {
 
 
-  
+
 
   return `/api/users/me/email`
 }
 
 export const putApiUsersMeEmail = async (putApiUsersMeEmailBody: PutApiUsersMeEmailBody, options?: RequestInit): Promise<putApiUsersMeEmailResponse> => {
-  
+
   return customFetch<putApiUsersMeEmailResponse>(getPutApiUsersMeEmailUrl(),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18541,7 +19557,7 @@ export type postApiUsersMeEmailVerificationSendResponse200 = {
   data: PostApiUsersMeEmailVerificationSend200
   status: 200
 }
-    
+
 export type postApiUsersMeEmailVerificationSendResponseSuccess = (postApiUsersMeEmailVerificationSendResponse200) & {
   headers: Headers;
 };
@@ -18552,15 +19568,15 @@ export type postApiUsersMeEmailVerificationSendResponse = (postApiUsersMeEmailVe
 export const getPostApiUsersMeEmailVerificationSendUrl = () => {
 
 
-  
+
 
   return `/api/users/me/email-verification/send`
 }
 
 export const postApiUsersMeEmailVerificationSend = async (postApiUsersMeEmailVerificationSendBody: PostApiUsersMeEmailVerificationSendBody, options?: RequestInit): Promise<postApiUsersMeEmailVerificationSendResponse> => {
-  
+
   return customFetch<postApiUsersMeEmailVerificationSendResponse>(getPostApiUsersMeEmailVerificationSendUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18579,7 +19595,7 @@ export type postApiUsersMeEmailVerificationVerifyResponse200 = {
   data: PostApiUsersMeEmailVerificationVerify200
   status: 200
 }
-    
+
 export type postApiUsersMeEmailVerificationVerifyResponseSuccess = (postApiUsersMeEmailVerificationVerifyResponse200) & {
   headers: Headers;
 };
@@ -18590,15 +19606,15 @@ export type postApiUsersMeEmailVerificationVerifyResponse = (postApiUsersMeEmail
 export const getPostApiUsersMeEmailVerificationVerifyUrl = () => {
 
 
-  
+
 
   return `/api/users/me/email-verification/verify`
 }
 
 export const postApiUsersMeEmailVerificationVerify = async (postApiUsersMeEmailVerificationVerifyBody: PostApiUsersMeEmailVerificationVerifyBody, options?: RequestInit): Promise<postApiUsersMeEmailVerificationVerifyResponse> => {
-  
+
   return customFetch<postApiUsersMeEmailVerificationVerifyResponse>(getPostApiUsersMeEmailVerificationVerifyUrl(),
-  {      
+  {
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18617,7 +19633,7 @@ export type putApiUsersMeNicknameResponse200 = {
   data: AuthResponse
   status: 200
 }
-    
+
 export type putApiUsersMeNicknameResponseSuccess = (putApiUsersMeNicknameResponse200) & {
   headers: Headers;
 };
@@ -18628,15 +19644,15 @@ export type putApiUsersMeNicknameResponse = (putApiUsersMeNicknameResponseSucces
 export const getPutApiUsersMeNicknameUrl = () => {
 
 
-  
+
 
   return `/api/users/me/nickname`
 }
 
 export const putApiUsersMeNickname = async (putApiUsersMeNicknameBody: PutApiUsersMeNicknameBody, options?: RequestInit): Promise<putApiUsersMeNicknameResponse> => {
-  
+
   return customFetch<putApiUsersMeNicknameResponse>(getPutApiUsersMeNicknameUrl(),
-  {      
+  {
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
@@ -18655,7 +19671,7 @@ export type getApiUsersMeSocialLinksResponse200 = {
   data: SocialLinkResponse[]
   status: 200
 }
-    
+
 export type getApiUsersMeSocialLinksResponseSuccess = (getApiUsersMeSocialLinksResponse200) & {
   headers: Headers;
 };
@@ -18666,19 +19682,19 @@ export type getApiUsersMeSocialLinksResponse = (getApiUsersMeSocialLinksResponse
 export const getGetApiUsersMeSocialLinksUrl = () => {
 
 
-  
+
 
   return `/api/users/me/social-links`
 }
 
 export const getApiUsersMeSocialLinks = async ( options?: RequestInit): Promise<getApiUsersMeSocialLinksResponse> => {
-  
+
   return customFetch<getApiUsersMeSocialLinksResponse>(getGetApiUsersMeSocialLinksUrl(),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -18692,7 +19708,7 @@ export type deleteApiUsersMeSocialLinksProviderResponse200 = {
   data: boolean
   status: 200
 }
-    
+
 export type deleteApiUsersMeSocialLinksProviderResponseSuccess = (deleteApiUsersMeSocialLinksProviderResponse200) & {
   headers: Headers;
 };
@@ -18703,18 +19719,18 @@ export type deleteApiUsersMeSocialLinksProviderResponse = (deleteApiUsersMeSocia
 export const getDeleteApiUsersMeSocialLinksProviderUrl = (provider: string,) => {
 
 
-  
+
 
   return `/api/users/me/social-links/${provider}`
 }
 
 export const deleteApiUsersMeSocialLinksProvider = async (provider: string, options?: RequestInit): Promise<deleteApiUsersMeSocialLinksProviderResponse> => {
-  
+
   return customFetch<deleteApiUsersMeSocialLinksProviderResponse>(getDeleteApiUsersMeSocialLinksProviderUrl(provider),
-  {      
+  {
     ...options,
     method: 'DELETE'
-    
-    
+
+
   }
 );}

@@ -17,13 +17,11 @@ export default async function AdminBottleOrdersPage({ searchParams }: AdminBottl
   const token = await getAuthToken();
   const page = parseDisplayPage(params.page);
   const size = parsePageSize(params.limit);
-  const orderType = emptyToUndefined(params.orderType) as GetApiAdminOrdersParams["orderType"] | undefined;
 
   const query: GetApiAdminOrdersParams = {
     page: toApiPage(page),
     size,
     sort: ["createdAt,desc"],
-    orderType,
     productType: "BOTTLE",
     orderStatus: emptyToUndefined(params.orderStatus) as GetApiAdminOrdersParams["orderStatus"],
     paymentMethod: emptyToUndefined(params.paymentMethod),
@@ -44,7 +42,6 @@ export default async function AdminBottleOrdersPage({ searchParams }: AdminBottl
         ...params,
         page: String(page),
         limit: String(size),
-        orderType: query.orderType as AdminOrdersSearchParams["orderType"],
         productType: "BOTTLE",
       }}
       orders={response.data.content ?? []}

@@ -143,7 +143,6 @@ export async function exportAdminDeliveryCsv(): Promise<AdminOrderActionResult<s
 
     const response = await getApiAdminOrdersDeliveryExport(
       {
-        orderType: "GENERAL",
         productType: "ITEM",
       },
       options,

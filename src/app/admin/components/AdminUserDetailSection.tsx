@@ -1,11 +1,11 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
-import { formatCurrency } from "@/lib/formatters";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { IconGoogle, IconKakao, IconNaver } from "@/icons";
+import { formatCurrency } from "@/lib/formatters";
 import {
   Ban,
   Calendar,
@@ -454,9 +454,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="typo-medium-14 text-amber-100">총 구매 금액</p>
-                        <p className="typo-bold-24 mt-1 text-white">
-                          {formatCurrency(orderSummary.totalAmount ?? 0)}
-                        </p>
+                        <p className="typo-bold-24 mt-1 text-white">{formatCurrency(orderSummary.totalAmount ?? 0)}</p>
                       </div>
                       <div className="text-right">
                         <p className="typo-medium-14 text-amber-100">총 주문 수</p>
@@ -487,7 +485,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                               <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
                               <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
                               <td className="px-3 py-3 text-gray-600">
-                                {ORDER_TYPE_LABEL[order.orderType ?? ""] ?? order.orderType}
+                                {ORDER_TYPE_LABEL[order.saleType ?? ""] ?? order.saleType}
                               </td>
                               <td className="px-3 py-3 text-right font-medium text-gray-900">
                                 {order.requestedQuantity}병
