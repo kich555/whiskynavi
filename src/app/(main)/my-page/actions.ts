@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserErrorMessage } from "@/apis/errors";
+import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiOrdersOrderidCancel,
   postApiUsersBusinessesApplications,
@@ -224,6 +224,21 @@ const businessApplySchema = z.object({
   representativeName: z.string().min(1, "대표자 이름을 입력해주세요."),
 });
 
+const BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE =
+  "국세청 사업자 검증에 실패했습니다. 입력하신 사업자등록번호, 개업일자, 대표자명을 다시 확인해주세요.";
+
+const getBusinessApplicationErrorMessage = (error: unknown): string => {
+  if (
+    error instanceof ApiError &&
+    error.status === 400 &&
+    error.userMessage.startsWith("사업자 등록 신청 검증에 실패했습니다.")
+  ) {
+    return BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE;
+  }
+
+  return getUserErrorMessage(error, "사업자 등록 신청에 실패했습니다.");
+};
+
 export async function submitBusinessApplication(
   _prevState: { success: boolean; error?: string },
   formData: FormData,
@@ -279,7 +294,7 @@ export async function submitBusinessApplication(
     if (isRedirectError(error)) throw error;
     return {
       success: false,
-      error: getUserErrorMessage(error, "사업자 등록 신청에 실패했습니다."),
+      error: getBusinessApplicationErrorMessage(error),
     };
   }
 }

@@ -1,5 +1,5 @@
 import type { AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import AdminOrdersContent from "./AdminOrdersContent";
@@ -64,7 +64,7 @@ describe("AdminOrdersContent", () => {
               totalPrice: 10000,
               freeShippingApplied: false,
             },
-            payment: { paymentMethod: "BANK_TRANSFER", paymentStatus: "DEPOSIT_WAITING" },
+            payment: { paymentMethod: "TOSS", paymentStatus: "DONE" },
             availableAdminActions: [],
           } satisfies OrderResponse,
         ]}
@@ -106,5 +106,60 @@ describe("AdminOrdersContent", () => {
     await user.click(screen.getByRole("button", { name: "상세" }));
 
     expect(push).toHaveBeenCalledWith("/admin/general-item-orders/123");
+  });
+
+  it("관리자 수동 구매내역 주문 출처를 표시한다", () => {
+    render(
+      <AdminOrdersContent
+        searchParams={{}}
+        totalElements={1}
+        orders={[
+          {
+            id: 2,
+            orderNumber: "ODR-MANUAL-1",
+            orderSource: "ADMIN_MANUAL",
+            itemName: "테스트 보틀",
+            requestedQuantity: 1,
+            totalPrice: 120000,
+            customer: { name: "김관리", guest: false },
+            availableAdminActions: [],
+          } satisfies OrderResponse,
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("관리자 수동")).toBeInTheDocument();
+  });
+
+  it("보틀 주문에서 물품 종류, 배송 방식, 배송 시기를 표시한다", () => {
+    render(
+      <AdminOrdersContent
+        searchParams={{ productType: "BOTTLE" }}
+        totalElements={1}
+        enableGeneralItemActions={false}
+        orders={[
+          {
+            id: 3,
+            orderNumber: "ODR-BOTTLE-1",
+            itemName: "테스트 보틀",
+            requestedQuantity: 1,
+            totalPrice: 120000,
+            productType: "BOTTLE",
+            fulfillmentMethod: "PICKUP",
+            saleTiming: "RESERVATION",
+            customer: { name: "김관리", guest: false },
+            availableAdminActions: [],
+          } satisfies OrderResponse,
+        ]}
+      />,
+    );
+
+    const orderRow = screen.getByText("ODR-BOTTLE-1").closest("tr");
+    expect(orderRow).not.toBeNull();
+
+    const row = within(orderRow!);
+    expect(row.getByText("보틀")).toBeInTheDocument();
+    expect(row.getByText("픽업")).toBeInTheDocument();
+    expect(row.getByText("예약판매")).toBeInTheDocument();
   });
 });

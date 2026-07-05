@@ -1,11 +1,12 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
-import { formatCurrency } from "@/lib/formatters";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { IconGoogle, IconKakao, IconNaver } from "@/icons";
+import { formatCurrency } from "@/lib/formatters";
+import { formatOrderClassification } from "@/lib/order-classification";
 import {
   Ban,
   Calendar,
@@ -27,12 +28,6 @@ import { ASSIGNABLE_ROLES, ORDER_STATUS_COLOR, ORDER_STATUS_LABEL, ROLE_COLOR_MA
 import AdminConfirmModal from "./modals/AdminConfirmModal";
 import RoleConflictModal from "./modals/RoleConflictModal";
 
-const ORDER_TYPE_LABEL: Record<string, string> = {
-  RESERVATION: "예약",
-  PICKUP: "픽업",
-  GENERAL: "일반",
-};
-
 // ─── 유틸 ─────────────────────────────────────────────────────
 // 같은 그룹 내 역할은 하나만 가질 수 있음 (추가 시 교체 확인)
 const ROLE_CONFLICT_GROUPS: { name: string; roles: string[] }[] = [
@@ -49,6 +44,7 @@ interface UserDetailViewProps {
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
   onStatusToggle?: (newStatus: string) => void;
+  onAddManualPurchase?: () => void;
   onAddRole?: never;
   onRemoveRole?: never;
   onReplaceRole?: never;
@@ -60,6 +56,7 @@ interface UserDetailEditProps {
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
   onStatusToggle?: (newStatus: string) => void;
+  onAddManualPurchase?: () => void;
   onAddRole?: (role: string) => void;
   onRemoveRole?: (role: string) => void;
   onReplaceRole?: (oldRole: string, newRole: string) => void;
@@ -79,6 +76,7 @@ type UserExtWithSocialConnections = NonNullable<AdminUserResponse["userExt"]> & 
 // ─── 컴포넌트 ────────────────────────────────────────────────────
 export default function AdminUserDetailSection(props: UserDetailProps) {
   const { isEditMode, userDetails, orderSummary, onStatusToggle } = props;
+  const { onAddManualPurchase } = props;
   const userExt = userDetails.userExt as UserExtWithSocialConnections | undefined;
   const orderTotalElements = orderSummary?.orders?.page?.totalElements ?? 0;
 
@@ -451,16 +449,26 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 <>
                   {/* 총 구매 금액 요약 카드 */}
                   <div className="mb-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 p-5">
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="typo-medium-14 text-amber-100">총 구매 금액</p>
-                        <p className="typo-bold-24 mt-1 text-white">
-                          {formatCurrency(orderSummary.totalAmount ?? 0)}
-                        </p>
+                        <p className="typo-bold-24 mt-1 text-white">{formatCurrency(orderSummary.totalAmount ?? 0)}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="typo-medium-14 text-amber-100">총 주문 수</p>
-                        <p className="typo-bold-24 mt-1 text-white">{orderTotalElements}건</p>
+                      <div className="flex items-center justify-between gap-4 sm:justify-end">
+                        <div className="text-right">
+                          <p className="typo-medium-14 text-amber-100">총 주문 수</p>
+                          <p className="typo-bold-24 mt-1 text-white">{orderTotalElements}건</p>
+                        </div>
+                        {onAddManualPurchase && (
+                          <button
+                            type="button"
+                            onClick={onAddManualPurchase}
+                            className="typo-medium-14 flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-white px-3 py-2 text-amber-700 transition-colors hover:bg-amber-50"
+                          >
+                            <Plus size={14} />
+                            구매내역 추가
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -473,7 +481,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                           <tr className="border-b border-gray-200">
                             <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
                             <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문유형</th>
+                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
                             <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
@@ -486,9 +494,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                             <tr key={order.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
                               <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
                               <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
-                              <td className="px-3 py-3 text-gray-600">
-                                {ORDER_TYPE_LABEL[order.orderType ?? ""] ?? order.orderType}
-                              </td>
+                              <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
                               <td className="px-3 py-3 text-right font-medium text-gray-900">
                                 {order.requestedQuantity}병
                               </td>

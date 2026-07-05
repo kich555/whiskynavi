@@ -1,6 +1,6 @@
 "use client";
 
-import { Award, Ban, Calendar, Package, ShoppingCart, Users } from "lucide-react";
+import { Award, Ban, Calendar, FileSpreadsheet, Package, ShoppingCart, Users } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import AdminHeader from "./AdminHeader";
@@ -34,6 +34,13 @@ const quickLinks = [
     icon: ShoppingCart,
     href: "/admin/bottle-orders",
     color: "bg-lime-600",
+  },
+  {
+    title: "구매내역 대량 등록",
+    description: "Excel로 수동 구매내역 등록",
+    icon: FileSpreadsheet,
+    href: "/admin/manual-purchases/import",
+    color: "bg-fuchsia-600",
   },
   {
     title: "일반상품관리",
