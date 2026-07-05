@@ -18,6 +18,20 @@ export const AdminAnnouncementResponseScope = {
 } as const;
 
 /**
+ * 관리자 게시판 글타입 응답입니다.
+ */
+export interface AdminBoardPostTypeResponse {
+  active?: boolean;
+  boardId?: number;
+  code?: string;
+  createdAt?: string;
+  default?: boolean;
+  displayOrder?: number;
+  id?: number;
+  name?: string;
+}
+
+/**
  * 관리자 공지사항 상세 응답입니다. 사용자 노출 정책과 본문을 함께 제공합니다.
  */
 export interface AdminAnnouncementResponse {
@@ -33,6 +47,7 @@ export interface AdminAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
   /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
@@ -70,6 +85,7 @@ export interface AdminAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
   /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
@@ -1468,6 +1484,8 @@ export interface AnnouncementRequest {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
+  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -1544,6 +1562,25 @@ export interface AuthResponse {
   userInfo?: UserSelfResponse;
   /** 사용자 아이디 */
   username?: string;
+}
+
+/**
+ * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ */
+export interface BoardPostTypeRequest {
+  active?: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  code?: string;
+  default?: boolean;
+  displayOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  name?: string;
 }
 
 /**
@@ -2245,6 +2282,12 @@ export interface CreatePostRequest {
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
+  /**
+   * 게시글 타입 코드입니다. 생략하면 게시판 기본 타입이 적용됩니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  postTypeCode?: string;
   /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
@@ -3188,6 +3231,15 @@ export interface PagedModelPickupLocationResponse {
 }
 
 /**
+ * 게시글 타입 응답입니다.
+ */
+export interface PostTypeResponse {
+  code?: string;
+  id?: number;
+  name?: string;
+}
+
+/**
  * 게시글 목록에 사용하는 요약 응답 DTO입니다.
  */
 export interface PostSummaryResponse {
@@ -3201,6 +3253,7 @@ export interface PostSummaryResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
+  postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
@@ -3235,6 +3288,7 @@ export interface UserAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
   /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
@@ -3325,6 +3379,8 @@ export interface UserBoardResponse {
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
   name?: string;
+  /** 게시판에서 선택 가능한 활성 게시글 타입 목록입니다. */
+  postTypes?: PostTypeResponse[];
   /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. */
@@ -4063,6 +4119,7 @@ export interface PostResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
+  postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
@@ -4940,6 +4997,12 @@ export interface UpdatePostRequest {
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
   /**
+   * 변경할 게시글 타입 코드입니다. null이면 기존 타입을 유지합니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  postTypeCode?: string;
+  /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
@@ -4986,6 +5049,7 @@ export interface UserAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
   /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
@@ -5489,6 +5553,8 @@ export type PostApiAdminBoardsAnnouncementsBody = {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
+  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -5534,6 +5600,8 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
+  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -5627,6 +5695,44 @@ export type PutApiAdminBoardsBoardidBody = {
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
   writeRole?: PutApiAdminBoardsBoardidBodyWriteRole;
+};
+
+/**
+ * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PostApiAdminBoardsBoardidPostTypesBody = {
+  active?: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  code?: string;
+  default?: boolean;
+  displayOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  name?: string;
+};
+
+/**
+ * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsBoardidPostTypesPosttypeidBody = {
+  active?: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  code?: string;
+  default?: boolean;
+  displayOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  name?: string;
 };
 
 /**
@@ -7968,6 +8074,7 @@ sort?: string[];
  */
 searchType?: GetApiBoardsBoardidPostsSearchType;
 keyword?: string;
+postTypeCode?: string;
 };
 
 export type GetApiBoardsBoardidPostsSearchType = typeof GetApiBoardsBoardidPostsSearchType[keyof typeof GetApiBoardsBoardidPostsSearchType];
@@ -7991,6 +8098,12 @@ export type PostApiBoardsBoardidPostsBody = {
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
+   * 게시글 타입 코드입니다. 생략하면 게시판 기본 타입이 적용됩니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  postTypeCode?: string;
+  /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
@@ -8006,6 +8119,12 @@ export type PutApiBoardsBoardidPostsPostidBody = {
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
+  /**
+   * 변경할 게시글 타입 코드입니다. null이면 기존 타입을 유지합니다.
+   * @minLength 0
+   * @maxLength 50
+   */
+  postTypeCode?: string;
   /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
@@ -10176,6 +10295,240 @@ export const putApiAdminBoardsBoardid = async (boardId: number,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiAdminBoardsBoardidBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 특정 게시판에 설정된 글타입 목록과 기본 여부, 활성 상태를 조회합니다.
+ * @summary 게시판 글타입 목록 조회(관리자)
+ */
+export type getApiAdminBoardsBoardidPostTypesResponse200 = {
+  data: AdminBoardPostTypeResponse[]
+  status: 200
+}
+    
+export type getApiAdminBoardsBoardidPostTypesResponseSuccess = (getApiAdminBoardsBoardidPostTypesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsBoardidPostTypesResponse = (getApiAdminBoardsBoardidPostTypesResponseSuccess)
+
+export const getGetApiAdminBoardsBoardidPostTypesUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types`
+}
+
+export const getApiAdminBoardsBoardidPostTypes = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidPostTypesResponse> => {
+  
+  return customFetch<getApiAdminBoardsBoardidPostTypesResponse>(getGetApiAdminBoardsBoardidPostTypesUrl(boardId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 게시판 글타입 코드, 이름, 노출 순서, 활성 상태를 등록합니다.
+ * @summary 게시판 글타입 생성(관리자)
+ */
+export type postApiAdminBoardsBoardidPostTypesResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type postApiAdminBoardsBoardidPostTypesResponseSuccess = (postApiAdminBoardsBoardidPostTypesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBoardsBoardidPostTypesResponse = (postApiAdminBoardsBoardidPostTypesResponseSuccess)
+
+export const getPostApiAdminBoardsBoardidPostTypesUrl = (boardId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types`
+}
+
+export const postApiAdminBoardsBoardidPostTypes = async (boardId: number,
+    postApiAdminBoardsBoardidPostTypesBody: PostApiAdminBoardsBoardidPostTypesBody, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesResponse> => {
+  
+  return customFetch<postApiAdminBoardsBoardidPostTypesResponse>(getPostApiAdminBoardsBoardidPostTypesUrl(boardId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminBoardsBoardidPostTypesBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 게시판 글타입 코드, 이름, 노출 순서, 활성 상태와 기본 지정 여부를 수정합니다.
+ * @summary 게시판 글타입 수정(관리자)
+ */
+export type putApiAdminBoardsBoardidPostTypesPosttypeidResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess = (putApiAdminBoardsBoardidPostTypesPosttypeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsBoardidPostTypesPosttypeidResponse = (putApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess)
+
+export const getPutApiAdminBoardsBoardidPostTypesPosttypeidUrl = (boardId: number,
+    postTypeId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types/${postTypeId}`
+}
+
+export const putApiAdminBoardsBoardidPostTypesPosttypeid = async (boardId: number,
+    postTypeId: number,
+    putApiAdminBoardsBoardidPostTypesPosttypeidBody: PutApiAdminBoardsBoardidPostTypesPosttypeidBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidPostTypesPosttypeidResponse> => {
+  
+  return customFetch<putApiAdminBoardsBoardidPostTypesPosttypeidResponse>(getPutApiAdminBoardsBoardidPostTypesPosttypeidUrl(boardId,postTypeId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsBoardidPostTypesPosttypeidBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 특정 게시판 글타입을 다시 활성화합니다.
+ * @summary 게시판 글타입 활성화(관리자)
+ */
+export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponseSuccess)
+
+export const getPostApiAdminBoardsBoardidPostTypesPosttypeidActivateUrl = (boardId: number,
+    postTypeId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/activate`
+}
+
+export const postApiAdminBoardsBoardidPostTypesPosttypeidActivate = async (boardId: number,
+    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse> => {
+  
+  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidActivateUrl(boardId,postTypeId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 특정 게시판 글타입을 비활성화합니다. 기본 글타입은 비활성화할 수 없습니다.
+ * @summary 게시판 글타입 비활성화(관리자)
+ */
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponseSuccess)
+
+export const getPostApiAdminBoardsBoardidPostTypesPosttypeidDeactivateUrl = (boardId: number,
+    postTypeId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/deactivate`
+}
+
+export const postApiAdminBoardsBoardidPostTypesPosttypeidDeactivate = async (boardId: number,
+    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse> => {
+  
+  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidDeactivateUrl(boardId,postTypeId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자가 특정 게시판의 기본 글타입을 지정합니다. 기존 기본 글타입은 해제됩니다.
+ * @summary 게시판 기본 글타입 지정(관리자)
+ */
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponseSuccess)
+
+export const getPostApiAdminBoardsBoardidPostTypesPosttypeidDefaultUrl = (boardId: number,
+    postTypeId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/default`
+}
+
+export const postApiAdminBoardsBoardidPostTypesPosttypeidDefault = async (boardId: number,
+    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse> => {
+  
+  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidDefaultUrl(boardId,postTypeId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -15026,7 +15379,7 @@ export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: nu
 
 
 /**
- * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있습니다.
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있으며, postTypeCode를 지정하면 해당 글타입으로 필터링하고 keyword 검색보다 우선 적용합니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
@@ -19292,7 +19645,7 @@ export type putApiUsersMeAgreementsResponse200 = {
   data: UserSelfResponse
   status: 200
 }
-
+    
 export type putApiUsersMeAgreementsResponseSuccess = (putApiUsersMeAgreementsResponse200) & {
   headers: Headers;
 };
@@ -19303,15 +19656,15 @@ export type putApiUsersMeAgreementsResponse = (putApiUsersMeAgreementsResponseSu
 export const getPutApiUsersMeAgreementsUrl = () => {
 
 
-
+  
 
   return `/api/users/me/agreements`
 }
 
 export const putApiUsersMeAgreements = async (putApiUsersMeAgreementsBody: PutApiUsersMeAgreementsBody, options?: RequestInit): Promise<putApiUsersMeAgreementsResponse> => {
-
+  
   return customFetch<putApiUsersMeAgreementsResponse>(getPutApiUsersMeAgreementsUrl(),
-  {
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
