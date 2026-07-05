@@ -40,3 +40,17 @@
 
 - .claude/skills/admin-api-auth.md — 관리자 API 인증 패턴, 토큰 처리, Server Action 가이드
 - .env.example — 필수 환경변수 목록
+
+## Agent skills
+
+### Issue tracker
+
+이슈는 GitHub Issues(`kich555/whiskynavi`)에서 관리하며 `gh` CLI를 사용한다. 외부 PR은 triage 대상에 포함하지 않는다. 자세한 내용은 `docs/agents/issue-tracker.md` 참고.
+
+### Triage labels
+
+5가지 canonical 역할(needs-triage, needs-info, ready-for-agent, ready-for-human, wontfix)을 이름 그대로 라벨로 사용한다. 자세한 내용은 `docs/agents/triage-labels.md` 참고.
+
+### Domain docs
+
+단일 컨텍스트 구조 — 저장소 루트에 `CONTEXT.md` + `docs/adr/`. 자세한 내용은 `docs/agents/domain.md` 참고.
