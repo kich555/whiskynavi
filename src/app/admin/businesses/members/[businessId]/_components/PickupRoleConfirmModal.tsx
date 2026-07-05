@@ -1,13 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { grantPickupRoleAction, revokePickupRoleAction } from "../actions";
@@ -15,16 +9,11 @@ import { grantPickupRoleAction, revokePickupRoleAction } from "../actions";
 interface PickupRoleConfirmModalProps {
   isOpen: boolean;
   close: () => void;
-  userId: number;
+  businessId: number;
   mode: "grant" | "revoke";
 }
 
-export default function PickupRoleConfirmModal({
-  isOpen,
-  close,
-  userId,
-  mode,
-}: PickupRoleConfirmModalProps) {
+export default function PickupRoleConfirmModal({ isOpen, close, businessId, mode }: PickupRoleConfirmModalProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -34,9 +23,7 @@ export default function PickupRoleConfirmModal({
   const handleConfirm = () => {
     setError(null);
     startTransition(async () => {
-      const result = isGrant
-        ? await grantPickupRoleAction(userId)
-        : await revokePickupRoleAction(userId);
+      const result = isGrant ? await grantPickupRoleAction(businessId) : await revokePickupRoleAction(businessId);
       if (result.success) {
         close();
         router.refresh();
@@ -53,18 +40,11 @@ export default function PickupRoleConfirmModal({
           <DialogTitle>픽업 권한 {isGrant ? "부여" : "회수"}</DialogTitle>
         </DialogHeader>
         <p className="text-sm text-gray-600">
-          {isGrant
-            ? "이 사업자에게 픽업 권한을 부여하시겠습니까?"
-            : "이 사업자의 픽업 권한을 회수하시겠습니까?"}
+          {isGrant ? "이 사업자에게 픽업 권한을 부여하시겠습니까?" : "이 사업자의 픽업 권한을 회수하시겠습니까?"}
         </p>
         {error && <p className="text-sm text-red-600">{error}</p>}
         <DialogFooter className="gap-2">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={close}
-            disabled={isPending}
-          >
+          <Button variant="outline" className="flex-1" onClick={close} disabled={isPending}>
             취소
           </Button>
           <Button

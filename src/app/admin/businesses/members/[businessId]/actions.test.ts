@@ -1,8 +1,8 @@
 import { ApiError } from "@/apis/errors";
 import {
-  patchApiAdminBusinessesMembersUseridBusiness,
-  postApiAdminBusinessesMembersUseridRolesRoleGrant,
-  postApiAdminBusinessesMembersUseridRolesRoleRevoke,
+  patchApiAdminBusinessesBusinessesBusinessid,
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant,
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
@@ -11,9 +11,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { grantPickupRoleAction, revokePickupRoleAction, updateBusinessAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
-  patchApiAdminBusinessesMembersUseridBusiness: vi.fn(),
-  postApiAdminBusinessesMembersUseridRolesRoleGrant: vi.fn(),
-  postApiAdminBusinessesMembersUseridRolesRoleRevoke: vi.fn(),
+  patchApiAdminBusinessesBusinessesBusinessid: vi.fn(),
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant: vi.fn(),
+  postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -28,9 +28,9 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-const mockedPatchBusiness = vi.mocked(patchApiAdminBusinessesMembersUseridBusiness);
-const mockedGrantPickup = vi.mocked(postApiAdminBusinessesMembersUseridRolesRoleGrant);
-const mockedRevokePickup = vi.mocked(postApiAdminBusinessesMembersUseridRolesRoleRevoke);
+const mockedPatchBusiness = vi.mocked(patchApiAdminBusinessesBusinessesBusinessid);
+const mockedGrantPickup = vi.mocked(postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant);
+const mockedRevokePickup = vi.mocked(postApiAdminBusinessesBusinessesBusinessidRolesRoleRevoke);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedWithToken = vi.mocked(withToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
@@ -67,13 +67,13 @@ describe("admin business member actions", () => {
 
   it("calls patch api and revalidates both paths on update success", async () => {
     mockedPatchBusiness.mockResolvedValue({
-      data: { userId: 10 },
+      data: { businessId: 100 },
       status: 200,
       headers: new Headers(),
     });
 
     await expect(
-      updateBusinessAction(10, {
+      updateBusinessAction(100, {
         accountHolderName: "홍길동",
         accountNumber: "110-123-456789",
         bankName: "신한은행",
@@ -89,7 +89,7 @@ describe("admin business member actions", () => {
 
     expect(mockedWithToken).toHaveBeenCalledWith("token");
     expect(mockedPatchBusiness).toHaveBeenCalledWith(
-      10,
+      100,
       {
         accountHolderName: "홍길동",
         accountNumber: "110-123-456789",
@@ -104,7 +104,7 @@ describe("admin business member actions", () => {
       },
       { headers: { Authorization: "Bearer mocked" } },
     );
-    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/100");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });
@@ -160,12 +160,12 @@ describe("admin business member actions", () => {
       headers: new Headers(),
     });
 
-    await expect(grantPickupRoleAction(10)).resolves.toEqual({ success: true });
+    await expect(grantPickupRoleAction(100)).resolves.toEqual({ success: true });
 
-    expect(mockedGrantPickup).toHaveBeenCalledWith(10, "ROLE_PICK_UP_BUSINESS", {
+    expect(mockedGrantPickup).toHaveBeenCalledWith(100, "ROLE_PICK_UP_BUSINESS", {
       headers: { Authorization: "Bearer mocked" },
     });
-    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/100");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });
@@ -211,14 +211,14 @@ describe("admin business member actions", () => {
       headers: new Headers(),
     });
 
-    await expect(revokePickupRoleAction(10)).resolves.toEqual({
+    await expect(revokePickupRoleAction(100)).resolves.toEqual({
       success: true,
     });
 
-    expect(mockedRevokePickup).toHaveBeenCalledWith(10, "ROLE_PICK_UP_BUSINESS", {
+    expect(mockedRevokePickup).toHaveBeenCalledWith(100, "ROLE_PICK_UP_BUSINESS", {
       headers: { Authorization: "Bearer mocked" },
     });
-    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members/100");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/businesses/members");
     expect(mockedRevalidatePath).toHaveBeenCalledTimes(2);
   });

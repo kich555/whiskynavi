@@ -12,6 +12,7 @@ vi.mock("overlay-kit", () => ({
 }));
 
 const mockMember = {
+  businessId: 100,
   userId: 10,
   name: "홍길동",
   username: "hong@example.com",
@@ -38,7 +39,7 @@ afterEach(() => {
 describe("BusinessMemberDetailContent", () => {
   it("renders page title", () => {
     render(<BusinessMemberDetailContent member={mockMember} />);
-    expect(screen.getByText("사업자 멤버 상세")).toBeInTheDocument();
+    expect(screen.getByText("업장 상세")).toBeInTheDocument();
   });
 
   it("renders business name in read-only mode", () => {
@@ -177,7 +178,7 @@ describe("BusinessMemberDetailContent", () => {
 
   it("renders back button", () => {
     render(<BusinessMemberDetailContent member={mockMember} />);
-    expect(screen.getByRole("button", { name: "멤버 목록으로 돌아가기" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "업장 목록으로 돌아가기" })).toBeInTheDocument();
   });
 
   it("enters edit mode when clicking 수정", async () => {
