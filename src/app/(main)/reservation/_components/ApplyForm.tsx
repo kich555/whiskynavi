@@ -4,6 +4,7 @@ import type { PickupLocationResponse } from "@/apis/generated/api";
 import { FormMessage } from "@/components/ui/form-message";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const BUSINESS_TYPE_LABEL: Record<string, string> = {
   HOUSEHOLD: "가정용",
@@ -25,6 +26,7 @@ interface ApplyFormProps {
 
 export default function ApplyForm({ onApply, isPending, pickupLocations, error }: ApplyFormProps) {
   const [quantity, setQuantity] = useState(1);
+  const [quantityInput, setQuantityInput] = useState("1");
   const [selectedLocationId, setSelectedLocationId] = useState<string>("");
 
   const canSubmit = selectedLocationId !== "" && !isPending;
@@ -60,8 +62,25 @@ export default function ApplyForm({ onApply, isPending, pickupLocations, error }
               type="number"
               min="1"
               max="10"
-              value={quantity}
-              onChange={(e) => setQuantity(Math.max(1, Math.min(10, parseInt(e.target.value) || 1)))}
+              value={quantityInput}
+              onChange={(e) => {
+                const raw = e.target.value;
+                setQuantityInput(raw);
+                const parsed = parseInt(raw, 10);
+                if (!Number.isNaN(parsed)) {
+                  setQuantity(Math.max(1, Math.min(10, parsed)));
+                }
+              }}
+              onBlur={() => {
+                const parsed = parseInt(quantityInput, 10);
+                const original = Number.isNaN(parsed) ? 1 : parsed;
+                const clamped = Math.max(1, Math.min(10, original));
+                if (clamped !== original) {
+                  toast.warning(`수량은 1~10병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
+                }
+                setQuantity(clamped);
+                setQuantityInput(String(clamped));
+              }}
               className="w-20 border border-white/20 bg-white/10 py-2.5 pr-8 pl-2 text-center text-base text-white transition-colors focus:border-white/40 focus:outline-none lg:h-full lg:w-40 lg:pr-10 lg:pl-3 lg:text-lg"
             />
             <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-base text-white/60 lg:right-3 lg:text-lg">

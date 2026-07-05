@@ -113,7 +113,7 @@ export default function RootLayout({
             {/* <main className="mx-auto max-w-screen-xl px-4 sm:px-6 lg:px-8"> */}
             {children}
             {/* </main> */}
-            <Toaster richColors position="top-center" />
+            <Toaster richColors position="bottom-right" />
           </OverlayProvider>
         </AuthProvider>
       </body>
