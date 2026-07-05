@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
+    <div className="mt-20 flex min-h-[50vh] flex-col items-center justify-center px-4 text-center">
       <Image src="/whiskynavi-logo.png" alt="WhiskyNavi" width={60} height={76} priority />
       <p className="typo-bold-40 mt-6 text-white">404</p>
       <h2 className="typo-bold-20 mt-2 text-white">잘못 찾아오신 것 같아요</h2>
