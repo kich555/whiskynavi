@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb", // 기본값: 1mb
     },
     optimizePackageImports: ["lucide-react", "overlay-kit"],
-    cacheComponents: true,
   },
   // ✅ S3 이미지 호스트 허용
   images: {
