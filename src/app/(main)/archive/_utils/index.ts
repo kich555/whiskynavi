@@ -164,8 +164,7 @@ export function parseFiltersFromSearchParams(searchParams: URLSearchParams): Fil
     names: parseStringArray("name"),
     series: parseStringArray("series"),
     companies: parseStringArray("company"),
-    maltTypes:
-      parseStringArray("maltType").length > 0 ? parseStringArray("maltType") : [FILTER_DEFAULTS.DEFAULT_MALT_TYPE],
+    maltTypes: parseStringArray("maltType"),
     caskTypes: parseStringArray("caskType"),
     abv: [parseNumber("abvFrom", FILTER_DEFAULTS.ABV_MIN), parseNumber("abvTo", FILTER_DEFAULTS.ABV_MAX)],
     vintage: [
