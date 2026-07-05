@@ -22,12 +22,29 @@ interface ApplyFormProps {
   isPending: boolean;
   pickupLocations: PickupLocationResponse[];
   error?: string | null;
+  mode?: "apply" | "edit";
+  initialQuantity?: number;
+  initialLocationId?: number;
+  onCancelEdit?: () => void;
 }
 
-export default function ApplyForm({ onApply, isPending, pickupLocations, error }: ApplyFormProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [quantityInput, setQuantityInput] = useState("1");
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+export default function ApplyForm({
+  onApply,
+  isPending,
+  pickupLocations,
+  error,
+  mode = "apply",
+  initialQuantity,
+  initialLocationId,
+  onCancelEdit,
+}: ApplyFormProps) {
+  const initialLocationIdStr =
+    initialLocationId != null && pickupLocations.some((loc) => loc.id === initialLocationId)
+      ? String(initialLocationId)
+      : "";
+  const [quantity, setQuantity] = useState(initialQuantity ?? 1);
+  const [quantityInput, setQuantityInput] = useState(String(initialQuantity ?? 1));
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(initialLocationIdStr);
 
   const canSubmit = selectedLocationId !== "" && !isPending;
 
@@ -87,13 +104,23 @@ export default function ApplyForm({ onApply, isPending, pickupLocations, error }
               병
             </span>
           </div>
+          {mode === "edit" && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              disabled={isPending}
+              className="typo-bold-16 border border-white/20 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+            >
+              닫기
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onApply(quantity, Number(selectedLocationId))}
             disabled={!canSubmit}
             className="typo-bold-16 flex-1 bg-white px-4 py-2.5 text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
           >
-            {isPending ? "신청 중..." : "예약하기"}
+            {mode === "edit" ? (isPending ? "수정 중..." : "수정하기") : isPending ? "신청 중..." : "예약하기"}
           </button>
         </div>
         <p className="text-[10px] text-gray-400 lg:text-xs">

@@ -1,6 +1,5 @@
 import {
   getApiBottlesReservationsApplicationsMe,
-  getApiBottlesReservationsNoticesNoticeid,
   type UserBottleReservationApplicationPublicResponse,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -10,6 +9,7 @@ import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { fetchNoticeDetail } from "../_lib/fetchNoticeDetail";
 import { fetchPickupLocations } from "../_lib/fetchPickupLocations";
 import ReservationDetailClient from "./_components/ReservationDetailClient";
 
@@ -33,14 +33,13 @@ export default async function ReservationDetailPage({ params }: PageProps) {
 
   let notice;
   try {
-    const res = await getApiBottlesReservationsNoticesNoticeid(id);
-    notice = res.data;
+    notice = await fetchNoticeDetail(id);
   } catch {
     notFound();
   }
 
   const pickupLocations = await fetchPickupLocations();
-  let initialHasApplied = false;
+  let myApplication: UserBottleReservationApplicationPublicResponse | null = null;
 
   try {
     const applicationsRes = await getApiBottlesReservationsApplicationsMe(
@@ -48,9 +47,9 @@ export default async function ReservationDetailPage({ params }: PageProps) {
       withToken(session.accessToken),
     );
     // 취소/반려되지 않은 내 신청 건이 있으면 공고 진입 시에도 신청 완료로 표시한다.
-    initialHasApplied = (applicationsRes.data.content ?? []).some(isAppliedApplication);
+    myApplication = (applicationsRes.data.content ?? []).find(isAppliedApplication) ?? null;
   } catch {
-    initialHasApplied = false;
+    myApplication = null;
   }
 
   return (
@@ -66,11 +65,7 @@ export default async function ReservationDetailPage({ params }: PageProps) {
           <span className="typo-bold-14 lg:text-base">목록으로 돌아가기</span>
         </Link>
 
-        <ReservationDetailClient
-          notice={notice}
-          pickupLocations={pickupLocations}
-          initialHasApplied={initialHasApplied}
-        />
+        <ReservationDetailClient notice={notice} pickupLocations={pickupLocations} myApplication={myApplication} />
       </div>
     </div>
   );
