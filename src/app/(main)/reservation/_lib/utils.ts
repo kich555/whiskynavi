@@ -23,13 +23,12 @@ export function formatReservationRole(role?: string): string {
   return RESERVATION_ROLE_LABEL_MAP[role] ?? role;
 }
 
-export function getNoticeStatus(notice: UserBottleReservationNoticePublicResponse): NoticeStatus {
-  const now = new Date();
-  const start = notice.reservationStartAt ? new Date(notice.reservationStartAt) : null;
-  const end = notice.reservationEndAt ? new Date(notice.reservationEndAt) : null;
+export function getNoticeStatus(notice: UserBottleReservationNoticePublicResponse, now: number = Date.now()): NoticeStatus {
+  const start = notice.reservationStartAt ? new Date(notice.reservationStartAt).getTime() : null;
+  const end = notice.reservationEndAt ? new Date(notice.reservationEndAt).getTime() : null;
 
-  if (end && now > end) return "closed";
-  if (start && now < start) return "pending";
+  if (end !== null && now > end) return "closed";
+  if (start !== null && now < start) return "pending";
   return "active";
 }
 
@@ -52,9 +51,8 @@ export function formatDateTime(dateStr?: string): string {
     .replace(", ", " ");
 }
 
-export function calculateTimeRemaining(targetDate: Date): string {
-  const now = new Date();
-  const diff = targetDate.getTime() - now.getTime();
+export function calculateTimeRemaining(targetDate: Date, now: number = Date.now()): string {
+  const diff = targetDate.getTime() - now;
   if (diff <= 0) return "00일 00시간 00분 00초";
 
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));

@@ -60,9 +60,7 @@ export default function ReservationDetailClient({
           <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">{notice.bottleName}</h3>
           <InfoList notice={notice} />
           {notice.description && (
-            <p className="typo-medium-14 mt-4 whitespace-pre-line text-gray-300 lg:text-base">
-              {notice.description}
-            </p>
+            <p className="typo-medium-14 mt-4 whitespace-pre-line text-gray-300 lg:text-base">{notice.description}</p>
           )}
         </div>
       </div>
