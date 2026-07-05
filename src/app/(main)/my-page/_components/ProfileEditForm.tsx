@@ -12,6 +12,7 @@ import { useActionState, useCallback, useEffect, useRef, useState, useTransition
 import { sendEmailVerification, updateProfile, verifyEmailCode } from "../actions";
 
 type EmailVerificationStep = "idle" | "code-sent" | "verified";
+type AgreementFieldName = "emailAgree" | "smsAgree" | "marketingAgree" | "snsAgree";
 
 interface ProfileEditFormProps {
   user: UserSelfResponse;
@@ -24,6 +25,12 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
 
   // Email verification state
   const [email, setEmail] = useState(user.email ?? "");
+  const [agreements, setAgreements] = useState<Record<AgreementFieldName, boolean>>({
+    emailAgree: Boolean(user.emailAgree),
+    smsAgree: Boolean(user.smsAgree),
+    marketingAgree: Boolean(user.marketingAgree),
+    snsAgree: Boolean(user.snsAgree),
+  });
   const [code, setCode] = useState("");
   const [emailStep, setEmailStep] = useState<EmailVerificationStep>("idle");
   const [emailError, setEmailError] = useState<string | null>(null);
@@ -99,6 +106,24 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
   }, [email, code]);
 
   const isEmailVerified = emailStep === "verified";
+  const agreementItems: Array<{ name: AgreementFieldName; label: string }> = [
+    {
+      name: "emailAgree",
+      label: "이메일 수신 동의",
+    },
+    {
+      name: "smsAgree",
+      label: "SMS 수신 동의",
+    },
+    {
+      name: "marketingAgree",
+      label: "마케팅 정보 수신 동의",
+    },
+    {
+      name: "snsAgree",
+      label: "SNS 수신 동의",
+    },
+  ];
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -106,6 +131,13 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
         <input type="hidden" name="originalUsername" value={user.username} />
         <input type="hidden" name="originalEmail" value={user.email} />
         <input type="hidden" name="emailVerified" value={String(!emailChanged || isEmailVerified)} />
+        <input type="hidden" name="originalEmailAgree" value={String(Boolean(user.emailAgree))} />
+        <input type="hidden" name="originalSmsAgree" value={String(Boolean(user.smsAgree))} />
+        <input type="hidden" name="originalMarketingAgree" value={String(Boolean(user.marketingAgree))} />
+        <input type="hidden" name="originalSnsAgree" value={String(Boolean(user.snsAgree))} />
+        {agreementItems.map((item) => (
+          <input key={item.name} type="hidden" name={item.name} value={String(agreements[item.name])} />
+        ))}
 
         <div className="border-b border-gray-200 pb-4 md:pb-6">
           <h4 className="mb-3 font-bold text-gray-900 md:mb-4">기본 정보</h4>
@@ -236,33 +268,20 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
           <div className="mt-4 md:mt-6">
             <h4 className="mb-3 font-bold text-gray-900 md:mb-4">마케팅 수신 동의</h4>
             <div className="space-y-2 md:space-y-3">
-              {[
-                {
-                  name: "emailAgree",
-                  label: "이메일 수신 동의",
-                  checked: user.emailAgree,
-                },
-                {
-                  name: "smsAgree",
-                  label: "SMS 수신 동의",
-                  checked: user.smsAgree,
-                },
-                {
-                  name: "marketingAgree",
-                  label: "마케팅 정보 수신 동의",
-                  checked: user.marketingAgree,
-                },
-                {
-                  name: "snsAgree",
-                  label: "SNS 수신 동의",
-                  checked: user.snsAgree,
-                },
-              ].map((item) => (
+              {agreementItems.map((item) => (
                 <label
                   key={item.name}
                   className="flex cursor-pointer items-center gap-2 border border-gray-200 p-2 hover:bg-gray-50 md:gap-3 md:p-3"
                 >
-                  <Checkbox name={item.name} defaultChecked={item.checked} />
+                  <Checkbox
+                    checked={agreements[item.name]}
+                    onCheckedChange={(checked) =>
+                      setAgreements((prev) => ({
+                        ...prev,
+                        [item.name]: checked === true,
+                      }))
+                    }
+                  />
                   <span className="text-sm text-gray-900 md:text-base">{item.label}</span>
                 </label>
               ))}
