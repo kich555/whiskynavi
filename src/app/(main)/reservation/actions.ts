@@ -25,7 +25,7 @@ export async function applyReservation(
     }
 
     // 클라이언트가 보내는 값은 신뢰하지 않고, 신청 시점의 최대 신청 병수를 서버에서 다시 검증한다.
-    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId);
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
     if (quantity < 1 || quantity > maxOrderQuantity) {
       return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
@@ -64,7 +64,7 @@ export async function updateReservation(
     }
 
     // 클라이언트가 보내는 값은 신뢰하지 않고, 수정 시점의 최대 신청 병수를 서버에서 다시 검증한다.
-    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId);
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
     if (quantity < 1 || quantity > maxOrderQuantity) {
       return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
@@ -102,7 +102,7 @@ export async function cancelReservation(
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 취소 시점의 예약 기간을 서버에서 다시 검증한다.
-    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId);
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     if (getNoticeStatus(notice) !== "active") {
       return { success: false, error: "지금은 예약 신청 취소 기간이 아닙니다." };
     }
