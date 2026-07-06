@@ -23,12 +23,12 @@ import {
   type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getAuthToken } from "@/lib/auth";
 import {
+  noticeCacheTag,
   NOTICES_LIST_CACHE_TAG,
   NOTICES_RECENT_ENDED_CACHE_TAG,
-  noticeCacheTag,
 } from "@/app/(main)/reservation/_lib/cacheTags";
+import { getAuthToken } from "@/lib/auth";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
@@ -284,7 +284,6 @@ export async function searchBottlesAction(keyword: string): Promise<SearchBottle
     const trimmed = keyword.trim().slice(0, 100);
     const res = await getApiAdminBottles(
       {
-        reservationStatus: "NO_RESERVATION",
         keyword: trimmed || undefined,
         size: 20,
       },

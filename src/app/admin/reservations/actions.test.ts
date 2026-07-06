@@ -1,11 +1,12 @@
 import { ApiError } from "@/apis/errors";
 import {
+  getApiAdminBottles,
   postApiAdminBottlesReservationsNotices,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
 } from "@/apis/generated/api";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createNoticeFormAction, uploadReservationAllocationExcelAction } from "./actions";
+import { createNoticeFormAction, searchBottlesAction, uploadReservationAllocationExcelAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole: {
@@ -144,6 +145,49 @@ describe("createNoticeFormAction", () => {
         }),
       }),
     );
+  });
+});
+
+describe("searchBottlesAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("기존 예약 유무와 관계없이 보틀을 검색한다", async () => {
+    vi.mocked(getApiAdminBottles).mockResolvedValue({
+      data: {
+        content: [
+          {
+            id: 11,
+            name: "Glen 12",
+            stockQuantity: 3,
+            reservationStatus: "ACTIVE_RESERVATION",
+          },
+        ],
+      },
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof getApiAdminBottles>>);
+
+    const result = await searchBottlesAction(" Glen ");
+
+    expect(getApiAdminBottles).toHaveBeenCalledWith(
+      {
+        keyword: "Glen",
+        size: 20,
+      },
+      { token: "admin-token" },
+    );
+    expect(result).toEqual({
+      success: true,
+      data: [
+        {
+          id: 11,
+          name: "Glen 12",
+          stockQuantity: 3,
+        },
+      ],
+    });
   });
 });
 
