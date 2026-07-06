@@ -284,7 +284,6 @@ export async function searchBottlesAction(keyword: string): Promise<SearchBottle
     const trimmed = keyword.trim().slice(0, 100);
     const res = await getApiAdminBottles(
       {
-        reservationStatus: "NO_RESERVATION",
         keyword: trimmed || undefined,
         size: 20,
       },
