@@ -3,6 +3,7 @@ import {
   getApiBottlesReservationsNotices,
   getApiBottlesReservationsNoticesRecentEnded,
 } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import Hero from "../_components/Hero";
@@ -49,13 +50,18 @@ export default async function ReservationPage() {
     );
   }
 
+  const requestOptions = withToken(session.accessToken);
+
   // 병렬 API 호출
   const [activeResult, recentEndedResult] = await Promise.all([
-    getApiBottlesReservationsNotices({
-      page: 0,
-      size: 100,
-    }).catch(() => null),
-    getApiBottlesReservationsNoticesRecentEnded().catch(() => null),
+    getApiBottlesReservationsNotices(
+      {
+        page: 0,
+        size: 100,
+      },
+      requestOptions,
+    ).catch(() => null),
+    getApiBottlesReservationsNoticesRecentEnded(requestOptions).catch(() => null),
   ]);
 
   const activeNotices = normalizeActiveNotices(activeResult?.data);
