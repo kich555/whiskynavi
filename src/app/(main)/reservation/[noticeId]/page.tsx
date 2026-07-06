@@ -33,7 +33,7 @@ export default async function ReservationDetailPage({ params }: PageProps) {
 
   let notice;
   try {
-    notice = await fetchNoticeDetail(id);
+    notice = await fetchNoticeDetail(id, session.accessToken);
   } catch {
     notFound();
   }
