@@ -18,7 +18,7 @@ export const AdminAnnouncementResponseScope = {
 } as const;
 
 /**
- * 이 글타입을 사용할 수 있는 영역입니다. 현재 게시글과 게시판 공지에 공용으로 적용됩니다.
+ * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
  */
 export type AdminBoardPostTypeResponseUsagesItem = typeof AdminBoardPostTypeResponseUsagesItem[keyof typeof AdminBoardPostTypeResponseUsagesItem];
 
@@ -40,7 +40,7 @@ export interface AdminBoardPostTypeResponse {
   displayOrder?: number;
   id?: number;
   name?: string;
-  /** 이 글타입을 사용할 수 있는 영역입니다. 현재 게시글과 게시판 공지에 공용으로 적용됩니다. */
+  /** 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. */
   usages?: AdminBoardPostTypeResponseUsagesItem[];
 }
 
@@ -1578,6 +1578,17 @@ export interface AuthResponse {
 }
 
 /**
+ * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
+ */
+export type BoardPostTypeRequestUsage = typeof BoardPostTypeRequestUsage[keyof typeof BoardPostTypeRequestUsage];
+
+
+export const BoardPostTypeRequestUsage = {
+  POST: 'POST',
+  ANNOUNCEMENT: 'ANNOUNCEMENT',
+} as const;
+
+/**
  * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
  */
 export interface BoardPostTypeRequest {
@@ -1594,6 +1605,8 @@ export interface BoardPostTypeRequest {
    * @maxLength 50
    */
   name?: string;
+  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
+  usage?: BoardPostTypeRequestUsage;
 }
 
 /**
@@ -3244,7 +3257,7 @@ export interface PagedModelPickupLocationResponse {
 }
 
 /**
- * 이 글타입을 사용할 수 있는 영역입니다. 현재 게시글과 게시판 공지에 공용으로 적용됩니다.
+ * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
  */
 export type PostTypeResponseUsagesItem = typeof PostTypeResponseUsagesItem[keyof typeof PostTypeResponseUsagesItem];
 
@@ -3261,7 +3274,7 @@ export interface PostTypeResponse {
   code?: string;
   id?: number;
   name?: string;
-  /** 이 글타입을 사용할 수 있는 영역입니다. 현재 게시글과 게시판 공지에 공용으로 적용됩니다. */
+  /** 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. */
   usages?: PostTypeResponseUsagesItem[];
 }
 
@@ -4605,6 +4618,53 @@ export interface ReservationAdminReasonRequest {
   reason?: string;
 }
 
+/**
+ * 예약 신청 할당 Excel 행별 실패 응답
+ */
+export interface ReservationAllocationExcelFailureResponse {
+  /**
+   * 예약 신청 ID
+   * @nullable
+   */
+  applicationId?: number | null;
+  /** 실패 사유 */
+  reason?: string;
+  /** Excel 행 번호 */
+  rowNumber?: number;
+}
+
+/**
+ * 예약 신청 할당 Excel 업로드 오류 응답
+ */
+export interface ReservationAllocationExcelErrorResponse {
+  /** 행별 실패 목록 */
+  failures?: ReservationAllocationExcelFailureResponse[];
+  /** 오류 메시지 */
+  message?: string;
+}
+
+/**
+ * 예약 신청 할당 Excel 업로드 성공 응답
+ */
+export interface ReservationAllocationExcelResponse {
+  /** 할당 확정된 신청 수 */
+  allocatedApplicationCount?: number;
+  /** 행별 실패 목록 */
+  failures?: ReservationAllocationExcelFailureResponse[];
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 처리한 데이터 행 수 */
+  processedRowCount?: number;
+  /** 할당 후 잔여 수량 */
+  remainingQuantityAfterAllocation?: number;
+  /** 할당 전 잔여 수량 */
+  remainingQuantityBeforeAllocation?: number;
+  /** 처리 성공 여부 */
+  success?: boolean;
+  /** 총 할당 수량 */
+  totalAllocatedQuantity?: number;
+}
+
 export type ReservationAutoConfirmRequestPriorityAllocationsItemRole = typeof ReservationAutoConfirmRequestPriorityAllocationsItemRole[keyof typeof ReservationAutoConfirmRequestPriorityAllocationsItemRole];
 
 
@@ -5829,6 +5889,17 @@ export type PutApiAdminBoardsBoardidBody = {
 };
 
 /**
+ * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
+ */
+export type PostApiAdminBoardsBoardidPostTypesBodyUsage = typeof PostApiAdminBoardsBoardidPostTypesBodyUsage[keyof typeof PostApiAdminBoardsBoardidPostTypesBodyUsage];
+
+
+export const PostApiAdminBoardsBoardidPostTypesBodyUsage = {
+  POST: 'POST',
+  ANNOUNCEMENT: 'ANNOUNCEMENT',
+} as const;
+
+/**
  * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
  */
 export type PostApiAdminBoardsBoardidPostTypesBody = {
@@ -5845,7 +5916,20 @@ export type PostApiAdminBoardsBoardidPostTypesBody = {
    * @maxLength 50
    */
   name?: string;
+  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
+  usage?: PostApiAdminBoardsBoardidPostTypesBodyUsage;
 };
+
+/**
+ * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
+ */
+export type PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage = typeof PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage[keyof typeof PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage];
+
+
+export const PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage = {
+  POST: 'POST',
+  ANNOUNCEMENT: 'ANNOUNCEMENT',
+} as const;
 
 /**
  * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
@@ -5864,6 +5948,8 @@ export type PutApiAdminBoardsBoardidPostTypesPosttypeidBody = {
    * @maxLength 50
    */
   name?: string;
+  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
+  usage?: PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage;
 };
 
 /**
@@ -6209,6 +6295,10 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   price: number;
   reservationEndAt: string;
   reservationStartAt: string;
+};
+
+export type PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody = {
+  file: Blob;
 };
 
 export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
@@ -11301,6 +11391,91 @@ export const putApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: nu
 
 
 /**
+ * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다.
+ * @summary 예약 신청 할당 Excel 다운로드
+ */
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
+  data: Blob
+  status: 200
+}
+    
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess)
+
+export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+}
+
+export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+  
+  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 할당 수량이 입력된 Excel을 검증한 뒤 보틀 예약 신청을 일괄 확정합니다.
+ * @summary 예약 신청 할당 Excel 업로드
+ */
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
+  data: ReservationAllocationExcelResponse
+  status: 200
+}
+
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse400 = {
+  data: ReservationAllocationExcelErrorResponse
+  status: 400
+}
+    
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
+  headers: Headers;
+};
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseError = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse400) & {
+  headers: Headers;
+};
+
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess | postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseError)
+
+export const getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+}
+
+export const postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number,
+    postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody: PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody.file);
+
+  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
+  }
+);}
+
+
+
+/**
  * 공고 하나에 연결된 대기 중 예약 신청을 최대 다수·균등 배정 원칙으로 자동 확정합니다.
  * @summary 예약 공고 자동 확정
  */
@@ -11799,7 +11974,7 @@ export const patchApiAdminBusinessesBusinessesBusinessid = async (businessId: nu
 
 
 /**
- * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업장 owner 권한 부여(관리자)
  */
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200 = {
@@ -11838,7 +12013,7 @@ export const postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant = async (b
 
 
 /**
- * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한에서 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업장 owner 권한 회수(관리자)
  */
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200 = {
@@ -11997,7 +12172,7 @@ export const patchApiAdminBusinessesMembersUseridBusiness = async (userId: numbe
 
 
 /**
- * 등록된 사업장 회원에게 사업자 권한을 부여합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 회원에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업자 권한 부여(관리자)
  */
 export type postApiAdminBusinessesMembersUseridRolesRoleGrantResponse200 = {
@@ -12036,7 +12211,7 @@ export const postApiAdminBusinessesMembersUseridRolesRoleGrant = async (userId: 
 
 
 /**
- * 등록된 사업장 회원에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 회원에게서 사업자 권한을 회수합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한에서 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업자 권한 회수(관리자)
  */
 export type postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse200 = {
@@ -19336,7 +19511,7 @@ export const patchApiUsersBusinessesMeBusinessidPrimary = async (businessId: num
 
 
 /**
- * ROLE_PICK_UP_BUSINESS 권한을 가진 유저의 사업장 정보를 반환합니다.
+ * 사업장별 픽업 기능 권한이 켜진 사업장 정보를 반환합니다.
  * @summary 픽업 가능 사업장 목록
  */
 export type getApiUsersBusinessesPickupLocationsResponse200 = {
