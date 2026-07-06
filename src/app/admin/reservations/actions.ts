@@ -1,22 +1,26 @@
 "use server";
 
+import { ApiError } from "@/apis/errors";
 import {
-  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
-  type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
-  type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
-  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
-  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
-  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
   getApiAdminBottles,
   postApiAdminBottlesReservationsApplicationsApplicationidCancel,
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm,
   postApiAdminBottlesReservationsApplicationsApplicationidReject,
   postApiAdminBottlesReservationsNotices,
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
+  postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm,
   putApiAdminBottlesReservationsNoticesNoticeid,
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid,
+  type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
+  type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
+  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
+  type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
+  type ReservationAllocationExcelFailureResponse,
+  type ReservationAllocationExcelResponse,
+  type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
@@ -48,8 +52,13 @@ export interface NoticeFormValues {
 
 export type FormState = { success: boolean; error?: string; values?: NoticeFormValues };
 
+export type ReservationAllocationExcelActionResult<T = unknown> =
+  | { success: true; data: T }
+  | { success: false; error: string; failures?: ReservationAllocationExcelFailureResponse[] };
+
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
-const DEFAULT_RESERVATION_REQUIRED_ROLE = PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
+const DEFAULT_RESERVATION_REQUIRED_ROLE =
+  PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
 
 function isReservationRequiredRole(role: string): role is ReservationRequiredRole {
   return Object.values(PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole).includes(
@@ -233,6 +242,30 @@ function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
   };
 }
 
+function parseReservationAllocationExcelError(error: unknown):
+  | {
+      message?: string;
+      failures?: ReservationAllocationExcelFailureResponse[];
+    }
+  | undefined {
+  if (!(error instanceof ApiError) || error.status !== 400 || !error.detail) {
+    return undefined;
+  }
+
+  try {
+    const parsed = JSON.parse(error.detail) as {
+      message?: unknown;
+      failures?: unknown;
+    };
+    return {
+      message: typeof parsed.message === "string" ? parsed.message : undefined,
+      failures: Array.isArray(parsed.failures) ? (parsed.failures as ReservationAllocationExcelFailureResponse[]) : [],
+    };
+  } catch {
+    return undefined;
+  }
+}
+
 // ─── Bottle Search ───────────────────────────────────────
 
 export interface BottleOption {
@@ -384,6 +417,41 @@ export async function autoConfirmApplicationsAction(noticeId: number) {
     return { success: true, data: res.data };
   } catch (error) {
     const message = error instanceof Error ? error.message : "자동 승인배정에 실패했습니다.";
+    return { success: false, error: message };
+  }
+}
+
+export async function uploadReservationAllocationExcelAction(
+  noticeId: number,
+  file: File,
+): Promise<ReservationAllocationExcelActionResult<ReservationAllocationExcelResponse>> {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: "인증이 필요합니다." };
+
+  if (!file || file.size <= 0) {
+    return { success: false, error: "Excel 파일을 선택해주세요." };
+  }
+
+  try {
+    const res = await postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel(
+      noticeId,
+      { file },
+      withToken(token),
+    );
+    revalidatePath("/admin/reservations");
+    revalidatePath(`/admin/reservations/${noticeId}`);
+    return { success: true, data: res.data };
+  } catch (error) {
+    const allocationError = parseReservationAllocationExcelError(error);
+    if (allocationError) {
+      return {
+        success: false,
+        error: allocationError.message || "예약 할당 Excel 업로드에 실패했습니다.",
+        failures: allocationError.failures ?? [],
+      };
+    }
+
+    const message = error instanceof Error ? error.message : "예약 신청 할당 Excel 업로드에 실패했습니다.";
     return { success: false, error: message };
   }
 }

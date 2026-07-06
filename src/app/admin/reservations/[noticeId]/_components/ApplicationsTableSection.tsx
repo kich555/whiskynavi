@@ -16,6 +16,7 @@ import ApplicationAutoConfirmModal from "./ApplicationAutoConfirmModal";
 import ApplicationCancelModal from "./ApplicationCancelModal";
 import ApplicationConfirmModal from "./ApplicationConfirmModal";
 import ApplicationRejectModal from "./ApplicationRejectModal";
+import ReservationAllocationExcelSection from "./ReservationAllocationExcelSection";
 
 const APPLICATION_STATUS_OPTIONS: GetApiAdminBottlesReservationsApplicationsStatus[] = [
   "APPLIED",
@@ -192,6 +193,8 @@ export default function ApplicationsTableSection({
           </div>
         </div>
       </div>
+
+      <ReservationAllocationExcelSection noticeId={noticeId} />
 
       <div className="overflow-x-auto">
         <table className="w-full">

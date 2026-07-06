@@ -4521,6 +4521,53 @@ export interface ReservationAdminReasonRequest {
 }
 
 /**
+ * 예약 신청 할당 Excel 행별 실패 응답
+ */
+export interface ReservationAllocationExcelFailureResponse {
+  /**
+   * 예약 신청 ID
+   * @nullable
+   */
+  applicationId?: number | null;
+  /** 실패 사유 */
+  reason?: string;
+  /** Excel 행 번호 */
+  rowNumber?: number;
+}
+
+/**
+ * 예약 신청 할당 Excel 업로드 오류 응답
+ */
+export interface ReservationAllocationExcelErrorResponse {
+  /** 행별 실패 목록 */
+  failures?: ReservationAllocationExcelFailureResponse[];
+  /** 오류 메시지 */
+  message?: string;
+}
+
+/**
+ * 예약 신청 할당 Excel 업로드 성공 응답
+ */
+export interface ReservationAllocationExcelResponse {
+  /** 할당 확정된 신청 수 */
+  allocatedApplicationCount?: number;
+  /** 행별 실패 목록 */
+  failures?: ReservationAllocationExcelFailureResponse[];
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 처리한 데이터 행 수 */
+  processedRowCount?: number;
+  /** 할당 후 잔여 수량 */
+  remainingQuantityAfterAllocation?: number;
+  /** 할당 전 잔여 수량 */
+  remainingQuantityBeforeAllocation?: number;
+  /** 처리 성공 여부 */
+  success?: boolean;
+  /** 총 할당 수량 */
+  totalAllocatedQuantity?: number;
+}
+
+/**
  * 택배사 코드
  */
 export type ReservationBusinessDeliveryRequestCarrierCode = typeof ReservationBusinessDeliveryRequestCarrierCode[keyof typeof ReservationBusinessDeliveryRequestCarrierCode];
@@ -5972,6 +6019,10 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   price: number;
   reservationEndAt: string;
   reservationStartAt: string;
+};
+
+export type PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody = {
+  file: Blob;
 };
 
 /**
@@ -10729,6 +10780,91 @@ export const putApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: nu
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiAdminBottlesReservationsNoticesNoticeidBody,)
+  }
+);}
+
+
+
+/**
+ * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다.
+ * @summary 예약 신청 할당 Excel 다운로드
+ */
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
+  data: Blob
+  status: 200
+}
+
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess)
+
+export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+
+
+
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+}
+
+export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+
+  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+/**
+ * 할당 수량이 입력된 Excel을 검증한 뒤 보틀 예약 신청을 일괄 확정합니다.
+ * @summary 예약 신청 할당 Excel 업로드
+ */
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
+  data: ReservationAllocationExcelResponse
+  status: 200
+}
+
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse400 = {
+  data: ReservationAllocationExcelErrorResponse
+  status: 400
+}
+
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
+  headers: Headers;
+};
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseError = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse400) & {
+  headers: Headers;
+};
+
+export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess | postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseError)
+
+export const getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+
+
+
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+}
+
+export const postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number,
+    postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody: PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody.file);
+
+  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  {
+    ...options,
+    method: 'POST'
+    ,
+    body:
+      formData,
   }
 );}
 
