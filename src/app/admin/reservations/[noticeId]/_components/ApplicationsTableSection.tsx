@@ -139,6 +139,7 @@ export default function ApplicationsTableSection({
   const canCancel = (status?: string) => status === "CONFIRMED" || status === "WAITING_PICKUP";
   const hasPendingApplications = pendingApplicationCount > 0;
   const paginationSearchParams = {
+    limit: String(itemsPerPage),
     role: currentRole,
     status: currentStatus,
   };
