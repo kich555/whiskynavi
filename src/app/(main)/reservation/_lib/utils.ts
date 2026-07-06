@@ -23,9 +23,23 @@ export function formatReservationRole(role?: string): string {
   return RESERVATION_ROLE_LABEL_MAP[role] ?? role;
 }
 
-export function getNoticeStatus(notice: UserBottleReservationNoticePublicResponse, now: number = Date.now()): NoticeStatus {
-  const start = notice.reservationStartAt ? new Date(notice.reservationStartAt).getTime() : null;
-  const end = notice.reservationEndAt ? new Date(notice.reservationEndAt).getTime() : null;
+const HAS_TIMEZONE_OFFSET = /(Z|[+-]\d{2}:?\d{2})$/;
+
+// 백엔드는 reservationStartAt/EndAt을 타임존 오프셋 없는 문자열로 내려준다(예: "2026-07-06T10:40:00").
+// 오프셋이 없으면 Date는 실행 환경의 로컬 타임존으로 해석하므로, 배포 서버(TZ=UTC)와
+// 브라우저(KST)가 같은 문자열을 9시간 다르게 해석해 판정이 어긋난다. 이를 막기 위해
+// 오프셋이 없는 문자열은 항상 KST(+09:00)로 명시해서 파싱한다.
+function parseNoticeDateTime(dateStr: string): number {
+  const isoWithOffset = HAS_TIMEZONE_OFFSET.test(dateStr) ? dateStr : `${dateStr}+09:00`;
+  return new Date(isoWithOffset).getTime();
+}
+
+export function getNoticeStatus(
+  notice: UserBottleReservationNoticePublicResponse,
+  now: number = Date.now(),
+): NoticeStatus {
+  const start = notice.reservationStartAt ? parseNoticeDateTime(notice.reservationStartAt) : null;
+  const end = notice.reservationEndAt ? parseNoticeDateTime(notice.reservationEndAt) : null;
 
   if (end !== null && now > end) return "closed";
   if (start !== null && now < start) return "pending";

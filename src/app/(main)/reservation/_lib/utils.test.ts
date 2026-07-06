@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { calculateTimeRemaining, getNoticeStatus } from "./utils";
 
 describe("getNoticeStatus", () => {
@@ -25,6 +25,22 @@ describe("getNoticeStatus", () => {
   it("now를 넘기지 않으면 Date.now() 기준으로 판단한다", () => {
     const past = { reservationStartAt: "2000-01-01T00:00:00.000Z", reservationEndAt: "2000-01-02T00:00:00.000Z" };
     expect(getNoticeStatus(past)).toBe("closed");
+  });
+
+  it("타임존 오프셋이 없는 문자열은 서버 프로세스 타임존과 무관하게 KST로 해석한다", () => {
+    // 백엔드가 내려주는 reservationStartAt/EndAt은 오프셋이 없는 문자열(예: "2026-07-06T10:40:00")이다.
+    // 배포 환경(예: Vercel)의 서버 프로세스는 TZ=UTC로 동작하는 경우가 많아,
+    // 오프셋 없는 문자열을 UTC로 해석하면 KST 대비 9시간 밀리는 결과가 나온다.
+    const naiveNotice = { reservationStartAt: "2026-07-06T10:40:00", reservationEndAt: "2026-07-22T00:00:00" };
+    // 2026-07-06T10:40:00+09:00 (KST 기준 정확히 시작 시각) === 2026-07-06T01:40:00Z
+    const nowAtKstStart = Date.UTC(2026, 6, 6, 1, 40, 0);
+
+    vi.stubEnv("TZ", "UTC");
+    try {
+      expect(getNoticeStatus(naiveNotice, nowAtKstStart)).toBe("active");
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 });
 
