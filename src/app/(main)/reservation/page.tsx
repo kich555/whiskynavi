@@ -4,10 +4,10 @@ import { getServerSession } from "next-auth";
 import Hero from "../_components/Hero";
 import ActiveReservationSection from "./_components/ActiveReservationSection";
 import EmptyState from "./_components/EmptyState";
-import { fetchActiveNotices } from "./_lib/fetchActiveNotices";
-import { fetchRecentEndedNotices } from "./_lib/fetchRecentEndedNotices";
 import RecentEndedSection from "./_components/RecentEndedSection";
 import UnauthenticatedGuard from "./_components/UnauthenticatedGuard";
+import { fetchActiveNotices } from "./_lib/fetchActiveNotices";
+import { fetchRecentEndedNotices } from "./_lib/fetchRecentEndedNotices";
 
 function normalizeActiveNotices(data: unknown): UserBottleReservationNoticePublicResponse[] {
   if (Array.isArray(data)) {
@@ -49,14 +49,14 @@ export default async function ReservationPage() {
 
   // 병렬 API 호출 (캐시 적용: 30s / 5min)
   const [activeData, recentEndedData] = await Promise.all([
-    fetchActiveNotices().catch(() => null),
-    fetchRecentEndedNotices().catch(() => null),
+    fetchActiveNotices(session.accessToken).catch((e) => console.log("error", e)),
+    fetchRecentEndedNotices(session.accessToken).catch(() => null),
   ]);
 
   const activeNotices = normalizeActiveNotices(activeData);
 
   const recentEndedNotices = recentEndedData ?? [];
-
+  console.log("activeData", activeData);
   const hasNoData = activeNotices.length === 0 && recentEndedNotices.length === 0;
 
   return (
