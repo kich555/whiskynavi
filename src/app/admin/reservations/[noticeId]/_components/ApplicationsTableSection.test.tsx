@@ -3,13 +3,25 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApplicationsTableSection from "./ApplicationsTableSection";
 
 const push = vi.fn();
+const refresh = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push }),
+  useRouter: () => ({ push, refresh }),
 }));
 
 vi.mock("overlay-kit", () => ({
   overlay: { open: vi.fn() },
+}));
+
+vi.mock("sonner", () => ({
+  toast: {
+    error: vi.fn(),
+    success: vi.fn(),
+  },
+}));
+
+vi.mock("../../actions", () => ({
+  uploadReservationAllocationExcelAction: vi.fn(),
 }));
 
 vi.mock("../../../_components/Pagination", () => ({
@@ -51,5 +63,11 @@ describe("ApplicationsTableSection", () => {
 
     expect(screen.getByRole("columnheader", { name: "예약신청시각" })).toBeInTheDocument();
     expect(screen.getByText("2026.06.08 10:12:33.456")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "할당용 Excel 다운로드" })).toHaveAttribute(
+      "href",
+      "/api/admin/reservations/7/allocation-excel",
+    );
+    expect(screen.getByLabelText("예약 할당 Excel 파일")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Excel 할당 업로드" })).toBeInTheDocument();
   });
 });

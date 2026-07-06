@@ -1,6 +1,11 @@
-import { postApiAdminBottlesReservationsNotices } from "@/apis/generated/api";
+import { ApiError } from "@/apis/errors";
+import {
+  postApiAdminBottlesReservationsNotices,
+  postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
+} from "@/apis/generated/api";
+import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createNoticeFormAction } from "./actions";
+import { createNoticeFormAction, uploadReservationAllocationExcelAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole: {
@@ -22,6 +27,7 @@ vi.mock("@/apis/generated/api", () => ({
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidReject: vi.fn(),
   postApiAdminBottlesReservationsNotices: vi.fn(),
+  postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel: vi.fn(),
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm: vi.fn(),
   putApiAdminBottlesReservationsNoticesNoticeid: vi.fn(),
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid: vi.fn(),
@@ -137,5 +143,97 @@ describe("createNoticeFormAction", () => {
         }),
       }),
     );
+  });
+});
+
+describe("uploadReservationAllocationExcelAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("파일이 없으면 안내 메시지를 반환하고 업로드 API를 호출하지 않는다", async () => {
+    const result = await uploadReservationAllocationExcelAction(100, undefined as unknown as File);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Excel 파일을 선택해주세요.",
+    });
+    expect(postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel).not.toHaveBeenCalled();
+  });
+
+  it("빈 파일이면 안내 메시지를 반환하고 업로드 API를 호출하지 않는다", async () => {
+    const file = new File([], "allocation.xlsx", {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const result = await uploadReservationAllocationExcelAction(100, file);
+
+    expect(result).toEqual({
+      success: false,
+      error: "Excel 파일을 선택해주세요.",
+    });
+    expect(postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel).not.toHaveBeenCalled();
+  });
+
+  it("성공하면 응답 데이터를 반환하고 공고 목록과 상세를 재검증한다", async () => {
+    const responseData = {
+      success: true,
+      noticeId: 100,
+      processedRowCount: 2,
+      allocatedApplicationCount: 2,
+      totalAllocatedQuantity: 3,
+      remainingQuantityBeforeAllocation: 10,
+      remainingQuantityAfterAllocation: 7,
+      failures: [],
+    };
+    vi.mocked(postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel).mockResolvedValue({
+      data: responseData,
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel>>);
+    const file = new File(["applicationId,allocatedQuantity"], "allocation.xlsx", {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const result = await uploadReservationAllocationExcelAction(100, file);
+
+    expect(postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel).toHaveBeenCalledWith(
+      100,
+      { file },
+      { token: "admin-token" },
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations/100");
+    expect(result).toEqual({ success: true, data: responseData });
+  });
+
+  it("할당 Excel 검증 실패 응답의 행별 실패 목록을 보존한다", async () => {
+    const failures = [
+      {
+        rowNumber: 3,
+        applicationId: 20,
+        reason: "할당 수량은 신청 수량을 초과할 수 없습니다.",
+      },
+    ];
+    vi.mocked(postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel).mockRejectedValue(
+      new ApiError(
+        400,
+        JSON.stringify({
+          message: "예약 신청 Excel 할당을 처리할 수 없습니다.",
+          failures,
+        }),
+      ),
+    );
+    const file = new File(["applicationId,allocatedQuantity"], "allocation.xlsx", {
+      type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    });
+
+    const result = await uploadReservationAllocationExcelAction(100, file);
+
+    expect(result).toEqual({
+      success: false,
+      error: "예약 신청 Excel 할당을 처리할 수 없습니다.",
+      failures,
+    });
   });
 });
