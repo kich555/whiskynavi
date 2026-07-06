@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApplicationsTableSection from "./ApplicationsTableSection";
 
+const paginationMock = vi.hoisted(() => vi.fn(() => null));
 const push = vi.fn();
 const refresh = vi.fn();
 
@@ -25,7 +26,7 @@ vi.mock("../../actions", () => ({
 }));
 
 vi.mock("../../../_components/Pagination", () => ({
-  default: () => null,
+  default: paginationMock,
 }));
 
 describe("ApplicationsTableSection", () => {
@@ -69,5 +70,32 @@ describe("ApplicationsTableSection", () => {
     );
     expect(screen.getByLabelText("예약 할당 Excel 파일")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Excel 할당 업로드" })).toBeInTheDocument();
+  });
+
+  it("페이지 이동 시 선택한 페이지 크기를 유지하도록 limit을 Pagination에 전달한다", () => {
+    render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={120}
+        currentPage={2}
+        itemsPerPage={50}
+        pendingApplicationCount={0}
+        currentRole="ROLE_USER"
+        currentStatus="APPLIED"
+      />,
+    );
+
+    expect(paginationMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        itemsPerPage: 50,
+        searchParams: {
+          limit: "50",
+          role: "ROLE_USER",
+          status: "APPLIED",
+        },
+      }),
+      undefined,
+    );
   });
 });

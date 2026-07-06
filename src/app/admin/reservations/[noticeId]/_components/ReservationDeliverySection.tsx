@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { ChevronDown } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -239,6 +240,7 @@ export default function ReservationDeliverySection({
   deliveries,
   companies,
 }: ReservationDeliverySectionProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
   const availableCompanies = companies.filter((company) => company.code);
   const hasDefaultCarrier = availableCompanies.some((company) => company.code === DEFAULT_CARRIER_CODE);
   const deliveryCompanies = hasDefaultCarrier
@@ -247,38 +249,57 @@ export default function ReservationDeliverySection({
 
   return (
     <div className="mb-4 overflow-hidden rounded-xl border border-gray-200 bg-white">
-      <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-        <h3 className="font-bold text-gray-900">
-          업장별 입고 배송 정보 <span className="typo-regular-14 text-gray-500">({deliveries.length}건)</span>
+      <div className={`${isExpanded ? "border-b border-gray-200" : ""} bg-gray-50 px-6 py-4`}>
+        <h3>
+          <button
+            type="button"
+            aria-expanded={isExpanded}
+            aria-controls="reservation-delivery-section-content"
+            aria-label={`업장별 입고 배송 정보 ${deliveries.length}건 ${isExpanded ? "접기" : "펼치기"}`}
+            onClick={() => setIsExpanded((current) => !current)}
+            className="flex w-full cursor-pointer items-center justify-between gap-3 text-left font-bold text-gray-900 transition-colors hover:text-amber-700 focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:outline-none"
+          >
+            <span>
+              업장별 입고 배송 정보 <span className="typo-regular-14 text-gray-500">({deliveries.length}건)</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+              {isExpanded ? "접기" : "펼치기"}
+              <ChevronDown className={`size-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
+            </span>
+          </button>
         </h3>
       </div>
 
-      <div className="hidden grid-cols-[1.2fr_1fr_1.4fr_1fr_120px] gap-3 bg-gray-50 px-4 py-3 text-xs font-bold text-gray-700 md:grid">
-        <div>업장</div>
-        <div>배송 방식</div>
-        <div>택배사</div>
-        <div>송장번호</div>
-        <div>관리</div>
-      </div>
-
-      {deliveries.length === 0 ? (
-        <div className="px-4 py-8 text-center text-gray-500">입고 배송 정보가 없습니다.</div>
-      ) : (
-        deliveries.map((delivery) => (
-          <div key={`${delivery.businessId}-${delivery.id ?? "empty"}`}>
-            <DeliveryRow noticeId={noticeId} delivery={delivery} companies={deliveryCompanies} />
-            {(delivery.deliveryStatus || delivery.deliveryMemo) && (
-              <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 text-xs text-gray-500">
-                {delivery.deliveryStatus && (
-                  <span className="mr-4">
-                    상태: {DELIVERY_STATUS_LABEL[delivery.deliveryStatus] ?? delivery.deliveryStatus}
-                  </span>
-                )}
-                {delivery.deliveryMemo && <span>메모: {delivery.deliveryMemo}</span>}
-              </div>
-            )}
+      {isExpanded && (
+        <div id="reservation-delivery-section-content">
+          <div className="hidden grid-cols-[1.2fr_1fr_1.4fr_1fr_120px] gap-3 bg-gray-50 px-4 py-3 text-xs font-bold text-gray-700 md:grid">
+            <div>업장</div>
+            <div>배송 방식</div>
+            <div>택배사</div>
+            <div>송장번호</div>
+            <div>관리</div>
           </div>
-        ))
+
+          {deliveries.length === 0 ? (
+            <div className="px-4 py-8 text-center text-gray-500">입고 배송 정보가 없습니다.</div>
+          ) : (
+            deliveries.map((delivery) => (
+              <div key={`${delivery.businessId}-${delivery.id ?? "empty"}`}>
+                <DeliveryRow noticeId={noticeId} delivery={delivery} companies={deliveryCompanies} />
+                {(delivery.deliveryStatus || delivery.deliveryMemo) && (
+                  <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 text-xs text-gray-500">
+                    {delivery.deliveryStatus && (
+                      <span className="mr-4">
+                        상태: {DELIVERY_STATUS_LABEL[delivery.deliveryStatus] ?? delivery.deliveryStatus}
+                      </span>
+                    )}
+                    {delivery.deliveryMemo && <span>메모: {delivery.deliveryMemo}</span>}
+                  </div>
+                )}
+              </div>
+            ))
+          )}
+        </div>
       )}
     </div>
   );
