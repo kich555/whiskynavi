@@ -22,12 +22,31 @@ interface ApplyFormProps {
   isPending: boolean;
   pickupLocations: PickupLocationResponse[];
   error?: string | null;
+  mode?: "apply" | "edit";
+  initialQuantity?: number;
+  initialLocationId?: number;
+  onCancelEdit?: () => void;
+  maxQuantity?: number;
 }
 
-export default function ApplyForm({ onApply, isPending, pickupLocations, error }: ApplyFormProps) {
-  const [quantity, setQuantity] = useState(1);
-  const [quantityInput, setQuantityInput] = useState("1");
-  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+export default function ApplyForm({
+  onApply,
+  isPending,
+  pickupLocations,
+  error,
+  mode = "apply",
+  initialQuantity,
+  initialLocationId,
+  onCancelEdit,
+  maxQuantity = 100,
+}: ApplyFormProps) {
+  const initialLocationIdStr =
+    initialLocationId != null && pickupLocations.some((loc) => loc.id === initialLocationId)
+      ? String(initialLocationId)
+      : "";
+  const [quantity, setQuantity] = useState(initialQuantity ?? 1);
+  const [quantityInput, setQuantityInput] = useState(String(initialQuantity ?? 1));
+  const [selectedLocationId, setSelectedLocationId] = useState<string>(initialLocationIdStr);
 
   const canSubmit = selectedLocationId !== "" && !isPending;
 
@@ -61,22 +80,22 @@ export default function ApplyForm({ onApply, isPending, pickupLocations, error }
             <input
               type="number"
               min="1"
-              max="10"
+              max={maxQuantity}
               value={quantityInput}
               onChange={(e) => {
                 const raw = e.target.value;
                 setQuantityInput(raw);
                 const parsed = parseInt(raw, 10);
                 if (!Number.isNaN(parsed)) {
-                  setQuantity(Math.max(1, Math.min(10, parsed)));
+                  setQuantity(Math.max(1, Math.min(maxQuantity, parsed)));
                 }
               }}
               onBlur={() => {
                 const parsed = parseInt(quantityInput, 10);
                 const original = Number.isNaN(parsed) ? 1 : parsed;
-                const clamped = Math.max(1, Math.min(10, original));
+                const clamped = Math.max(1, Math.min(maxQuantity, original));
                 if (clamped !== original) {
-                  toast.warning(`수량은 1~10병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
+                  toast.warning(`수량은 1~${maxQuantity}병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
                 }
                 setQuantity(clamped);
                 setQuantityInput(String(clamped));
@@ -87,13 +106,23 @@ export default function ApplyForm({ onApply, isPending, pickupLocations, error }
               병
             </span>
           </div>
+          {mode === "edit" && (
+            <button
+              type="button"
+              onClick={onCancelEdit}
+              disabled={isPending}
+              className="typo-bold-16 border border-white/20 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+            >
+              닫기
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onApply(quantity, Number(selectedLocationId))}
             disabled={!canSubmit}
             className="typo-bold-16 flex-1 bg-white px-4 py-2.5 text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
           >
-            {isPending ? "신청 중..." : "예약하기"}
+            {mode === "edit" ? (isPending ? "수정 중..." : "수정하기") : isPending ? "신청 중..." : "예약하기"}
           </button>
         </div>
         <p className="text-[10px] text-gray-400 lg:text-xs">

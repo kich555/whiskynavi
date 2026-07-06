@@ -1,8 +1,4 @@
-import {
-  type UserBottleReservationNoticePublicResponse,
-  getApiBottlesReservationsNotices,
-  getApiBottlesReservationsNoticesRecentEnded,
-} from "@/apis/generated/api";
+import type { UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
 import { authOptions } from "@/lib/auth";
 import { getServerSession } from "next-auth";
 import Hero from "../_components/Hero";
@@ -10,6 +6,8 @@ import ActiveReservationSection from "./_components/ActiveReservationSection";
 import EmptyState from "./_components/EmptyState";
 import RecentEndedSection from "./_components/RecentEndedSection";
 import UnauthenticatedGuard from "./_components/UnauthenticatedGuard";
+import { fetchActiveNotices } from "./_lib/fetchActiveNotices";
+import { fetchRecentEndedNotices } from "./_lib/fetchRecentEndedNotices";
 
 function normalizeActiveNotices(data: unknown): UserBottleReservationNoticePublicResponse[] {
   if (Array.isArray(data)) {
@@ -49,18 +47,15 @@ export default async function ReservationPage() {
     );
   }
 
-  // 병렬 API 호출
-  const [activeResult, recentEndedResult] = await Promise.all([
-    getApiBottlesReservationsNotices({
-      page: 0,
-      size: 100,
-    }).catch(() => null),
-    getApiBottlesReservationsNoticesRecentEnded().catch(() => null),
+  // 병렬 API 호출 (캐시 적용: 30s / 5min)
+  const [activeData, recentEndedData] = await Promise.all([
+    fetchActiveNotices().catch(() => null),
+    fetchRecentEndedNotices().catch(() => null),
   ]);
 
-  const activeNotices = normalizeActiveNotices(activeResult?.data);
+  const activeNotices = normalizeActiveNotices(activeData);
 
-  const recentEndedNotices = recentEndedResult?.data ?? [];
+  const recentEndedNotices = recentEndedData ?? [];
 
   const hasNoData = activeNotices.length === 0 && recentEndedNotices.length === 0;
 

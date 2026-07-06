@@ -23,8 +23,13 @@ import {
   type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole as ReservationRequiredRole,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import {
+  noticeCacheTag,
+  NOTICES_LIST_CACHE_TAG,
+  NOTICES_RECENT_ENDED_CACHE_TAG,
+} from "@/app/(main)/reservation/_lib/cacheTags";
 import { getAuthToken } from "@/lib/auth";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
 
@@ -316,6 +321,8 @@ export async function createNoticeFormAction(_prev: FormState, formData: FormDat
     return { success: false, error: message, values: parsed.values };
   }
 
+  revalidateTag(NOTICES_LIST_CACHE_TAG, "max");
+  revalidateTag(NOTICES_RECENT_ENDED_CACHE_TAG, "max");
   revalidatePath("/admin/reservations");
   redirect("/admin/reservations");
 }
@@ -338,6 +345,8 @@ export async function updateNoticeFormAction(
     return { success: false, error: message, values: parsed.values };
   }
 
+  revalidateTag(noticeCacheTag(noticeId), "max");
+  revalidateTag(NOTICES_LIST_CACHE_TAG, "max");
   revalidatePath("/admin/reservations");
   redirect(`/admin/reservations/${noticeId}`);
 }
@@ -402,6 +411,7 @@ export async function autoConfirmApplicationsAction(noticeId: number) {
 
   try {
     const res = await postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm(noticeId, {}, withToken(token));
+    revalidateTag(noticeCacheTag(noticeId), "max");
     revalidatePath("/admin/reservations");
     revalidatePath(`/admin/reservations/${noticeId}`);
     return { success: true, data: res.data };

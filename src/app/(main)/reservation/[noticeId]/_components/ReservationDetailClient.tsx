@@ -1,30 +1,40 @@
 "use client";
 
-import type { PickupLocationResponse, UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
+import type {
+  PickupLocationResponse,
+  UserBottleReservationApplicationPublicResponse,
+  UserBottleReservationNoticePublicResponse,
+} from "@/apis/generated/api";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { overlay } from "overlay-kit";
 import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import ApplyForm from "../../_components/ApplyForm";
 import InfoList from "../../_components/InfoList";
 import StatusBadge from "../../_components/StatusBadge";
 import TimerDisplay from "../../_components/TimerDisplay";
 import { useCountdownTimer } from "../../_lib/useCountdownTimer";
-import { applyReservation } from "../../actions";
+import { applyReservation, cancelReservation, updateReservation } from "../../actions";
+import CancelReservationModal from "./CancelReservationModal";
 
 interface ReservationDetailClientProps {
   notice: UserBottleReservationNoticePublicResponse;
   pickupLocations: PickupLocationResponse[];
-  initialHasApplied: boolean;
+  myApplication: UserBottleReservationApplicationPublicResponse | null;
 }
 
 export default function ReservationDetailClient({
   notice,
   pickupLocations,
-  initialHasApplied,
+  myApplication: initialMyApplication,
 }: ReservationDetailClientProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
-  const [isApplied, setIsApplied] = useState(initialHasApplied);
+  const [myApplication, setMyApplication] = useState(initialMyApplication);
+  const [isEditing, setIsEditing] = useState(false);
   const { timeRemaining, status } = useCountdownTimer(notice);
+  const isApplied = myApplication !== null;
+  const isEditable = myApplication?.status === "APPLIED";
   const displayStatus = status === "closed" ? status : isApplied ? "applied" : status;
 
   const handleApply = (quantity: number, userBusinessId: number) => {
@@ -33,11 +43,51 @@ export default function ReservationDetailClient({
       const result = await applyReservation(notice.id!, quantity, userBusinessId);
       if (result.success) {
         // 예약 API가 정상 처리되면 같은 상세 화면에서 신청 완료 상태를 즉시 보여준다.
-        setIsApplied(true);
+        setMyApplication(result.application ?? null);
       } else {
         setError(result.error ?? "예약 신청에 실패했습니다.");
       }
     });
+  };
+
+  const handleUpdate = (quantity: number, userBusinessId: number) => {
+    if (!myApplication?.id) return;
+    setError(null);
+    startTransition(async () => {
+      const result = await updateReservation(notice.id!, myApplication.id!, quantity, userBusinessId);
+      if (result.success) {
+        setMyApplication(result.application ?? myApplication);
+        setIsEditing(false);
+        toast.success("수정되었습니다");
+      } else {
+        setError(result.error ?? "예약 신청 수정에 실패했습니다.");
+      }
+    });
+  };
+
+  const handleCancel = async () => {
+    if (!myApplication?.id) return;
+    const result = await cancelReservation(notice.id!, myApplication.id!);
+    if (result.success) {
+      setMyApplication(null);
+      setIsEditing(false);
+      toast.success("취소되었습니다");
+    } else {
+      toast.error(result.error ?? "예약 신청 취소에 실패했습니다.");
+    }
+  };
+
+  const openCancelModal = () => {
+    overlay.open(({ isOpen, close }) => (
+      <CancelReservationModal
+        isOpen={isOpen}
+        close={close}
+        onConfirm={async () => {
+          await handleCancel();
+          close();
+        }}
+      />
+    ));
   };
 
   return (
@@ -60,7 +110,9 @@ export default function ReservationDetailClient({
           <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">{notice.bottleName}</h3>
           <InfoList notice={notice} />
           {notice.description && (
-            <p className="typo-medium-14 mt-4 whitespace-pre-line text-gray-300 lg:text-base">{notice.description}</p>
+            <p className="typo-medium-14 mt-4 max-h-40 overflow-y-auto whitespace-pre-line text-gray-300 lg:max-h-60 lg:text-base">
+              {notice.description}
+            </p>
           )}
         </div>
       </div>
@@ -76,7 +128,13 @@ export default function ReservationDetailClient({
 
         <div className="flex flex-col">
           {displayStatus === "active" ? (
-            <ApplyForm onApply={handleApply} isPending={isPending} error={error} pickupLocations={pickupLocations} />
+            <ApplyForm
+              onApply={handleApply}
+              isPending={isPending}
+              error={error}
+              pickupLocations={pickupLocations}
+              maxQuantity={notice.maxOrderQuantity}
+            />
           ) : displayStatus === "pending" ? (
             <button
               type="button"
@@ -85,14 +143,56 @@ export default function ReservationDetailClient({
             >
               예약 대기 중
             </button>
+          ) : displayStatus === "applied" && isEditing ? (
+            <ApplyForm
+              mode="edit"
+              onApply={handleUpdate}
+              onCancelEdit={() => setIsEditing(false)}
+              isPending={isPending}
+              error={error}
+              pickupLocations={pickupLocations}
+              initialQuantity={myApplication?.quantity}
+              initialLocationId={myApplication?.pickupUserBusinessId}
+              maxQuantity={notice.maxOrderQuantity}
+            />
           ) : displayStatus === "applied" ? (
-            <button
-              type="button"
-              disabled
-              className="typo-bold-16 w-full cursor-not-allowed bg-green-600 px-4 py-2.5 text-white transition-colors lg:px-6 lg:py-4 lg:text-xl"
-            >
-              예약신청완료
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                type="button"
+                disabled
+                className="typo-bold-16 w-full cursor-not-allowed bg-green-600 px-4 py-2.5 text-white transition-colors lg:px-6 lg:py-4 lg:text-xl"
+              >
+                예약신청완료
+              </button>
+              {isEditable && (
+                <>
+                  <p className="typo-medium-14 text-gray-300">
+                    {myApplication?.quantity}병 ·{" "}
+                    {myApplication?.pickupBusinessName ??
+                      pickupLocations.find((loc) => loc.id === myApplication?.pickupUserBusinessId)?.businessName ??
+                      "-"}
+                  </p>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      disabled={isPending}
+                      className="typo-bold-16 flex-1 border border-white/20 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+                    >
+                      수정하기
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openCancelModal}
+                      disabled={isPending}
+                      className="typo-bold-16 flex-1 border border-red-500/40 px-4 py-2.5 text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+                    >
+                      취소하기
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ) : null}
         </div>
       </div>
