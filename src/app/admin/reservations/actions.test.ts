@@ -1,6 +1,9 @@
-import { postApiAdminBottlesReservationsNotices } from "@/apis/generated/api";
+import {
+  postApiAdminBottlesReservationsNotices,
+  postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm,
+} from "@/apis/generated/api";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createNoticeFormAction } from "./actions";
+import { autoConfirmApplicationsAction, createNoticeFormAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole: {
@@ -136,6 +139,28 @@ describe("createNoticeFormAction", () => {
           ],
         }),
       }),
+    );
+  });
+});
+
+describe("autoConfirmApplicationsAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("자동 승인배정 요청에 빈 body와 Authorization 옵션을 전달한다", async () => {
+    vi.mocked(postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm).mockResolvedValue({
+      data: { confirmedCount: 3 },
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm>>);
+
+    await autoConfirmApplicationsAction(7);
+
+    expect(postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm).toHaveBeenCalledWith(
+      7,
+      {},
+      { token: "admin-token" },
     );
   });
 });
