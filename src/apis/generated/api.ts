@@ -1771,6 +1771,8 @@ export interface BottleAdminResponse {
   supplyPrice?: number;
   /** 수정 일시입니다. */
   updatedAt?: string;
+  /** 아카이브 사용자 노출 여부입니다. */
+  visible?: boolean;
 }
 
 /**

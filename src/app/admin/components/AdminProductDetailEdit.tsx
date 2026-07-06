@@ -27,6 +27,11 @@ function pickDefault(
   return fallback;
 }
 
+function pickDefaultVisible(submitted: Record<string, string> | undefined, fallback: boolean | undefined): boolean {
+  if (submitted && "visible" in submitted) return submitted.visible === "on";
+  return fallback ?? true;
+}
+
 // API 선택지를 보여주되 관리자가 직접 입력하는 흐름은 그대로 유지한다.
 
 export default function AdminProductDetailEdit({
@@ -65,6 +70,7 @@ export default function AdminProductDetailEdit({
   }, [previewUrl]);
 
   const currentImage = previewUrl || FALLBACK_IMAGE;
+  const visibleDefaultChecked = pickDefaultVisible(submittedValues, defaultValues?.visible);
 
   const handleRemoveImage = () => {
     onSelectFile(null);
@@ -302,6 +308,20 @@ export default function AdminProductDetailEdit({
               defaultValue={pickDefault(submittedValues, "consumerPrice", defaultValues?.consumerPrice)}
               className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
             />
+          </div>
+
+          <div className="flex items-center gap-3 rounded border border-gray-200 bg-gray-50 px-3 py-2">
+            <span className="w-32 text-sm text-gray-700">노출 설정</span>
+            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-900">
+              <input
+                type="checkbox"
+                name="visible"
+                value="on"
+                defaultChecked={visibleDefaultChecked}
+                className="h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500"
+              />
+              아카이브 노출
+            </label>
           </div>
 
           {/* 추가 정보 */}

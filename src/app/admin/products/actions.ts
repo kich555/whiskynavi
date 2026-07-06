@@ -51,6 +51,7 @@ const FORM_FIELD_NAMES = [
   "stockQuantity",
   "supplyPrice",
   "consumerPrice",
+  "visible",
 ] as const;
 
 const REQUIRED_BOTTLE_FIELDS = [
@@ -70,6 +71,7 @@ function extractFormValues(formData: FormData): Record<string, string> {
     const v = formData.get(key);
     if (typeof v === "string") values[key] = v;
   }
+  values.visible = formData.getAll("visible").includes("on") ? "on" : "off";
   return values;
 }
 
@@ -115,12 +117,16 @@ const bottleFormSchema = z.object({
   stockQuantity: optionalNum,
   supplyPrice: optionalNum,
   consumerPrice: optionalNum,
+  visible: z.boolean(),
 });
 
 function parseBottleFormData(formData: FormData) {
-  const raw: Record<string, string> = {};
+  const raw: Record<string, string | boolean> = {};
   for (const key of Object.keys(bottleFormSchema.shape)) {
-    raw[key] = (formData.get(key) as string) ?? "";
+    raw[key] =
+      key === "visible"
+        ? formData.getAll("visible").includes("on")
+        : ((formData.get(key) as string) ?? "");
   }
   const result = bottleFormSchema.safeParse(raw);
   if (!result.success) {
@@ -138,16 +144,12 @@ function validateRequiredBottleFields(data: z.infer<typeof bottleFormSchema>): s
   }
 }
 
-function parseExtraInfos(
-  raw: string | undefined,
-): PostApiAdminBottlesBodyExtraInfos | undefined {
+function parseExtraInfos(raw: string | undefined): PostApiAdminBottlesBodyExtraInfos | undefined {
   if (!raw) return undefined;
   try {
     const parsed = JSON.parse(raw);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-      return Object.fromEntries(
-        Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [k, String(v)]),
-      );
+      return Object.fromEntries(Object.entries(parsed as Record<string, unknown>).map(([k, v]) => [k, String(v)]));
     }
   } catch {
     // fall through
