@@ -33,7 +33,10 @@ export default async function ReservationDetailPage({ params }: PageProps) {
 
   let notice;
   try {
-    const res = await getApiBottlesReservationsNoticesNoticeid(id);
+    const res = await getApiBottlesReservationsNoticesNoticeid(
+      id,
+      withToken(session.accessToken),
+    );
     notice = res.data;
   } catch {
     notFound();
