@@ -35,7 +35,7 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
           <div>
             <p className="text-xs text-gray-400">{notice.bottleBrand ?? "-"}</p>
             <h3
-              className="typo-medium-14 mt-2 line-clamp-2 text-white group-hover:text-gray-300"
+              className="typo-medium-14 mt-2 line-clamp-2 min-h-[2.8em] text-white group-hover:text-gray-300"
               style={{ lineHeight: 1.4 }}
             >
               {notice.bottleName ?? "-"}
