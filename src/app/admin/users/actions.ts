@@ -174,21 +174,3 @@ export async function removeUserRolesAction(userId: number, roles: string[]) {
     return { success: false, error: message };
   }
 }
-
-export async function replaceUserRoleAction(userId: number, oldRole: string, newRole: string) {
-  const token = await getAuthToken();
-
-  if (!token) {
-    return { success: false, error: "인증이 필요합니다." };
-  }
-
-  try {
-    await patchApiAdminUsersIdRolesRemove(userId, { roles: [oldRole] }, withToken(token));
-    await patchApiAdminUsersIdRolesAdd(userId, { roles: [newRole] }, withToken(token));
-    revalidatePath(`/admin/users/${userId}`);
-    return { success: true };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : "권한 변경에 실패했습니다.";
-    return { success: false, error: message };
-  }
-}
