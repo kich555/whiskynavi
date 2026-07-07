@@ -41,7 +41,7 @@ export function getNoticeStatus(
   const start = notice.reservationStartAt ? parseNoticeDateTime(notice.reservationStartAt) : null;
   const end = notice.reservationEndAt ? parseNoticeDateTime(notice.reservationEndAt) : null;
 
-  if (end !== null && now > end) return "closed";
+  if (end !== null && now >= end) return "closed";
   if (start !== null && now < start) return "pending";
   return "active";
 }

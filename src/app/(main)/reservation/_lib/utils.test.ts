@@ -22,6 +22,11 @@ describe("getNoticeStatus", () => {
     expect(getNoticeStatus(notice, now)).toBe("closed");
   });
 
+  it("종료 시각 정각이면 closed를 반환한다", () => {
+    const now = new Date("2026-01-20T00:00:00.000Z").getTime();
+    expect(getNoticeStatus(notice, now)).toBe("closed");
+  });
+
   it("now를 넘기지 않으면 Date.now() 기준으로 판단한다", () => {
     const past = { reservationStartAt: "2000-01-01T00:00:00.000Z", reservationEndAt: "2000-01-02T00:00:00.000Z" };
     expect(getNoticeStatus(past)).toBe("closed");
