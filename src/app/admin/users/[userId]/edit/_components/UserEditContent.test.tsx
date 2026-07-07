@@ -37,7 +37,6 @@ vi.mock("../../_components/ManualPurchaseCreateModal", () => ({
 vi.mock("../../../actions", () => ({
   addUserRolesAction: vi.fn(),
   removeUserRolesAction: vi.fn(),
-  replaceUserRoleAction: vi.fn(),
   updateUserStatusAction: vi.fn(),
 }));
 
