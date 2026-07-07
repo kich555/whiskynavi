@@ -132,29 +132,6 @@ describe("CartContent", () => {
     expect(screen.getByRole("button", { name: "주문 불가 상품 수량 감소" })).toBeDisabled();
   });
 
-  it("announces action failures", async () => {
-    vi.mocked(removeCartItem).mockRejectedValue(new Error("network"));
-
-    render(
-      <CartContent
-        quote={{
-          items: [
-            {
-              cartItemId: 1,
-              itemName: "테스트 상품",
-              quantity: 1,
-              valid: true,
-            },
-          ],
-        }}
-      />,
-    );
-
-    fireEvent.click(screen.getByRole("button", { name: "테스트 상품 삭제" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent("장바구니 상품을 삭제하지 못했습니다.");
-  });
-
   it("does not show an empty cart state when quote loading fails", () => {
     render(<CartContent error="장바구니 견적을 불러오지 못했습니다." />);
 

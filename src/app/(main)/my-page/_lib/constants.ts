@@ -67,7 +67,7 @@ export const MEMBERSHIP_INFO = {
     name: "더 위스키테일즈",
     subtitle: "THE WHISKY TALES",
     badgeLabel: "TALES",
-    benefits: ["스토리텔링 콘텐츠 무제한 열람", "구매시 5% 추가 할인", "월간 큐레이션 추천", "특별 이벤트 초대"],
+    benefits: ["스토리텔링 콘텐츠 무제한 열람", "굿즈 구매시 5% 할인", "월간 큐레이션 추천", "특별 이벤트 초대"],
     joinMessage: "TALES 멤버십에 가입하시면\n특별한 혜택을 누리실 수 있습니다.",
   },
   notice: [
