@@ -11,7 +11,14 @@ import {
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
-import { getNoticeStatus } from "./_lib/utils";
+import { getNoticeStatus, type NoticeStatus } from "./_lib/utils";
+
+const RESERVATION_ENDED_MUTATION_MESSAGE = "예약이 종료된 후에는 수정/취소가 불가능합니다.";
+
+function getReservationMutationWindowError(status: NoticeStatus): string | null {
+  if (status === "active") return null;
+  return RESERVATION_ENDED_MUTATION_MESSAGE;
+}
 
 export async function applyReservation(
   noticeId: number,
@@ -71,8 +78,9 @@ export async function updateReservation(
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 수정 시점의 예약 기간을 서버에서 다시 검증한다.
-    if (getNoticeStatus(notice) !== "active") {
-      return { success: false, error: "지금은 예약 신청 수정 기간이 아닙니다." };
+    const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
+    if (windowError) {
+      return { success: false, error: windowError };
     }
 
     const { data: application } = await putApiBottlesReservationsApplicationsApplicationid(
@@ -103,8 +111,9 @@ export async function cancelReservation(
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 취소 시점의 예약 기간을 서버에서 다시 검증한다.
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
-    if (getNoticeStatus(notice) !== "active") {
-      return { success: false, error: "지금은 예약 신청 취소 기간이 아닙니다." };
+    const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
+    if (windowError) {
+      return { success: false, error: windowError };
     }
 
     await deleteApiBottlesReservationsApplicationsApplicationid(applicationId, withToken(token));
