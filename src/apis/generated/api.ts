@@ -472,6 +472,10 @@ export interface AdminBusinessUpdateRequest {
   contact?: string;
   /** 픽업 주소 또는 위치 설명입니다. */
   pickupAddress?: string;
+  /** 예약 확정/할당 후 결제 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationConfirmationSmsEnabled?: boolean;
+  /** 예약 픽업 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationPickupSmsEnabled?: boolean;
   /**
    * 매장 담당자명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
    * @minLength 0
@@ -531,6 +535,8 @@ export interface AdminBusinessUserDetailResponse {
   hasTrailntaleBusinessRole?: boolean;
   name?: string;
   pickupAddress?: string;
+  reservationConfirmationSmsEnabled?: boolean;
+  reservationPickupSmsEnabled?: boolean;
   roles?: AdminBusinessUserDetailResponseRolesItem[];
   storeManagerName?: string;
   storeManagerPhone?: string;
@@ -6512,6 +6518,10 @@ export type PatchApiAdminBusinessesBusinessesBusinessidBody = {
   contact?: string;
   /** 픽업 주소 또는 위치 설명입니다. */
   pickupAddress?: string;
+  /** 예약 확정/할당 후 결제 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationConfirmationSmsEnabled?: boolean;
+  /** 예약 픽업 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationPickupSmsEnabled?: boolean;
   /**
    * 매장 담당자명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
    * @minLength 0
@@ -6630,6 +6640,10 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
   contact?: string;
   /** 픽업 주소 또는 위치 설명입니다. */
   pickupAddress?: string;
+  /** 예약 확정/할당 후 결제 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationConfirmationSmsEnabled?: boolean;
+  /** 예약 픽업 안내 문자 발송 여부입니다. null이면 기존 값을 유지합니다. */
+  reservationPickupSmsEnabled?: boolean;
   /**
    * 매장 담당자명입니다. null이면 기존 값을 유지하고, 빈 값이면 값을 비웁니다.
    * @minLength 0
@@ -11976,7 +11990,7 @@ export const patchApiAdminBusinessesBusinessesBusinessid = async (businessId: nu
 
 
 /**
- * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 ID로 현재 owner에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS는 사용자 역할과 대상 사업장 권한으로 저장하고, ROLE_PICK_UP_BUSINESS는 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업장 owner 권한 부여(관리자)
  */
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleGrantResponse200 = {
@@ -12174,7 +12188,7 @@ export const patchApiAdminBusinessesMembersUseridBusiness = async (userId: numbe
 
 
 /**
- * 등록된 사업장 회원에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 회원에게 사업자 권한을 부여합니다. ROLE_COMMUNITY_BUSINESS는 사용자 역할과 대상 사업장 권한으로 저장하고, ROLE_PICK_UP_BUSINESS는 대상 사업장 권한으로 저장합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업자 권한 부여(관리자)
  */
 export type postApiAdminBusinessesMembersUseridRolesRoleGrantResponse200 = {
