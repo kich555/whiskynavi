@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { FormMessage } from "@/components/ui/form-message";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/formatters";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -84,6 +85,8 @@ type BusinessEditForm = {
   businessType: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType;
   contact: string;
   pickupAddress: string;
+  reservationConfirmationSmsEnabled: boolean;
+  reservationPickupSmsEnabled: boolean;
   storeManagerName: string;
   storeManagerPhone: string;
 };
@@ -108,6 +111,8 @@ const createInitialForm = (member: AdminBusinessUserDetailResponse): BusinessEdi
   businessType: member.businessType ?? "HOUSEHOLD",
   contact: member.contact ?? "",
   pickupAddress: member.pickupAddress ?? "",
+  reservationConfirmationSmsEnabled: member.reservationConfirmationSmsEnabled ?? true,
+  reservationPickupSmsEnabled: member.reservationPickupSmsEnabled ?? true,
   storeManagerName: member.storeManagerName ?? "",
   storeManagerPhone: member.storeManagerPhone ?? "",
 });
@@ -170,7 +175,13 @@ export default function BusinessMemberDetailContent({
     setIsEditing(false);
   };
 
-  const handleChange = (field: Exclude<keyof BusinessEditForm, "businessType">, value: string) => {
+  const handleChange = (
+    field: Exclude<
+      keyof BusinessEditForm,
+      "businessType" | "reservationConfirmationSmsEnabled" | "reservationPickupSmsEnabled"
+    >,
+    value: string,
+  ) => {
     setForm((current) => ({
       ...current,
       [field]: value,
@@ -182,6 +193,17 @@ export default function BusinessMemberDetailContent({
     setForm((current) => ({
       ...current,
       businessType: value,
+    }));
+    setMessage(null);
+  };
+
+  const handleBooleanChange = (
+    field: "reservationConfirmationSmsEnabled" | "reservationPickupSmsEnabled",
+    value: boolean,
+  ) => {
+    setForm((current) => ({
+      ...current,
+      [field]: value,
     }));
     setMessage(null);
   };
@@ -200,6 +222,8 @@ export default function BusinessMemberDetailContent({
         businessType: form.businessType,
         contact: form.contact,
         pickupAddress: form.pickupAddress,
+        reservationConfirmationSmsEnabled: form.reservationConfirmationSmsEnabled,
+        reservationPickupSmsEnabled: form.reservationPickupSmsEnabled,
         storeManagerName: form.storeManagerName,
         storeManagerPhone: form.storeManagerPhone,
       });
@@ -461,6 +485,50 @@ export default function BusinessMemberDetailContent({
                       />
                     ) : (
                       <p className="text-sm font-medium text-gray-900">{member.storeManagerPhone ?? "-"}</p>
+                    )}
+                  </div>
+                </div>
+              </section>
+
+              <section className="border-t border-gray-100 pt-6">
+                <h4 className="mb-3 text-sm font-semibold text-gray-900">알림 설정</h4>
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  <div>
+                    <Label htmlFor="reservationConfirmationSmsEnabled" className="mb-1 text-xs text-gray-500">
+                      예약 확정/할당 결제 안내 문자
+                    </Label>
+                    {isEditing ? (
+                      <Switch
+                        id="reservationConfirmationSmsEnabled"
+                        checked={form.reservationConfirmationSmsEnabled}
+                        onCheckedChange={(checked) =>
+                          handleBooleanChange("reservationConfirmationSmsEnabled", checked)
+                        }
+                        disabled={isPending}
+                        aria-label="예약 확정/할당 결제 안내 문자"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-gray-900">
+                        {member.reservationConfirmationSmsEnabled === false ? "발송 안 함" : "발송"}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="reservationPickupSmsEnabled" className="mb-1 text-xs text-gray-500">
+                      픽업 안내 문자
+                    </Label>
+                    {isEditing ? (
+                      <Switch
+                        id="reservationPickupSmsEnabled"
+                        checked={form.reservationPickupSmsEnabled}
+                        onCheckedChange={(checked) => handleBooleanChange("reservationPickupSmsEnabled", checked)}
+                        disabled={isPending}
+                        aria-label="픽업 안내 문자"
+                      />
+                    ) : (
+                      <p className="text-sm font-medium text-gray-900">
+                        {member.reservationPickupSmsEnabled === false ? "발송 안 함" : "발송"}
+                      </p>
                     )}
                   </div>
                 </div>

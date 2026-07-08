@@ -24,6 +24,8 @@ const mockMember = {
   businessType: "HOUSEHOLD" as const,
   contact: "010-1234-5678",
   pickupAddress: "서울시 강남구",
+  reservationConfirmationSmsEnabled: true,
+  reservationPickupSmsEnabled: false,
   storeManagerName: "김담당",
   storeManagerPhone: "010-9876-5432",
   hasPickupRole: false,
@@ -60,6 +62,16 @@ describe("BusinessMemberDetailContent", () => {
     expect(screen.getByText("010-9876-5432")).toBeInTheDocument();
     expect(screen.getByText("신한은행")).toBeInTheDocument();
     expect(screen.getByText("110-123-456789")).toBeInTheDocument();
+  });
+
+  it("renders reservation sms settings in read-only mode", () => {
+    render(<BusinessMemberDetailContent member={mockMember} />);
+
+    expect(screen.getByText("알림 설정")).toBeInTheDocument();
+    expect(screen.getByText("예약 확정/할당 결제 안내 문자")).toBeInTheDocument();
+    expect(screen.getByText("픽업 안내 문자")).toBeInTheDocument();
+    expect(screen.getByText("발송")).toBeInTheDocument();
+    expect(screen.getByText("발송 안 함")).toBeInTheDocument();
   });
 
   it("renders submitted business registration document link", () => {
@@ -196,8 +208,32 @@ describe("BusinessMemberDetailContent", () => {
     expect(screen.getByDisplayValue("010-9876-5432")).toBeInTheDocument();
     expect(screen.getByDisplayValue("신한은행")).toBeInTheDocument();
     expect(screen.getByDisplayValue("110-123-456789")).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "예약 확정/할당 결제 안내 문자" })).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "픽업 안내 문자" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "저장" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "취소" })).toBeInTheDocument();
+  });
+
+  it("edits reservation sms settings with independent switches", async () => {
+    const user = userEvent.setup();
+
+    render(<BusinessMemberDetailContent member={mockMember} />);
+
+    await user.click(screen.getByRole("button", { name: "수정" }));
+
+    const confirmationSwitch = screen.getByRole("switch", {
+      name: "예약 확정/할당 결제 안내 문자",
+    });
+    const pickupSwitch = screen.getByRole("switch", { name: "픽업 안내 문자" });
+
+    expect(confirmationSwitch).toBeChecked();
+    expect(pickupSwitch).not.toBeChecked();
+
+    await user.click(confirmationSwitch);
+    await user.click(pickupSwitch);
+
+    expect(confirmationSwitch).not.toBeChecked();
+    expect(pickupSwitch).toBeChecked();
   });
 
   it("shows current business type in edit mode", async () => {
