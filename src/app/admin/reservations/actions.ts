@@ -9,12 +9,14 @@ import {
   postApiAdminBottlesReservationsNotices,
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
+  postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending,
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm,
   putApiAdminBottlesReservationsNoticesNoticeid,
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid,
   type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
   type PostApiAdminBottlesReservationsApplicationsApplicationidRejectBody,
   type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem,
+  type PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyCarrierCode,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryMethod,
   type PutApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessidBodyDeliveryStatus,
@@ -55,6 +57,18 @@ export type FormState = { success: boolean; error?: string; values?: NoticeFormV
 export type ReservationAllocationExcelActionResult<T = unknown> =
   | { success: true; data: T }
   | { success: false; error: string; failures?: ReservationAllocationExcelFailureResponse[] };
+
+export interface UpdateNoticeAvailableQuantityInput {
+  noticeId: number;
+  bottleId: number;
+  price: number;
+  reservationStartAt: string;
+  reservationEndAt: string;
+  availableQuantity: number;
+  maxOrderQuantity?: number;
+  description?: string;
+  gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
+}
 
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
 const DEFAULT_RESERVATION_REQUIRED_ROLE =
@@ -350,6 +364,40 @@ export async function updateNoticeFormAction(
   redirect(`/admin/reservations/${noticeId}`);
 }
 
+export async function updateNoticeAvailableQuantityAction(input: UpdateNoticeAvailableQuantityInput) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: "인증이 필요합니다." };
+
+  if (!Number.isInteger(input.availableQuantity) || input.availableQuantity < 0) {
+    return { success: false, error: "예약 받을 병수는 0 이상의 정수여야 합니다." };
+  }
+
+  try {
+    await putApiAdminBottlesReservationsNoticesNoticeid(
+      input.noticeId,
+      {
+        bottleId: input.bottleId,
+        price: input.price,
+        reservationStartAt: new Date(input.reservationStartAt).toISOString(),
+        reservationEndAt: new Date(input.reservationEndAt).toISOString(),
+        availableQuantity: input.availableQuantity,
+        maxOrderQuantity: input.maxOrderQuantity,
+        description: input.description?.trim() || undefined,
+        gradeConditions: input.gradeConditions,
+      },
+      withToken(token),
+    );
+    revalidateTag(noticeCacheTag(input.noticeId), "max");
+    revalidateTag(NOTICES_LIST_CACHE_TAG, "max");
+    revalidatePath("/admin/reservations");
+    revalidatePath(`/admin/reservations/${input.noticeId}`);
+    return { success: true };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "예약 받을 병수 수정에 실패했습니다.";
+    return { success: false, error: message };
+  }
+}
+
 // ─── Application Actions ──────────────────────────────────
 
 export async function confirmApplicationAction(applicationId: number, confirmedQuantity: number) {
@@ -416,6 +464,25 @@ export async function autoConfirmApplicationsAction(noticeId: number) {
     return { success: true, data: res.data };
   } catch (error) {
     const message = error instanceof Error ? error.message : "자동 승인배정에 실패했습니다.";
+    return { success: false, error: message };
+  }
+}
+
+export async function rejectPendingApplicationsAction(noticeId: number) {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: "인증이 필요합니다." };
+
+  try {
+    const res = await postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending(
+      noticeId,
+      withToken(token),
+    );
+    revalidateTag(noticeCacheTag(noticeId), "max");
+    revalidatePath("/admin/reservations");
+    revalidatePath(`/admin/reservations/${noticeId}`);
+    return { success: true, data: res.data };
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "미처리 신청 일괄 거절에 실패했습니다.";
     return { success: false, error: message };
   }
 }

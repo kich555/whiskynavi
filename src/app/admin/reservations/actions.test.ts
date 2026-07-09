@@ -3,10 +3,18 @@ import {
   getApiAdminBottles,
   postApiAdminBottlesReservationsNotices,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
+  postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending,
+  putApiAdminBottlesReservationsNoticesNoticeid,
 } from "@/apis/generated/api";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createNoticeFormAction, searchBottlesAction, uploadReservationAllocationExcelAction } from "./actions";
+import {
+  createNoticeFormAction,
+  rejectPendingApplicationsAction,
+  searchBottlesAction,
+  updateNoticeAvailableQuantityAction,
+  uploadReservationAllocationExcelAction,
+} from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole: {
@@ -28,6 +36,7 @@ vi.mock("@/apis/generated/api", () => ({
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidReject: vi.fn(),
   postApiAdminBottlesReservationsNotices: vi.fn(),
+  postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending: vi.fn(),
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel: vi.fn(),
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm: vi.fn(),
   putApiAdminBottlesReservationsNoticesNoticeid: vi.fn(),
@@ -161,7 +170,7 @@ describe("searchBottlesAction", () => {
             id: 11,
             name: "Glen 12",
             stockQuantity: 3,
-            reservationStatus: "ACTIVE_RESERVATION",
+            reservationStatus: "RESERVATION_ONGOING",
           },
         ],
       },
@@ -226,6 +235,7 @@ describe("uploadReservationAllocationExcelAction", () => {
       noticeId: 100,
       processedRowCount: 2,
       allocatedApplicationCount: 2,
+      rejectedApplicationCount: 1,
       totalAllocatedQuantity: 3,
       remainingQuantityBeforeAllocation: 10,
       remainingQuantityAfterAllocation: 7,
@@ -280,5 +290,77 @@ describe("uploadReservationAllocationExcelAction", () => {
       error: "예약 신청 Excel 할당을 처리할 수 없습니다.",
       failures,
     });
+  });
+});
+
+describe("rejectPendingApplicationsAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("미처리 신청 일괄 거절 API를 호출하고 목록과 상세를 재검증한다", async () => {
+    const responseData = {
+      noticeId: 100,
+      targetApplicationCount: 2,
+      rejectedApplicationCount: 2,
+      applicationIds: [10, 11],
+    };
+    vi.mocked(postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending).mockResolvedValue({
+      data: responseData,
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending>>);
+
+    const result = await rejectPendingApplicationsAction(100);
+
+    expect(postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending).toHaveBeenCalledWith(100, {
+      token: "admin-token",
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations/100");
+    expect(result).toEqual({ success: true, data: responseData });
+  });
+});
+
+describe("updateNoticeAvailableQuantityAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("현재 공고 값과 변경할 예약 받을 병수를 함께 보내 공고를 수정한다", async () => {
+    vi.mocked(putApiAdminBottlesReservationsNoticesNoticeid).mockResolvedValue({
+      data: {},
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof putApiAdminBottlesReservationsNoticesNoticeid>>);
+
+    const result = await updateNoticeAvailableQuantityAction({
+      noticeId: 100,
+      bottleId: 11,
+      price: 120000,
+      reservationStartAt: "2026-06-08T10:00:00.000Z",
+      reservationEndAt: "2026-06-08T12:00:00.000Z",
+      maxOrderQuantity: 2,
+      availableQuantity: 7,
+      description: "설명",
+      gradeConditions: [
+        {
+          applicableFrom: "2026-06-08T10:00:00.000Z",
+          requiredRole: "ROLE_USER",
+        },
+      ],
+    });
+
+    expect(putApiAdminBottlesReservationsNoticesNoticeid).toHaveBeenCalledWith(
+      100,
+      expect.objectContaining({
+        bottleId: 11,
+        availableQuantity: 7,
+        maxOrderQuantity: 2,
+      }),
+      { token: "admin-token" },
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations/100");
+    expect(result).toEqual({ success: true });
   });
 });

@@ -21,6 +21,8 @@ interface ApplicationConfirmModalProps {
   applicationId: number;
   applicantName: string;
   requestedQuantity: number;
+  initialQuantity?: number;
+  mode?: "confirm" | "edit";
 }
 
 export default function ApplicationConfirmModal({
@@ -29,10 +31,13 @@ export default function ApplicationConfirmModal({
   applicationId,
   applicantName,
   requestedQuantity,
+  initialQuantity,
+  mode = "confirm",
 }: ApplicationConfirmModalProps) {
   const [isPending, startTransition] = useTransition();
-  const [quantity, setQuantity] = useState(requestedQuantity);
+  const [quantity, setQuantity] = useState(initialQuantity ?? requestedQuantity);
   const router = useRouter();
+  const isEditMode = mode === "edit";
 
   const handleConfirm = () => {
     startTransition(async () => {
@@ -54,10 +59,10 @@ export default function ApplicationConfirmModal({
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
               <Check size={24} className="text-green-600" />
             </div>
-            <DialogTitle>신청 확정</DialogTitle>
+            <DialogTitle>{isEditMode ? "확정 수량 수정" : "신청 확정"}</DialogTitle>
           </div>
           <DialogDescription>
-            <strong>{applicantName}</strong>님의 신청을 확정합니다.
+            <strong>{applicantName}</strong>님의 {isEditMode ? "확정 수량을 수정합니다." : "신청을 확정합니다."}
           </DialogDescription>
         </DialogHeader>
 
@@ -83,7 +88,7 @@ export default function ApplicationConfirmModal({
             disabled={isPending || quantity < 1 || quantity > requestedQuantity}
             className="bg-green-600 text-white hover:bg-green-700"
           >
-            {isPending ? "처리 중..." : "확정"}
+            {isPending ? "처리 중..." : isEditMode ? "수정" : "확정"}
           </Button>
         </DialogFooter>
       </DialogContent>
