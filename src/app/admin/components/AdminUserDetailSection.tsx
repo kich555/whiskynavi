@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
+import type { AdminSearchParams } from "@/app/admin/_lib/searchParams";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -24,6 +25,7 @@ import {
 import { overlay } from "overlay-kit";
 import { useState } from "react";
 import { toast } from "sonner";
+import Pagination from "../_components/Pagination";
 import { ASSIGNABLE_ROLES, ORDER_STATUS_COLOR, ORDER_STATUS_LABEL, ROLE_COLOR_MAP, ROLE_LABEL_MAP } from "../constants";
 import AdminConfirmModal from "./modals/AdminConfirmModal";
 import RoleConflictModal from "./modals/RoleConflictModal";
@@ -43,6 +45,10 @@ interface UserDetailViewProps {
   isEditMode: false;
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
+  searchParams?: AdminSearchParams;
+  initialActiveTab?: "info" | "reservations";
+  currentOrderPage?: number;
+  orderItemsPerPage?: number;
   onStatusToggle?: (newStatus: string) => void;
   onAddManualPurchase?: () => void;
   onAddRole?: never;
@@ -55,6 +61,10 @@ interface UserDetailEditProps {
   isEditMode: true;
   userDetails: AdminUserResponse;
   orderSummary?: AdminUserOrderSummaryResponse;
+  searchParams?: AdminSearchParams;
+  initialActiveTab?: "info" | "reservations";
+  currentOrderPage?: number;
+  orderItemsPerPage?: number;
   onStatusToggle?: (newStatus: string) => void;
   onAddManualPurchase?: () => void;
   onAddRole?: (role: string) => void;
@@ -79,6 +89,9 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
   const { onAddManualPurchase } = props;
   const userExt = userDetails.userExt as UserExtWithSocialConnections | undefined;
   const orderTotalElements = orderSummary?.orders?.page?.totalElements ?? 0;
+  const currentOrderPage = props.currentOrderPage ?? (orderSummary?.orders?.page?.number ?? 0) + 1;
+  const orderItemsPerPage = props.orderItemsPerPage ?? orderSummary?.orders?.page?.size ?? 20;
+  const orderSearchParams = { ...(props.searchParams ?? {}), tab: "reservations" };
 
   const onAddRole = isEditMode ? props.onAddRole : undefined;
   const onRemoveRole = isEditMode ? props.onRemoveRole : undefined;
@@ -86,7 +99,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
   const isSaving = isEditMode ? (props.isSaving ?? false) : false;
 
   // 탭
-  const [activeTab, setActiveTab] = useState<"info" | "reservations">("info");
+  const [activeTab, setActiveTab] = useState<"info" | "reservations">(props.initialActiveTab ?? "info");
 
   // 권한 편집
   const [isEditingRoles, setIsEditingRoles] = useState(false);
@@ -475,59 +488,74 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
 
                   {/* 주문 테이블 */}
                   {(orderSummary.orders?.content ?? []).length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead>
-                          <tr className="border-b border-gray-200">
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
-                            <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
-                            <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
-                            <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">주문일</th>
-                            <th className="px-3 py-3 text-left font-semibold text-gray-700">상태</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {(orderSummary.orders?.content ?? []).map((order) => (
-                            <tr key={order.id} className="border-b border-gray-100 transition-colors hover:bg-gray-50">
-                              <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
-                              <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
-                              <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
-                              <td className="px-3 py-3 text-right font-medium text-gray-900">
-                                {order.requestedQuantity}병
-                              </td>
-                              <td className="px-3 py-3 text-right font-medium text-amber-700">
-                                {order.approvedQuantity != null ? `${order.approvedQuantity}병` : "-"}
-                              </td>
-                              <td className="px-3 py-3 text-right font-medium text-gray-900">
-                                {formatCurrency(order.totalPrice ?? 0)}
-                              </td>
-                              <td className="px-3 py-3 text-gray-600">
-                                {new Date(order.createdAt ?? "")
-                                  .toLocaleDateString("ko-KR", {
-                                    year: "numeric",
-                                    month: "2-digit",
-                                    day: "2-digit",
-                                  })
-                                  .replace(/\. /g, ".")
-                                  .replace(/\.$/, "")}
-                              </td>
-                              <td className="px-3 py-3">
-                                <span
-                                  className={`rounded px-2 py-1 text-xs font-medium ${
-                                    ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
-                                  }`}
-                                >
-                                  {ORDER_STATUS_LABEL[order.orderStatus ?? ""] ?? order.orderStatus}
-                                </span>
-                              </td>
+                    <>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b border-gray-200">
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
+                              <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
+                              <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
+                              <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문일</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">상태</th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
+                          </thead>
+                          <tbody>
+                            {(orderSummary.orders?.content ?? []).map((order) => (
+                              <tr
+                                key={order.id}
+                                className="border-b border-gray-100 transition-colors hover:bg-gray-50"
+                              >
+                                <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
+                                <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
+                                <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
+                                <td className="px-3 py-3 text-right font-medium text-gray-900">
+                                  {order.requestedQuantity}병
+                                </td>
+                                <td className="px-3 py-3 text-right font-medium text-amber-700">
+                                  {order.approvedQuantity != null ? `${order.approvedQuantity}병` : "-"}
+                                </td>
+                                <td className="px-3 py-3 text-right font-medium text-gray-900">
+                                  {formatCurrency(order.totalPrice ?? 0)}
+                                </td>
+                                <td className="px-3 py-3 text-gray-600">
+                                  {new Date(order.createdAt ?? "")
+                                    .toLocaleDateString("ko-KR", {
+                                      year: "numeric",
+                                      month: "2-digit",
+                                      day: "2-digit",
+                                    })
+                                    .replace(/\. /g, ".")
+                                    .replace(/\.$/, "")}
+                                </td>
+                                <td className="px-3 py-3">
+                                  <span
+                                    className={`rounded px-2 py-1 text-xs font-medium ${
+                                      ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
+                                    }`}
+                                  >
+                                    {ORDER_STATUS_LABEL[order.orderStatus ?? ""] ?? order.orderStatus}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {userDetails.id != null && (
+                        <Pagination
+                          totalItems={orderTotalElements}
+                          itemsPerPage={orderItemsPerPage}
+                          currentPage={currentOrderPage}
+                          searchParams={orderSearchParams}
+                          basePath={`/admin/users/${userDetails.id}`}
+                        />
+                      )}
+                    </>
                   ) : (
                     <div className="py-12 text-center text-gray-500">
                       <ShoppingBag size={48} className="mx-auto mb-3 text-gray-300" />
