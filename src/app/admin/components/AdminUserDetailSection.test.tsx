@@ -1,3 +1,4 @@
+import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -5,7 +6,12 @@ import AdminUserDetailSection from "./AdminUserDetailSection";
 
 const mocks = vi.hoisted(() => ({
   overlayOpen: vi.fn(),
+  pagination: vi.fn(() => null),
   selectedRole: "ROLE_BUSINESS",
+}));
+
+vi.mock("../_components/Pagination", () => ({
+  default: mocks.pagination,
 }));
 
 vi.mock("overlay-kit", () => ({
@@ -17,9 +23,7 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("@/components/ui/label", () => ({
-  Label: ({ children, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => (
-    <label {...props}>{children}</label>
-  ),
+  Label: ({ children, ...props }: React.LabelHTMLAttributes<HTMLLabelElement>) => <label {...props}>{children}</label>,
 }));
 
 vi.mock("@/components/ui/select", () => ({
@@ -40,9 +44,7 @@ vi.mock("@/components/ui/select", () => ({
     </div>
   ),
   SelectContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  SelectItem: ({ children }: { children: React.ReactNode; value: string }) => (
-    <div>{children}</div>
-  ),
+  SelectItem: ({ children }: { children: React.ReactNode; value: string }) => <div>{children}</div>,
   SelectTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
   SelectValue: ({ placeholder }: { placeholder?: string }) => <span>{placeholder}</span>,
 }));
@@ -74,11 +76,46 @@ const baseUser = {
   status: "ACTIVE",
   createdAt: "2026-05-01T00:00:00.000Z",
   roles: ["ROLE_COMMUNITY_BUSINESS"],
-};
+} satisfies AdminUserResponse;
+
+const userDetails = {
+  id: 42,
+  name: "홍길동",
+  username: "hong",
+  email: "hong@example.com",
+  phone: "01012345678",
+  status: "ACTIVE",
+  roles: ["ROLE_USER"],
+  createdAt: "2026-01-01T00:00:00",
+} satisfies AdminUserResponse;
+
+const orderSummary = {
+  totalAmount: 120000,
+  orders: {
+    content: [
+      {
+        id: 1,
+        itemName: "테스트 위스키",
+        orderNumber: "ORDER-1",
+        requestedQuantity: 1,
+        approvedQuantity: 1,
+        totalPrice: 120000,
+        createdAt: "2026-01-02T00:00:00",
+        orderStatus: "PAYMENT_COMPLETED",
+      },
+    ],
+    page: {
+      number: 1,
+      size: 20,
+      totalElements: 21,
+      totalPages: 2,
+    },
+  },
+} satisfies AdminUserOrderSummaryResponse;
 
 describe("AdminUserDetailSection", () => {
   beforeEach(() => {
-    mocks.overlayOpen.mockClear();
+    vi.clearAllMocks();
     mocks.selectedRole = "ROLE_BUSINESS";
   });
 
@@ -86,14 +123,7 @@ describe("AdminUserDetailSection", () => {
     const user = userEvent.setup();
     const onAddRole = vi.fn();
 
-    render(
-      <AdminUserDetailSection
-        isEditMode
-        userDetails={baseUser}
-        onAddRole={onAddRole}
-        onRemoveRole={vi.fn()}
-      />,
-    );
+    render(<AdminUserDetailSection isEditMode userDetails={baseUser} onAddRole={onAddRole} onRemoveRole={vi.fn()} />);
 
     await user.click(screen.getByRole("button", { name: "권한 수정" }));
     await user.click(screen.getByRole("button", { name: "권한 선택" }));
@@ -129,5 +159,67 @@ describe("AdminUserDetailSection", () => {
     await user.click(screen.getByRole("button", { name: "관리자 권한 확인" }));
 
     expect(onAddRole).toHaveBeenCalledWith("ROLE_SUPER_ADMIN");
+  });
+
+  it("예약 내역이 여러 페이지일 때 Pagination을 표시한다", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <AdminUserDetailSection
+        {...({
+          isEditMode: false,
+          userDetails,
+          orderSummary,
+          currentOrderPage: 2,
+          orderItemsPerPage: 20,
+          searchParams: { page: "2", limit: "20" },
+        } as React.ComponentProps<typeof AdminUserDetailSection> & {
+          currentOrderPage: number;
+          orderItemsPerPage: number;
+          searchParams: Record<string, string>;
+        })}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /예약 내역/ }));
+
+    expect(mocks.pagination).toHaveBeenCalledWith(
+      expect.objectContaining({
+        totalItems: 21,
+        itemsPerPage: 20,
+        currentPage: 2,
+        searchParams: {
+          page: "2",
+          limit: "20",
+          tab: "reservations",
+        },
+        basePath: "/admin/users/42",
+      }),
+      undefined,
+    );
+  });
+
+  it("초기 탭이 reservations이면 예약 내역을 바로 표시한다", () => {
+    render(
+      <AdminUserDetailSection
+        {...({
+          isEditMode: false,
+          userDetails,
+          orderSummary,
+          initialActiveTab: "reservations",
+          currentOrderPage: 1,
+          orderItemsPerPage: 20,
+          searchParams: { tab: "reservations" },
+        } as React.ComponentProps<typeof AdminUserDetailSection> & {
+          initialActiveTab: "reservations";
+          currentOrderPage: number;
+          orderItemsPerPage: number;
+          searchParams: Record<string, string>;
+        })}
+      />,
+    );
+
+    expect(screen.getByText("테스트 위스키")).toBeInTheDocument();
+    expect(mocks.pagination).toHaveBeenCalled();
   });
 });
