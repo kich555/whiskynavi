@@ -9323,6 +9323,10 @@ export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBod
 
 export type GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams = {
 /**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
+/**
  * Zero-based page index (0..N)
  * @minimum 0
  */
