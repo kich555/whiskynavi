@@ -1,6 +1,7 @@
 "use client";
 
 import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
+import type { AdminSearchParams } from "@/app/admin/_lib/searchParams";
 import { ArrowLeft, Edit2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
@@ -13,9 +14,20 @@ import UserDeleteModal from "./UserDeleteModal";
 interface UserDetailContentProps {
   user: AdminUserResponse;
   orderSummary: AdminUserOrderSummaryResponse;
+  searchParams: AdminSearchParams;
+  initialActiveTab: "info" | "reservations";
+  currentOrderPage: number;
+  orderItemsPerPage: number;
 }
 
-export default function UserDetailContent({ user, orderSummary }: UserDetailContentProps) {
+export default function UserDetailContent({
+  user,
+  orderSummary,
+  searchParams,
+  initialActiveTab,
+  currentOrderPage,
+  orderItemsPerPage,
+}: UserDetailContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
   const userId = user.id;
@@ -71,6 +83,10 @@ export default function UserDetailContent({ user, orderSummary }: UserDetailCont
           isEditMode={false}
           userDetails={user}
           orderSummary={orderSummary}
+          searchParams={searchParams}
+          initialActiveTab={initialActiveTab}
+          currentOrderPage={currentOrderPage}
+          orderItemsPerPage={orderItemsPerPage}
           onAddManualPurchase={openManualPurchaseModal}
         />
       </div>
