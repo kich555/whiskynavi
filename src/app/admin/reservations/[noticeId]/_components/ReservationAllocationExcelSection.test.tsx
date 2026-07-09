@@ -66,6 +66,7 @@ describe("ReservationAllocationExcelSection", () => {
         noticeId: 42,
         processedRowCount: 2,
         allocatedApplicationCount: 2,
+        rejectedApplicationCount: 1,
         totalAllocatedQuantity: 2,
         remainingQuantityBeforeAllocation: 5,
         remainingQuantityAfterAllocation: 3,
@@ -81,6 +82,7 @@ describe("ReservationAllocationExcelSection", () => {
     await user.click(screen.getByRole("button", { name: "Excel 할당 업로드" }));
 
     expect(await screen.findByText("총 할당 수량 2")).toBeInTheDocument();
+    expect(screen.getByText("거절 신청 1건")).toBeInTheDocument();
     expect(mockedUploadReservationAllocationExcel).toHaveBeenCalledWith(42, file);
     expect(toast.success).toHaveBeenCalledWith("Excel 할당 업로드를 완료했습니다.");
     expect(refresh).toHaveBeenCalled();

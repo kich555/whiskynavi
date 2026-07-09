@@ -1,4 +1,6 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { overlay } from "overlay-kit";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ApplicationsTableSection from "./ApplicationsTableSection";
 
@@ -22,6 +24,7 @@ vi.mock("sonner", () => ({
 }));
 
 vi.mock("../../actions", () => ({
+  rejectPendingApplicationsAction: vi.fn(),
   uploadReservationAllocationExcelAction: vi.fn(),
 }));
 
@@ -97,5 +100,69 @@ describe("ApplicationsTableSection", () => {
       }),
       undefined,
     );
+  });
+
+  it("확정 상태 신청에는 확정 수량 수정 버튼을 표시한다", () => {
+    render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[
+          {
+            id: 123,
+            applicantUser: {
+              name: "홍길동",
+              phone: "01012345678",
+              roles: ["ROLE_USER"],
+            },
+            pickupBusiness: {
+              businessName: "강남 픽업",
+            },
+            quantity: 3,
+            confirmedQuantity: 1,
+            status: "CONFIRMED",
+            createdAt: "2026-06-08T10:12:33.456",
+          },
+        ]}
+        totalElements={1}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+      />,
+    );
+
+    expect(screen.getByTitle("확정 수량 수정")).toBeInTheDocument();
+  });
+
+  it("미처리 신청이 있으면 일괄 거절 버튼으로 확인 모달을 연다", async () => {
+    const user = userEvent.setup();
+    render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={2}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "미처리 신청 일괄 거절" }));
+
+    expect(overlay.open).toHaveBeenCalled();
+  });
+
+  it("미처리 신청이 없으면 일괄 거절 버튼을 비활성화한다", () => {
+    render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+      />,
+    );
+
+    expect(screen.getByRole("button", { name: "미처리 신청 일괄 거절" })).toBeDisabled();
   });
 });

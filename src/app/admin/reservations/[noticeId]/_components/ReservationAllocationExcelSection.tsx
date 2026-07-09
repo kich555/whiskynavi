@@ -69,11 +69,13 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
             Excel 할당 업로드
           </Button>
         </div>
+        <p className="mt-2 text-xs text-gray-500">배정수량 0은 신청 거절로 처리됩니다.</p>
 
         {result && (
           <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-gray-200 pt-3 text-sm text-gray-700">
             <span className="font-semibold text-gray-900">총 할당 수량 {result.totalAllocatedQuantity ?? 0}</span>
             <span>할당 신청 {result.allocatedApplicationCount ?? 0}건</span>
+            <span>거절 신청 {result.rejectedApplicationCount ?? 0}건</span>
             <span>처리 행 {result.processedRowCount ?? 0}건</span>
             <span>잔여 수량 {result.remainingQuantityAfterAllocation ?? 0}</span>
           </div>

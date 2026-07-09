@@ -13,6 +13,7 @@ import { overlay } from "overlay-kit";
 import Pagination from "../../../_components/Pagination";
 import { RESERVATION_STATUS_COLOR, RESERVATION_STATUS_LABEL, ROLE_LABEL_MAP } from "../../../constants";
 import ApplicationAutoConfirmModal from "./ApplicationAutoConfirmModal";
+import ApplicationBulkRejectModal from "./ApplicationBulkRejectModal";
 import ApplicationCancelModal from "./ApplicationCancelModal";
 import ApplicationConfirmModal from "./ApplicationConfirmModal";
 import ApplicationRejectModal from "./ApplicationRejectModal";
@@ -83,6 +84,8 @@ export default function ApplicationsTableSection({
         applicationId={app.id!}
         applicantName={app.applicantUser?.name ?? "알 수 없음"}
         requestedQuantity={app.quantity ?? 1}
+        initialQuantity={app.confirmedQuantity ?? app.quantity ?? 1}
+        mode={app.status === "CONFIRMED" ? "edit" : "confirm"}
       />
     ));
   };
@@ -111,6 +114,12 @@ export default function ApplicationsTableSection({
     overlay.open((props) => <ApplicationAutoConfirmModal {...props} noticeId={noticeId} />);
   };
 
+  const handleBulkReject = () => {
+    overlay.open((props) => (
+      <ApplicationBulkRejectModal {...props} noticeId={noticeId} pendingApplicationCount={pendingApplicationCount} />
+    ));
+  };
+
   const handleFilterChange = (key: "role" | "status", value: string) => {
     const params = new URLSearchParams();
 
@@ -134,7 +143,7 @@ export default function ApplicationsTableSection({
     router.push(`/admin/reservations/${noticeId}?${params.toString()}`);
   };
 
-  const canConfirm = (status?: string) => status === "APPLIED";
+  const canConfirm = (status?: string) => status === "APPLIED" || status === "CONFIRMED";
   const canReject = (status?: string) => status === "APPLIED";
   const canCancel = (status?: string) => status === "CONFIRMED" || status === "WAITING_PICKUP";
   const hasPendingApplications = pendingApplicationCount > 0;
@@ -190,6 +199,16 @@ export default function ApplicationsTableSection({
             >
               <Sparkles size={14} />
               우선순위최대다수최대행복배정
+            </button>
+            <button
+              type="button"
+              onClick={handleBulkReject}
+              disabled={!hasPendingApplications}
+              className="typo-medium-14 flex cursor-pointer items-center gap-1.5 rounded-lg bg-red-600 px-3 py-1.5 text-white transition-colors hover:bg-red-700 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+              title={!hasPendingApplications ? "거절할 미처리 신청이 없습니다." : undefined}
+            >
+              <X size={14} />
+              미처리 신청 일괄 거절
             </button>
           </div>
         </div>
@@ -263,7 +282,7 @@ export default function ApplicationsTableSection({
                           type="button"
                           onClick={() => handleConfirm(app)}
                           className="cursor-pointer rounded-md p-1.5 text-green-600 transition-colors hover:bg-green-50"
-                          title="확정"
+                          title={app.status === "CONFIRMED" ? "확정 수량 수정" : "확정"}
                         >
                           <Check size={16} />
                         </button>
