@@ -6,17 +6,25 @@ import BusinessStatisticsContent from "./_components/BusinessStatisticsContent";
 
 interface BusinessStatisticsPageProps {
   searchParams: Promise<{
+    businessId?: string;
     page?: string;
   }>;
+}
+
+function parseBusinessId(value?: string) {
+  if (!value) return undefined;
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
 export default async function BusinessStatisticsPage({ searchParams }: BusinessStatisticsPageProps) {
   const params = await searchParams;
   const token = await getAuthToken();
+  const businessId = parseBusinessId(params.businessId);
   const res = await getApiUsersBusinessesPickupReservationsNoticeStatistics(
-    { page: parseApiPage(params.page), size: 5 },
+    { businessId, page: parseApiPage(params.page), size: 5 },
     withToken(token),
   );
 
-  return <BusinessStatisticsContent statistics={res.data} />;
+  return <BusinessStatisticsContent statistics={res.data} selectedBusinessId={businessId} />;
 }

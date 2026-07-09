@@ -1,9 +1,9 @@
 "use client";
 
 import type { BusinessMembershipBusinessResponse } from "@/apis/generated/api";
-import { BarChart3, ClipboardList, Home, Layers, Users } from "lucide-react";
+import { BarChart3, ClipboardList, Home, Layers, Star, Users } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useTransition } from "react";
 import { setPrimaryBusinessAction } from "../actions";
 
@@ -52,11 +52,26 @@ function isActivePath(pathname: string, href: string) {
 
 export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const selectedBusinessId =
+    Number(searchParams.get("businessId")) ||
+    businesses.find((business) => business.primaryBusiness)?.businessId ||
+    businesses[0]?.businessId;
 
-  const handleSelectBusiness = (businessId?: number, isPrimary?: boolean) => {
-    if (!businessId || isPrimary || isPending) return;
+  const handleSelectBusiness = (businessId?: number) => {
+    if (!businessId || businessId === selectedBusinessId) return;
+
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("businessId", String(businessId));
+    params.delete("page");
+    const query = params.toString();
+    router.push(query ? `${pathname}?${query}` : pathname);
+  };
+
+  const handleSetPrimaryBusiness = (businessId?: number) => {
+    if (!businessId || isPending) return;
 
     startTransition(async () => {
       const result = await setPrimaryBusinessAction(businessId);
@@ -81,28 +96,52 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
           ) : (
             businesses.map((business) => {
               const businessId = business.businessId;
-              const isPrimary = Boolean(business.primaryBusiness);
+              const isOwner = business.role === "OWNER";
+              const isPrimary = isOwner && Boolean(business.primaryBusiness);
+              const isSelected = businessId === selectedBusinessId;
+              const canSetPrimary = isOwner && !isPrimary && businessId != null;
 
               return (
-                <button
+                <div
                   key={businessId ?? business.businessName}
-                  type="button"
-                  disabled={!businessId || isPrimary || isPending}
-                  onClick={() => handleSelectBusiness(businessId, isPrimary)}
-                  className={`w-full rounded-md px-3 py-2 text-left transition-colors ${
-                    isPrimary ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
-                  } disabled:cursor-default`}
+                  className={`rounded-md transition-colors ${
+                    isSelected ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
+                  }`}
                 >
-                  <span className="block truncate text-sm font-bold">
-                    {business.businessName ?? "이름 없는 사업장"}
-                  </span>
-                  <span
-                    className={`mt-1 flex items-center gap-2 text-xs ${isPrimary ? "text-gray-200" : "text-gray-500"}`}
+                  <button
+                    type="button"
+                    disabled={!businessId || businessId === selectedBusinessId}
+                    onClick={() => handleSelectBusiness(businessId)}
+                    className="w-full px-3 py-2 text-left disabled:cursor-default"
                   >
-                    <span>{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</span>
-                    {isPrimary && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">기본</span>}
-                  </span>
-                </button>
+                    <span className="block truncate text-sm font-bold">
+                      {business.businessName ?? "이름 없는 사업장"}
+                    </span>
+                    <span
+                      className={`mt-1 flex items-center gap-2 text-xs ${isSelected ? "text-gray-200" : "text-gray-500"}`}
+                    >
+                      <span>{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</span>
+                      {isSelected && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">선택됨</span>}
+                      {isPrimary && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">대표</span>}
+                    </span>
+                  </button>
+                  {canSetPrimary && (
+                    <button
+                      type="button"
+                      disabled={isPending}
+                      aria-label={`${business.businessName ?? "이름 없는 사업장"} 대표로 지정`}
+                      onClick={() => handleSetPrimaryBusiness(businessId)}
+                      className={`mx-3 mb-2 inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-bold transition-colors ${
+                        isSelected
+                          ? "border-white/30 text-white hover:bg-white/10"
+                          : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-white"
+                      } disabled:opacity-60`}
+                    >
+                      <Star size={12} />
+                      대표로 지정
+                    </button>
+                  )}
+                </div>
               );
             })
           )}

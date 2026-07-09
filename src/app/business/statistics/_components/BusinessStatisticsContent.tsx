@@ -9,6 +9,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 
 interface BusinessStatisticsContentProps {
   statistics: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse;
+  selectedBusinessId?: number;
 }
 
 const NOTICE_PAGE_SIZE = 5;
@@ -112,8 +113,10 @@ function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNotice
 
 function NoticePagination({
   page,
+  selectedBusinessId,
 }: {
   page?: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse["page"];
+  selectedBusinessId?: number;
 }) {
   const currentPage = (page?.number ?? 0) + 1;
   const totalPages = Math.max(page?.totalPages ?? 0, 1);
@@ -125,13 +128,22 @@ function NoticePagination({
     return <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>;
   }
 
+  const pageHref = (pageNumber: number) => {
+    const params = new URLSearchParams();
+    if (selectedBusinessId) {
+      params.set("businessId", String(selectedBusinessId));
+    }
+    params.set("page", String(pageNumber));
+    return `/business/statistics?${params.toString()}`;
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
       <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>
       <div className="flex items-center gap-2">
         {hasPrevious ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/business/statistics?page=${currentPage - 1}`}>
+            <Link href={pageHref(currentPage - 1)}>
               <ChevronLeft size={16} />
               이전
             </Link>
@@ -147,7 +159,7 @@ function NoticePagination({
         </span>
         {hasNext ? (
           <Button variant="outline" size="sm" asChild>
-            <Link href={`/business/statistics?page=${currentPage + 1}`}>
+            <Link href={pageHref(currentPage + 1)}>
               다음
               <ChevronRight size={16} />
             </Link>
@@ -163,7 +175,7 @@ function NoticePagination({
   );
 }
 
-export default function BusinessStatisticsContent({ statistics }: BusinessStatisticsContentProps) {
+export default function BusinessStatisticsContent({ statistics, selectedBusinessId }: BusinessStatisticsContentProps) {
   const notices = statistics.content ?? [];
 
   return (
@@ -183,7 +195,7 @@ export default function BusinessStatisticsContent({ statistics }: BusinessStatis
           </div>
         )}
 
-        <NoticePagination page={statistics.page} />
+        <NoticePagination page={statistics.page} selectedBusinessId={selectedBusinessId} />
       </div>
     </>
   );
