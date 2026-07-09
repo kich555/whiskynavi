@@ -28,20 +28,17 @@ vi.mock("./_components/NoticeEditContent", () => ({
 }));
 
 describe("NoticeEditPage", () => {
-  it("편집 불가 예약 공고 편집 URL은 상세 화면으로 돌려보낸다", async () => {
+  it("CLOSED 상태 예약 공고도 편집 페이지를 렌더링한다", async () => {
     vi.mocked(getApiAdminBottlesReservationsNoticesNoticeid).mockResolvedValue({
       data: {
         id: 7,
-        saleStatus: "OPEN",
-        editable: false,
+        saleStatus: "CLOSED",
         reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
       },
       status: 200,
       headers: new Headers(),
     } as Awaited<ReturnType<typeof getApiAdminBottlesReservationsNoticesNoticeid>>);
 
-    await expect(NoticeEditPage({ params: Promise.resolve({ noticeId: "7" }) })).rejects.toThrow(
-      "NEXT_REDIRECT:/admin/reservations/7",
-    );
+    await expect(NoticeEditPage({ params: Promise.resolve({ noticeId: "7" }) })).resolves.toBeTruthy();
   });
 });

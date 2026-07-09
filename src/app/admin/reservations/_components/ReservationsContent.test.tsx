@@ -24,11 +24,10 @@ vi.mock("./ReservationExcelDownloadLink", () => ({
 }));
 
 describe("ReservationsContent", () => {
-  it("CLOSED 상태 예약 공고는 목록에서 수정 버튼을 표시하지 않는다", () => {
+  it("CLOSED 상태 예약 공고도 목록에서 수정 버튼을 표시한다", () => {
     const closedNotice = {
       id: 7,
       saleStatus: "CLOSED",
-      editable: false,
       bottleName: "종료 보틀",
       reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
       price: 120000,
@@ -37,6 +36,6 @@ describe("ReservationsContent", () => {
     render(<ReservationsContent searchParams={{}} notices={[closedNotice]} totalElements={1} />);
 
     expect(screen.getByText("종료")).toBeInTheDocument();
-    expect(screen.queryByTitle("수정")).not.toBeInTheDocument();
+    expect(screen.getByTitle("수정")).toBeInTheDocument();
   });
 });

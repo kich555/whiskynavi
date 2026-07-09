@@ -22,7 +22,7 @@ const NOTICE_STATUS_CLASS_NAME: Record<string, string> = {
   CLOSED: "bg-red-100 text-red-700",
 };
 
-const EDITABLE_NOTICE_STATUSES = new Set<string>(["DRAFT", "OPEN", "SOLD_OUT"]);
+const EDITABLE_NOTICE_STATUSES = new Set<string>(["DRAFT", "OPEN", "SOLD_OUT", "CLOSED"]);
 
 export function getReservationNoticeStatus(notice: ReservationNoticeStatus): string | undefined {
   return notice.saleStatus ?? undefined;
