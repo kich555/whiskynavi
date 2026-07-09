@@ -37,6 +37,15 @@ describe("BusinessStatisticsContent", () => {
     expect(screen.getByRole("link", { name: "다음" })).toHaveAttribute("href", "/business/statistics?page=2");
   });
 
+  it("선택한 사업장 ID를 페이지네이션 링크에 유지한다", () => {
+    render(<BusinessStatisticsContent statistics={statistics} selectedBusinessId={12} />);
+
+    expect(screen.getByRole("link", { name: "다음" })).toHaveAttribute(
+      "href",
+      "/business/statistics?businessId=12&page=2",
+    );
+  });
+
   it("공고가 없으면 빈 상태를 표시한다", () => {
     render(
       <BusinessStatisticsContent
