@@ -1,16 +1,140 @@
 "use client";
 
-import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import type {
+  AdminBottleReservationNoticeResponse,
+  PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem,
+  PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItemRequiredRole,
+} from "@/apis/generated/api";
+import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { Check, Pencil, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { useState, useTransition } from "react";
+import { toast } from "sonner";
 import { ROLE_LABEL_MAP } from "../../../constants";
 import NoticeStatusBadge from "../../_components/NoticeStatusBadge";
+import { updateNoticeAvailableQuantityAction } from "../../actions";
 
 interface NoticeInfoSectionProps {
   notice: AdminBottleReservationNoticeResponse;
 }
 
+function buildGradeConditions(
+  notice: AdminBottleReservationNoticeResponse,
+): PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[] | undefined {
+  const conditions = notice.gradeConditions
+    ?.filter((condition) => condition.applicableFrom && condition.requiredRole)
+    .map(
+      (condition): PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem => ({
+        applicableFrom: new Date(condition.applicableFrom!).toISOString(),
+        requiredRole:
+          condition.requiredRole as PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItemRequiredRole,
+      }),
+    );
+
+  return conditions && conditions.length > 0 ? conditions : undefined;
+}
+
 export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
+  const [isEditingQuantity, setIsEditingQuantity] = useState(false);
+  const [availableQuantity, setAvailableQuantity] = useState(String(notice.availableQuantity ?? 0));
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
+
+  const handleCancelQuantityEdit = () => {
+    setAvailableQuantity(String(notice.availableQuantity ?? 0));
+    setIsEditingQuantity(false);
+  };
+
+  const handleSaveQuantity = () => {
+    const quantity = Number(availableQuantity);
+    if (!Number.isInteger(quantity) || quantity < 0) {
+      toast.error("예약 받을 병수는 0 이상의 정수여야 합니다.");
+      return;
+    }
+
+    if (
+      !notice.id ||
+      !notice.bottleId ||
+      notice.price == null ||
+      !notice.reservationStartAt ||
+      !notice.reservationEndAt
+    ) {
+      toast.error("공고 정보를 확인할 수 없습니다.");
+      return;
+    }
+
+    startTransition(async () => {
+      const result = await updateNoticeAvailableQuantityAction({
+        noticeId: notice.id!,
+        bottleId: notice.bottleId!,
+        price: notice.price!,
+        reservationStartAt: notice.reservationStartAt!,
+        reservationEndAt: notice.reservationEndAt!,
+        availableQuantity: quantity,
+        maxOrderQuantity: notice.maxOrderQuantity,
+        description: notice.description,
+        gradeConditions: buildGradeConditions(notice),
+      });
+
+      if (result.success) {
+        toast.success("예약 받을 병수를 수정했습니다.");
+        setIsEditingQuantity(false);
+        router.refresh();
+        return;
+      }
+
+      toast.error(result.error || "예약 받을 병수 수정에 실패했습니다.");
+    });
+  };
+
+  const quantityFieldValue = isEditingQuantity ? (
+    <div className="flex max-w-[220px] items-center gap-2">
+      <label className="sr-only" htmlFor="notice-available-quantity">
+        예약 받을 병수
+      </label>
+      <input
+        id="notice-available-quantity"
+        type="number"
+        min={0}
+        value={availableQuantity}
+        onChange={(event) => setAvailableQuantity(event.target.value)}
+        className="min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+      />
+      <Button type="button" size="icon" onClick={handleSaveQuantity} disabled={isPending} title="저장">
+        <Check className="size-4" />
+        <span className="sr-only">저장</span>
+      </Button>
+      <Button
+        type="button"
+        size="icon"
+        variant="outline"
+        onClick={handleCancelQuantityEdit}
+        disabled={isPending}
+        title="취소"
+      >
+        <X className="size-4" />
+        <span className="sr-only">취소</span>
+      </Button>
+    </div>
+  ) : (
+    <span className="inline-flex items-center gap-2">
+      <span>{notice.availableQuantity ?? "-"}</span>
+      {notice.editable !== false && (
+        <button
+          type="button"
+          onClick={() => setIsEditingQuantity(true)}
+          className="inline-flex cursor-pointer items-center rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
+          title="예약 받을 병수 수정"
+        >
+          <Pencil className="size-4" />
+          <span className="sr-only">예약 받을 병수 수정</span>
+        </button>
+      )}
+    </span>
+  );
+
   const fields: { label: string; value: ReactNode }[] = [
     { label: "공고 ID", value: notice.id },
     { label: "제품명", value: notice.bottleName },
@@ -22,7 +146,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
     },
     { label: "예약 시작", value: formatDateTime(notice.reservationStartAt) },
     { label: "예약 종료", value: formatDateTime(notice.reservationEndAt) },
-    { label: "예약 받을 병수", value: notice.availableQuantity ?? "-" },
+    { label: "예약 받을 병수", value: quantityFieldValue },
     { label: "인당 최대 예약", value: notice.maxOrderQuantity ?? "-" },
     { label: "생성일", value: formatDateTime(notice.createdAt) },
   ];

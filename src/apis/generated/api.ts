@@ -286,6 +286,20 @@ export interface AdminBottleReservationAutoConfirmResponse {
   totalRequestedQuantity?: number;
 }
 
+/**
+ * 보틀 예약 미처리 신청 일괄 거절 응답
+ */
+export interface AdminBottleReservationBulkRejectResponse {
+  /** 거절 처리된 신청 ID 목록 */
+  applicationIds?: number[];
+  /** 예약 공고 ID */
+  noticeId?: number;
+  /** 거절 처리된 신청 수 */
+  rejectedApplicationCount?: number;
+  /** 거절 대상 신청 수 */
+  targetApplicationCount?: number;
+}
+
 export type AdminBottleReservationGradeConditionResponseRequiredRole = typeof AdminBottleReservationGradeConditionResponseRequiredRole[keyof typeof AdminBottleReservationGradeConditionResponseRequiredRole];
 
 
@@ -4663,6 +4677,8 @@ export interface ReservationAllocationExcelResponse {
   noticeId?: number;
   /** 처리한 데이터 행 수 */
   processedRowCount?: number;
+  /** 거절 처리된 신청 수 */
+  rejectedApplicationCount?: number;
   /** 할당 후 잔여 수량 */
   remainingQuantityAfterAllocation?: number;
   /** 할당 전 잔여 수량 */
@@ -11486,6 +11502,43 @@ formData.append(`file`, postApiAdminBottlesReservationsNoticesNoticeidAllocation
     ,
     body: 
       formData,
+  }
+);}
+
+
+
+/**
+ * 공고에 남아 있는 미처리 예약 신청만 일괄 거절합니다.
+ * @summary 예약 미처리 신청 일괄 거절
+ */
+export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse200 = {
+  data: AdminBottleReservationBulkRejectResponse
+  status: 200
+}
+
+export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse = (postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponseSuccess)
+
+export const getPostApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingUrl = (noticeId: number,) => {
+
+
+
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}/applications/reject-pending`
+}
+
+export const postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending = async (noticeId: number, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse> => {
+
+  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingUrl(noticeId),
+  {
+    ...options,
+    method: 'POST'
+
+
   }
 );}
 
