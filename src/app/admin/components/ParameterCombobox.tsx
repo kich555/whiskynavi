@@ -61,7 +61,9 @@ export default function ParameterCombobox({
         type="text"
         value={inputValue}
         onChange={(e) => {
-          setInputValue(e.target.value);
+          const nextValue = e.target.value;
+          setInputValue(nextValue);
+          setCommittedValue(nextValue);
           setIsOpen(true);
         }}
         onFocus={() => {

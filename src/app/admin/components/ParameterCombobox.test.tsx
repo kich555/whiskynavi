@@ -174,4 +174,18 @@ describe("ParameterCombobox", () => {
 
     expect(container.querySelector('input[name="brand"]')).toHaveValue("Glenfiddich");
   });
+
+  it("submits a manually typed value that is not in the options", async () => {
+    const user = userEvent.setup();
+    const { container } = render(
+      <ParameterCombobox name="distillery" options={options} />,
+    );
+
+    await user.click(screen.getByRole("textbox"));
+    await user.type(screen.getByRole("textbox"), "New Distillery");
+
+    expect(container.querySelector('input[name="distillery"]')).toHaveValue(
+      "New Distillery",
+    );
+  });
 });
