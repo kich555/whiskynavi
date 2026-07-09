@@ -36,11 +36,10 @@ vi.mock("./ReservationDeliverySection", () => ({
 }));
 
 describe("NoticeDetailContent", () => {
-  it("CLOSED 상태 예약 공고는 편집 버튼을 표시하지 않는다", () => {
+  it("CLOSED 상태 예약 공고도 편집 버튼을 표시한다", () => {
     const closedNotice = {
       id: 7,
       saleStatus: "CLOSED",
-      editable: false,
       reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
     } satisfies AdminBottleReservationNoticeResponse;
 
@@ -56,6 +55,6 @@ describe("NoticeDetailContent", () => {
       />,
     );
 
-    expect(screen.queryByRole("button", { name: "편집" })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "편집" })).toBeInTheDocument();
   });
 });
