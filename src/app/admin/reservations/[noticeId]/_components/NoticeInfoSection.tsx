@@ -14,6 +14,7 @@ import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { ROLE_LABEL_MAP } from "../../../constants";
 import NoticeStatusBadge from "../../_components/NoticeStatusBadge";
+import { getNoticeQuantitySummary } from "../../_lib/noticeQuantitySummary";
 import { updateNoticeAvailableQuantityAction } from "../../actions";
 
 interface NoticeInfoSectionProps {
@@ -41,6 +42,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
   const [availableQuantity, setAvailableQuantity] = useState(String(notice.availableQuantity ?? 0));
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const quantitySummary = getNoticeQuantitySummary(notice);
 
   const handleCancelQuantityEdit = () => {
     setAvailableQuantity(String(notice.availableQuantity ?? 0));
@@ -50,7 +52,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
   const handleSaveQuantity = () => {
     const quantity = Number(availableQuantity);
     if (!Number.isInteger(quantity) || quantity < 0) {
-      toast.error("예약 받을 병수는 0 이상의 정수여야 합니다.");
+      toast.error("남은 수락 수량은 0 이상의 정수여야 합니다.");
       return;
     }
 
@@ -79,20 +81,20 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
       });
 
       if (result.success) {
-        toast.success("예약 받을 병수를 수정했습니다.");
+        toast.success("남은 수락 수량을 수정했습니다.");
         setIsEditingQuantity(false);
         router.refresh();
         return;
       }
 
-      toast.error(result.error || "예약 받을 병수 수정에 실패했습니다.");
+      toast.error(result.error || "남은 수락 수량 수정에 실패했습니다.");
     });
   };
 
   const quantityFieldValue = isEditingQuantity ? (
     <div className="flex max-w-[220px] items-center gap-2">
       <label className="sr-only" htmlFor="notice-available-quantity">
-        예약 받을 병수
+        남은 수락 수량
       </label>
       <input
         id="notice-available-quantity"
@@ -126,10 +128,10 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
           type="button"
           onClick={() => setIsEditingQuantity(true)}
           className="inline-flex cursor-pointer items-center rounded-md p-1 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900"
-          title="예약 받을 병수 수정"
+          title="남은 수락 수량 수정"
         >
           <Pencil className="size-4" />
-          <span className="sr-only">예약 받을 병수 수정</span>
+          <span className="sr-only">남은 수락 수량 수정</span>
         </button>
       )}
     </span>
@@ -146,7 +148,9 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
     },
     { label: "예약 시작", value: formatDateTime(notice.reservationStartAt) },
     { label: "예약 종료", value: formatDateTime(notice.reservationEndAt) },
-    { label: "예약 받을 병수", value: quantityFieldValue },
+    { label: "총 수락 가능 수량", value: `${quantitySummary.totalAcceptableQuantity}병` },
+    { label: "현재 수락한 수량", value: `${quantitySummary.approvedQuantity}병` },
+    { label: "남은 수락 수량", value: quantityFieldValue },
     { label: "인당 최대 예약", value: notice.maxOrderQuantity ?? "-" },
     { label: "생성일", value: formatDateTime(notice.createdAt) },
   ];

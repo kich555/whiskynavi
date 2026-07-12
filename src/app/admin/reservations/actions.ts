@@ -103,7 +103,7 @@ const noticeFormSchema = z.object({
     if (!v.trim() || Number.isNaN(n) || n < 0) throw new Error("price must be >= 0");
     return n;
   }),
-  availableQuantity: optionalPositiveInt("예약 받을 병수"),
+  availableQuantity: optionalPositiveInt("수락 수량"),
   maxOrderQuantity: optionalPositiveInt("인당 최대 예약 가능 병수"),
   reservationStartAt: z.string().min(1, "예약 시작일은 필수입니다."),
   reservationEndAt: z.string().min(1, "예약 종료일은 필수입니다."),
@@ -175,7 +175,7 @@ function parseNoticeFormData(formData: FormData) {
   if (availableQuantity != null && maxOrderQuantity != null && maxOrderQuantity > availableQuantity) {
     return {
       success: false as const,
-      error: "인당 최대 예약 병수는 전체 예약 받을 병수를 초과할 수 없습니다.",
+      error: "인당 최대 예약 병수는 입력한 수락 수량을 초과할 수 없습니다.",
       values,
     };
   }
@@ -370,7 +370,7 @@ export async function updateNoticeAvailableQuantityAction(input: UpdateNoticeAva
   if (!token) return { success: false, error: "인증이 필요합니다." };
 
   if (!Number.isInteger(input.availableQuantity) || input.availableQuantity < 0) {
-    return { success: false, error: "예약 받을 병수는 0 이상의 정수여야 합니다." };
+    return { success: false, error: "남은 수락 수량은 0 이상의 정수여야 합니다." };
   }
 
   try {
@@ -394,7 +394,7 @@ export async function updateNoticeAvailableQuantityAction(input: UpdateNoticeAva
     revalidatePath(`/admin/reservations/${input.noticeId}`);
     return { success: true };
   } catch (error) {
-    const message = error instanceof Error ? error.message : "예약 받을 병수 수정에 실패했습니다.";
+    const message = error instanceof Error ? error.message : "남은 수락 수량 수정에 실패했습니다.";
     return { success: false, error: message };
   }
 }
