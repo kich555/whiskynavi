@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
+import { getNoticeQuantitySummary } from "../_lib/noticeQuantitySummary";
 import { isReservationNoticeEditable } from "../_lib/noticeStatus";
 import NoticeStatusBadge from "./NoticeStatusBadge";
 import ReservationExcelDownloadLink from "./ReservationExcelDownloadLink";
@@ -74,8 +75,8 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
                   <th className="typo-bold-12 px-4 py-3 text-right text-gray-700 uppercase">가격</th>
-                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청 / 전체</th>
-                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">승인</th>
+                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청 수량</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">수락 수량</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">예약기간</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">관리</th>
                 </tr>
@@ -90,6 +91,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                 ) : (
                   notices.map((notice) => {
                     const canEditNotice = isReservationNoticeEditable(notice);
+                    const quantitySummary = getNoticeQuantitySummary(notice);
 
                     return (
                       <tr
@@ -107,12 +109,18 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         </td>
                         <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
                         <td className="px-4 py-3 text-center text-sm">
-                          <span className="font-medium text-blue-600">{notice.appliedQuantity ?? 0}</span>
-                          <span className="mx-1 text-gray-400">/</span>
-                          <span className="text-gray-600">{notice.availableQuantity ?? 0}</span>
+                          <span className="font-medium text-blue-600">{quantitySummary.appliedQuantity}</span>
                         </td>
-                        <td className="px-4 py-3 text-center text-sm">
-                          <span className="font-medium text-green-600">{notice.approvedQuantity ?? 0}</span>
+                        <td className="px-4 py-3 text-sm">
+                          <div className="space-y-0.5 whitespace-nowrap">
+                            <div className="font-medium text-gray-900">
+                              총 수락 가능 {quantitySummary.totalAcceptableQuantity}병
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              현재 수락 {quantitySummary.approvedQuantity}병 · 남은 수락{" "}
+                              {quantitySummary.remainingAcceptableQuantity}병
+                            </div>
+                          </div>
                         </td>
                         <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
                           {formatPeriod(notice.reservationStartAt, notice.reservationEndAt)}

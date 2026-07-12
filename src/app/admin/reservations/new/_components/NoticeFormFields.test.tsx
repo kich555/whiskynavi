@@ -1,3 +1,4 @@
+import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import NoticeFormFields from "./NoticeFormFields";
@@ -44,5 +45,19 @@ describe("NoticeFormFields", () => {
         },
       ]),
     );
+  });
+
+  it("기존 공고 편집에서는 잔여 수락 수량 입력임을 표시한다", () => {
+    const notice = {
+      id: 7,
+      availableQuantity: 4,
+      approvedQuantity: 3,
+    } satisfies AdminBottleReservationNoticeResponse;
+
+    render(<NoticeFormFields defaultValues={notice} />);
+
+    expect(screen.getByText("남은 수락 수량")).toBeInTheDocument();
+    expect(screen.getByText("현재 수락한 수량 3병")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("4")).toBeInTheDocument();
   });
 });

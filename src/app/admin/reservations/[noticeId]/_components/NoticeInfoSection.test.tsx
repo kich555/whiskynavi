@@ -27,6 +27,7 @@ function notice(): AdminBottleReservationNoticeResponse {
     reservationStartAt: "2026-06-08T10:00:00.000Z",
     reservationEndAt: "2026-06-08T12:00:00.000Z",
     availableQuantity: 5,
+    approvedQuantity: 2,
     maxOrderQuantity: 2,
     description: "설명",
     gradeConditions: [
@@ -43,13 +44,19 @@ describe("NoticeInfoSection", () => {
     vi.clearAllMocks();
   });
 
-  it("공고정보에서 예약 받을 병수를 수정한다", async () => {
+  it("공고정보에서 수락 수량을 명시적으로 보여주고 남은 수락 수량을 수정한다", async () => {
     const user = userEvent.setup();
     mockedUpdateNoticeAvailableQuantity.mockResolvedValue({ success: true });
     render(<NoticeInfoSection notice={notice()} />);
 
-    await user.click(screen.getByRole("button", { name: "예약 받을 병수 수정" }));
-    const input = screen.getByLabelText("예약 받을 병수");
+    expect(screen.getByText("총 수락 가능 수량")).toBeInTheDocument();
+    expect(screen.getByText("7병")).toBeInTheDocument();
+    expect(screen.getByText("현재 수락한 수량")).toBeInTheDocument();
+    expect(screen.getByText("2병")).toBeInTheDocument();
+    expect(screen.getByText("남은 수락 수량")).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: "남은 수락 수량 수정" }));
+    const input = screen.getByLabelText("남은 수락 수량");
     await user.clear(input);
     await user.type(input, "7");
     await user.click(screen.getByRole("button", { name: "저장" }));

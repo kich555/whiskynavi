@@ -31,6 +31,9 @@ describe("ReservationsContent", () => {
       bottleName: "종료 보틀",
       reservationEndAt: new Date(Date.now() + 60_000).toISOString(),
       price: 120000,
+      appliedQuantity: 11,
+      approvedQuantity: 3,
+      availableQuantity: 4,
     } satisfies AdminBottleReservationNoticeResponse;
 
     render(<ReservationsContent searchParams={{}} notices={[closedNotice]} totalElements={1} />);
@@ -38,5 +41,7 @@ describe("ReservationsContent", () => {
     expect(screen.getByText("종료")).toBeInTheDocument();
     expect(screen.getByTitle("수정")).toBeInTheDocument();
     expect(screen.queryByTitle("삭제")).not.toBeInTheDocument();
+    expect(screen.getByText("총 수락 가능 7병")).toBeInTheDocument();
+    expect(screen.getByText("현재 수락 3병 · 남은 수락 4병")).toBeInTheDocument();
   });
 });

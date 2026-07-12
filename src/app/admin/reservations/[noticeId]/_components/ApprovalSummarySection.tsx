@@ -1,17 +1,17 @@
 "use client";
 
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { getNoticeQuantitySummary } from "../../_lib/noticeQuantitySummary";
 
 interface ApprovalSummarySectionProps {
   notice: AdminBottleReservationNoticeResponse;
 }
 
 export default function ApprovalSummarySection({ notice }: ApprovalSummarySectionProps) {
-  const applied = notice.appliedQuantity ?? 0;
-  const approved = notice.approvedQuantity ?? 0;
-  const available = notice.availableQuantity ?? 0;
+  const { appliedQuantity, approvedQuantity, remainingAcceptableQuantity, totalAcceptableQuantity } =
+    getNoticeQuantitySummary(notice);
 
-  const ratio = available > 0 ? (approved / available) * 100 : 0;
+  const ratio = totalAcceptableQuantity > 0 ? (approvedQuantity / totalAcceptableQuantity) * 100 : 0;
   const barColor = ratio >= 100 ? "bg-red-500" : ratio > 80 ? "bg-amber-500" : "bg-green-500";
   const textColor = ratio >= 100 ? "text-red-600" : ratio > 80 ? "text-amber-600" : "text-green-600";
 
@@ -19,14 +19,16 @@ export default function ApprovalSummarySection({ notice }: ApprovalSummarySectio
     <div className="mb-4 rounded-xl border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4">
       <div className="mb-3 flex items-center justify-between">
         <div>
-          <h3 className="font-bold text-gray-900">승인 현황</h3>
-          <p className="mt-0.5 text-xs text-gray-600">총 {applied}건 신청</p>
+          <h3 className="font-bold text-gray-900">수락 현황</h3>
+          <p className="mt-0.5 text-xs text-gray-600">신청 수량 {appliedQuantity}병</p>
         </div>
         <div className="text-right">
           <p className={`typo-bold-24 ${textColor}`}>
-            {approved} <span className="text-sm text-gray-500">/ {available}병</span>
+            {approvedQuantity} <span className="text-sm text-gray-500">/ {totalAcceptableQuantity}병</span>
           </p>
-          <p className="mt-0.5 text-xs text-gray-600">{available > 0 ? ratio.toFixed(1) : "0.0"}% 승인됨</p>
+          <p className="mt-0.5 text-xs text-gray-600">
+            현재 수락 {approvedQuantity}병 · 남은 수락 {remainingAcceptableQuantity}병
+          </p>
         </div>
       </div>
 
