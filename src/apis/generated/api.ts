@@ -18,33 +18,6 @@ export const AdminAnnouncementResponseScope = {
 } as const;
 
 /**
- * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
- */
-export type AdminBoardPostTypeResponseUsagesItem = typeof AdminBoardPostTypeResponseUsagesItem[keyof typeof AdminBoardPostTypeResponseUsagesItem];
-
-
-export const AdminBoardPostTypeResponseUsagesItem = {
-  POST: 'POST',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
-} as const;
-
-/**
- * 관리자 게시판 글타입 응답입니다.
- */
-export interface AdminBoardPostTypeResponse {
-  active?: boolean;
-  boardId?: number;
-  code?: string;
-  createdAt?: string;
-  default?: boolean;
-  displayOrder?: number;
-  id?: number;
-  name?: string;
-  /** 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. */
-  usages?: AdminBoardPostTypeResponseUsagesItem[];
-}
-
-/**
  * 관리자 공지사항 상세 응답입니다. 사용자 노출 정책과 본문을 함께 제공합니다.
  */
 export interface AdminAnnouncementResponse {
@@ -60,7 +33,6 @@ export interface AdminAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
-  postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
   /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
@@ -98,7 +70,6 @@ export interface AdminAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
-  postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
   /** 예약 게시 일시입니다. null이면 즉시 노출 대상으로 처리됩니다. */
@@ -1517,8 +1488,6 @@ export interface AnnouncementRequest {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
-  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
-  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -1595,38 +1564,6 @@ export interface AuthResponse {
   userInfo?: UserSelfResponse;
   /** 사용자 아이디 */
   username?: string;
-}
-
-/**
- * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
- */
-export type BoardPostTypeRequestUsage = typeof BoardPostTypeRequestUsage[keyof typeof BoardPostTypeRequestUsage];
-
-
-export const BoardPostTypeRequestUsage = {
-  POST: 'POST',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
-} as const;
-
-/**
- * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
- */
-export interface BoardPostTypeRequest {
-  active?: boolean;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  code?: string;
-  default?: boolean;
-  displayOrder?: number;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  name?: string;
-  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
-  usage?: BoardPostTypeRequestUsage;
 }
 
 /**
@@ -2330,12 +2267,6 @@ export interface CreatePostRequest {
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
-  /**
-   * 게시글 타입 코드입니다. 생략하면 게시판 기본 타입이 적용됩니다.
-   * @minLength 0
-   * @maxLength 50
-   */
-  postTypeCode?: string;
   /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
@@ -3279,28 +3210,6 @@ export interface PagedModelPickupLocationResponse {
 }
 
 /**
- * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
- */
-export type PostTypeResponseUsagesItem = typeof PostTypeResponseUsagesItem[keyof typeof PostTypeResponseUsagesItem];
-
-
-export const PostTypeResponseUsagesItem = {
-  POST: 'POST',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
-} as const;
-
-/**
- * 게시글 타입 응답입니다.
- */
-export interface PostTypeResponse {
-  code?: string;
-  id?: number;
-  name?: string;
-  /** 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. */
-  usages?: PostTypeResponseUsagesItem[];
-}
-
-/**
  * 게시글 목록에 사용하는 요약 응답 DTO입니다.
  */
 export interface PostSummaryResponse {
@@ -3314,7 +3223,6 @@ export interface PostSummaryResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
-  postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
@@ -3349,7 +3257,6 @@ export interface UserAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
-  postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
   /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
@@ -3440,8 +3347,6 @@ export interface UserBoardResponse {
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
   name?: string;
-  /** 게시판에서 선택 가능한 활성 게시글 타입 목록입니다. */
-  postTypes?: PostTypeResponse[];
   /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. */
@@ -3524,7 +3429,6 @@ export interface UserBottleReservationNoticePublicResponse {
   bottleName?: string;
   createdAt?: string;
   description?: string;
-  earliestReservableAt?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
@@ -3753,7 +3657,6 @@ export interface UserItemReservationGradeConditionResponse {
 export interface UserItemReservationNoticePublicResponse {
   availableQuantity?: number;
   createdAt?: string;
-  earliestReservableAt?: string;
   gradeConditions?: UserItemReservationGradeConditionResponse[];
   id?: number;
   itemBrand?: string;
@@ -4182,7 +4085,6 @@ export interface PostResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
-  postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
@@ -4689,34 +4591,6 @@ export interface ReservationAllocationExcelResponse {
   totalAllocatedQuantity?: number;
 }
 
-export type ReservationAutoConfirmRequestPriorityAllocationsItemRole = typeof ReservationAutoConfirmRequestPriorityAllocationsItemRole[keyof typeof ReservationAutoConfirmRequestPriorityAllocationsItemRole];
-
-
-export const ReservationAutoConfirmRequestPriorityAllocationsItemRole = {
-  ROLE_GUEST: 'ROLE_GUEST',
-  ROLE_USER: 'ROLE_USER',
-  ROLE_ADMIN: 'ROLE_ADMIN',
-  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
-  ROLE_CONSUMER: 'ROLE_CONSUMER',
-  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
-  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
-  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
-  ROLE_BUSINESS: 'ROLE_BUSINESS',
-  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
-  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
-  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
-} as const;
-
-export type ReservationAutoConfirmRequestPriorityAllocationsItem = {
-  /** @minimum 0 */
-  quantity?: number;
-  role: ReservationAutoConfirmRequestPriorityAllocationsItemRole;
-};
-
-export interface ReservationAutoConfirmRequest {
-  priorityAllocations?: ReservationAutoConfirmRequestPriorityAllocationsItem[];
-}
-
 /**
  * 택배사 코드
  */
@@ -4795,70 +4669,6 @@ export interface ReservationBusinessDeliveryRequest {
    * @maxLength 100
    */
   trackingNumber?: string;
-}
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export interface ReservationOpenSmsCorrectionRequest {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message?: string;
-}
-
-/**
- * 정정 문자 캠페인 상태
- */
-export type ReservationOpenSmsCorrectionResponseStatus = typeof ReservationOpenSmsCorrectionResponseStatus[keyof typeof ReservationOpenSmsCorrectionResponseStatus];
-
-
-export const ReservationOpenSmsCorrectionResponseStatus = {
-  QUEUED: 'QUEUED',
-  PREPARING: 'PREPARING',
-  SENDING: 'SENDING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-} as const;
-
-/**
- * 예약 오픈 문자 정정 캠페인 생성 결과
- */
-export interface ReservationOpenSmsCorrectionResponse {
-  /** 정정 문자 캠페인 ID */
-  campaignId?: number;
-  /** 정정 문자 발송 대상 큐 수 */
-  queuedCount?: number;
-  /** 예약 공고 ID */
-  saleAnnouncementId?: number;
-  /** 정정 문자 캠페인 상태 */
-  status?: ReservationOpenSmsCorrectionResponseStatus;
-}
-
-export type ReservationPriorityAllocationRequestRole = typeof ReservationPriorityAllocationRequestRole[keyof typeof ReservationPriorityAllocationRequestRole];
-
-
-export const ReservationPriorityAllocationRequestRole = {
-  ROLE_GUEST: 'ROLE_GUEST',
-  ROLE_USER: 'ROLE_USER',
-  ROLE_ADMIN: 'ROLE_ADMIN',
-  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
-  ROLE_CONSUMER: 'ROLE_CONSUMER',
-  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
-  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
-  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
-  ROLE_BUSINESS: 'ROLE_BUSINESS',
-  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
-  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
-  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
-} as const;
-
-export interface ReservationPriorityAllocationRequest {
-  /** @minimum 0 */
-  quantity?: number;
-  role: ReservationPriorityAllocationRequestRole;
 }
 
 /**
@@ -5201,12 +5011,6 @@ export interface UpdatePostRequest {
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
   /**
-   * 변경할 게시글 타입 코드입니다. null이면 기존 타입을 유지합니다.
-   * @minLength 0
-   * @maxLength 50
-   */
-  postTypeCode?: string;
-  /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
    * @maxLength 200
@@ -5253,7 +5057,6 @@ export interface UserAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
-  postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
   /** 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다. */
@@ -5729,18 +5532,7 @@ size?: number;
  * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
  */
 sort?: string[];
-scope?: GetApiAdminBoardsAnnouncementsScope;
-boardId?: number;
-postTypeCode?: string;
 };
-
-export type GetApiAdminBoardsAnnouncementsScope = typeof GetApiAdminBoardsAnnouncementsScope[keyof typeof GetApiAdminBoardsAnnouncementsScope];
-
-
-export const GetApiAdminBoardsAnnouncementsScope = {
-  GLOBAL: 'GLOBAL',
-  BOARD: 'BOARD',
-} as const;
 
 /**
  * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
@@ -5768,8 +5560,6 @@ export type PostApiAdminBoardsAnnouncementsBody = {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
-  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
-  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -5815,8 +5605,6 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   pinned?: boolean;
-  /** 게시판 공지 글타입 코드입니다. BOARD 공지에서 생략하면 기본 글타입을 사용하며, GLOBAL 공지에는 지정할 수 없습니다. */
-  postTypeCode?: string;
   /**
    * 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. 생략하면 0입니다.
    * @minimum 0
@@ -5910,70 +5698,6 @@ export type PutApiAdminBoardsBoardidBody = {
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
   writeRole?: PutApiAdminBoardsBoardidBodyWriteRole;
-};
-
-/**
- * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
- */
-export type PostApiAdminBoardsBoardidPostTypesBodyUsage = typeof PostApiAdminBoardsBoardidPostTypesBodyUsage[keyof typeof PostApiAdminBoardsBoardidPostTypesBodyUsage];
-
-
-export const PostApiAdminBoardsBoardidPostTypesBodyUsage = {
-  POST: 'POST',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
-} as const;
-
-/**
- * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
- */
-export type PostApiAdminBoardsBoardidPostTypesBody = {
-  active?: boolean;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  code?: string;
-  default?: boolean;
-  displayOrder?: number;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  name?: string;
-  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
-  usage?: PostApiAdminBoardsBoardidPostTypesBodyUsage;
-};
-
-/**
- * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
- */
-export type PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage = typeof PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage[keyof typeof PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage];
-
-
-export const PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage = {
-  POST: 'POST',
-  ANNOUNCEMENT: 'ANNOUNCEMENT',
-} as const;
-
-/**
- * 게시판 글타입을 생성하거나 수정할 때 사용하는 요청 본문입니다.
- */
-export type PutApiAdminBoardsBoardidPostTypesPosttypeidBody = {
-  active?: boolean;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  code?: string;
-  default?: boolean;
-  displayOrder?: number;
-  /**
-   * @minLength 0
-   * @maxLength 50
-   */
-  name?: string;
-  /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
-  usage?: PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage;
 };
 
 /**
@@ -6323,46 +6047,6 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
 
 export type PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody = {
   file: Blob;
-};
-
-export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
-
-
-export const PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = {
-  ROLE_GUEST: 'ROLE_GUEST',
-  ROLE_USER: 'ROLE_USER',
-  ROLE_ADMIN: 'ROLE_ADMIN',
-  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
-  ROLE_CONSUMER: 'ROLE_CONSUMER',
-  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
-  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
-  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
-  ROLE_BUSINESS: 'ROLE_BUSINESS',
-  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
-  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
-  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
-} as const;
-
-export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem = {
-  /** @minimum 0 */
-  quantity?: number;
-  role: PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole;
-};
-
-export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
-  priorityAllocations?: PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
-};
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message?: string;
 };
 
 /**
@@ -6895,46 +6579,6 @@ export type PutApiAdminItemsReservationsNoticesNoticeidBody = {
   price: number;
   reservationEndAt: string;
   reservationStartAt: string;
-};
-
-export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
-
-
-export const PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = {
-  ROLE_GUEST: 'ROLE_GUEST',
-  ROLE_USER: 'ROLE_USER',
-  ROLE_ADMIN: 'ROLE_ADMIN',
-  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
-  ROLE_CONSUMER: 'ROLE_CONSUMER',
-  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
-  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
-  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
-  ROLE_BUSINESS: 'ROLE_BUSINESS',
-  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
-  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
-  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
-} as const;
-
-export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem = {
-  /** @minimum 0 */
-  quantity?: number;
-  role: PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole;
-};
-
-export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody = {
-  priorityAllocations?: PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
-};
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message?: string;
 };
 
 /**
@@ -8333,7 +7977,6 @@ sort?: string[];
 };
 
 export type GetApiBoardsAnnouncementsBoardBoardidParams = {
-postTypeCode?: string;
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -8372,7 +8015,6 @@ export type PostApiBoardsUploadsBody = {
 };
 
 export type GetApiBoardsBoardidAnnouncementsParams = {
-postTypeCode?: string;
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -8409,7 +8051,6 @@ sort?: string[];
  */
 searchType?: GetApiBoardsBoardidPostsSearchType;
 keyword?: string;
-postTypeCode?: string;
 };
 
 export type GetApiBoardsBoardidPostsSearchType = typeof GetApiBoardsBoardidPostsSearchType[keyof typeof GetApiBoardsBoardidPostsSearchType];
@@ -8433,12 +8074,6 @@ export type PostApiBoardsBoardidPostsBody = {
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
-   * 게시글 타입 코드입니다. 생략하면 게시판 기본 타입이 적용됩니다.
-   * @minLength 0
-   * @maxLength 50
-   */
-  postTypeCode?: string;
-  /**
    * 게시글 제목입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 0
    * @maxLength 200
@@ -8454,12 +8089,6 @@ export type PutApiBoardsBoardidPostsPostidBody = {
   content?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. null이면 기존 값을 유지합니다. */
   hasImage?: boolean;
-  /**
-   * 변경할 게시글 타입 코드입니다. null이면 기존 타입을 유지합니다.
-   * @minLength 0
-   * @maxLength 50
-   */
-  postTypeCode?: string;
   /**
    * 수정할 게시글 제목입니다. null이면 제목을 수정하지 않고, 공백만 보내면 오류입니다.
    * @minLength 0
@@ -10332,7 +9961,7 @@ export const postApiAdminBoards = async (postApiAdminBoardsBody: PostApiAdminBoa
 
 
 /**
- * 관리자가 전체/게시판 공지를 노출 여부, 고정 여부, 예약 게시, 만료 일시, 우선순위 정책과 함께 조회합니다. scope, boardId, postTypeCode로 목록을 필터링할 수 있습니다.
+ * 관리자가 전체/게시판 공지를 노출 여부, 고정 여부, 예약 게시, 만료 일시, 우선순위 정책과 함께 조회합니다.
  * @summary 공지 목록 조회(관리자)
  */
 export type getApiAdminBoardsAnnouncementsResponse200 = {
@@ -10634,240 +10263,6 @@ export const putApiAdminBoardsBoardid = async (boardId: number,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiAdminBoardsBoardidBody,)
-  }
-);}
-
-
-
-/**
- * 관리자가 특정 게시판에 설정된 글타입 목록과 기본 여부, 활성 상태를 조회합니다.
- * @summary 게시판 글타입 목록 조회(관리자)
- */
-export type getApiAdminBoardsBoardidPostTypesResponse200 = {
-  data: AdminBoardPostTypeResponse[]
-  status: 200
-}
-    
-export type getApiAdminBoardsBoardidPostTypesResponseSuccess = (getApiAdminBoardsBoardidPostTypesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiAdminBoardsBoardidPostTypesResponse = (getApiAdminBoardsBoardidPostTypesResponseSuccess)
-
-export const getGetApiAdminBoardsBoardidPostTypesUrl = (boardId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types`
-}
-
-export const getApiAdminBoardsBoardidPostTypes = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidPostTypesResponse> => {
-  
-  return customFetch<getApiAdminBoardsBoardidPostTypesResponse>(getGetApiAdminBoardsBoardidPostTypesUrl(boardId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * 관리자가 게시판 글타입 코드, 이름, 노출 순서, 활성 상태를 등록합니다.
- * @summary 게시판 글타입 생성(관리자)
- */
-export type postApiAdminBoardsBoardidPostTypesResponse200 = {
-  data: AdminBoardPostTypeResponse
-  status: 200
-}
-    
-export type postApiAdminBoardsBoardidPostTypesResponseSuccess = (postApiAdminBoardsBoardidPostTypesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBoardsBoardidPostTypesResponse = (postApiAdminBoardsBoardidPostTypesResponseSuccess)
-
-export const getPostApiAdminBoardsBoardidPostTypesUrl = (boardId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types`
-}
-
-export const postApiAdminBoardsBoardidPostTypes = async (boardId: number,
-    postApiAdminBoardsBoardidPostTypesBody: PostApiAdminBoardsBoardidPostTypesBody, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesResponse> => {
-  
-  return customFetch<postApiAdminBoardsBoardidPostTypesResponse>(getPostApiAdminBoardsBoardidPostTypesUrl(boardId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminBoardsBoardidPostTypesBody,)
-  }
-);}
-
-
-
-/**
- * 관리자가 게시판 글타입 코드, 이름, 노출 순서, 활성 상태와 기본 지정 여부를 수정합니다.
- * @summary 게시판 글타입 수정(관리자)
- */
-export type putApiAdminBoardsBoardidPostTypesPosttypeidResponse200 = {
-  data: AdminBoardPostTypeResponse
-  status: 200
-}
-    
-export type putApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess = (putApiAdminBoardsBoardidPostTypesPosttypeidResponse200) & {
-  headers: Headers;
-};
-;
-
-export type putApiAdminBoardsBoardidPostTypesPosttypeidResponse = (putApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess)
-
-export const getPutApiAdminBoardsBoardidPostTypesPosttypeidUrl = (boardId: number,
-    postTypeId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types/${postTypeId}`
-}
-
-export const putApiAdminBoardsBoardidPostTypesPosttypeid = async (boardId: number,
-    postTypeId: number,
-    putApiAdminBoardsBoardidPostTypesPosttypeidBody: PutApiAdminBoardsBoardidPostTypesPosttypeidBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidPostTypesPosttypeidResponse> => {
-  
-  return customFetch<putApiAdminBoardsBoardidPostTypesPosttypeidResponse>(getPutApiAdminBoardsBoardidPostTypesPosttypeidUrl(boardId,postTypeId),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      putApiAdminBoardsBoardidPostTypesPosttypeidBody,)
-  }
-);}
-
-
-
-/**
- * 관리자가 특정 게시판 글타입을 다시 활성화합니다.
- * @summary 게시판 글타입 활성화(관리자)
- */
-export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse200 = {
-  data: AdminBoardPostTypeResponse
-  status: 200
-}
-    
-export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponseSuccess)
-
-export const getPostApiAdminBoardsBoardidPostTypesPosttypeidActivateUrl = (boardId: number,
-    postTypeId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/activate`
-}
-
-export const postApiAdminBoardsBoardidPostTypesPosttypeidActivate = async (boardId: number,
-    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse> => {
-  
-  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidActivateResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidActivateUrl(boardId,postTypeId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-
-
-
-/**
- * 관리자가 특정 게시판 글타입을 비활성화합니다. 기본 글타입은 비활성화할 수 없습니다.
- * @summary 게시판 글타입 비활성화(관리자)
- */
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse200 = {
-  data: AdminBoardPostTypeResponse
-  status: 200
-}
-    
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponseSuccess)
-
-export const getPostApiAdminBoardsBoardidPostTypesPosttypeidDeactivateUrl = (boardId: number,
-    postTypeId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/deactivate`
-}
-
-export const postApiAdminBoardsBoardidPostTypesPosttypeidDeactivate = async (boardId: number,
-    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse> => {
-  
-  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidDeactivateResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidDeactivateUrl(boardId,postTypeId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
-  }
-);}
-
-
-
-/**
- * 관리자가 특정 게시판의 기본 글타입을 지정합니다. 기존 기본 글타입은 해제됩니다.
- * @summary 게시판 기본 글타입 지정(관리자)
- */
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse200 = {
-  data: AdminBoardPostTypeResponse
-  status: 200
-}
-    
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponseSuccess = (postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse = (postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponseSuccess)
-
-export const getPostApiAdminBoardsBoardidPostTypesPosttypeidDefaultUrl = (boardId: number,
-    postTypeId: number,) => {
-
-
-  
-
-  return `/api/admin/boards/${boardId}/post-types/${postTypeId}/default`
-}
-
-export const postApiAdminBoardsBoardidPostTypesPosttypeidDefault = async (boardId: number,
-    postTypeId: number, options?: RequestInit): Promise<postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse> => {
-  
-  return customFetch<postApiAdminBoardsBoardidPostTypesPosttypeidDefaultResponse>(getPostApiAdminBoardsBoardidPostTypesPosttypeidDefaultUrl(boardId,postTypeId),
-  {      
-    ...options,
-    method: 'POST'
-    
-    
   }
 );}
 
@@ -11471,7 +10866,7 @@ export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse
   data: Blob
   status: 200
 }
-    
+
 export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
   headers: Headers;
 };
@@ -11482,19 +10877,19 @@ export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse
 export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
 }
 
 export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
-  
+
   return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'GET'
-    
-    
+
+
   }
 );}
 
@@ -11513,7 +10908,7 @@ export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelRespons
   data: ReservationAllocationExcelErrorResponse
   status: 400
 }
-    
+
 export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200) & {
   headers: Headers;
 };
@@ -11526,7 +10921,7 @@ export type postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelRespons
 export const getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
 
 
-  
+
 
   return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
 }
@@ -11537,11 +10932,11 @@ export const postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = asy
 formData.append(`file`, postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody.file);
 
   return customFetch<postApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
-  {      
+  {
     ...options,
     method: 'POST'
     ,
-    body: 
+    body:
       formData,
   }
 );}
@@ -11609,16 +11004,14 @@ export const getPostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmUrl = (
   return `/api/admin/bottles/reservations/notices/${noticeId}/auto-confirm`
 }
 
-export const postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm = async (noticeId: number,
-    postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody: PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse> => {
+export const postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm = async (noticeId: number, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse> => {
   
   return customFetch<postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
   {      
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody,)
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -11656,45 +11049,6 @@ export const getApiAdminBottlesReservationsNoticesNoticeidExcel = async (noticeI
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/bottles/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -12123,7 +11477,7 @@ export const postApiAdminBusinessesBusinessesBusinessidRolesRoleGrant = async (b
 
 
 /**
- * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한에서 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 ID로 현재 owner에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업장 owner 권한 회수(관리자)
  */
 export type postApiAdminBusinessesBusinessesBusinessidRolesRoleRevokeResponse200 = {
@@ -12321,7 +11675,7 @@ export const postApiAdminBusinessesMembersUseridRolesRoleGrant = async (userId: 
 
 
 /**
- * 등록된 사업장 회원에게서 사업자 권한을 회수합니다. ROLE_COMMUNITY_BUSINESS와 ROLE_PICK_UP_BUSINESS는 사용자 전역 역할이 아니라 대상 사업장 권한에서 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
+ * 등록된 사업장 회원에게서 사업자 권한을 회수합니다. role은 ROLE_BUSINESS, ROLE_TRAILNTALE_BUSINESS, ROLE_COMMUNITY_BUSINESS, ROLE_PICK_UP_BUSINESS 중 하나만 입력할 수 있습니다.
  * @summary 사업자 권한 회수(관리자)
  */
 export type postApiAdminBusinessesMembersUseridRolesRoleRevokeResponse200 = {
@@ -12856,16 +12210,14 @@ export const getPostApiAdminItemsReservationsNoticesNoticeidAutoConfirmUrl = (no
   return `/api/admin/items/reservations/notices/${noticeId}/auto-confirm`
 }
 
-export const postApiAdminItemsReservationsNoticesNoticeidAutoConfirm = async (noticeId: number,
-    postApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody: PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse> => {
+export const postApiAdminItemsReservationsNoticesNoticeidAutoConfirm = async (noticeId: number, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse> => {
   
   return customFetch<postApiAdminItemsReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiAdminItemsReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
   {      
     ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody,)
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -12903,45 +12255,6 @@ export const getApiAdminItemsReservationsNoticesNoticeidExcel = async (noticeId:
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/items/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -15744,7 +15057,7 @@ export const getApiBoards = async (params?: GetApiBoardsParams, options?: Reques
 
 
 /**
- * 지정한 게시판에 적용되는 전체 공지와 게시판 공지를 함께 조회합니다. postTypeCode를 지정하면 해당 글타입의 게시판 공지만 조회합니다. 숨김/비활성 게시판이거나 노출 기간 조건을 만족하지 않는 공지는 제외됩니다.
+ * 지정한 게시판에 적용되는 전체 공지와 게시판 공지를 함께 조회합니다. 숨김/비활성 게시판이거나 노출 기간 조건을 만족하지 않는 공지는 제외됩니다.
  * @summary 게시판별 공지 조회
  */
 export type getApiBoardsAnnouncementsBoardBoardidResponse200 = {
@@ -15911,7 +15224,7 @@ formData.append(`file`, postApiBoardsUploadsBody.file);
 
 
 /**
- * 전체 공지와 해당 게시판 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 반환합니다. postTypeCode를 지정하면 해당 글타입의 게시판 공지만 조회합니다. 고정 여부와 우선순위가 높은 공지가 먼저 정렬됩니다.
+ * 전체 공지와 해당 게시판 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 반환합니다. 고정 여부와 우선순위가 높은 공지가 먼저 정렬됩니다.
  * @summary 게시판 공지 조회
  */
 export type getApiBoardsBoardidAnnouncementsResponse200 = {
@@ -15996,7 +15309,7 @@ export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: nu
 
 
 /**
- * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있으며, postTypeCode를 지정하면 해당 글타입으로 필터링하고 keyword 검색보다 우선 적용합니다.
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있습니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
@@ -19658,7 +18971,7 @@ export const patchApiUsersBusinessesMeBusinessidPrimary = async (businessId: num
 
 
 /**
- * 사업장별 픽업 기능 권한이 켜진 사업장 정보를 반환합니다.
+ * ROLE_PICK_UP_BUSINESS 권한을 가진 유저의 사업장 정보를 반환합니다.
  * @summary 픽업 가능 사업장 목록
  */
 export type getApiUsersBusinessesPickupLocationsResponse200 = {

@@ -28,18 +28,8 @@ import { toast } from "sonner";
 import Pagination from "../_components/Pagination";
 import { ASSIGNABLE_ROLES, ORDER_STATUS_COLOR, ORDER_STATUS_LABEL, ROLE_COLOR_MAP, ROLE_LABEL_MAP } from "../constants";
 import AdminConfirmModal from "./modals/AdminConfirmModal";
-import RoleConflictModal from "./modals/RoleConflictModal";
 
 // ─── 유틸 ─────────────────────────────────────────────────────
-// 같은 그룹 내 역할은 하나만 가질 수 있음 (추가 시 교체 확인)
-const ROLE_CONFLICT_GROUPS: { name: string; roles: string[] }[] = [
-  { name: "관리자", roles: ["ROLE_ADMIN", "ROLE_SUPER_ADMIN"] },
-  {
-    name: "업장",
-    roles: ["ROLE_BUSINESS", "ROLE_TRAILNTALE_BUSINESS", "ROLE_COMMUNITY_BUSINESS", "ROLE_PICK_UP_BUSINESS"],
-  },
-];
-
 // ─── Props ─────────────────────────────────────────────────────
 interface UserDetailViewProps {
   isEditMode: false;
@@ -53,7 +43,6 @@ interface UserDetailViewProps {
   onAddManualPurchase?: () => void;
   onAddRole?: never;
   onRemoveRole?: never;
-  onReplaceRole?: never;
   isSaving?: never;
 }
 
@@ -69,7 +58,6 @@ interface UserDetailEditProps {
   onAddManualPurchase?: () => void;
   onAddRole?: (role: string) => void;
   onRemoveRole?: (role: string) => void;
-  onReplaceRole?: (oldRole: string, newRole: string) => void;
   isSaving?: boolean;
 }
 
@@ -95,7 +83,6 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
 
   const onAddRole = isEditMode ? props.onAddRole : undefined;
   const onRemoveRole = isEditMode ? props.onRemoveRole : undefined;
-  const onReplaceRole = isEditMode ? props.onReplaceRole : undefined;
   const isSaving = isEditMode ? (props.isSaving ?? false) : false;
 
   // 탭
@@ -104,25 +91,6 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
   // 권한 편집
   const [isEditingRoles, setIsEditingRoles] = useState(false);
   const [newRole, setNewRole] = useState("");
-
-  // ── 권한 충돌 체크 ───────────────────────────────────
-  const checkRoleConflict = (roleToAdd: string) => {
-    const group = ROLE_CONFLICT_GROUPS.find((g) => g.roles.includes(roleToAdd));
-    if (!group) return { hasConflict: false, message: "", conflictingRole: null };
-
-    const conflictingRole =
-      (userDetails.roles ?? []).find((role) => group.roles.includes(role) && role !== roleToAdd) ?? null;
-
-    if (conflictingRole) {
-      return {
-        hasConflict: true,
-        message: `이미 ${group.name} 그룹의 ${ROLE_LABEL_MAP[conflictingRole]} 권한이 있습니다. ${ROLE_LABEL_MAP[roleToAdd]} 권한으로 교체하시겠습니까?`,
-        conflictingRole,
-      };
-    }
-
-    return { hasConflict: false, message: "", conflictingRole: null };
-  };
 
   // ── 관리자 권한 여부 ──────────────────────────────────
   const isAdminRole = (role: string) => role === "ROLE_ADMIN" || role === "ROLE_SUPER_ADMIN";
@@ -138,7 +106,6 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
 
     // 관리자 권한 → 확인 모달
     if (isAdminRole(newRole)) {
-      const conflict = checkRoleConflict(newRole);
       overlay.open(({ isOpen, close }) => (
         <AdminConfirmModal
           isOpen={isOpen}
@@ -146,29 +113,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
           userName={userDetails.name ?? ""}
           username={userDetails.username ?? ""}
           onConfirm={() => {
-            if (conflict.hasConflict && conflict.conflictingRole) {
-              onReplaceRole?.(conflict.conflictingRole, newRole);
-            } else {
-              onAddRole(newRole);
-            }
-            setNewRole("");
-          }}
-        />
-      ));
-      return;
-    }
-
-    // 일반 권한 충돌 체크
-    const conflict = checkRoleConflict(newRole);
-    if (conflict.hasConflict && conflict.conflictingRole) {
-      const conflictingRole = conflict.conflictingRole;
-      overlay.open(({ isOpen, close }) => (
-        <RoleConflictModal
-          isOpen={isOpen}
-          close={close}
-          message={conflict.message}
-          onConfirm={() => {
-            onReplaceRole?.(conflictingRole, newRole);
+            onAddRole(newRole);
             setNewRole("");
           }}
         />

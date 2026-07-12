@@ -12,7 +12,6 @@ import AdminUserDetailSection from "../../../../components/AdminUserDetailSectio
 import {
   addUserRolesAction,
   removeUserRolesAction,
-  replaceUserRoleAction,
   updateUserStatusAction,
 } from "../../../actions";
 import ManualPurchaseCreateModal from "../../_components/ManualPurchaseCreateModal";
@@ -65,17 +64,6 @@ export default function UserEditContent({ user }: UserEditContentProps) {
     });
   };
 
-  const handleReplaceRole = (oldRole: string, newRole: string) => {
-    startTransition(async () => {
-      const result = await replaceUserRoleAction(user.id!, oldRole, newRole);
-      if (!result.success) {
-        toast.error(result.error);
-        return;
-      }
-      router.refresh();
-    });
-  };
-
   return (
     <>
       <AdminHeader title="회원 정보 수정" onToggleSidebar={toggle} showSearch={false} />
@@ -107,7 +95,6 @@ export default function UserEditContent({ user }: UserEditContentProps) {
           onStatusToggle={handleStatusToggle}
           onAddRole={handleAddRole}
           onRemoveRole={handleRemoveRole}
-          onReplaceRole={handleReplaceRole}
           isSaving={isPending}
         />
       </div>
