@@ -330,7 +330,7 @@ describe("updateNoticeAvailableQuantityAction", () => {
     vi.clearAllMocks();
   });
 
-  it("현재 공고 값과 변경할 예약 받을 병수를 함께 보내 공고를 수정한다", async () => {
+  it("현재 공고 값과 변경할 남은 수락 수량을 함께 보내 공고를 수정한다", async () => {
     vi.mocked(putApiAdminBottlesReservationsNoticesNoticeid).mockResolvedValue({
       data: {},
       status: 200,

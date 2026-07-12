@@ -23,6 +23,7 @@ interface NoticeFormFieldsProps {
 }
 
 export default function NoticeFormFields({ defaultValues, formValues }: NoticeFormFieldsProps) {
+  const isEditing = defaultValues?.id != null;
   const [gradeConditions, setGradeConditions] = useState<GradeCondition[]>(
     formValues?.gradeConditions ??
       defaultValues?.gradeConditions?.map((gc) => ({
@@ -97,7 +98,12 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
         </div>
 
         <div>
-          <label className="typo-medium-14 mb-1 block text-gray-700">예약 받을 병수</label>
+          <label className="typo-medium-14 mb-1 block text-gray-700">
+            {isEditing ? "남은 수락 수량" : "총 수락할 수량"}
+          </label>
+          {isEditing && defaultValues?.approvedQuantity != null && (
+            <p className="mb-1 text-xs text-gray-500">현재 수락한 수량 {defaultValues.approvedQuantity}병</p>
+          )}
           <input
             type="number"
             name="availableQuantity"
