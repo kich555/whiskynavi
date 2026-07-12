@@ -37,5 +37,6 @@ describe("ReservationsContent", () => {
 
     expect(screen.getByText("종료")).toBeInTheDocument();
     expect(screen.getByTitle("수정")).toBeInTheDocument();
+    expect(screen.queryByTitle("삭제")).not.toBeInTheDocument();
   });
 });
