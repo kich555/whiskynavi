@@ -19,6 +19,10 @@ vi.mock("../../_components/ReservationExcelDownloadLink", () => ({
   default: () => null,
 }));
 
+vi.mock("../../actions", () => ({
+  deleteNoticeAction: vi.fn(),
+}));
+
 vi.mock("./ApplicationsTableSection", () => ({
   default: () => null,
 }));
@@ -56,5 +60,6 @@ describe("NoticeDetailContent", () => {
     );
 
     expect(screen.getByRole("button", { name: "편집" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
   });
 });

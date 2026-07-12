@@ -2,6 +2,7 @@
 
 import { ApiError } from "@/apis/errors";
 import {
+  deleteApiAdminBottlesReservationsNoticesNoticeid,
   getApiAdminBottles,
   postApiAdminBottlesReservationsApplicationsApplicationidCancel,
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm,
@@ -396,6 +397,25 @@ export async function updateNoticeAvailableQuantityAction(input: UpdateNoticeAva
     const message = error instanceof Error ? error.message : "예약 받을 병수 수정에 실패했습니다.";
     return { success: false, error: message };
   }
+}
+
+export async function deleteNoticeAction(noticeId: number): Promise<FormState> {
+  const token = await getAuthToken();
+  if (!token) return { success: false, error: "인증이 필요합니다." };
+
+  try {
+    await deleteApiAdminBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "공고 삭제에 실패했습니다.";
+    return { success: false, error: message };
+  }
+
+  revalidateTag(noticeCacheTag(noticeId), "max");
+  revalidateTag(NOTICES_LIST_CACHE_TAG, "max");
+  revalidateTag(NOTICES_RECENT_ENDED_CACHE_TAG, "max");
+  revalidatePath("/admin/reservations");
+  revalidatePath(`/admin/reservations/${noticeId}`);
+  return { success: true };
 }
 
 // ─── Application Actions ──────────────────────────────────

@@ -1,5 +1,6 @@
 import { ApiError } from "@/apis/errors";
 import {
+  deleteApiAdminBottlesReservationsNoticesNoticeid,
   getApiAdminBottles,
   postApiAdminBottlesReservationsNotices,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
@@ -10,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   createNoticeFormAction,
+  deleteNoticeAction,
   rejectPendingApplicationsAction,
   searchBottlesAction,
   updateNoticeAvailableQuantityAction,
@@ -31,6 +33,7 @@ vi.mock("@/apis/generated/api", () => ({
     ROLE_COMMUNITY_BUSINESS: "ROLE_COMMUNITY_BUSINESS",
     ROLE_PICK_UP_BUSINESS: "ROLE_PICK_UP_BUSINESS",
   },
+  deleteApiAdminBottlesReservationsNoticesNoticeid: vi.fn(),
   getApiAdminBottles: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidCancel: vi.fn(),
   postApiAdminBottlesReservationsApplicationsApplicationidConfirm: vi.fn(),
@@ -362,5 +365,46 @@ describe("updateNoticeAvailableQuantityAction", () => {
     );
     expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations/100");
     expect(result).toEqual({ success: true });
+  });
+});
+
+describe("deleteNoticeAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("예약 공고 삭제 API를 호출하고 목록과 상세를 재검증한다", async () => {
+    vi.mocked(deleteApiAdminBottlesReservationsNoticesNoticeid).mockResolvedValue({
+      data: undefined,
+      status: 204,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof deleteApiAdminBottlesReservationsNoticesNoticeid>>);
+
+    const result = await deleteNoticeAction(100);
+
+    expect(deleteApiAdminBottlesReservationsNoticesNoticeid).toHaveBeenCalledWith(100, {
+      token: "admin-token",
+    });
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations");
+    expect(revalidatePath).toHaveBeenCalledWith("/admin/reservations/100");
+    expect(result).toEqual({ success: true });
+  });
+
+  it("확정 또는 결제된 신청이 있으면 백엔드 메시지를 반환한다", async () => {
+    vi.mocked(deleteApiAdminBottlesReservationsNoticesNoticeid).mockRejectedValue(
+      new ApiError(
+        400,
+        JSON.stringify({
+          message: "예약이 확정되었거나 결제된 신청이 있는 공고는 삭제할 수 없습니다.",
+        }),
+      ),
+    );
+
+    const result = await deleteNoticeAction(100);
+
+    expect(result).toEqual({
+      success: false,
+      error: "예약이 확정되었거나 결제된 신청이 있는 공고는 삭제할 수 없습니다.",
+    });
   });
 });

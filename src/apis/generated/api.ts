@@ -11351,6 +11351,43 @@ export const postApiAdminBottlesReservationsNotices = async (postApiAdminBottles
 
 
 /**
+ * 확정 또는 결제된 예약 신청이 없는 보틀 예약 공고만 삭제합니다.
+ * @summary 예약 공고 삭제(관리자)
+ */
+export type deleteApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiAdminBottlesReservationsNoticesNoticeidResponseSuccess = (deleteApiAdminBottlesReservationsNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBottlesReservationsNoticesNoticeidResponse = (deleteApiAdminBottlesReservationsNoticesNoticeidResponseSuccess)
+
+export const getDeleteApiAdminBottlesReservationsNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/admin/bottles/reservations/notices/${noticeId}`
+}
+
+export const deleteApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<deleteApiAdminBottlesReservationsNoticesNoticeidResponse> => {
+  
+  return customFetch<deleteApiAdminBottlesReservationsNoticesNoticeidResponse>(getDeleteApiAdminBottlesReservationsNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
  * 관리자가 예약 공고 상세 정보를 조회합니다.
  * @summary 예약 공고 상세(관리자)
  */
@@ -11519,7 +11556,7 @@ export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPend
   data: AdminBottleReservationBulkRejectResponse
   status: 200
 }
-
+    
 export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse200) & {
   headers: Headers;
 };
@@ -11530,19 +11567,19 @@ export type postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPend
 export const getPostApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingUrl = (noticeId: number,) => {
 
 
-
+  
 
   return `/api/admin/bottles/reservations/notices/${noticeId}/applications/reject-pending`
 }
 
 export const postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending = async (noticeId: number, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse> => {
-
+  
   return customFetch<postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPendingUrl(noticeId),
-  {
+  {      
     ...options,
     method: 'POST'
-
-
+    
+    
   }
 );}
 
@@ -12677,6 +12714,43 @@ export const postApiAdminItemsReservationsNotices = async (postApiAdminItemsRese
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminItemsReservationsNoticesBody,)
+  }
+);}
+
+
+
+/**
+ * 확정 또는 결제된 예약 신청이 없는 아이템 예약 공고만 삭제합니다.
+ * @summary 예약 공고 삭제(관리자)
+ */
+export type deleteApiAdminItemsReservationsNoticesNoticeidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiAdminItemsReservationsNoticesNoticeidResponseSuccess = (deleteApiAdminItemsReservationsNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminItemsReservationsNoticesNoticeidResponse = (deleteApiAdminItemsReservationsNoticesNoticeidResponseSuccess)
+
+export const getDeleteApiAdminItemsReservationsNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/admin/items/reservations/notices/${noticeId}`
+}
+
+export const deleteApiAdminItemsReservationsNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<deleteApiAdminItemsReservationsNoticesNoticeidResponse> => {
+  
+  return customFetch<deleteApiAdminItemsReservationsNoticesNoticeidResponse>(getDeleteApiAdminItemsReservationsNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
   }
 );}
 
