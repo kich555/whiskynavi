@@ -1,17 +1,9 @@
 "use server";
 
 import { getUserErrorMessage } from "@/apis/errors";
-import {
-  deleteApiAdminBoardsAnnouncementsAnnouncementid,
-  deleteApiAdminBoardsBoardid,
-  getApiAdminBoardsAnnouncementsAnnouncementid,
-  postApiAdminBoards,
-  postApiAdminBoardsAnnouncements,
-  postApiAdminBoardsBoardidPostsPostidDelete,
-  putApiAdminBoardsAnnouncementsAnnouncementid,
-  putApiAdminBoardsBoardid,
-} from "@/apis/generated/api";
 import type {
+  BoardPostTypeRequest,
+  BoardPostTypeRequestUsage,
   PostApiAdminBoardsAnnouncementsBody,
   PostApiAdminBoardsAnnouncementsBodyScope,
   PostApiAdminBoardsBody,
@@ -22,6 +14,22 @@ import type {
   PutApiAdminBoardsBoardidBody,
   PutApiAdminBoardsBoardidBodyReadRole,
   PutApiAdminBoardsBoardidBodyWriteRole,
+} from "@/apis/generated/api";
+import {
+  deleteApiAdminBoardsAnnouncementsAnnouncementid,
+  deleteApiAdminBoardsBoardid,
+  getApiAdminBoardsAnnouncementsAnnouncementid,
+  getApiAdminBoardsBoardidPostTypes,
+  postApiAdminBoards,
+  postApiAdminBoardsAnnouncements,
+  postApiAdminBoardsBoardidPostsPostidDelete,
+  postApiAdminBoardsBoardidPostTypes,
+  postApiAdminBoardsBoardidPostTypesPosttypeidActivate,
+  postApiAdminBoardsBoardidPostTypesPosttypeidDeactivate,
+  postApiAdminBoardsBoardidPostTypesPosttypeidDefault,
+  putApiAdminBoardsAnnouncementsAnnouncementid,
+  putApiAdminBoardsBoardid,
+  putApiAdminBoardsBoardidPostTypesPosttypeid,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
@@ -94,9 +102,21 @@ const boardFormSchema = z.object({
     .string()
     .transform((v) => v.trim() || undefined)
     .optional(),
-  active: z.enum(["true", "false"]).default("true").catch("false").transform((v) => v === "true"),
-  hidden: z.enum(["true", "false"]).default("false").catch("false").transform((v) => v === "true"),
-  readOnly: z.enum(["true", "false"]).default("false").catch("false").transform((v) => v === "true"),
+  active: z
+    .enum(["true", "false"])
+    .default("true")
+    .catch("false")
+    .transform((v) => v === "true"),
+  hidden: z
+    .enum(["true", "false"])
+    .default("false")
+    .catch("false")
+    .transform((v) => v === "true"),
+  readOnly: z
+    .enum(["true", "false"])
+    .default("false")
+    .catch("false")
+    .transform((v) => v === "true"),
   readRole: z.enum(ROLE_OPTIONS).default("ROLE_GUEST").catch("ROLE_GUEST"),
   writeRole: z.enum(ROLE_OPTIONS).default("ROLE_USER").catch("ROLE_USER"),
 });
@@ -153,11 +173,7 @@ export async function createBoardFormAction(_prev: FormState, formData: FormData
   redirect("/admin/boards");
 }
 
-export async function updateBoardFormAction(
-  boardId: number,
-  _prev: FormState,
-  formData: FormData,
-): Promise<FormState> {
+export async function updateBoardFormAction(boardId: number, _prev: FormState, formData: FormData): Promise<FormState> {
   const options = await getAdminOptions();
   if (!options) {
     return { success: false, error: "인증이 필요합니다." };
@@ -213,11 +229,7 @@ export async function deleteBoardAction(boardId: number): Promise<FormState> {
   }
 }
 
-export async function deleteBoardPostAction(
-  boardId: number,
-  postId: number,
-  deleteReason: string,
-): Promise<FormState> {
+export async function deleteBoardPostAction(boardId: number, postId: number, deleteReason: string): Promise<FormState> {
   const options = await getAdminOptions();
   if (!options) {
     return { success: false, error: "인증이 필요합니다." };
@@ -266,9 +278,14 @@ export async function createAnnouncementFormAction(
   const parsed = announcementFormSchema.safeParse(raw);
   if (!parsed.success) {
     const fieldLabel: Record<string, string> = {
-      title: "제목", content: "내용", scope: "범위",
-      visible: "노출 여부", pinned: "상단 고정", priority: "우선순위",
-      publishedAt: "예약 게시", expiredAt: "만료",
+      title: "제목",
+      content: "내용",
+      scope: "범위",
+      visible: "노출 여부",
+      pinned: "상단 고정",
+      priority: "우선순위",
+      publishedAt: "예약 게시",
+      expiredAt: "만료",
     };
     const issue = parsed.error.issues[0];
     const label = issue?.path?.length ? (fieldLabel[String(issue.path[0])] ?? issue.path[0]) : "";
@@ -325,19 +342,32 @@ export async function updateAnnouncementFormAction(
     title: z.string().min(1, "제목은 필수입니다."),
     content: z.string().min(1, "내용은 필수입니다."),
     scope: z.enum(announcementScopeOptions, "공지 범위가 올바르지 않습니다.").catch("BOARD"),
-    priority: z.string().transform((v) => {
-      const n = Number(v);
-      return Number.isNaN(n) ? undefined : n;
-    }).optional(),
-    publishedAt: z.string().transform((v) => v.trim() || undefined).optional(),
-    expiredAt: z.string().transform((v) => v.trim() || undefined).optional(),
+    priority: z
+      .string()
+      .transform((v) => {
+        const n = Number(v);
+        return Number.isNaN(n) ? undefined : n;
+      })
+      .optional(),
+    publishedAt: z
+      .string()
+      .transform((v) => v.trim() || undefined)
+      .optional(),
+    expiredAt: z
+      .string()
+      .transform((v) => v.trim() || undefined)
+      .optional(),
   });
   const parsed = updateSchema.safeParse(raw);
 
   if (!parsed.success) {
     const fieldLabel: Record<string, string> = {
-      title: "제목", content: "내용", scope: "범위",
-      priority: "우선순위", publishedAt: "예약 게시", expiredAt: "만료",
+      title: "제목",
+      content: "내용",
+      scope: "범위",
+      priority: "우선순위",
+      publishedAt: "예약 게시",
+      expiredAt: "만료",
     };
     const issue = parsed.error.issues[0];
     const label = issue?.path?.length ? (fieldLabel[String(issue.path[0])] ?? issue.path[0]) : "";
@@ -407,5 +437,187 @@ export async function getAnnouncementDetailAction(announcementId: number) {
       success: false as const,
       error: getUserErrorMessage(error, "공지 상세 조회에 실패했습니다."),
     };
+  }
+}
+
+// ── PostType Server Actions ───────────────────────────────────────
+
+const postTypeUsageOptions = ["POST", "ANNOUNCEMENT"] as const;
+
+// 커뮤니티 페이지의 고정 탭 키("일반"/"인기")와 겹치면 해당 postType 탭이 라우팅되지 않는다.
+const RESERVED_POST_TYPE_CODES = new Set(["general", "popular"]);
+
+const postTypeFormSchema = z.object({
+  name: z.string().min(1, "이름은 필수입니다.").max(50, "이름은 50자 이하여야 합니다."),
+  code: z
+    .string()
+    .min(1, "코드는 필수입니다.")
+    .max(50, "코드는 50자 이하여야 합니다.")
+    .regex(/^[a-z0-9-]+$/, "코드는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.")
+    .refine((v) => !RESERVED_POST_TYPE_CODES.has(v), "코드로 general, popular는 사용할 수 없습니다."),
+  usage: z.enum(postTypeUsageOptions, "사용처는 게시글 또는 공지 중 하나여야 합니다.").default("POST"),
+  displayOrder: z
+    .string()
+    .transform((v) => {
+      const n = Number(v);
+      return Number.isNaN(n) ? undefined : n;
+    })
+    .optional(),
+});
+
+function extractPostTypeFormData(formData: FormData): Record<string, string> {
+  const raw: Record<string, string> = {};
+  for (const key of Object.keys(postTypeFormSchema.shape)) {
+    raw[key] = (formData.get(key) as string) ?? "";
+  }
+  return raw;
+}
+
+async function findDuplicateCodePostType(
+  boardId: number,
+  code: string,
+  excludePostTypeId: number | undefined,
+  options: RequestInit,
+) {
+  const res = await getApiAdminBoardsBoardidPostTypes(boardId, options);
+  return (res.data ?? []).find((pt) => pt.code === code && pt.id !== excludePostTypeId);
+}
+
+export async function createPostTypeFormAction(
+  boardId: number,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  const raw = extractPostTypeFormData(formData);
+  const parsed = postTypeFormSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다." };
+  }
+
+  const { name, code, usage, displayOrder } = parsed.data;
+  const active = formData.has("active") && formData.get("active") === "true";
+
+  if (await findDuplicateCodePostType(boardId, code, undefined, options)) {
+    return { success: false, error: "이미 사용 중인 코드입니다." };
+  }
+
+  try {
+    await postApiAdminBoardsBoardidPostTypes(
+      boardId,
+      {
+        name,
+        code,
+        usage: usage as BoardPostTypeRequestUsage,
+        displayOrder,
+        active,
+      } satisfies BoardPostTypeRequest,
+      options,
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글타입 생성에 실패했습니다."),
+    };
+  }
+
+  revalidatePath(`/admin/boards/${boardId}`);
+  return { success: true };
+}
+
+export async function updatePostTypeFormAction(
+  boardId: number,
+  postTypeId: number,
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  const raw = extractPostTypeFormData(formData);
+  const parsed = postTypeFormSchema.safeParse(raw);
+  if (!parsed.success) {
+    return { success: false, error: parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다." };
+  }
+
+  const { name, code, usage, displayOrder } = parsed.data;
+  const active = formData.has("active") && formData.get("active") === "true";
+
+  if (await findDuplicateCodePostType(boardId, code, postTypeId, options)) {
+    return { success: false, error: "이미 사용 중인 코드입니다." };
+  }
+
+  try {
+    await putApiAdminBoardsBoardidPostTypesPosttypeid(
+      boardId,
+      postTypeId,
+      {
+        name,
+        code,
+        usage: usage as BoardPostTypeRequestUsage,
+        displayOrder,
+        active,
+      } satisfies BoardPostTypeRequest,
+      options,
+    );
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글타입 수정에 실패했습니다."),
+    };
+  }
+
+  revalidatePath(`/admin/boards/${boardId}`);
+  return { success: true };
+}
+
+export async function activatePostTypeAction(boardId: number, postTypeId: number): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  try {
+    await postApiAdminBoardsBoardidPostTypesPosttypeidActivate(boardId, postTypeId, options);
+    revalidatePath(`/admin/boards/${boardId}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getUserErrorMessage(error, "게시글타입 활성화에 실패했습니다.") };
+  }
+}
+
+export async function deactivatePostTypeAction(boardId: number, postTypeId: number): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  try {
+    await postApiAdminBoardsBoardidPostTypesPosttypeidDeactivate(boardId, postTypeId, options);
+    revalidatePath(`/admin/boards/${boardId}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getUserErrorMessage(error, "게시글타입 비활성화에 실패했습니다.") };
+  }
+}
+
+export async function setDefaultPostTypeAction(boardId: number, postTypeId: number): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  try {
+    await postApiAdminBoardsBoardidPostTypesPosttypeidDefault(boardId, postTypeId, options);
+    revalidatePath(`/admin/boards/${boardId}`);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: getUserErrorMessage(error, "기본 글타입 지정에 실패했습니다.") };
   }
 }

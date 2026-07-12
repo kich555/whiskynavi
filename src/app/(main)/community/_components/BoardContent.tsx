@@ -8,11 +8,15 @@ import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useIsMobile } from "../_hooks/useIsMobile";
 import { COMMUNITY_BOARD_ID, LOAD_MORE_MAX_CLICKS, POSTS_PER_PAGE } from "../_lib/constants";
+import type { CommunityTab } from "../_lib/tabs";
 import BoardTabs from "./BoardTabs";
 import PostList from "./PostList";
 
 interface BoardContentProps {
   tab: string;
+  tabs: CommunityTab[];
+  resource: "posts" | "announcements";
+  postTypeCode?: string;
   currentPage: number;
   currentUserId?: number;
   initialPosts: PostSummaryResponse[];
@@ -24,6 +28,9 @@ interface BoardContentProps {
 
 export default function BoardContent({
   tab,
+  tabs,
+  resource,
+  postTypeCode,
   currentPage,
   currentUserId,
   initialPosts,
@@ -45,8 +52,13 @@ export default function BoardContent({
   const loadMorePageRef = useRef(loadMorePage);
   loadMorePageRef.current = loadMorePage;
 
-  // 더보기 모드인가? (게시글이 2페이지 이상 있을 때만)
-  const isLoadMoreMode = isMobile && totalPages > 1 && loadMorePage <= LOAD_MORE_MAX_CLICKS;
+  // 탭 전환 중 진행 중이던 더보기 요청이 응답하면 현재 탭과 다를 수 있으므로,
+  // 응답 시점에 tab이 요청 시점과 같은지 확인해 다른 탭으로 새어 들어가지 않게 한다.
+  const tabRef = useRef(tab);
+  tabRef.current = tab;
+
+  // 더보기 모드인가? (게시글 탭이고 2페이지 이상 있을 때만. 공지 postType 탭은 게시글 API를 쓰지 않으므로 제외)
+  const isLoadMoreMode = resource === "posts" && isMobile && totalPages > 1 && loadMorePage <= LOAD_MORE_MAX_CLICKS;
 
   const displayPosts =
     isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
@@ -74,6 +86,7 @@ export default function BoardContent({
   const handleLoadMore = useCallback(async () => {
     if (isLoadingMore) return;
 
+    const requestedTab = tab;
     setIsLoadingMore(true);
     try {
       const nextPage = loadMorePageRef.current + 1;
@@ -82,15 +95,17 @@ export default function BoardContent({
       const opts = withToken(token ?? undefined);
       const res = await getApiBoardsBoardidPosts(
         COMMUNITY_BOARD_ID,
-        { page: nextPage - 1, size: POSTS_PER_PAGE },
+        { page: nextPage - 1, size: POSTS_PER_PAGE, sort: ["createdAt,desc"], postTypeCode },
         opts,
       );
+      // 응답이 온 사이 다른 탭으로 전환됐다면 이 결과는 버린다 (탭 간 데이터 오염 방지)
+      if (tabRef.current !== requestedTab) return;
       setAccumulatedPosts((prev) => [...prev, ...(res.data.content ?? [])]);
       setLoadMorePage(nextPage);
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore]);
+  }, [isLoadingMore, postTypeCode, tab]);
 
   const showPagination = !isLoadMoreMode && totalPages > 1;
   const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
@@ -100,7 +115,7 @@ export default function BoardContent({
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
       <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
-          <BoardTabs activeTab={tab} onTabChange={handleTabChange} />
+          <BoardTabs tabs={tabs} activeTab={tab} onTabChange={handleTabChange} />
         </div>
       </div>
 

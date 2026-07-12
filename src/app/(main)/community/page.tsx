@@ -4,7 +4,15 @@ import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
 import { getServerSession } from "next-auth";
 import BoardContent from "./_components/BoardContent";
-import { COMMUNITY_BOARD_ID, ALL_ANNOUNCEMENT_PAGE_SIZE, PINNED_ANNOUNCEMENT_COUNT, POSTS_PER_PAGE } from "./_lib/constants";
+import { getCommunityBoard } from "./_lib/board";
+import {
+  ALL_ANNOUNCEMENT_PAGE_SIZE,
+  COMMUNITY_BOARD_ID,
+  PINNED_ANNOUNCEMENT_COUNT,
+  POSTS_PER_PAGE,
+} from "./_lib/constants";
+import { resolveTabTarget } from "./_lib/resolveTabTarget";
+import { buildTabs } from "./_lib/tabs";
 
 interface CommunityPageProps {
   searchParams: Promise<{
@@ -18,23 +26,31 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const tab = params.tab ?? "general";
   const page = parseApiPage(params.page);
 
-  // async-parallel: session + token 독립적이므로 병렬 fetch
-  const [session, token] = await Promise.all([getServerSession(authOptions), getAuthToken()]);
-  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+  const token = await getAuthToken();
 
-  if (tab === "announcement") {
+  // async-parallel: session + 게시판(postType 목록) 독립적이므로 병렬 fetch
+  const [session, board] = await Promise.all([getServerSession(authOptions), getCommunityBoard(token ?? undefined)]);
+  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+  const postTypes = board?.postTypes ?? [];
+  const tabs = buildTabs(postTypes);
+  const target = resolveTabTarget(tab, postTypes);
+
+  if (target.resource === "announcements") {
     const announcementsRes = await getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
-      { page, size: POSTS_PER_PAGE },
+      { page, size: POSTS_PER_PAGE, postTypeCode: target.postTypeCode },
       withToken(token ?? undefined),
     );
 
     return (
       <BoardContent
         tab={tab}
+        tabs={tabs}
+        resource="announcements"
+        postTypeCode={target.postTypeCode}
         currentPage={Number(params.page) || 1}
         currentUserId={currentUserId}
-        // 공지 탭에서는 게시글 영역에 공지를 표시 (페이지네이션 적용)
+        // 공지 postType 탭에서는 게시글 영역에 공지를 표시 (페이지네이션 적용, 고정 공지 배너 없음)
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
         allAnnouncements={announcementsRes.data.content ?? []}
@@ -44,12 +60,16 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
     );
   }
 
-  // general 또는 popular 탭 → 게시글 + 공지 3개 병렬 fetch
+  // general/popular/POST용 postType 탭 → 게시글 + 고정 공지 배너 병렬 fetch
   // 인기 탭은 createdAt 내림차순 사용 (API가 viewCount를 지원하지 않음)
   const sort: string[] = ["createdAt,desc"];
 
   const [postsRes, pinnedRes, allAnnouncementsRes] = await Promise.all([
-    getApiBoardsBoardidPosts(COMMUNITY_BOARD_ID, { page, size: POSTS_PER_PAGE, sort }, withToken(token ?? undefined)),
+    getApiBoardsBoardidPosts(
+      COMMUNITY_BOARD_ID,
+      { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode },
+      withToken(token ?? undefined),
+    ),
     getApiBoardsBoardidAnnouncements(
       COMMUNITY_BOARD_ID,
       { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
@@ -64,6 +84,9 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   return (
     <BoardContent
       tab={tab}
+      tabs={tabs}
+      resource="posts"
+      postTypeCode={target.postTypeCode}
       currentPage={Number(params.page) || 1}
       currentUserId={currentUserId}
       initialPosts={postsRes.data.content ?? []}

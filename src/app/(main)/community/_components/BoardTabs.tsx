@@ -1,34 +1,27 @@
 "use client";
 
-const TABS = [
-  { key: "general", label: "일반" },
-  { key: "popular", label: "인기" },
-  { key: "announcement", label: "공지" },
-] as const;
+import type { CommunityTab } from "../_lib/tabs";
 
 interface BoardTabsProps {
+  tabs: CommunityTab[];
   activeTab: string;
   onTabChange: (tab: string) => void;
 }
 
-export default function BoardTabs({ activeTab, onTabChange }: BoardTabsProps) {
+export default function BoardTabs({ tabs, activeTab, onTabChange }: BoardTabsProps) {
   return (
-    <div className="flex gap-0">
-      {TABS.map((tab) => (
+    <div className="flex gap-0 overflow-x-auto">
+      {tabs.map((tab) => (
         <button
           key={tab.key}
           type="button"
           onClick={() => onTabChange(tab.key)}
-          className={`px-4 py-3 text-sm font-medium transition-colors relative ${
-            activeTab === tab.key
-              ? "text-white"
-              : "text-gray-400 hover:text-gray-300"
+          className={`relative px-4 py-3 text-sm font-medium transition-colors ${
+            activeTab === tab.key ? "text-white" : "text-gray-400 hover:text-gray-300"
           }`}
         >
           {tab.label}
-          {activeTab === tab.key && (
-            <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-600" />
-          )}
+          {activeTab === tab.key && <span className="absolute right-0 bottom-0 left-0 h-0.5 bg-amber-600" />}
         </button>
       ))}
     </div>
