@@ -378,7 +378,7 @@ describe("deleteNoticeAction", () => {
       data: undefined,
       status: 204,
       headers: new Headers(),
-    } as Awaited<ReturnType<typeof deleteApiAdminBottlesReservationsNoticesNoticeid>>);
+    } as unknown as Awaited<ReturnType<typeof deleteApiAdminBottlesReservationsNoticesNoticeid>>);
 
     const result = await deleteNoticeAction(100);
 

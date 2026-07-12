@@ -43,7 +43,7 @@ describe("UserDetailPage", () => {
         },
         totalAmount: 0,
       },
-    } as Awaited<ReturnType<typeof getApiAdminOrdersUsersUserid>>);
+    } as unknown as Awaited<ReturnType<typeof getApiAdminOrdersUsersUserid>>);
   });
 
   it("URL 페이지와 페이지 크기로 사용자 주문 요약을 조회한다", async () => {

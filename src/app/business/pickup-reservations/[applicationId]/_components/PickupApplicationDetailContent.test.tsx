@@ -21,6 +21,7 @@ vi.mock("next/image", () => ({
     src: string;
     alt: string;
     className?: string;
+    // eslint-disable-next-line @next/next/no-img-element -- test mock for next/image
   }) => <img src={src} alt={alt} className={className} />,
 }));
 
@@ -71,9 +72,7 @@ describe("PickupApplicationDetailContent", () => {
 
   it("renders back button", () => {
     render(<PickupApplicationDetailContent application={mockApplication} />);
-    expect(
-      screen.getByText("픽업 예약 목록으로 돌아가기"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("픽업 예약 목록으로 돌아가기")).toBeInTheDocument();
   });
 
   it("renders bottle image when bottleImgUrl is provided", () => {
@@ -85,21 +84,13 @@ describe("PickupApplicationDetailContent", () => {
 
   it("does not render image when bottleImgUrl is absent", () => {
     const appWithoutImage = { ...mockApplication, bottleImgUrl: undefined };
-    render(
-      <PickupApplicationDetailContent application={appWithoutImage} />,
-    );
+    render(<PickupApplicationDetailContent application={appWithoutImage} />);
     expect(screen.queryByRole("img")).not.toBeInTheDocument();
   });
 
   it("shows 결제완료 처리 button for CONFIRMED status", () => {
-    render(
-      <PickupApplicationDetailContent
-        application={{ ...mockApplication, status: "CONFIRMED" as const }}
-      />,
-    );
-    expect(
-      screen.getByRole("button", { name: "결제완료 처리" }),
-    ).toBeInTheDocument();
+    render(<PickupApplicationDetailContent application={{ ...mockApplication, status: "CONFIRMED" as const }} />);
+    expect(screen.getByRole("button", { name: "결제완료 처리" })).toBeInTheDocument();
   });
 
   it("shows 픽업대기 처리 button for PAYMENT_COMPLETED status", () => {
@@ -111,30 +102,16 @@ describe("PickupApplicationDetailContent", () => {
         }}
       />,
     );
-    expect(
-      screen.getByRole("button", { name: "픽업대기 처리" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "픽업대기 처리" })).toBeInTheDocument();
   });
 
   it("shows 수령완료 처리 button for WAITING_PICKUP status", () => {
-    render(
-      <PickupApplicationDetailContent
-        application={{ ...mockApplication, status: "WAITING_PICKUP" as const }}
-      />,
-    );
-    expect(
-      screen.getByRole("button", { name: "수령완료 처리" }),
-    ).toBeInTheDocument();
+    render(<PickupApplicationDetailContent application={{ ...mockApplication, status: "WAITING_PICKUP" as const }} />);
+    expect(screen.getByRole("button", { name: "수령완료 처리" })).toBeInTheDocument();
   });
 
   it("shows no action button for RECEIVED status", () => {
-    render(
-      <PickupApplicationDetailContent
-        application={{ ...mockApplication, status: "RECEIVED" as const }}
-      />,
-    );
-    expect(
-      screen.queryByRole("button", { name: /처리/ }),
-    ).not.toBeInTheDocument();
+    render(<PickupApplicationDetailContent application={{ ...mockApplication, status: "RECEIVED" as const }} />);
+    expect(screen.queryByRole("button", { name: /처리/ })).not.toBeInTheDocument();
   });
 });
