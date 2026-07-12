@@ -1,19 +1,12 @@
 "use client";
 
-import type {
-  AdminAnnouncementResponse,
-  AdminAnnouncementSummaryResponse,
-  AdminBoardPostTypeResponse,
-  AdminBoardResponse,
-} from "@/apis/generated/api";
+import type { AdminBoardPostTypeResponse, AdminBoardResponse, AdminAnnouncementSummaryResponse } from "@/apis/generated/api";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
-import DateTimePicker from "@/app/admin/_components/DateTimePicker";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Edit, Eye, EyeOff, Plus, Star, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useCallback, useEffect, useState, useTransition } from "react";
@@ -21,14 +14,11 @@ import { toast } from "sonner";
 import type { FormState } from "../../actions";
 import {
   activatePostTypeAction,
-  createAnnouncementFormAction,
   createPostTypeFormAction,
   deactivatePostTypeAction,
   deleteAnnouncementAction,
   deleteBoardAction,
-  getAnnouncementDetailAction,
   setDefaultPostTypeAction,
-  updateAnnouncementFormAction,
   updatePostTypeFormAction,
 } from "../../actions";
 
@@ -60,13 +50,6 @@ const ROLE_LABELS: Record<string, string> = {
   ROLE_PICK_UP_BUSINESS: "픽업 사업자",
 };
 
-type AnnouncementFormData = Partial<
-  Pick<
-    AdminAnnouncementResponse,
-    "id" | "title" | "content" | "scope" | "visible" | "pinned" | "priority" | "publishedAt" | "expiredAt"
-  >
-> & { _loading?: boolean };
-
 interface BoardDetailContentProps {
   board: AdminBoardResponse;
   announcements: AdminAnnouncementSummaryResponse[];
@@ -77,8 +60,6 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
   const { toggle } = useSidebar();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementFormData | null>(null);
-  const [showCreateForm, setShowCreateForm] = useState(false);
   const [editingPostType, setEditingPostType] = useState<PostTypeFormData | null>(null);
   const [showCreatePostTypeForm, setShowCreatePostTypeForm] = useState(false);
 
@@ -90,8 +71,10 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
 
   useEffect(() => {
     if (createPostTypeState.success) {
-      setShowCreatePostTypeForm(false);
-      toast.success("게시글타입을 등록했습니다.");
+      startTransition(() => {
+        setShowCreatePostTypeForm(false);
+        toast.success("게시글타입을 등록했습니다.");
+      });
     }
   }, [createPostTypeState.success]);
 
@@ -112,7 +95,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
         }
       });
     },
-    [board.id, editingPostType?.id, router],
+    [board.id, editingPostType, router],
   );
 
   const handleToggleActive = useCallback(
@@ -148,18 +131,6 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
     [board.id, router],
   );
 
-  const boundCreateAction = createAnnouncementFormAction.bind(null, board.id!);
-  const [createState, createFormAction, createPending] = useActionState<FormState, FormData>(boundCreateAction, {
-    success: false,
-  });
-
-  useEffect(() => {
-    if (createState.success) {
-      setShowCreateForm(false);
-      toast.success("공지를 등록했습니다.");
-    }
-  }, [createState.success]);
-
   const handleDelete = () => {
     if (!board.id) return;
     if (!window.confirm(`"${board.name}" 게시판을 삭제하시겠습니까?\n\n게시글이나 공지가 있으면 삭제할 수 없습니다.`))
@@ -190,85 +161,6 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
       }
     });
   };
-
-  const fetchAnnouncementDetail = useCallback(async (id: number) => {
-    try {
-      setEditingAnnouncement((prev) => (prev ? { ...prev, _loading: true } : null));
-      const result = await getAnnouncementDetailAction(id);
-      if (!result.success) {
-        toast.error(result.error ?? "공지 상세 정보를 불러오는데 실패했습니다.");
-        setEditingAnnouncement(null);
-        return;
-      }
-      const detail = result.data;
-      setEditingAnnouncement({
-        id: detail.id,
-        title: detail.title,
-        content: detail.content,
-        scope: detail.scope,
-        visible: detail.visible,
-        pinned: detail.pinned,
-        priority: detail.priority,
-        publishedAt: detail.publishedAt,
-        expiredAt: detail.expiredAt,
-      });
-    } catch {
-      toast.error("공지 상세 정보를 불러오는데 실패했습니다.");
-      setEditingAnnouncement(null);
-    }
-  }, []);
-
-  const handleEditAnnouncement = useCallback(
-    (announcement: AdminAnnouncementSummaryResponse) => {
-      setEditingAnnouncement({
-        id: announcement.id,
-        title: announcement.title,
-        scope: announcement.scope,
-        visible: announcement.visible,
-        pinned: announcement.pinned,
-        priority: announcement.priority,
-        publishedAt: announcement.publishedAt,
-        expiredAt: announcement.expiredAt,
-        _loading: true,
-      });
-      if (announcement.id) {
-        fetchAnnouncementDetail(announcement.id);
-      }
-    },
-    [fetchAnnouncementDetail],
-  );
-
-  const handleEditSubmit = useCallback(
-    async (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      if (!editingAnnouncement?.id || !board.id) return;
-
-      const form = e.currentTarget;
-      const formData = new FormData(form);
-
-      startTransition(async () => {
-        const result = await updateAnnouncementFormAction(
-          editingAnnouncement.id!,
-          board.id!,
-          { success: false },
-          formData,
-        );
-
-        if (result.success) {
-          setEditingAnnouncement(null);
-          toast.success("공지를 수정했습니다.");
-          router.refresh();
-        } else {
-          toast.error(result.error ?? "공지 수정에 실패했습니다.");
-        }
-      });
-    },
-    [board.id, editingAnnouncement?.id, router],
-  );
-
-  const startCreate = useCallback(() => {
-    setShowCreateForm(true);
-  }, []);
 
   return (
     <>
@@ -400,7 +292,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
               </h2>
               <button
                 type="button"
-                onClick={startCreate}
+                onClick={() => router.push(`/admin/boards/${board.id}/announcements/new`)}
                 className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
               >
                 <Plus size={14} />
@@ -421,6 +313,11 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                           <span className="rounded bg-gray-100 px-1.5 py-0.5 text-[10px] font-medium text-gray-500">
                             {scopeLabel}
                           </span>
+                          {ann.scope === "BOARD" && ann.postType?.name && (
+                            <span className="rounded bg-blue-50 px-1.5 py-0.5 text-[10px] font-medium text-blue-600">
+                              {ann.postType.name}
+                            </span>
+                          )}
                           {ann.pinned && (
                             <span className="rounded bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-600">
                               고정
@@ -446,7 +343,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                         <button
                           type="button"
                           disabled={isPending}
-                          onClick={() => handleEditAnnouncement(ann)}
+                          onClick={() => router.push(`/admin/boards/${board.id}/announcements/${ann.id}/edit`)}
                           className="cursor-pointer rounded border border-gray-300 px-2 py-1 text-[10px] text-gray-600 transition-colors hover:bg-gray-50 disabled:opacity-40"
                         >
                           수정
@@ -471,10 +368,14 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
         {/* ── 게시글타입 관리 ── */}
         <div className="mt-6 rounded-lg border border-gray-200 bg-white">
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-            <h2 className="text-lg font-semibold text-gray-900">
-              게시글타입
-              <span className="ml-2 text-sm font-normal text-gray-400">({postTypes.length})</span>
-            </h2>
+            <div>
+              <h2 className="text-lg font-semibold text-gray-900">
+                게시판 탭<span className="ml-2 text-sm font-normal text-gray-400">({postTypes.length})</span>
+              </h2>
+              <p className="mt-1 text-xs text-gray-500">
+                등록한 타입이 사용자 화면의 탭으로 나타납니다. 게시글 탭과 공지 탭이 있습니다.
+              </p>
+            </div>
             <button
               type="button"
               onClick={() => setShowCreatePostTypeForm(true)}
@@ -486,7 +387,11 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           </div>
 
           {postTypes.length === 0 ? (
-            <div className="py-12 text-center text-sm text-gray-400">등록된 게시글타입이 없습니다.</div>
+            <div className="py-12 text-center text-sm text-gray-400">
+              등록된 게시글타입이 없습니다.
+              <br />
+              탭을 만들려면 글타입을 등록해주세요.
+            </div>
           ) : (
             <ul className="divide-y divide-gray-100">
               {postTypes.map((postType) => (
@@ -573,7 +478,10 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
             onClick={() => setShowCreatePostTypeForm(false)}
           >
             <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">새 게시글타입 등록</h3>
+              <h3 className="mb-1 text-lg font-semibold text-gray-900">새 탭 등록</h3>
+              <p className="mb-4 text-xs text-gray-500">
+                게시글타입은 게시판 안의 탭이 됩니다. 사용자는 탭으로 글을 종류별로 볼 수 있어요.
+              </p>
 
               {createPostTypeState.error && (
                 <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
@@ -584,51 +492,74 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
               <form action={createPostTypeFormActionState} className="space-y-4">
                 <div>
                   <Label htmlFor="create-pt-name" className="typo-bold-12 mb-1 block text-gray-700">
-                    이름 <span className="text-red-500">*</span>
+                    탭 이름 <span className="text-red-500">*</span>
                   </Label>
-                  <Input id="create-pt-name" name="name" type="text" maxLength={50} required />
+                  <Input
+                    id="create-pt-name"
+                    name="name"
+                    type="text"
+                    maxLength={50}
+                    required
+                    placeholder="예: 제품공지"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
                 </div>
 
                 <div>
                   <Label htmlFor="create-pt-code" className="typo-bold-12 mb-1 block text-gray-700">
-                    코드 <span className="text-red-500">*</span>
+                    식별코드 <span className="text-red-500">*</span>
                   </Label>
-                  <Input id="create-pt-code" name="code" type="text" maxLength={50} required />
+                  <Input
+                    id="create-pt-code"
+                    name="code"
+                    type="text"
+                    maxLength={50}
+                    required
+                    placeholder="예: product-notice"
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    시스템 식별자. 영문 소문자/숫자/하이픈. 사용자에게는 안 보입니다.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-pt-usage" className="typo-bold-12 mb-1 block text-gray-700">
-                      사용처
-                    </Label>
-                    <input type="hidden" name="usage" id="create-pt-usage-hidden" defaultValue="POST" />
-                    <Select
-                      defaultValue="POST"
-                      onValueChange={(value) => {
-                        const hidden = document.getElementById("create-pt-usage-hidden") as HTMLInputElement | null;
-                        if (hidden) hidden.value = value;
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="POST">게시글</SelectItem>
-                        <SelectItem value="ANNOUNCEMENT">공지</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="create-pt-order" className="typo-bold-12 mb-1 block text-gray-700">
-                      노출순서
-                    </Label>
-                    <Input id="create-pt-order" name="displayOrder" type="number" min={0} defaultValue={0} />
-                  </div>
+                <div>
+                  <Label htmlFor="create-pt-usage" className="typo-bold-12 mb-1 block text-gray-700">
+                    종류
+                  </Label>
+                  <input type="hidden" name="usage" id="create-pt-usage-hidden" defaultValue="POST" />
+                  <Select
+                    defaultValue="POST"
+                    onValueChange={(value) => {
+                      const hidden = document.getElementById("create-pt-usage-hidden") as HTMLInputElement | null;
+                      if (hidden) hidden.value = value;
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="POST">게시글 탭 (사용자가 글을 씀)</SelectItem>
+                      <SelectItem value="ANNOUNCEMENT">공지 탭 (관리자 공지 표시)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-gray-400">
+                    게시글 탭은 사용자가 직접 글을 쓰는 공간, 공지 탭은 관리자가 등록한 공지만 표시하는 공간입니다.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="create-pt-order" className="typo-bold-12 mb-1 block text-gray-700">
+                    노출순서
+                  </Label>
+                  <Input id="create-pt-order" name="displayOrder" type="number" min={0} defaultValue={0} />
+                  <p className="mt-1 text-xs text-gray-400">
+                    숫자가 작을수록 탭이 왼쪽에 나타납니다. 같으면 등록 순서를 따릅니다.
+                  </p>
                 </div>
 
                 <label className="flex cursor-pointer items-center gap-2">
                   <Checkbox name="active" value="true" defaultChecked />
-                  <span className="text-sm text-gray-700">활성</span>
+                  <span className="text-sm text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
                 </label>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
@@ -659,16 +590,19 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
             onClick={() => setEditingPostType(null)}
           >
             <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">게시글타입 수정</h3>
+              <h3 className="mb-1 text-lg font-semibold text-gray-900">게시글타입 수정</h3>
+              <p className="mb-4 text-xs text-gray-500">
+                게시글타입은 게시판 안의 탭이 됩니다. 사용자는 탭으로 글을 종류별로 볼 수 있어요.
+              </p>
               {(editingPostType.usagesCount ?? 0) > 1 && (
                 <div className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
-                  이 글타입은 게시글/공지 둘 다에 쓰이고 있습니다. 저장하면 아래 선택한 사용처 하나로 축소됩니다.
+                  이 글타입은 게시글/공지 둘 다에 쓰이고 있습니다. 저장하면 아래 선택한 종류 하나로 축소됩니다.
                 </div>
               )}
               <form onSubmit={handlePostTypeEditSubmit} className="space-y-4">
                 <div>
                   <Label htmlFor="edit-pt-name" className="typo-bold-12 mb-1 block text-gray-700">
-                    이름 <span className="text-red-500">*</span>
+                    탭 이름 <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="edit-pt-name"
@@ -678,6 +612,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     defaultValue={editingPostType.name ?? ""}
                   />
+                  <p className="mt-1 text-xs text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
                 </div>
 
                 <div>
@@ -692,285 +627,66 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     defaultValue={editingPostType.code ?? ""}
                   />
+                  <p className="mt-1 text-xs text-gray-400">
+                    시스템 식별자. 영문 소문자/숫자/하이픈. 사용자에게는 안 보입니다.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-pt-usage" className="typo-bold-12 mb-1 block text-gray-700">
-                      사용처
-                    </Label>
-                    <input
-                      type="hidden"
-                      name="usage"
-                      id="edit-pt-usage-hidden"
-                      defaultValue={editingPostType.usage ?? "POST"}
-                    />
-                    <Select
-                      defaultValue={editingPostType.usage ?? "POST"}
-                      onValueChange={(value) => {
-                        const hidden = document.getElementById("edit-pt-usage-hidden") as HTMLInputElement | null;
-                        if (hidden) hidden.value = value;
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="POST">게시글</SelectItem>
-                        <SelectItem value="ANNOUNCEMENT">공지</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-pt-order" className="typo-bold-12 mb-1 block text-gray-700">
-                      노출순서
-                    </Label>
-                    <Input
-                      id="edit-pt-order"
-                      name="displayOrder"
-                      type="number"
-                      min={0}
-                      defaultValue={editingPostType.displayOrder ?? 0}
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="edit-pt-usage" className="typo-bold-12 mb-1 block text-gray-700">
+                    종류
+                  </Label>
+                  <input
+                    type="hidden"
+                    name="usage"
+                    id="edit-pt-usage-hidden"
+                    defaultValue={editingPostType.usage ?? "POST"}
+                  />
+                  <Select
+                    defaultValue={editingPostType.usage ?? "POST"}
+                    onValueChange={(value) => {
+                      const hidden = document.getElementById("edit-pt-usage-hidden") as HTMLInputElement | null;
+                      if (hidden) hidden.value = value;
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="POST">게시글 탭 (사용자가 글을 씀)</SelectItem>
+                      <SelectItem value="ANNOUNCEMENT">공지 탭 (관리자 공지 표시)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="mt-1 text-xs text-gray-400">
+                    게시글 탭은 사용자가 직접 글을 쓰는 공간, 공지 탭은 관리자가 등록한 공지만 표시하는 공간입니다.
+                  </p>
+                </div>
+
+                <div>
+                  <Label htmlFor="edit-pt-order" className="typo-bold-12 mb-1 block text-gray-700">
+                    노출순서
+                  </Label>
+                  <Input
+                    id="edit-pt-order"
+                    name="displayOrder"
+                    type="number"
+                    min={0}
+                    defaultValue={editingPostType.displayOrder ?? 0}
+                  />
+                  <p className="mt-1 text-xs text-gray-400">
+                    숫자가 작을수록 탭이 왼쪽에 나타납니다. 같으면 등록 순서를 따릅니다.
+                  </p>
                 </div>
 
                 <label className="flex cursor-pointer items-center gap-2">
                   <Checkbox name="active" value="true" defaultChecked={editingPostType.active ?? true} />
-                  <span className="text-sm text-gray-700">활성</span>
+                  <span className="text-sm text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
                 </label>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setEditingPostType(null)}
-                    className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isPending}
-                    className="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
-                  >
-                    {isPending ? "수정 중..." : "수정"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* ── 공지 등록 모달 ── */}
-        {showCreateForm && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            onClick={() => setShowCreateForm(false)}
-          >
-            <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">새 공지 등록</h3>
-
-              {createState.error && (
-                <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{createState.error}</div>
-              )}
-
-              <form action={createFormAction} className="space-y-4">
-                <div>
-                  <Label htmlFor="create-title" className="typo-bold-12 mb-1 block text-gray-700">
-                    제목 <span className="text-red-500">*</span>
-                  </Label>
-                  <Input id="create-title" name="title" type="text" maxLength={200} required />
-                </div>
-
-                <div>
-                  <Label htmlFor="create-content" className="typo-bold-12 mb-1 block text-gray-700">
-                    내용 <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea id="create-content" name="content" required rows={4} className="min-h-[96px] resize-none" />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="create-scope" className="typo-bold-12 mb-1 block text-gray-700">
-                      범위
-                    </Label>
-                    <input type="hidden" name="scope" id="create-scope-hidden" defaultValue="BOARD" />
-                    <Select
-                      defaultValue="BOARD"
-                      onValueChange={(value) => {
-                        const hidden = document.getElementById("create-scope-hidden") as HTMLInputElement | null;
-                        if (hidden) hidden.value = value;
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="BOARD">게시판 공지</SelectItem>
-                        <SelectItem value="GLOBAL">전체 공지</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="create-priority" className="typo-bold-12 mb-1 block text-gray-700">
-                      우선순위
-                    </Label>
-                    <Input id="create-priority" name="priority" type="number" min={0} defaultValue={0} />
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <Checkbox name="visible" value="true" defaultChecked />
-                    <span className="text-sm text-gray-700">노출</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <Checkbox name="pinned" value="true" />
-                    <span className="text-sm text-gray-700">상단 고정</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="typo-bold-12 mb-1 block text-gray-700">예약 게시</Label>
-                    <DateTimePicker name="publishedAt" />
-                  </div>
-                  <div>
-                    <Label className="typo-bold-12 mb-1 block text-gray-700">만료</Label>
-                    <DateTimePicker name="expiredAt" />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setShowCreateForm(false)}
-                    className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
-                  >
-                    취소
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={createPending}
-                    className="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
-                  >
-                    {createPending ? "등록 중..." : "등록"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
-
-        {/* ── 공지 수정 모달 ── */}
-        {editingAnnouncement && (
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-            onClick={() => setEditingAnnouncement(null)}
-          >
-            <div className="w-full max-w-lg rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
-              <h3 className="mb-4 text-lg font-semibold text-gray-900">
-                공지 수정
-                {editingAnnouncement._loading && (
-                  <span className="ml-2 text-xs font-normal text-gray-400">(내용 로딩 중...)</span>
-                )}
-              </h3>
-              <form onSubmit={handleEditSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="edit-title" className="typo-bold-12 mb-1 block text-gray-700">
-                    제목 <span className="text-red-500">*</span>
-                  </Label>
-                  <Input
-                    id="edit-title"
-                    name="title"
-                    type="text"
-                    maxLength={200}
-                    required
-                    defaultValue={editingAnnouncement.title ?? ""}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="edit-content" className="typo-bold-12 mb-1 block text-gray-700">
-                    내용 <span className="text-red-500">*</span>
-                  </Label>
-                  <Textarea
-                    id="edit-content"
-                    name="content"
-                    required
-                    rows={4}
-                    defaultValue={editingAnnouncement.content ?? ""}
-                    className="min-h-[96px] resize-none"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="edit-scope" className="typo-bold-12 mb-1 block text-gray-700">
-                      범위
-                    </Label>
-                    <input
-                      type="hidden"
-                      name="scope"
-                      id="edit-scope-hidden"
-                      defaultValue={editingAnnouncement.scope ?? "BOARD"}
-                    />
-                    <Select
-                      defaultValue={editingAnnouncement.scope ?? "BOARD"}
-                      onValueChange={(value) => {
-                        const hidden = document.getElementById("edit-scope-hidden") as HTMLInputElement | null;
-                        if (hidden) hidden.value = value;
-                      }}
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="BOARD">게시판 공지</SelectItem>
-                        <SelectItem value="GLOBAL">전체 공지</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <Label htmlFor="edit-priority" className="typo-bold-12 mb-1 block text-gray-700">
-                      우선순위
-                    </Label>
-                    <Input
-                      id="edit-priority"
-                      name="priority"
-                      type="number"
-                      min={0}
-                      defaultValue={editingAnnouncement.priority ?? 0}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex gap-4">
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <Checkbox name="visible" value="true" defaultChecked={editingAnnouncement.visible ?? true} />
-                    <span className="text-sm text-gray-700">노출</span>
-                  </label>
-                  <label className="flex cursor-pointer items-center gap-2">
-                    <Checkbox name="pinned" value="true" defaultChecked={editingAnnouncement.pinned ?? false} />
-                    <span className="text-sm text-gray-700">상단 고정</span>
-                  </label>
-                </div>
-
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="typo-bold-12 mb-1 block text-gray-700">예약 게시</Label>
-                    <DateTimePicker name="publishedAt" defaultValue={editingAnnouncement.publishedAt} />
-                  </div>
-                  <div>
-                    <Label className="typo-bold-12 mb-1 block text-gray-700">만료</Label>
-                    <DateTimePicker name="expiredAt" defaultValue={editingAnnouncement.expiredAt} />
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-end gap-3 pt-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditingAnnouncement(null)}
                     className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
                   >
                     취소

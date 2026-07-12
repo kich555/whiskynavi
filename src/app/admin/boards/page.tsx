@@ -17,9 +17,7 @@ export default async function BoardsPage({ searchParams }: BoardsPageProps) {
 
   const page = parseApiPage(params.page);
   const size = params.limit ? Number(params.limit) : 20;
-
   const res = await getApiAdminBoards({ page, size }, withToken(token));
-  console.log("???", res.data.content);
   return (
     <BoardsContent
       searchParams={params}

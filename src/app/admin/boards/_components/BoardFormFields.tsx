@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 
-// eslint-disable-next-line @typescript-eslint/consistent-type-definitions -- readRole 접근을 위해 interface 유지
 export interface BoardFormFieldsProps {
   initialData?: AdminBoardResponse;
 }
@@ -78,11 +77,7 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
 
       <div className="grid grid-cols-3 gap-4">
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
-          <Checkbox
-            name="active"
-            value="true"
-            defaultChecked={initialData?.active ?? true}
-          />
+          <Checkbox name="active" value="true" defaultChecked={initialData?.active ?? true} />
           <div>
             <span className="text-sm font-medium text-gray-900">활성</span>
             <p className="text-xs text-gray-400">사용자에게 노출</p>
@@ -90,11 +85,7 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
         </label>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
-          <Checkbox
-            name="hidden"
-            value="true"
-            defaultChecked={initialData?.hidden ?? false}
-          />
+          <Checkbox name="hidden" value="true" defaultChecked={initialData?.hidden ?? false} />
           <div>
             <span className="text-sm font-medium text-gray-900">숨김</span>
             <p className="text-xs text-gray-400">목록에서 숨김</p>
@@ -102,11 +93,7 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
         </label>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
-          <Checkbox
-            name="readOnly"
-            value="true"
-            defaultChecked={initialData?.readOnly ?? false}
-          />
+          <Checkbox name="readOnly" value="true" defaultChecked={initialData?.readOnly ?? false} />
           <div>
             <span className="text-sm font-medium text-gray-900">읽기전용</span>
             <p className="text-xs text-gray-400">작성 차단</p>
@@ -119,7 +106,12 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
           <Label htmlFor="readRole" className="typo-bold-12 mb-1.5 block text-gray-700">
             읽기 권한
           </Label>
-          <input type="hidden" name="readRole" id="readRole-hidden" defaultValue={initialData?.readRole ?? "ROLE_GUEST"} />
+          <input
+            type="hidden"
+            name="readRole"
+            id="readRole-hidden"
+            defaultValue={initialData?.readRole ?? "ROLE_GUEST"}
+          />
           <Select
             name="readRole"
             defaultValue={initialData?.readRole ?? "ROLE_GUEST"}
@@ -145,7 +137,12 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
           <Label htmlFor="writeRole" className="typo-bold-12 mb-1.5 block text-gray-700">
             쓰기 권한
           </Label>
-          <input type="hidden" name="writeRole" id="writeRole-hidden" defaultValue={initialData?.writeRole ?? "ROLE_USER"} />
+          <input
+            type="hidden"
+            name="writeRole"
+            id="writeRole-hidden"
+            defaultValue={initialData?.writeRole ?? "ROLE_USER"}
+          />
           <Select
             name="writeRole"
             defaultValue={initialData?.writeRole ?? "ROLE_USER"}

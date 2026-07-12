@@ -1,0 +1,9 @@
+export const POSTS_PER_PAGE = 10;
+export const LOAD_MORE_MAX_CLICKS = 5;
+export const MAX_IMAGE_COUNT = 5;
+export const MAX_IMAGE_SIZE_MB = 5;
+export const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
+export const PINNED_ANNOUNCEMENT_COUNT = 3;
+export const ALL_ANNOUNCEMENT_PAGE_SIZE = 100;
+export const COMMUNITY_BOARD_ID = "community";
+export const NEWS_BOARD_ID = "news";

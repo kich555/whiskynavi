@@ -218,7 +218,7 @@ export interface AdminBoardResponse {
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. */
   readRole?: AdminBoardResponseReadRole;
-  /** 라우팅에 사용하는 고유 슬러그입니다. */
+  /** 라우팅에 사용하는 고유 슬러그입니다. 숫자 값은 게시판 ID와 동일합니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
   writeRole?: AdminBoardResponseWriteRole;
@@ -347,6 +347,7 @@ export interface AdminBottleReservationNoticeResponse {
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
+  noticeName?: string;
   pendingApplicationCount?: number;
   price?: number;
   reservationEndAt?: string;
@@ -724,6 +725,56 @@ export interface AdminDeliveryCsvUploadResponse {
   totalRows?: number;
 }
 
+export type AdminInquirySummaryResponseStatus = typeof AdminInquirySummaryResponseStatus[keyof typeof AdminInquirySummaryResponseStatus];
+
+
+export const AdminInquirySummaryResponseStatus = {
+  WAITING: 'WAITING',
+  ANSWERED: 'ANSWERED',
+  CLOSED: 'CLOSED',
+} as const;
+
+export interface AdminInquirySummaryResponse {
+  answeredAt?: string;
+  closedAt?: string;
+  createdAt?: string;
+  id?: number;
+  lastMessageAt?: string;
+  status?: AdminInquirySummaryResponseStatus;
+  title?: string;
+  updatedAt?: string;
+  userId?: number;
+}
+
+export type AdminInquiryMessageResponseAuthorType = typeof AdminInquiryMessageResponseAuthorType[keyof typeof AdminInquiryMessageResponseAuthorType];
+
+
+export const AdminInquiryMessageResponseAuthorType = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+
+export interface AdminInquiryMessageResponse {
+  authorId?: number;
+  authorType?: AdminInquiryMessageResponseAuthorType;
+  content?: string;
+  createdAt?: string;
+  hasImage?: boolean;
+  id?: number;
+  updatedAt?: string;
+}
+
+export interface AdminInquiryDetailResponse {
+  inquiry?: AdminInquirySummaryResponse;
+  messages?: AdminInquiryMessageResponse[];
+}
+
+export interface AdminInquiryMessageRequest {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
+}
+
 export interface AdminItemReservationApplicantResponse {
   email?: string;
   name?: string;
@@ -835,6 +886,7 @@ export interface AdminItemReservationNoticeResponse {
   itemImgUrl?: string;
   itemName?: string;
   maxOrderQuantity?: number;
+  noticeName?: string;
   pendingApplicationCount?: number;
   price?: number;
   reservationEndAt?: string;
@@ -1696,9 +1748,10 @@ export interface BoardRequest {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: BoardRequestReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
+   * 라우팅에 사용하는 선택 슬러그입니다. 영문 또는 영문과 숫자 조합만 사용할 수 있으며, 생성 시 생략하면 게시판 ID가 사용됩니다.
    * @minLength 0
    * @maxLength 150
+   * @pattern ^(?:[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)?$
    */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -2033,6 +2086,11 @@ export interface BottleReservationNoticeRequest {
   /** @minItems 1 */
   gradeConditions?: BottleReservationNoticeRequestGradeConditionsItem[];
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -2578,6 +2636,71 @@ export interface HealthCheckResponse {
 }
 
 /**
+ * 1대1 문의 작성 요청입니다.
+ */
+export interface InquiryCreateRequest {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title?: string;
+}
+
+export type InquirySummaryResponseStatus = typeof InquirySummaryResponseStatus[keyof typeof InquirySummaryResponseStatus];
+
+
+export const InquirySummaryResponseStatus = {
+  WAITING: 'WAITING',
+  ANSWERED: 'ANSWERED',
+  CLOSED: 'CLOSED',
+} as const;
+
+export interface InquirySummaryResponse {
+  answeredAt?: string;
+  closedAt?: string;
+  createdAt?: string;
+  id?: number;
+  lastMessageAt?: string;
+  status?: InquirySummaryResponseStatus;
+  title?: string;
+  updatedAt?: string;
+}
+
+export type InquiryMessageResponseAuthorType = typeof InquiryMessageResponseAuthorType[keyof typeof InquiryMessageResponseAuthorType];
+
+
+export const InquiryMessageResponseAuthorType = {
+  USER: 'USER',
+  ADMIN: 'ADMIN',
+} as const;
+
+export interface InquiryMessageResponse {
+  authorType?: InquiryMessageResponseAuthorType;
+  content?: string;
+  createdAt?: string;
+  hasImage?: boolean;
+  id?: number;
+  updatedAt?: string;
+}
+
+export interface InquiryDetailResponse {
+  inquiry?: InquirySummaryResponse;
+  messages?: InquiryMessageResponse[];
+}
+
+/**
+ * 1대1 문의 추가 메시지 요청입니다.
+ */
+export interface InquiryMessageCreateRequest {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
+}
+
+/**
  * 배너별 노출 순서 변경 항목입니다.
  */
 export interface Item {
@@ -2759,6 +2882,11 @@ export interface ItemReservationNoticeRequest {
   gradeConditions?: ItemReservationNoticeRequestGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -3200,6 +3328,11 @@ export interface PagedModelAdminBusinessUserResponse {
   page?: PageMetadata;
 }
 
+export interface PagedModelAdminInquirySummaryResponse {
+  content?: AdminInquirySummaryResponse[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminItemReservationApplicationResponse {
   content?: AdminItemReservationApplicationResponse[];
   page?: PageMetadata;
@@ -3242,6 +3375,11 @@ export interface PagedModelDonationResponse {
 
 export interface PagedModelFundraisingCampaignResponse {
   content?: FundraisingCampaignResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelInquirySummaryResponse {
+  content?: InquirySummaryResponse[];
   page?: PageMetadata;
 }
 
@@ -3446,7 +3584,7 @@ export interface UserBoardResponse {
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. */
   readRole?: UserBoardResponseReadRole;
-  /** 라우팅에 사용하는 고유 슬러그입니다. */
+  /** 라우팅에 사용하는 고유 슬러그입니다. 숫자 값은 게시판 ID와 동일합니다. */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. */
   writeRole?: UserBoardResponseWriteRole;
@@ -3528,9 +3666,11 @@ export interface UserBottleReservationNoticePublicResponse {
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
   maxOrderQuantity?: number;
+  noticeName?: string;
   price?: number;
   reservationEndAt?: string;
   reservationStartAt?: string;
+  supplyPrice?: number;
   updatedAt?: string;
 }
 
@@ -3605,6 +3745,8 @@ export interface UserBottleReservationPickupNoticeReservationStatusResponse {
   bottleName?: string;
   /** 예약 공고 ID */
   noticeId?: number;
+  /** 예약 공고 이름 */
+  noticeName?: string;
   /** 공고 상태 */
   noticeStatus?: UserBottleReservationPickupNoticeReservationStatusResponseNoticeStatus;
   /** 공고 판매 단가 */
@@ -3632,6 +3774,8 @@ export interface UserBottleReservationPickupNoticeStageStatisticsResponse {
   bottleName?: string;
   /** 예약 공고 ID */
   noticeId?: number;
+  /** 예약 공고 이름 */
+  noticeName?: string;
   /** 결제완료 단계까지 도달한 수량 */
   paymentCompletedQuantity?: number;
   /** 수령완료 수량 */
@@ -3761,9 +3905,11 @@ export interface UserItemReservationNoticePublicResponse {
   itemImgUrl?: string;
   itemName?: string;
   maxOrderQuantity?: number;
+  noticeName?: string;
   price?: number;
   reservationEndAt?: string;
   reservationStartAt?: string;
+  supplyPrice?: number;
   updatedAt?: string;
 }
 
@@ -5705,9 +5851,10 @@ export type PostApiAdminBoardsBody = {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: PostApiAdminBoardsBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
+   * 라우팅에 사용하는 선택 슬러그입니다. 영문 또는 영문과 숫자 조합만 사용할 수 있으며, 생성 시 생략하면 게시판 ID가 사용됩니다.
    * @minLength 0
    * @maxLength 150
+   * @pattern ^(?:[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)?$
    */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -5903,9 +6050,10 @@ export type PutApiAdminBoardsBoardidBody = {
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
   readRole?: PutApiAdminBoardsBoardidBodyReadRole;
   /**
-   * 라우팅에 사용하는 고유 슬러그입니다. 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.
+   * 라우팅에 사용하는 선택 슬러그입니다. 영문 또는 영문과 숫자 조합만 사용할 수 있으며, 생성 시 생략하면 게시판 ID가 사용됩니다.
    * @minLength 0
    * @maxLength 150
+   * @pattern ^(?:[A-Za-z0-9]*[A-Za-z][A-Za-z0-9]*)?$
    */
   slug?: string;
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -6275,6 +6423,11 @@ export type PostApiAdminBottlesReservationsNoticesBody = {
   /** @minItems 1 */
   gradeConditions?: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -6315,6 +6468,11 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   /** @minItems 1 */
   gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -6674,6 +6832,39 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
   storeManagerPhone?: string;
 };
 
+export type List1Params = {
+status?: List1Status;
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
+export type List1Status = typeof List1Status[keyof typeof List1Status];
+
+
+export const List1Status = {
+  WAITING: 'WAITING',
+  ANSWERED: 'ANSWERED',
+  CLOSED: 'CLOSED',
+} as const;
+
+export type ReplyBody = {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
+};
+
 export type GetApiAdminItemsParams = {
 /**
  * Zero-based page index (0..N)
@@ -6856,6 +7047,11 @@ export type PostApiAdminItemsReservationsNoticesBody = {
   gradeConditions?: PostApiAdminItemsReservationsNoticesBodyGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -6891,6 +7087,11 @@ export type PutApiAdminItemsReservationsNoticesNoticeidBody = {
   gradeConditions?: PutApiAdminItemsReservationsNoticesNoticeidBodyGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  noticeName?: string;
   /** @minimum 0 */
   price: number;
   reservationEndAt: string;
@@ -8696,6 +8897,46 @@ size?: number;
  * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
  */
 sort?: string[];
+};
+
+export type ListParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
+/**
+ * 1대1 문의 작성 요청입니다.
+ */
+export type CreateBody = {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title?: string;
+};
+
+/**
+ * 1대1 문의 추가 메시지 요청입니다.
+ */
+export type AddMessageBody = {
+  /** @minLength 1 */
+  content?: string;
+  hasImage?: boolean;
 };
 
 export type GetApiItemsParams = {
@@ -12360,6 +12601,195 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
 
 
 /**
+ * @summary 1대1 문의 목록 조회(관리자)
+ */
+export type list1Response200 = {
+  data: PagedModelAdminInquirySummaryResponse
+  status: 200
+}
+    
+export type list1ResponseSuccess = (list1Response200) & {
+  headers: Headers;
+};
+;
+
+export type list1Response = (list1ResponseSuccess)
+
+export const getList1Url = (params?: List1Params,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/inquiries?${stringifiedParams}` : `/api/admin/inquiries`
+}
+
+export const list1 = async (params?: List1Params, options?: RequestInit): Promise<list1Response> => {
+  
+  return customFetch<list1Response>(getList1Url(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 상세 조회(관리자)
+ */
+export type get2Response200 = {
+  data: AdminInquiryDetailResponse
+  status: 200
+}
+    
+export type get2ResponseSuccess = (get2Response200) & {
+  headers: Headers;
+};
+;
+
+export type get2Response = (get2ResponseSuccess)
+
+export const getGet2Url = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/admin/inquiries/${inquiryId}`
+}
+
+export const get2 = async (inquiryId: number, options?: RequestInit): Promise<get2Response> => {
+  
+  return customFetch<get2Response>(getGet2Url(inquiryId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 종료(관리자)
+ */
+export type closeResponse200 = {
+  data: AdminInquirySummaryResponse
+  status: 200
+}
+    
+export type closeResponseSuccess = (closeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type closeResponse = (closeResponseSuccess)
+
+export const getCloseUrl = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/admin/inquiries/${inquiryId}/close`
+}
+
+export const close = async (inquiryId: number, options?: RequestInit): Promise<closeResponse> => {
+  
+  return customFetch<closeResponse>(getCloseUrl(inquiryId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 다시 열기(관리자)
+ */
+export type reopenResponse200 = {
+  data: AdminInquirySummaryResponse
+  status: 200
+}
+    
+export type reopenResponseSuccess = (reopenResponse200) & {
+  headers: Headers;
+};
+;
+
+export type reopenResponse = (reopenResponseSuccess)
+
+export const getReopenUrl = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/admin/inquiries/${inquiryId}/reopen`
+}
+
+export const reopen = async (inquiryId: number, options?: RequestInit): Promise<reopenResponse> => {
+  
+  return customFetch<reopenResponse>(getReopenUrl(inquiryId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 답변 작성(관리자)
+ */
+export type replyResponse200 = {
+  data: AdminInquiryMessageResponse
+  status: 200
+}
+    
+export type replyResponseSuccess = (replyResponse200) & {
+  headers: Headers;
+};
+;
+
+export type replyResponse = (replyResponseSuccess)
+
+export const getReplyUrl = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/admin/inquiries/${inquiryId}/replies`
+}
+
+export const reply = async (inquiryId: number,
+    replyBody: ReplyBody, options?: RequestInit): Promise<replyResponse> => {
+  
+  return customFetch<replyResponse>(getReplyUrl(inquiryId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      replyBody,)
+  }
+);}
+
+
+
+/**
  * @summary 일반 상품 목록 조회(관리자)
  */
 export type getApiAdminItemsResponse200 = {
@@ -15926,7 +16356,7 @@ export type getApiBoardsBoardidAnnouncementsResponseSuccess = (getApiBoardsBoard
 
 export type getApiBoardsBoardidAnnouncementsResponse = (getApiBoardsBoardidAnnouncementsResponseSuccess)
 
-export const getGetApiBoardsBoardidAnnouncementsUrl = (boardId: number,
+export const getGetApiBoardsBoardidAnnouncementsUrl = (boardId: string,
     params?: GetApiBoardsBoardidAnnouncementsParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -15942,7 +16372,7 @@ export const getGetApiBoardsBoardidAnnouncementsUrl = (boardId: number,
   return stringifiedParams.length > 0 ? `/api/boards/${boardId}/announcements?${stringifiedParams}` : `/api/boards/${boardId}/announcements`
 }
 
-export const getApiBoardsBoardidAnnouncements = async (boardId: number,
+export const getApiBoardsBoardidAnnouncements = async (boardId: string,
     params?: GetApiBoardsBoardidAnnouncementsParams, options?: RequestInit): Promise<getApiBoardsBoardidAnnouncementsResponse> => {
   
   return customFetch<getApiBoardsBoardidAnnouncementsResponse>(getGetApiBoardsBoardidAnnouncementsUrl(boardId,params),
@@ -15972,7 +16402,7 @@ export type getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess = (get
 
 export type getApiBoardsBoardidAnnouncementsAnnouncementidResponse = (getApiBoardsBoardidAnnouncementsAnnouncementidResponseSuccess)
 
-export const getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl = (boardId: number,
+export const getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl = (boardId: string,
     announcementId: number,) => {
 
 
@@ -15981,7 +16411,7 @@ export const getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl = (boardId: nu
   return `/api/boards/${boardId}/announcements/${announcementId}`
 }
 
-export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: number,
+export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: string,
     announcementId: number, options?: RequestInit): Promise<getApiBoardsBoardidAnnouncementsAnnouncementidResponse> => {
   
   return customFetch<getApiBoardsBoardidAnnouncementsAnnouncementidResponse>(getGetApiBoardsBoardidAnnouncementsAnnouncementidUrl(boardId,announcementId),
@@ -16011,7 +16441,7 @@ export type getApiBoardsBoardidPostsResponseSuccess = (getApiBoardsBoardidPostsR
 
 export type getApiBoardsBoardidPostsResponse = (getApiBoardsBoardidPostsResponseSuccess)
 
-export const getGetApiBoardsBoardidPostsUrl = (boardId: number,
+export const getGetApiBoardsBoardidPostsUrl = (boardId: string,
     params?: GetApiBoardsBoardidPostsParams,) => {
   const normalizedParams = new URLSearchParams();
 
@@ -16027,7 +16457,7 @@ export const getGetApiBoardsBoardidPostsUrl = (boardId: number,
   return stringifiedParams.length > 0 ? `/api/boards/${boardId}/posts?${stringifiedParams}` : `/api/boards/${boardId}/posts`
 }
 
-export const getApiBoardsBoardidPosts = async (boardId: number,
+export const getApiBoardsBoardidPosts = async (boardId: string,
     params?: GetApiBoardsBoardidPostsParams, options?: RequestInit): Promise<getApiBoardsBoardidPostsResponse> => {
   
   return customFetch<getApiBoardsBoardidPostsResponse>(getGetApiBoardsBoardidPostsUrl(boardId,params),
@@ -16057,7 +16487,7 @@ export type postApiBoardsBoardidPostsResponseSuccess = (postApiBoardsBoardidPost
 
 export type postApiBoardsBoardidPostsResponse = (postApiBoardsBoardidPostsResponseSuccess)
 
-export const getPostApiBoardsBoardidPostsUrl = (boardId: number,) => {
+export const getPostApiBoardsBoardidPostsUrl = (boardId: string,) => {
 
 
   
@@ -16065,7 +16495,7 @@ export const getPostApiBoardsBoardidPostsUrl = (boardId: number,) => {
   return `/api/boards/${boardId}/posts`
 }
 
-export const postApiBoardsBoardidPosts = async (boardId: number,
+export const postApiBoardsBoardidPosts = async (boardId: string,
     postApiBoardsBoardidPostsBody: PostApiBoardsBoardidPostsBody, options?: RequestInit): Promise<postApiBoardsBoardidPostsResponse> => {
   
   return customFetch<postApiBoardsBoardidPostsResponse>(getPostApiBoardsBoardidPostsUrl(boardId),
@@ -16096,7 +16526,7 @@ export type deleteApiBoardsBoardidPostsPostidResponseSuccess = (deleteApiBoardsB
 
 export type deleteApiBoardsBoardidPostsPostidResponse = (deleteApiBoardsBoardidPostsPostidResponseSuccess)
 
-export const getDeleteApiBoardsBoardidPostsPostidUrl = (boardId: number,
+export const getDeleteApiBoardsBoardidPostsPostidUrl = (boardId: string,
     postId: number,) => {
 
 
@@ -16105,7 +16535,7 @@ export const getDeleteApiBoardsBoardidPostsPostidUrl = (boardId: number,
   return `/api/boards/${boardId}/posts/${postId}`
 }
 
-export const deleteApiBoardsBoardidPostsPostid = async (boardId: number,
+export const deleteApiBoardsBoardidPostsPostid = async (boardId: string,
     postId: number, options?: RequestInit): Promise<deleteApiBoardsBoardidPostsPostidResponse> => {
   
   return customFetch<deleteApiBoardsBoardidPostsPostidResponse>(getDeleteApiBoardsBoardidPostsPostidUrl(boardId,postId),
@@ -16135,7 +16565,7 @@ export type getApiBoardsBoardidPostsPostidResponseSuccess = (getApiBoardsBoardid
 
 export type getApiBoardsBoardidPostsPostidResponse = (getApiBoardsBoardidPostsPostidResponseSuccess)
 
-export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: number,
+export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: string,
     postId: number,) => {
 
 
@@ -16144,7 +16574,7 @@ export const getGetApiBoardsBoardidPostsPostidUrl = (boardId: number,
   return `/api/boards/${boardId}/posts/${postId}`
 }
 
-export const getApiBoardsBoardidPostsPostid = async (boardId: number,
+export const getApiBoardsBoardidPostsPostid = async (boardId: string,
     postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidResponse> => {
   
   return customFetch<getApiBoardsBoardidPostsPostidResponse>(getGetApiBoardsBoardidPostsPostidUrl(boardId,postId),
@@ -16174,7 +16604,7 @@ export type putApiBoardsBoardidPostsPostidResponseSuccess = (putApiBoardsBoardid
 
 export type putApiBoardsBoardidPostsPostidResponse = (putApiBoardsBoardidPostsPostidResponseSuccess)
 
-export const getPutApiBoardsBoardidPostsPostidUrl = (boardId: number,
+export const getPutApiBoardsBoardidPostsPostidUrl = (boardId: string,
     postId: number,) => {
 
 
@@ -16183,7 +16613,7 @@ export const getPutApiBoardsBoardidPostsPostidUrl = (boardId: number,
   return `/api/boards/${boardId}/posts/${postId}`
 }
 
-export const putApiBoardsBoardidPostsPostid = async (boardId: number,
+export const putApiBoardsBoardidPostsPostid = async (boardId: string,
     postId: number,
     putApiBoardsBoardidPostsPostidBody: PutApiBoardsBoardidPostsPostidBody, options?: RequestInit): Promise<putApiBoardsBoardidPostsPostidResponse> => {
   
@@ -16215,7 +16645,7 @@ export type getApiBoardsBoardidPostsPostidCommentsResponseSuccess = (getApiBoard
 
 export type getApiBoardsBoardidPostsPostidCommentsResponse = (getApiBoardsBoardidPostsPostidCommentsResponseSuccess)
 
-export const getGetApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+export const getGetApiBoardsBoardidPostsPostidCommentsUrl = (boardId: string,
     postId: number,) => {
 
 
@@ -16224,7 +16654,7 @@ export const getGetApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
   return `/api/boards/${boardId}/posts/${postId}/comments`
 }
 
-export const getApiBoardsBoardidPostsPostidComments = async (boardId: number,
+export const getApiBoardsBoardidPostsPostidComments = async (boardId: string,
     postId: number, options?: RequestInit): Promise<getApiBoardsBoardidPostsPostidCommentsResponse> => {
   
   return customFetch<getApiBoardsBoardidPostsPostidCommentsResponse>(getGetApiBoardsBoardidPostsPostidCommentsUrl(boardId,postId),
@@ -16254,7 +16684,7 @@ export type postApiBoardsBoardidPostsPostidCommentsResponseSuccess = (postApiBoa
 
 export type postApiBoardsBoardidPostsPostidCommentsResponse = (postApiBoardsBoardidPostsPostidCommentsResponseSuccess)
 
-export const getPostApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
+export const getPostApiBoardsBoardidPostsPostidCommentsUrl = (boardId: string,
     postId: number,) => {
 
 
@@ -16263,7 +16693,7 @@ export const getPostApiBoardsBoardidPostsPostidCommentsUrl = (boardId: number,
   return `/api/boards/${boardId}/posts/${postId}/comments`
 }
 
-export const postApiBoardsBoardidPostsPostidComments = async (boardId: number,
+export const postApiBoardsBoardidPostsPostidComments = async (boardId: string,
     postId: number,
     postApiBoardsBoardidPostsPostidCommentsBody: PostApiBoardsBoardidPostsPostidCommentsBody, options?: RequestInit): Promise<postApiBoardsBoardidPostsPostidCommentsResponse> => {
   
@@ -16295,7 +16725,7 @@ export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = 
 
 export type deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse = (deleteApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
 
-export const getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+export const getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: string,
     postId: number,
     commentId: number,) => {
 
@@ -16305,7 +16735,7 @@ export const getDeleteApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId
   return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
 }
 
-export const deleteApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+export const deleteApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: string,
     postId: number,
     commentId: number, options?: RequestInit): Promise<deleteApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
   
@@ -16336,7 +16766,7 @@ export type putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess = (pu
 
 export type putApiBoardsBoardidPostsPostidCommentsCommentidResponse = (putApiBoardsBoardidPostsPostidCommentsCommentidResponseSuccess)
 
-export const getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: number,
+export const getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: string,
     postId: number,
     commentId: number,) => {
 
@@ -16346,7 +16776,7 @@ export const getPutApiBoardsBoardidPostsPostidCommentsCommentidUrl = (boardId: n
   return `/api/boards/${boardId}/posts/${postId}/comments/${commentId}`
 }
 
-export const putApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: number,
+export const putApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: string,
     postId: number,
     commentId: number,
     putApiBoardsBoardidPostsPostidCommentsCommentidBody: PutApiBoardsBoardidPostsPostidCommentsCommentidBody, options?: RequestInit): Promise<putApiBoardsBoardidPostsPostidCommentsCommentidResponse> => {
@@ -17345,6 +17775,196 @@ export const getApiHealth = async ( options?: RequestInit): Promise<getApiHealth
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * @summary 내 1대1 문의 목록 조회
+ */
+export type listResponse200 = {
+  data: PagedModelInquirySummaryResponse
+  status: 200
+}
+    
+export type listResponseSuccess = (listResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listResponse = (listResponseSuccess)
+
+export const getListUrl = (params?: ListParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/inquiries?${stringifiedParams}` : `/api/inquiries`
+}
+
+export const list = async (params?: ListParams, options?: RequestInit): Promise<listResponse> => {
+  
+  return customFetch<listResponse>(getListUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 작성
+ */
+export type createResponse200 = {
+  data: InquiryDetailResponse
+  status: 200
+}
+    
+export type createResponseSuccess = (createResponse200) & {
+  headers: Headers;
+};
+;
+
+export type createResponse = (createResponseSuccess)
+
+export const getCreateUrl = () => {
+
+
+  
+
+  return `/api/inquiries`
+}
+
+export const create = async (createBody: CreateBody, options?: RequestInit): Promise<createResponse> => {
+  
+  return customFetch<createResponse>(getCreateUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 삭제
+ */
+export type _deleteResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type _deleteResponseSuccess = (_deleteResponse200) & {
+  headers: Headers;
+};
+;
+
+export type _deleteResponse = (_deleteResponseSuccess)
+
+export const getDeleteUrl = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/inquiries/${inquiryId}`
+}
+
+export const _delete = async (inquiryId: number, options?: RequestInit): Promise<_deleteResponse> => {
+  
+  return customFetch<_deleteResponse>(getDeleteUrl(inquiryId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 내 1대1 문의 상세 조회
+ */
+export type get1Response200 = {
+  data: InquiryDetailResponse
+  status: 200
+}
+    
+export type get1ResponseSuccess = (get1Response200) & {
+  headers: Headers;
+};
+;
+
+export type get1Response = (get1ResponseSuccess)
+
+export const getGet1Url = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/inquiries/${inquiryId}`
+}
+
+export const get1 = async (inquiryId: number, options?: RequestInit): Promise<get1Response> => {
+  
+  return customFetch<get1Response>(getGet1Url(inquiryId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 1대1 문의 추가 메시지 작성
+ */
+export type addMessageResponse200 = {
+  data: InquiryMessageResponse
+  status: 200
+}
+    
+export type addMessageResponseSuccess = (addMessageResponse200) & {
+  headers: Headers;
+};
+;
+
+export type addMessageResponse = (addMessageResponseSuccess)
+
+export const getAddMessageUrl = (inquiryId: number,) => {
+
+
+  
+
+  return `/api/inquiries/${inquiryId}/messages`
+}
+
+export const addMessage = async (inquiryId: number,
+    addMessageBody: AddMessageBody, options?: RequestInit): Promise<addMessageResponse> => {
+  
+  return customFetch<addMessageResponse>(getAddMessageUrl(inquiryId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      addMessageBody,)
   }
 );}
 

@@ -50,6 +50,11 @@ const announcementFormSchema = z.object({
     .enum(announcementScopeOptions, "공지 범위는 전체(전체 공지) 또는 게시판(게시판 공지) 중 하나여야 합니다.")
     .default("BOARD")
     .catch("BOARD"),
+  // 게시판 공지에서 어느 공지 탭(postType)에 노출할지 결정. GLOBAL 공지에는 지정 불가.
+  postTypeCode: z
+    .string()
+    .transform((v) => v.trim() || undefined)
+    .optional(),
   visible: z
     .enum(["true", "false"], "노출 여부 값이 올바르지 않습니다.")
     .default("true")
@@ -125,8 +130,6 @@ async function getAdminOptions() {
   const token = await getAuthToken();
   return token ? (withToken(token) ?? undefined) : undefined;
 }
-
-type BoardFormData = z.infer<typeof boardFormSchema>;
 
 function extractBoardFormData(formData: FormData): Record<string, string> {
   const raw: Record<string, string> = {};
@@ -254,8 +257,6 @@ export async function deleteBoardPostAction(boardId: number, postId: number, del
 
 // ── Announcement Server Actions ───────────────────────────────────
 
-type AnnouncementFormData = z.infer<typeof announcementFormSchema>;
-
 function extractAnnouncementFormData(formData: FormData): Record<string, string> {
   const raw: Record<string, string> = {};
   for (const key of Object.keys(announcementFormSchema.shape)) {
@@ -281,6 +282,7 @@ export async function createAnnouncementFormAction(
       title: "제목",
       content: "내용",
       scope: "범위",
+      postTypeCode: "공지 탭",
       visible: "노출 여부",
       pinned: "상단 고정",
       priority: "우선순위",
@@ -293,7 +295,7 @@ export async function createAnnouncementFormAction(
     return { success: false, error: message };
   }
 
-  const { scope, visible, pinned, priority, publishedAt, expiredAt, title, content } = parsed.data;
+  const { scope, postTypeCode, visible, pinned, priority, publishedAt, expiredAt, title, content } = parsed.data;
 
   try {
     await postApiAdminBoardsAnnouncements(
@@ -302,6 +304,8 @@ export async function createAnnouncementFormAction(
         content,
         scope: scope as PostApiAdminBoardsAnnouncementsBodyScope,
         boardId: scope === "BOARD" ? boardId : undefined,
+        // GLOBAL 공지에는 postTypeCode를 지정할 수 없다.
+        postTypeCode: scope === "BOARD" ? postTypeCode : undefined,
         visible,
         pinned,
         priority,
@@ -342,6 +346,10 @@ export async function updateAnnouncementFormAction(
     title: z.string().min(1, "제목은 필수입니다."),
     content: z.string().min(1, "내용은 필수입니다."),
     scope: z.enum(announcementScopeOptions, "공지 범위가 올바르지 않습니다.").catch("BOARD"),
+    postTypeCode: z
+      .string()
+      .transform((v) => v.trim() || undefined)
+      .optional(),
     priority: z
       .string()
       .transform((v) => {
@@ -365,6 +373,7 @@ export async function updateAnnouncementFormAction(
       title: "제목",
       content: "내용",
       scope: "범위",
+      postTypeCode: "공지 탭",
       priority: "우선순위",
       publishedAt: "예약 게시",
       expiredAt: "만료",
@@ -375,7 +384,7 @@ export async function updateAnnouncementFormAction(
     return { success: false, error: message };
   }
 
-  const { scope, priority, publishedAt, expiredAt, title, content } = parsed.data;
+  const { scope, postTypeCode, priority, publishedAt, expiredAt, title, content } = parsed.data;
 
   try {
     await putApiAdminBoardsAnnouncementsAnnouncementid(
@@ -385,6 +394,8 @@ export async function updateAnnouncementFormAction(
         content,
         scope: scope as PutApiAdminBoardsAnnouncementsAnnouncementidBodyScope,
         boardId: scope === "BOARD" ? boardId : undefined,
+        // GLOBAL 공지에는 postTypeCode를 지정할 수 없다.
+        postTypeCode: scope === "BOARD" ? postTypeCode : undefined,
         visible,
         pinned,
         priority,
@@ -444,17 +455,13 @@ export async function getAnnouncementDetailAction(announcementId: number) {
 
 const postTypeUsageOptions = ["POST", "ANNOUNCEMENT"] as const;
 
-// 커뮤니티 페이지의 고정 탭 키("일반"/"인기")와 겹치면 해당 postType 탭이 라우팅되지 않는다.
-const RESERVED_POST_TYPE_CODES = new Set(["general", "popular"]);
-
 const postTypeFormSchema = z.object({
   name: z.string().min(1, "이름은 필수입니다.").max(50, "이름은 50자 이하여야 합니다."),
   code: z
     .string()
     .min(1, "코드는 필수입니다.")
     .max(50, "코드는 50자 이하여야 합니다.")
-    .regex(/^[a-z0-9-]+$/, "코드는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다.")
-    .refine((v) => !RESERVED_POST_TYPE_CODES.has(v), "코드로 general, popular는 사용할 수 없습니다."),
+    .regex(/^[a-z0-9-]+$/, "코드는 영문 소문자, 숫자, 하이픈만 사용할 수 있습니다."),
   usage: z.enum(postTypeUsageOptions, "사용처는 게시글 또는 공지 중 하나여야 합니다.").default("POST"),
   displayOrder: z
     .string()

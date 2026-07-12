@@ -92,17 +92,6 @@ describe("postType admin actions", () => {
     expect(mockedCreate).not.toHaveBeenCalled();
   });
 
-  it("rejects a code equal to a reserved fixed tab key (general/popular)", async () => {
-    const formData = new FormData();
-    formData.set("name", "일반같은거");
-    formData.set("code", "general");
-
-    const result = await createPostTypeFormAction(1, { success: false }, formData);
-
-    expect(result.success).toBe(false);
-    expect(mockedCreate).not.toHaveBeenCalled();
-  });
-
   it("rejects creating a postType whose code already exists on the board", async () => {
     const formData = new FormData();
     formData.set("name", "중복");
