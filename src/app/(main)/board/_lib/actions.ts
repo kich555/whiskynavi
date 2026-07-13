@@ -101,7 +101,7 @@ export async function createPostAction(
   }
 
   revalidatePath(`/board/${boardId}`);
-  redirect(`/board/${boardId}`);
+  return { success: true };
 }
 
 export async function updatePostAction(
