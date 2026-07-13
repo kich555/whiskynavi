@@ -36,7 +36,7 @@ export default function PostDetailShell({
 
           {/* 본문 (TipTap HTML) */}
           <div
-            className="prose prose-sm max-w-none px-5 py-5 [&_*]:text-white [&_img]:my-4 [&_img]:rounded-lg [&_img]:text-transparent [&_p]:min-h-[1.5em]"
+            className="post-rich-text max-w-none px-5 py-5 text-sm text-white [&_img]:my-4 [&_img]:rounded-lg [&_img]:text-transparent [&_p]:min-h-[1.5em]"
             dangerouslySetInnerHTML={{ __html: content }}
           />
 

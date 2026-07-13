@@ -362,38 +362,45 @@ export default function PostForm({
               <ToolbarButton
                 onClick={() => handleToolbarAction("bold")}
                 active={editor?.isActive("bold") ?? false}
+                ariaLabel="굵게"
                 label={<Bold className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("italic")}
                 active={editor?.isActive("italic") ?? false}
+                ariaLabel="기울임"
                 label={<Italic className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("strike")}
                 active={editor?.isActive("strike") ?? false}
+                ariaLabel="취소선"
                 label={<Strikethrough className="h-3.5 w-3.5" />}
               />
               <span className={`mx-1 h-4 w-px ${variant === "admin" ? "bg-gray-300" : "bg-white/20"}`} />
               <ToolbarButton
                 onClick={() => handleToolbarAction("h2")}
                 active={editor?.isActive("heading", { level: 2 }) ?? false}
+                ariaLabel="제목 2"
                 label={<Heading2 className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("h3")}
                 active={editor?.isActive("heading", { level: 3 }) ?? false}
+                ariaLabel="제목 3"
                 label={<Heading3 className="h-3.5 w-3.5" />}
               />
               <span className={`mx-1 h-4 w-px ${variant === "admin" ? "bg-gray-300" : "bg-white/20"}`} />
               <ToolbarButton
                 onClick={() => handleToolbarAction("bulletList")}
                 active={editor?.isActive("bulletList") ?? false}
+                ariaLabel="글머리 목록"
                 label={<List className="h-3.5 w-3.5" />}
               />
               <ToolbarButton
                 onClick={() => handleToolbarAction("orderedList")}
                 active={editor?.isActive("orderedList") ?? false}
+                ariaLabel="번호 목록"
                 label={<ListOrdered className="h-3.5 w-3.5" />}
               />
               <span className={`mx-1 h-4 w-px ${variant === "admin" ? "bg-gray-300" : "bg-white/20"}`} />
@@ -403,12 +410,14 @@ export default function PostForm({
                   if (url) handleToolbarAction("link", url);
                 }}
                 active={editor?.isActive("link") ?? false}
+                ariaLabel="링크 추가"
                 label={<LinkIcon className="h-3.5 w-3.5" />}
               />
               {editor?.isActive("link") && (
                 <ToolbarButton
                   onClick={() => handleToolbarAction("unsetLink")}
                   active={false}
+                  ariaLabel="링크 제거"
                   label={<Unlink className="h-3.5 w-3.5" />}
                 />
               )}
@@ -417,12 +426,13 @@ export default function PostForm({
               <ToolbarButton
                 onClick={() => fileInputRef.current?.click()}
                 active={false}
+                ariaLabel="이미지 추가"
                 label={<ImageIcon className="h-3.5 w-3.5" />}
               />
             </div>
             {/* 에디터 영역 */}
             <div
-              className={`min-h-[200px] rounded-b-lg border border-t-0 ${theme.editorBorder} ${theme.editorBg} px-3 py-2.5 text-sm ${theme.editorText} [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]`}
+              className={`post-rich-text min-h-[200px] rounded-b-lg border border-t-0 ${theme.editorBorder} ${theme.editorBg} px-3 py-2.5 text-sm ${theme.editorText} [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]`}
             >
               <EditorContent editor={editor} />
             </div>
@@ -463,14 +473,16 @@ export default function PostForm({
 interface ToolbarButtonProps {
   onClick: () => void;
   active: boolean;
+  ariaLabel: string;
   label: React.ReactNode;
 }
 
-function ToolbarButton({ onClick, active, label }: ToolbarButtonProps) {
+function ToolbarButton({ onClick, active, ariaLabel, label }: ToolbarButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
+      aria-label={ariaLabel}
       className={`rounded px-2 py-1 text-sm transition-colors ${
         active ? "bg-amber-600/30 text-amber-400" : "text-gray-400 hover:bg-white/10 hover:text-white"
       }`}
