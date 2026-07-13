@@ -1,6 +1,6 @@
 "use client";
 
-import { postApiBoardsUploads } from "@/apis/generated/api";
+import { postApiBoardsUploads, type PostTypeResponse } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { FormMessage } from "@/components/ui/form-message";
 import Image from "@tiptap/extension-image";
@@ -21,10 +21,10 @@ import {
   Unlink,
 } from "lucide-react";
 import { getSession } from "next-auth/react";
+import type { ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB } from "../_lib/constants";
-import type { ReactNode } from "react";
 
 interface PostFormProps {
   action: (formData: FormData) => void;
@@ -33,7 +33,8 @@ interface PostFormProps {
     error?: string;
     values?: Record<string, string>;
   } | null;
-  defaultValues?: { title?: string; content?: string };
+  defaultValues?: { title?: string; content?: string; postTypeCode?: string };
+  postTypes?: PostTypeResponse[];
   submitLabel?: string;
   backHref?: string;
   /** 폼 테마. "user"는 어두운 배경, "admin"은 밝은 배경. 기본값 "user". */
@@ -89,6 +90,7 @@ export default function PostForm({
   action,
   state,
   defaultValues,
+  postTypes,
   submitLabel = "등록하기",
   backHref = "/board/community",
   variant = "user",
@@ -100,6 +102,11 @@ export default function PostForm({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const selectablePostTypes = (postTypes ?? []).filter(
+    (postType) => postType.code && postType.name && postType.usages?.includes("POST"),
+  );
+  const initialPostTypeCode =
+    state?.values?.postTypeCode ?? defaultValues?.postTypeCode ?? selectablePostTypes[0]?.code ?? "";
 
   const editor = useEditor({
     extensions: [
@@ -287,6 +294,33 @@ export default function PostForm({
 
         <div className={theme.card}>
           <h1 className={theme.title}>{formTitle ?? (submitLabel === "수정하기" ? "글 수정" : "글쓰기")}</h1>
+
+          {/* 일반 게시글 폼에서만 게시글 타입을 표시한다. 관리자 공지는 children의 전용 필드를 사용한다. */}
+          {postTypes ? (
+            <div className="mb-4">
+              <label htmlFor="postTypeCode" className={theme.label}>
+                타입
+              </label>
+              <select
+                id="postTypeCode"
+                name="postTypeCode"
+                defaultValue={initialPostTypeCode}
+                required
+                disabled={selectablePostTypes.length === 0}
+                className={theme.input}
+              >
+                {selectablePostTypes.length === 0 ? (
+                  <option value="">선택 가능한 타입이 없습니다</option>
+                ) : (
+                  selectablePostTypes.map((postType) => (
+                    <option key={postType.code} value={postType.code} className="text-gray-900">
+                      {postType.name}
+                    </option>
+                  ))
+                )}
+              </select>
+            </div>
+          ) : null}
 
           {/* 제목 */}
           <div className="mb-4">

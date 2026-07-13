@@ -4,9 +4,9 @@ import type { CommentResponse, PostResponse } from "@/apis/generated/api";
 import { FormMessage } from "@/components/ui/form-message";
 import Link from "next/link";
 import { useState, useTransition } from "react";
-import PostDetailShell from "./PostDetailShell";
 import { deletePostAction } from "../_lib/actions";
 import CommentsSection from "./CommentsSection";
+import PostDetailShell from "./PostDetailShell";
 
 interface PostDetailContentProps {
   post: PostResponse;
@@ -16,7 +16,13 @@ interface PostDetailContentProps {
   isLoggedIn: boolean;
 }
 
-export default function PostDetailContent({ post, boardId, currentUserId, comments, isLoggedIn }: PostDetailContentProps) {
+export default function PostDetailContent({
+  post,
+  boardId,
+  currentUserId,
+  comments,
+  isLoggedIn,
+}: PostDetailContentProps) {
   const [isDeleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const isAuthor = currentUserId !== undefined && post.authorId === currentUserId;
@@ -39,7 +45,7 @@ export default function PostDetailContent({ post, boardId, currentUserId, commen
           <>
             <h1 className="mb-2 text-lg leading-snug font-bold text-white">{post.title}</h1>
             <div className="flex items-center gap-2 text-xs text-gray-500">
-              <span>#{post.authorId}</span>
+              <span>{post.authorNickname ?? "알 수 없는 사용자"}</span>
               <span>·</span>
               <span>{post.createdAt ? new Date(post.createdAt).toLocaleString("ko-KR") : ""}</span>
             </div>

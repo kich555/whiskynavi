@@ -3,8 +3,8 @@ import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { notFound } from "next/navigation";
-import AnnouncementEditContent from "./_components/AnnouncementEditContent";
 import { getAnnouncementDetailAction } from "../../../../actions";
+import AnnouncementEditContent from "./_components/AnnouncementEditContent";
 
 interface AnnouncementEditPageProps {
   params: Promise<{ boardId: string; announcementId: string }>;
@@ -21,7 +21,7 @@ export default async function AnnouncementEditPage({ params }: AnnouncementEditP
   try {
     [board, postTypes] = await Promise.all([
       getApiAdminBoardsBoardid(id, withToken(token)).then((res) => res.data),
-      getApiAdminBoardsBoardidPostTypes(id, withToken(token))
+      getApiAdminBoardsBoardidPostTypes(id, {}, withToken(token))
         .then((res) => res.data ?? [])
         .catch(() => []),
     ]);

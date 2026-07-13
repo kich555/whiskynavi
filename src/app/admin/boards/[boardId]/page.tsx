@@ -24,14 +24,13 @@ async function fetchBoardDetail(boardId: string) {
   // 필터링하던 기존 방식은 특정 공지의 postType이 null일 때 백엔드가 NPE(500)를 반환하는
   // 버그에 노출되어, board fetch까지 함께 실패하며 notFound()로 빠지는 원인이 되었다.
   // boardId 좁히기로 회피 + Promise.allSettled로 한쪽이 실패해도 살림.
-  const scopedResult = await getApiAdminBoardsAnnouncements(
-    { page: 0, size: 50, boardId: id },
-    withToken(token),
-  ).catch((error: unknown) => {
-    if (isRedirectError(error)) throw error;
-    console.error(`게시판 ${id}의 BOARD 공지 조회에 실패했습니다.`, error);
-    return null;
-  });
+  const scopedResult = await getApiAdminBoardsAnnouncements({ page: 0, size: 50, boardId: id }, withToken(token)).catch(
+    (error: unknown) => {
+      if (isRedirectError(error)) throw error;
+      console.error(`게시판 ${id}의 BOARD 공지 조회에 실패했습니다.`, error);
+      return null;
+    },
+  );
   const globalResult = await getApiAdminBoardsAnnouncements(
     { page: 0, size: 50, scope: "GLOBAL" },
     withToken(token),
@@ -49,7 +48,7 @@ async function fetchBoardDetail(boardId: string) {
   // postTypes 조회 실패가 존재하는 게시판을 404로 가리지 않도록 별도로 처리
   let postTypes: Awaited<ReturnType<typeof getApiAdminBoardsBoardidPostTypes>>["data"] = [];
   try {
-    postTypes = (await getApiAdminBoardsBoardidPostTypes(id, withToken(token))).data ?? [];
+    postTypes = (await getApiAdminBoardsBoardidPostTypes(id, {}, withToken(token))).data ?? [];
   } catch (error) {
     if (isRedirectError(error)) throw error;
     console.error(`게시판 ${id}의 게시글타입 조회에 실패했습니다.`, error);

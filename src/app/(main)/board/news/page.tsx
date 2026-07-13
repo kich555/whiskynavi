@@ -34,8 +34,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
 
   const postTypes = board?.postTypes ?? [];
   const tabs = buildTabs(postTypes);
-  // 기본 탭은 첫 postType 코드 (없으면 빈 목록 fallback)
-  const defaultTab = tabs[0]?.key ?? "";
+  // 기본 탭은 타입 필터가 없는 전체 탭
+  const defaultTab = tabs[0].key;
   const tab = params.tab ?? defaultTab;
   const page = parseApiPage(params.page);
   const target = resolveTabTarget(tab, postTypes);

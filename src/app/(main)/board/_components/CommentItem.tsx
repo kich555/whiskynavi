@@ -63,7 +63,7 @@ export default function CommentItem({ comment, boardId, postId, currentUserId, i
         ) : (
           <>
             <div className="mb-1 flex items-center gap-2 text-xs text-gray-500">
-              <span className="text-gray-300">#{comment.authorId}</span>
+              <span className="text-gray-300">{comment.authorNickname ?? "알 수 없는 사용자"}</span>
               <span>·</span>
               <span>{formatDate(comment.createdAt)}</span>
               {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
