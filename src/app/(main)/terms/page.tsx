@@ -9,7 +9,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "이용약관",
-  description: "위스키내비 서비스 이용약관과 상품의 배송, 교환, 반품 및 환불 정책을 확인하세요.",
+  description: "위스키내비 서비스 이용약관과 유형상품 판매, 배송, 교환, 반품 및 환불 정책을 확인하세요.",
 };
 
 export default function TermsPage() {
@@ -20,7 +20,7 @@ export default function TermsPage() {
           <p className="text-xs font-semibold tracking-[0.22em] text-amber-500 uppercase">Terms of Service</p>
           <h1 className="mt-3 text-3xl font-bold tracking-tight md:text-4xl">이용약관</h1>
           <p className="mt-4 max-w-2xl text-sm leading-6 text-gray-400">
-            위스키내비 서비스 이용과 상품의 주문, 배송, 교환·반품 및 환불에 관한 기준입니다.
+            위스키내비 서비스 이용과 유형상품의 판매, 주문, 배송, 교환·반품 및 환불에 관한 기준입니다.
           </p>
           <p className="mt-3 text-xs text-gray-500">시행일: {TERMS_EFFECTIVE_DATE}</p>
         </header>

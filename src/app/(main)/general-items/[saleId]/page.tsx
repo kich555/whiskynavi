@@ -8,6 +8,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getGeneralItemOrderQuantityLimit, isOpenGeneralItemSale } from "../_lib/general-item-sales";
 import GeneralItemOrderForm from "./_components/GeneralItemOrderForm";
+import GeneralItemSalesPolicy from "./_components/GeneralItemSalesPolicy";
 
 type GeneralItemSaleDetailPageProps = {
   params: Promise<{ saleId: string }>;
@@ -91,6 +92,8 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
             </div>
           </div>
         </section>
+
+        <GeneralItemSalesPolicy />
       </div>
     </main>
   );
