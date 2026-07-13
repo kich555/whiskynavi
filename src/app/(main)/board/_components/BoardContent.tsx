@@ -150,7 +150,7 @@ export default function BoardContent({
     <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
       <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
+        <div className="mx-auto flex max-w-4xl min-w-0 items-center gap-2 px-4">
           <BoardTabs tabs={tabs} activeTab={tab} onTabChange={handleTabChange} />
           {/* 글쓰기 버튼 — 게시글 탭(POST)에서만, canWritePost 권한이 있을 때만 상시 노출.
             공지 탭(ANNOUNCEMENT)은 admin이 admin 페이지에서 공지를 등록하므로 사용자 화면에서는 숨긴다. */}
