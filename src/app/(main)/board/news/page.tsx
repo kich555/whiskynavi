@@ -5,7 +5,7 @@ import { parseApiPage } from "@/lib/page-response";
 import { isAdminUser } from "@/lib/role";
 import { getServerSession } from "next-auth";
 import BoardContent from "../_components/BoardContent";
-import { getBoard } from "../_lib/board";
+import { getBoard, resolveBoardPostSearch } from "../_lib/board";
 import {
   ALL_ANNOUNCEMENT_PAGE_SIZE,
   NEWS_BOARD_ID,
@@ -19,6 +19,8 @@ interface NewsPageProps {
   searchParams: Promise<{
     tab?: string;
     page?: string;
+    searchType?: string;
+    keyword?: string;
   }>;
 }
 
@@ -39,6 +41,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const tab = params.tab ?? defaultTab;
   const page = parseApiPage(params.page);
   const target = resolveTabTarget(tab, postTypes);
+  const search = resolveBoardPostSearch(params.searchType, params.keyword);
   // news 게시판은 admin/super_admin만 게시글 작성 가능
   const canWritePost = isAdminUser(session?.user?.roles ?? []);
 
@@ -63,6 +66,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         allAnnouncements={announcementsRes.data.content ?? []}
         totalElements={announcementsRes.data.page?.totalElements ?? 0}
         totalPages={announcementsRes.data.page?.totalPages ?? 0}
+        searchType={search.searchType}
+        keyword={search.keyword}
       />
     );
   }
@@ -72,7 +77,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const [postsRes, allAnnouncementsRes] = await Promise.all([
     getApiBoardsBoardidPosts(
       NEWS_BOARD_ID,
-      { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode },
+      { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode, ...search },
       withToken(token ?? undefined),
     ),
     getApiBoardsBoardidAnnouncements(
@@ -99,6 +104,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       allAnnouncements={allAnnouncements}
       totalElements={postsRes.data.page?.totalElements ?? 0}
       totalPages={postsRes.data.page?.totalPages ?? 0}
+      searchType={search.searchType}
+      keyword={search.keyword}
     />
   );
 }
