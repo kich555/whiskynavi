@@ -5,6 +5,7 @@ import {
   Ban,
   Briefcase,
   Calendar,
+  FilePenLine,
   FileSpreadsheet,
   History,
   Home,
@@ -53,6 +54,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         href: "/admin/businesses/members",
       },
       { id: "blacklist", label: "블랙리스트", icon: Ban, href: "/admin/blacklist" },
+      {
+        id: "post-restrictions",
+        label: "게시글 작성 제한",
+        icon: FilePenLine,
+        href: "/admin/post-restrictions",
+      },
     ],
   },
   {

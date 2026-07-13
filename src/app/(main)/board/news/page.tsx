@@ -1,4 +1,4 @@
-import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts } from "@/apis/generated/api";
+import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts, getApiUsersMe } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
@@ -12,6 +12,7 @@ import {
   PINNED_ANNOUNCEMENT_COUNT,
   POSTS_PER_PAGE,
 } from "../_lib/constants";
+import { getActivePostCreationRestriction } from "../_lib/post-creation-restriction";
 import { resolveTabTarget } from "../_lib/resolveTabTarget";
 import { buildTabs } from "../_lib/tabs";
 
@@ -29,9 +30,14 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const token = await getAuthToken();
 
   // async-parallel: session + 게시판(postType 목록) 독립적이므로 병렬 fetch
-  const [session, board] = await Promise.all([
+  const [session, board, currentUser] = await Promise.all([
     getServerSession(authOptions),
     getBoard(NEWS_BOARD_ID, token ?? undefined),
+    token
+      ? getApiUsersMe(withToken(token))
+          .then((response) => response.data)
+          .catch(() => null)
+      : Promise.resolve(null),
   ]);
 
   const postTypes = board?.postTypes ?? [];
@@ -43,7 +49,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
   const target = resolveTabTarget(tab, postTypes);
   const search = resolveBoardPostSearch(params.searchType, params.keyword);
   // news 게시판은 admin/super_admin만 게시글 작성 가능
-  const canWritePost = isAdminUser(session?.user?.roles ?? []);
+  const postCreationRestriction = getActivePostCreationRestriction(currentUser);
+  const canWritePost = isAdminUser(session?.user?.roles ?? []) && !postCreationRestriction;
 
   if (target.resource === "announcements") {
     const announcementsRes = await getApiBoardsBoardidAnnouncements(
@@ -61,6 +68,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         postTypeCode={target.postTypeCode}
         currentPage={Number(params.page) || 1}
         canWritePost={canWritePost}
+        postCreationRestriction={postCreationRestriction}
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
         allAnnouncements={announcementsRes.data.content ?? []}
@@ -99,6 +107,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       postTypeCode={target.postTypeCode}
       currentPage={Number(params.page) || 1}
       canWritePost={canWritePost}
+      postCreationRestriction={postCreationRestriction}
       initialPosts={postsRes.data.content ?? []}
       initialAnnouncements={pinnedAnnouncements}
       allAnnouncements={allAnnouncements}

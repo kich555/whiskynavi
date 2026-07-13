@@ -13,8 +13,10 @@ import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useIsMobile } from "../_hooks/useIsMobile";
 import { LOAD_MORE_MAX_CLICKS, POSTS_PER_PAGE } from "../_lib/constants";
+import type { ActivePostCreationRestriction } from "../_lib/post-creation-restriction";
 import type { BoardTab } from "../_lib/tabs";
 import BoardTabs from "./BoardTabs";
+import PostCreationRestrictionNotice from "./PostCreationRestrictionNotice";
 import PostList from "./PostList";
 
 interface BoardContentProps {
@@ -27,6 +29,7 @@ interface BoardContentProps {
   /** 게시글 작성 권한 여부. 페이지에서 session/board 권한으로 결정해 전달.
    *  community는 로그인 사용자, news는 admin/super_admin만 true. */
   canWritePost: boolean;
+  postCreationRestriction?: ActivePostCreationRestriction | null;
   initialPosts: PostSummaryResponse[];
   initialAnnouncements: UserAnnouncementSummaryResponse[];
   allAnnouncements: UserAnnouncementSummaryResponse[];
@@ -44,6 +47,7 @@ export default function BoardContent({
   postTypeCode,
   currentPage,
   canWritePost,
+  postCreationRestriction,
   initialPosts,
   initialAnnouncements,
   allAnnouncements,
@@ -164,6 +168,11 @@ export default function BoardContent({
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-6">
+        {postCreationRestriction ? (
+          <div className="mb-4">
+            <PostCreationRestrictionNotice restriction={postCreationRestriction} />
+          </div>
+        ) : null}
         <PostList
           posts={displayPosts}
           announcements={initialAnnouncements}

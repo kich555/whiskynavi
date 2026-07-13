@@ -1,4 +1,4 @@
-import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts } from "@/apis/generated/api";
+import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts, getApiUsersMe } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
@@ -11,6 +11,7 @@ import {
   PINNED_ANNOUNCEMENT_COUNT,
   POSTS_PER_PAGE,
 } from "../_lib/constants";
+import { getActivePostCreationRestriction } from "../_lib/post-creation-restriction";
 import { resolveTabTarget } from "../_lib/resolveTabTarget";
 import { buildTabs } from "../_lib/tabs";
 
@@ -28,11 +29,17 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const token = await getAuthToken();
 
   // async-parallel: session + 게시판(postType 목록) 독립적이므로 병렬 fetch
-  const [session, board] = await Promise.all([
+  const [session, board, currentUser] = await Promise.all([
     getServerSession(authOptions),
     getBoard(COMMUNITY_BOARD_ID, token ?? undefined),
+    token
+      ? getApiUsersMe(withToken(token))
+          .then((response) => response.data)
+          .catch(() => null)
+      : Promise.resolve(null),
   ]);
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+  const postCreationRestriction = getActivePostCreationRestriction(currentUser);
   const postTypes = board?.postTypes ?? [];
   const tabs = buildTabs(postTypes);
   // 기본 탭은 타입 필터가 없는 전체 탭
@@ -57,7 +64,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
         resource="announcements"
         postTypeCode={target.postTypeCode}
         currentPage={Number(params.page) || 1}
-        canWritePost={Boolean(currentUserId)}
+        canWritePost={Boolean(currentUserId) && !postCreationRestriction}
+        postCreationRestriction={postCreationRestriction}
         // 공지 postType 탭에서는 게시글 영역에 공지를 표시 (페이지네이션 적용, 고정 공지 배너 없음)
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
@@ -98,7 +106,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       resource="posts"
       postTypeCode={target.postTypeCode}
       currentPage={Number(params.page) || 1}
-      canWritePost={Boolean(currentUserId)}
+      canWritePost={Boolean(currentUserId) && !postCreationRestriction}
+      postCreationRestriction={postCreationRestriction}
       initialPosts={postsRes.data.content ?? []}
       initialAnnouncements={pinnedAnnouncements}
       allAnnouncements={allAnnouncements}
