@@ -60,7 +60,8 @@ export default function BoardContent({
   const isMobile = useIsMobile();
 
   // 모바일 "더보기" 상태
-  const [loadMorePage, setLoadMorePage] = useState(1);
+  const [loadMorePage, setLoadMorePage] = useState(currentPage);
+  const [loadMoreCount, setLoadMoreCount] = useState(0);
   const [accumulatedPosts, setAccumulatedPosts] = useState<PostSummaryResponse[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -74,11 +75,16 @@ export default function BoardContent({
   const tabRef = useRef(tab);
   tabRef.current = tab;
 
-  // 더보기 모드인가? (게시글 탭이고 2페이지 이상 있을 때만. 공지 postType 탭은 게시글 API를 쓰지 않으므로 제외)
-  const isLoadMoreMode = resource === "posts" && isMobile && totalPages > 1 && loadMorePage <= LOAD_MORE_MAX_CLICKS;
+  const hasMorePages = loadMorePage < totalPages;
+  const hasLoadMoreAttempts = loadMoreCount < LOAD_MORE_MAX_CLICKS;
+
+  // 더보기 모드인가? (게시글 탭이고 남은 페이지와 더보기 가능 횟수가 있을 때만)
+  const isLoadMoreMode = resource === "posts" && isMobile && totalPages > 1 && hasMorePages && hasLoadMoreAttempts;
 
   const displayPosts =
-    isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
+    resource === "posts" && isMobile && accumulatedPosts.length > 0
+      ? [...initialPosts, ...accumulatedPosts]
+      : initialPosts;
 
   const buildListHref = useCallback(
     (nextTab: string, page: number, includeSearch = true) => {
@@ -95,6 +101,7 @@ export default function BoardContent({
   const handleTabChange = useCallback(
     (newTab: string) => {
       setLoadMorePage(1);
+      setLoadMoreCount(0);
       setAccumulatedPosts([]);
       router.push(buildListHref(newTab, 1));
     },
@@ -103,7 +110,8 @@ export default function BoardContent({
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setLoadMorePage(1);
+      setLoadMorePage(page);
+      setLoadMoreCount(0);
       setAccumulatedPosts([]);
       router.push(buildListHref(tab, page));
     },
@@ -138,13 +146,15 @@ export default function BoardContent({
       if (tabRef.current !== requestedTab) return;
       setAccumulatedPosts((prev) => [...prev, ...(res.data.content ?? [])]);
       setLoadMorePage(nextPage);
+      setLoadMoreCount((count) => count + 1);
     } finally {
       setIsLoadingMore(false);
     }
   }, [boardId, isLoadingMore, keyword, postTypeCode, searchType, tab]);
 
-  const showPagination = !isLoadMoreMode && totalPages > 1;
-  const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
+  const showPagination =
+    totalPages > 1 && (!isMobile || resource !== "posts" || (hasMorePages && !hasLoadMoreAttempts));
+  const loadMoreRemaining = Math.max(0, Math.min(LOAD_MORE_MAX_CLICKS - loadMoreCount, totalPages - loadMorePage));
 
   return (
     <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
