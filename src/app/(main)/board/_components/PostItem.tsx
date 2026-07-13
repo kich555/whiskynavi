@@ -33,6 +33,7 @@ const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemPro
     return (
       <Link
         href={`/board/${boardId}/posts/${post.id}`}
+        prefetch={false}
         className="block border-b border-white/10 px-1 py-3 transition-colors hover:bg-white/5"
         // rendering-content-visibility: 오프스크린 아이템의 layout/paint 생략
         style={{ contentVisibility: "auto", containIntrinsicSize: "0 60px" }}
@@ -55,6 +56,7 @@ const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemPro
   return (
     <Link
       href={`/board/${boardId}/posts/${post.id}`}
+      prefetch={false}
       className="grid grid-cols-[1fr_100px_64px_100px] items-center gap-3 border-b border-white/10 px-4 py-3 transition-colors hover:bg-white/5"
       style={{ contentVisibility: "auto", containIntrinsicSize: "0 44px" }}
     >

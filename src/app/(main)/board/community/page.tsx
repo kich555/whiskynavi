@@ -69,15 +69,10 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   // createdAt 내림차순 (API가 viewCount 정렬을 지원하지 않음)
   const sort: string[] = ["createdAt,desc"];
 
-  const [postsRes, pinnedRes, allAnnouncementsRes] = await Promise.all([
+  const [postsRes, allAnnouncementsRes] = await Promise.all([
     getApiBoardsBoardidPosts(
       COMMUNITY_BOARD_ID,
       { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode },
-      withToken(token ?? undefined),
-    ),
-    getApiBoardsBoardidAnnouncements(
-      COMMUNITY_BOARD_ID,
-      { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
       withToken(token ?? undefined),
     ),
     getApiBoardsBoardidAnnouncements(
@@ -86,6 +81,10 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       withToken(token ?? undefined),
     ),
   ]);
+  const allAnnouncements = allAnnouncementsRes.data.content ?? [];
+  const pinnedAnnouncements = allAnnouncements
+    .filter((announcement) => announcement.pinned)
+    .slice(0, PINNED_ANNOUNCEMENT_COUNT);
   return (
     <BoardContent
       boardId={COMMUNITY_BOARD_ID}
@@ -96,8 +95,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       currentPage={Number(params.page) || 1}
       canWritePost={Boolean(currentUserId)}
       initialPosts={postsRes.data.content ?? []}
-      initialAnnouncements={pinnedRes.data.content ?? []}
-      allAnnouncements={allAnnouncementsRes.data.content ?? []}
+      initialAnnouncements={pinnedAnnouncements}
+      allAnnouncements={allAnnouncements}
       totalElements={postsRes.data.page?.totalElements ?? 0}
       totalPages={postsRes.data.page?.totalPages ?? 0}
     />

@@ -1,4 +1,4 @@
-import { getApiBoardsBoardidPostsPostid, getApiBoardsBoardidPostsPostidComments } from "@/apis/generated/api";
+import { getApiBoardsBoardidPostsPostidComments, postApiBoardsBoardidPostsPostidViews } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { getServerSession } from "next-auth";
@@ -21,7 +21,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
   // async-parallel: 게시글 + 댓글 병렬 fetch
   const [postRes, commentsRes] = await Promise.all([
-    getApiBoardsBoardidPostsPostid(NEWS_BOARD_ID, id, token ? withToken(token) : undefined).catch(() => null),
+    postApiBoardsBoardidPostsPostidViews(NEWS_BOARD_ID, id, token ? withToken(token) : undefined).catch(() => null),
     getApiBoardsBoardidPostsPostidComments(NEWS_BOARD_ID, id, token ? withToken(token) : undefined).catch(() => null),
   ]);
 

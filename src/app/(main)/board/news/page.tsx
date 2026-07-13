@@ -69,15 +69,10 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
 
   const sort: string[] = ["createdAt,desc"];
 
-  const [postsRes, pinnedRes, allAnnouncementsRes] = await Promise.all([
+  const [postsRes, allAnnouncementsRes] = await Promise.all([
     getApiBoardsBoardidPosts(
       NEWS_BOARD_ID,
       { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode },
-      withToken(token ?? undefined),
-    ),
-    getApiBoardsBoardidAnnouncements(
-      NEWS_BOARD_ID,
-      { page: 0, size: PINNED_ANNOUNCEMENT_COUNT },
       withToken(token ?? undefined),
     ),
     getApiBoardsBoardidAnnouncements(
@@ -86,6 +81,10 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       withToken(token ?? undefined),
     ),
   ]);
+  const allAnnouncements = allAnnouncementsRes.data.content ?? [];
+  const pinnedAnnouncements = allAnnouncements
+    .filter((announcement) => announcement.pinned)
+    .slice(0, PINNED_ANNOUNCEMENT_COUNT);
   return (
     <BoardContent
       boardId={NEWS_BOARD_ID}
@@ -96,8 +95,8 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       currentPage={Number(params.page) || 1}
       canWritePost={canWritePost}
       initialPosts={postsRes.data.content ?? []}
-      initialAnnouncements={pinnedRes.data.content ?? []}
-      allAnnouncements={allAnnouncementsRes.data.content ?? []}
+      initialAnnouncements={pinnedAnnouncements}
+      allAnnouncements={allAnnouncements}
       totalElements={postsRes.data.page?.totalElements ?? 0}
       totalPages={postsRes.data.page?.totalPages ?? 0}
     />

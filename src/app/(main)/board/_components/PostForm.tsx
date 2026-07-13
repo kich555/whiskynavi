@@ -299,7 +299,7 @@ export default function PostForm({
           {postTypes ? (
             <div className="mb-4">
               <label htmlFor="postTypeCode" className={theme.label}>
-                타입
+                분류
               </label>
               <select
                 id="postTypeCode"
@@ -310,7 +310,7 @@ export default function PostForm({
                 className={theme.input}
               >
                 {selectablePostTypes.length === 0 ? (
-                  <option value="">선택 가능한 타입이 없습니다</option>
+                  <option value="">선택 가능한 분류가 없습니다</option>
                 ) : (
                   selectablePostTypes.map((postType) => (
                     <option key={postType.code} value={postType.code} className="text-gray-900">
