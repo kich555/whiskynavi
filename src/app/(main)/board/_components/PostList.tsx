@@ -87,7 +87,8 @@ export default function PostList({
           ) : (
             <div>
               {/* 데스크탑 테이블 헤더 */}
-              <div className="grid grid-cols-[1fr_100px_64px_100px] items-center gap-3 border-b border-white/10 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
+              <div className="grid grid-cols-[88px_minmax(0,1fr)_100px_64px_100px] items-center gap-3 border-b border-white/10 px-4 py-2 text-[10px] font-bold text-gray-500 uppercase">
+                <span>분류</span>
                 <span>제목</span>
                 <span className="text-right">작성자</span>
                 <span className="text-right">조회수</span>

@@ -16,6 +16,29 @@ function post(overrides: Partial<PostSummaryResponse> = {}): PostSummaryResponse
 }
 
 describe("PostItem", () => {
+  it.each([true, false])("글 분류와 제목을 별도 칸에 표시한다", (isMobile) => {
+    render(
+      <PostItem
+        post={post({ postType: { code: "question", name: "질문" } })}
+        isMobile={isMobile}
+        boardId="community"
+      />,
+    );
+
+    const postType = screen.getByText("질문");
+    const title = screen.getByText("이미지가 있는 게시글");
+
+    expect(postType.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(postType.parentElement).not.toBe(title.parentElement);
+  });
+
+  it("글 분류명이 없으면 분류 칸에 대시를 표시한다", () => {
+    render(<PostItem post={post({ postType: { code: "question" } })} isMobile boardId="community" />);
+
+    expect(screen.getByText("-")).toBeInTheDocument();
+    expect(screen.getByText("이미지가 있는 게시글")).toBeInTheDocument();
+  });
+
   it.each([true, false])("이미지가 있으면 제목과 댓글 수 사이에 아이콘을 표시한다", (isMobile) => {
     render(<PostItem post={post()} isMobile={isMobile} boardId="community" />);
 
