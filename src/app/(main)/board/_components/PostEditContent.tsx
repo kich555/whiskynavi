@@ -2,7 +2,6 @@
 
 import type { PostResponse, PostTypeResponse } from "@/apis/generated/api";
 import { useActionState } from "react";
-import type { FormState } from "../_lib/actions";
 import { updatePostAction } from "../_lib/actions";
 import PostForm from "./PostForm";
 
@@ -13,10 +12,8 @@ interface PostEditContentProps {
 }
 
 export default function PostEditContent({ post, boardId, postTypes }: PostEditContentProps) {
-  const boundAction = async (_prev: FormState | null, formData: FormData): Promise<FormState> => {
-    return updatePostAction(boardId, post.id!, _prev, formData);
-  };
-
+  // Server Action 참조를 그대로 bind해야 redirect 응답을 Next.js가 폼 내비게이션으로 처리한다.
+  const boundAction = updatePostAction.bind(null, boardId, post.id!);
   const [state, formAction] = useActionState(boundAction, null);
 
   return (
