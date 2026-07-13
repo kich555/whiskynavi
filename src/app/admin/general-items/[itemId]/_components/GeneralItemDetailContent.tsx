@@ -8,6 +8,7 @@ import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import ImageUploadArea from "../../../banners/_components/ImageUploadArea";
 import { updateGeneralItemFormAction } from "../../actions";
+import { MAX_GENERAL_ITEM_IMAGE_SIZE_MB } from "../../image-constraints";
 
 interface GeneralItemDetailContentProps {
   item: ItemAdminResponse;
@@ -179,6 +180,7 @@ export default function GeneralItemDetailContent({ item }: GeneralItemDetailCont
                 inputRef={inputRef}
                 onFileChange={handleFileChange}
                 onRemove={handleRemove}
+                maxSizeMB={MAX_GENERAL_ITEM_IMAGE_SIZE_MB}
               />
               <input type="hidden" name="imageKey" defaultValue={values.imageKey ?? item.imageKey ?? ""} />
             </div>

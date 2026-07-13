@@ -11,9 +11,11 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { getImageSizeError } from "@/lib/image-upload";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
+import { MAX_BANNER_IMAGE_SIZE_MB } from "./image-constraints";
 
 export type FormState = { success: boolean; error?: string };
 type BannerOrderInput = { id: number; sortOrder: number };
@@ -75,6 +77,10 @@ export async function createBannerFormAction(_prev: FormState, formData: FormDat
   if (!backgroundImg || backgroundImg.size === 0) {
     return { success: false, error: "배경 이미지는 필수입니다." };
   }
+  const backgroundSizeError = getImageSizeError(backgroundImg, MAX_BANNER_IMAGE_SIZE_MB);
+  if (backgroundSizeError) {
+    return { success: false, error: backgroundSizeError };
+  }
 
   try {
     await postApiAdminBanners(
@@ -119,6 +125,19 @@ export async function updateBannerFormAction(id: number, _prev: FormState, formD
 
   const mainImg = formData.get("mainImg") as File | null;
   const hasMain = mainImg && mainImg.size > 0;
+
+  if (hasBackground) {
+    const backgroundSizeError = getImageSizeError(backgroundImg, MAX_BANNER_IMAGE_SIZE_MB);
+    if (backgroundSizeError) {
+      return { success: false, error: backgroundSizeError };
+    }
+  }
+  if (hasMain) {
+    const mainSizeError = getImageSizeError(mainImg, MAX_BANNER_IMAGE_SIZE_MB);
+    if (mainSizeError) {
+      return { success: false, error: mainSizeError };
+    }
+  }
 
   try {
     await patchApiAdminBannersId(

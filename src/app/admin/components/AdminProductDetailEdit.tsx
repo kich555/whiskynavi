@@ -2,10 +2,12 @@
 
 import type { BottleAdminParameterValues, BottleAdminResponse } from "@/apis/generated/api";
 import { Label } from "@/components/ui/label";
+import { getImageSizeError } from "@/lib/image-upload";
 import { CalendarDays, Plus, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useMemo, useRef, useState } from "react";
 import CurrencyInput from "../_components/CurrencyInput";
+import { MAX_BOTTLE_IMAGE_SIZE_MB } from "../products/image-constraints";
 import ParameterCombobox from "./ParameterCombobox";
 
 interface AdminProductDetailEditProps {
@@ -57,6 +59,17 @@ export default function AdminProductDetailEdit({
   const newExtraInfoKeyRef = useRef<HTMLInputElement>(null);
   const newExtraInfoValueRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const [imageError, setImageError] = useState<string | null>(null);
+
+  const selectImage = (file: File) => {
+    const sizeError = getImageSizeError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
+    if (sizeError) {
+      setImageError(sizeError);
+      return;
+    }
+    setImageError(null);
+    onSelectFile(file);
+  };
 
   const previewUrl = useMemo(() => {
     if (selectedFile) return URL.createObjectURL(selectedFile);
@@ -94,7 +107,7 @@ export default function AdminProductDetailEdit({
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
     if (file && file.type.startsWith("image/")) {
-      onSelectFile(file);
+      selectImage(file);
     }
   };
 
@@ -443,7 +456,7 @@ export default function AdminProductDetailEdit({
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
-                        onSelectFile(file);
+                        selectImage(file);
                       }
                       e.target.value = "";
                     }}
@@ -475,6 +488,12 @@ export default function AdminProductDetailEdit({
               </div>
             </div>
           )}
+          <p className="mt-2 text-xs text-gray-500">이미지 파일 · 최대 {MAX_BOTTLE_IMAGE_SIZE_MB}MB</p>
+          {imageError ? (
+            <p role="alert" className="mt-1 text-xs text-red-600">
+              {imageError}
+            </p>
+          ) : null}
         </div>
       </div>
     </div>

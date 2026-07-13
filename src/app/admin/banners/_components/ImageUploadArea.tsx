@@ -1,8 +1,9 @@
 "use client";
 
+import { getImageSizeError } from "@/lib/image-upload";
 import { ImagePlus, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { type DragEvent, type RefObject, useState } from "react";
+import { type DragEvent, type RefObject, useRef, useState } from "react";
 
 interface ImageUploadAreaProps {
   label: string;
@@ -11,6 +12,7 @@ interface ImageUploadAreaProps {
   inputRef: RefObject<HTMLInputElement | null>;
   onFileChange: (file: File | null) => void;
   onRemove: () => void;
+  maxSizeMB: number;
 }
 
 export default function ImageUploadArea({
@@ -20,8 +22,43 @@ export default function ImageUploadArea({
   inputRef,
   onFileChange,
   onRemove,
+  maxSizeMB,
 }: ImageUploadAreaProps) {
   const [isDragOver, setIsDragOver] = useState(false);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const acceptedFileRef = useRef<File | null>(null);
+
+  const setInputFile = (file: File | null) => {
+    if (!inputRef.current) return;
+    if (!file) {
+      inputRef.current.value = "";
+      return;
+    }
+    const dt = new DataTransfer();
+    dt.items.add(file);
+    inputRef.current.files = dt.files;
+  };
+
+  const selectFile = (file: File | null) => {
+    if (!file) {
+      setFileError(null);
+      acceptedFileRef.current = null;
+      onFileChange(null);
+      return false;
+    }
+
+    const sizeError = getImageSizeError(file, maxSizeMB);
+    if (sizeError) {
+      setFileError(sizeError);
+      setInputFile(acceptedFileRef.current);
+      return false;
+    }
+
+    setFileError(null);
+    acceptedFileRef.current = file;
+    onFileChange(file);
+    return true;
+  };
 
   const handleDragOver = (e: DragEvent) => {
     e.preventDefault();
@@ -38,14 +75,9 @@ export default function ImageUploadArea({
     setIsDragOver(false);
 
     const file = e.dataTransfer.files[0];
-    if (file?.type.startsWith("image/")) {
+    if (file?.type.startsWith("image/") && selectFile(file)) {
       // input에도 파일을 설정해서 form 제출 시 포함되도록
-      const dt = new DataTransfer();
-      dt.items.add(file);
-      if (inputRef.current) {
-        inputRef.current.files = dt.files;
-      }
-      onFileChange(file);
+      setInputFile(file);
     }
   };
 
@@ -60,7 +92,7 @@ export default function ImageUploadArea({
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0] ?? null;
-          onFileChange(file);
+          selectFile(file);
         }}
       />
 
@@ -90,7 +122,11 @@ export default function ImageUploadArea({
             </button>
             <button
               type="button"
-              onClick={onRemove}
+              onClick={() => {
+                acceptedFileRef.current = null;
+                setFileError(null);
+                onRemove();
+              }}
               className="typo-medium-14 cursor-pointer rounded-lg bg-red-600 px-3 py-2 text-white hover:bg-red-700"
             >
               <Trash2 size={16} />
@@ -120,6 +156,12 @@ export default function ImageUploadArea({
           </span>
         </div>
       )}
+      <p className="mt-2 text-xs text-gray-500">이미지 파일 · 최대 {maxSizeMB}MB</p>
+      {fileError ? (
+        <p role="alert" className="mt-1 text-xs text-red-600">
+          {fileError}
+        </p>
+      ) : null}
     </div>
   );
 }
