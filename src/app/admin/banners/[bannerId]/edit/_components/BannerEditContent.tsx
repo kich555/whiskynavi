@@ -9,6 +9,7 @@ import AdminHeader from "../../../../_components/AdminHeader";
 import { useSidebar } from "../../../../_components/AdminLayoutClient";
 import ImageUploadArea from "../../../_components/ImageUploadArea";
 import { updateBannerFormAction } from "../../../actions";
+import { MAX_BANNER_IMAGE_SIZE_MB } from "../../../image-constraints";
 
 interface BannerEditContentProps {
   banner: AdminBannerResponse;
@@ -129,6 +130,7 @@ export default function BannerEditContent({ banner }: BannerEditContentProps) {
                 inputRef={bgInputRef}
                 onFileChange={handleBgChange}
                 onRemove={handleBgRemove}
+                maxSizeMB={MAX_BANNER_IMAGE_SIZE_MB}
               />
             </div>
           </div>

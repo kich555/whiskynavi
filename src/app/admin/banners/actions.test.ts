@@ -18,6 +18,7 @@ import {
   updateBannerFormAction,
   updateBannerOrdersAction,
 } from "./actions";
+import { MAX_BANNER_IMAGE_SIZE_MB } from "./image-constraints";
 
 vi.mock("@/apis/generated/api", () => ({
   deleteApiAdminBannersId: vi.fn(),
@@ -106,6 +107,22 @@ describe("banner admin actions", () => {
       { headers: { Authorization: "Bearer admin-token" } },
     );
     expect(mockedRedirect).toHaveBeenCalledWith("/admin/banners/10");
+  });
+
+  it("returns the banner image limit without creating an oversized banner", async () => {
+    const formData = new FormData();
+    formData.set("title", "작성 중인 배너");
+    formData.set(
+      "backgroundImg",
+      new File([new Uint8Array(MAX_BANNER_IMAGE_SIZE_MB * 1024 * 1024 + 1)], "large.png", {
+        type: "image/png",
+      }),
+    );
+
+    const result = await createBannerFormAction({ success: false }, formData);
+
+    expect(result.error).toContain(`최대 ${MAX_BANNER_IMAGE_SIZE_MB}MB`);
+    expect(mockedCreate).not.toHaveBeenCalled();
   });
 
   it("publishes a banner with admin token and revalidates banner pages", async () => {

@@ -2,6 +2,7 @@ import { patchApiAdminItemsId, postApiAdminItems, postApiAdminSales, postApiS3Up
 import { getAuthToken } from "@/lib/auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createGeneralItemFormAction, createGeneralItemSaleFormAction, updateGeneralItemFormAction } from "./actions";
+import { MAX_GENERAL_ITEM_IMAGE_SIZE_MB } from "./image-constraints";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiAdminItemsId: vi.fn(),
@@ -87,6 +88,28 @@ describe("general item admin actions", () => {
       },
       { headers: { Authorization: "Bearer admin-token" } },
     );
+  });
+
+  it("returns the general-item image limit and preserves entered values", async () => {
+    const formData = formDataFrom({
+      name: "작성 중인 일반상품",
+      description: "보존할 설명",
+    });
+    formData.set(
+      "imageFile",
+      new File([new Uint8Array(MAX_GENERAL_ITEM_IMAGE_SIZE_MB * 1024 * 1024 + 1)], "large.png", {
+        type: "image/png",
+      }),
+    );
+
+    const result = await createGeneralItemFormAction({ success: false }, formData);
+
+    expect(result.error).toContain(`최대 ${MAX_GENERAL_ITEM_IMAGE_SIZE_MB}MB`);
+    expect(result.values).toMatchObject({
+      name: "작성 중인 일반상품",
+      description: "보존할 설명",
+    });
+    expect(mockedPostS3Upload).not.toHaveBeenCalled();
   });
 
   it("creates a general item sale announcement fixed to ITEM and GENERAL", async () => {

@@ -8,6 +8,7 @@ import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import ImageUploadArea from "../../../banners/_components/ImageUploadArea";
 import { createGeneralItemFormAction } from "../../actions";
+import { MAX_GENERAL_ITEM_IMAGE_SIZE_MB } from "../../image-constraints";
 
 function buildSaleCreateHref(itemId?: number, itemName?: string, salePrice?: number, totalQuantity?: number) {
   const params = new URLSearchParams();
@@ -191,6 +192,7 @@ export default function GeneralItemCreateContent() {
                 inputRef={inputRef}
                 onFileChange={handleFileChange}
                 onRemove={handleRemove}
+                maxSizeMB={MAX_GENERAL_ITEM_IMAGE_SIZE_MB}
               />
               <input type="hidden" name="imageKey" defaultValue={values.imageKey ?? ""} />
             </div>

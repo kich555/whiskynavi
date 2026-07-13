@@ -1,6 +1,7 @@
 import { getApiBoardsBoardidPostsPostidComments, postApiBoardsBoardidPostsPostidViews } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
+import { isAdminUser } from "@/lib/role";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import PostDetailContent from "../../../_components/PostDetailContent";
@@ -36,6 +37,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       currentUserId={currentUserId}
       comments={commentsRes?.data ?? []}
       isLoggedIn={Boolean(token)}
+      isAdmin={isAdminUser(session?.user?.roles ?? [])}
     />
   );
 }
