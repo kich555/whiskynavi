@@ -29,6 +29,7 @@ import {
   postApiAdminBoardsBoardidPostTypesPosttypeidDefault,
   putApiAdminBoardsAnnouncementsAnnouncementid,
   putApiAdminBoardsBoardid,
+  putApiAdminBoardsBoardidPostsPostidPostType,
   putApiAdminBoardsBoardidPostTypesPosttypeid,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -262,6 +263,37 @@ export async function deleteBoardPostAction(
     return {
       success: false,
       error: getUserErrorMessage(error, "게시글 삭제에 실패했습니다."),
+    };
+  }
+}
+
+export async function changeBoardPostTypeAction(
+  boardId: number,
+  postId: number,
+  postTypeId: number,
+  boardRoute?: string,
+): Promise<FormState> {
+  const options = await getAdminOptions();
+  if (!options) {
+    return { success: false, error: "인증이 필요합니다." };
+  }
+
+  if (!Number.isSafeInteger(postTypeId) || postTypeId <= 0) {
+    return { success: false, error: "변경할 분류를 선택해 주세요." };
+  }
+
+  try {
+    await putApiAdminBoardsBoardidPostsPostidPostType(boardId, postId, { postTypeId }, options);
+    revalidatePath("/admin/boards");
+    if (boardRoute) {
+      revalidatePath(`/board/${boardRoute}`);
+      revalidatePath(`/board/${boardRoute}/posts/${postId}`);
+    }
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "게시글 분류 변경에 실패했습니다."),
     };
   }
 }

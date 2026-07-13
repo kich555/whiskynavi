@@ -1323,6 +1323,14 @@ export interface AdminPostDeletionAuditResponse {
   title?: string;
 }
 
+/**
+ * 관리자가 게시글 분류를 변경할 때 사용하는 요청 본문입니다.
+ */
+export interface AdminPostTypeChangeRequest {
+  /** 변경할 게시글용 글타입 ID입니다. */
+  postTypeId: number;
+}
+
 export type AdminReservationBusinessDeliveryResponseCarrierCode = typeof AdminReservationBusinessDeliveryResponseCarrierCode[keyof typeof AdminReservationBusinessDeliveryResponseCarrierCode];
 
 
@@ -6271,6 +6279,14 @@ export type PostApiAdminBoardsBoardidPostsPostidDeleteBody = {
    * @maxLength 500
    */
   deleteReason?: string;
+};
+
+/**
+ * 관리자가 게시글 분류를 변경할 때 사용하는 요청 본문입니다.
+ */
+export type PutApiAdminBoardsBoardidPostsPostidPostTypeBody = {
+  /** 변경할 게시글용 글타입 ID입니다. */
+  postTypeId: number;
 };
 
 export type GetApiAdminBottlesParams = {
@@ -11440,6 +11456,47 @@ export const postApiAdminBoardsBoardidPostsPostidDelete = async (boardId: number
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBoardsBoardidPostsPostidDeleteBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 지정한 게시글의 분류를 같은 게시판에 속한 활성 게시글용 글타입으로 변경합니다.
+ * @summary 관리자 게시글 분류 변경
+ */
+export type putApiAdminBoardsBoardidPostsPostidPostTypeResponse200 = {
+  data: AdminBoardPostTypeResponse
+  status: 200
+}
+    
+export type putApiAdminBoardsBoardidPostsPostidPostTypeResponseSuccess = (putApiAdminBoardsBoardidPostsPostidPostTypeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminBoardsBoardidPostsPostidPostTypeResponse = (putApiAdminBoardsBoardidPostsPostidPostTypeResponseSuccess)
+
+export const getPutApiAdminBoardsBoardidPostsPostidPostTypeUrl = (boardId: number,
+    postId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/posts/${postId}/post-type`
+}
+
+export const putApiAdminBoardsBoardidPostsPostidPostType = async (boardId: number,
+    postId: number,
+    putApiAdminBoardsBoardidPostsPostidPostTypeBody: PutApiAdminBoardsBoardidPostsPostidPostTypeBody, options?: RequestInit): Promise<putApiAdminBoardsBoardidPostsPostidPostTypeResponse> => {
+  
+  return customFetch<putApiAdminBoardsBoardidPostsPostidPostTypeResponse>(getPutApiAdminBoardsBoardidPostsPostidPostTypeUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminBoardsBoardidPostsPostidPostTypeBody,)
   }
 );}
 

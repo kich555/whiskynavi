@@ -1,12 +1,13 @@
 "use client";
 
-import type { CommentResponse, PostResponse } from "@/apis/generated/api";
+import type { CommentResponse, PostResponse, PostTypeResponse } from "@/apis/generated/api";
 import { FormMessage } from "@/components/ui/form-message";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { deletePostAction } from "../_lib/actions";
 import AdminAuthorBadge from "./AdminAuthorBadge";
 import AdminPostDeleteDialog from "./AdminPostDeleteDialog";
+import AdminPostTypeChangeDialog from "./AdminPostTypeChangeDialog";
 import CommentsSection from "./CommentsSection";
 import PostDetailShell from "./PostDetailShell";
 
@@ -17,6 +18,7 @@ interface PostDetailContentProps {
   comments: CommentResponse[];
   isLoggedIn: boolean;
   isAdmin: boolean;
+  postTypes?: PostTypeResponse[];
 }
 
 export default function PostDetailContent({
@@ -26,6 +28,7 @@ export default function PostDetailContent({
   comments,
   isLoggedIn,
   isAdmin,
+  postTypes = [],
 }: PostDetailContentProps) {
   const [isDeleting, startDelete] = useTransition();
   const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -58,26 +61,39 @@ export default function PostDetailContent({
         }
         content={post.content ?? ""}
         actions={
-          isAuthor ? (
+          isAuthor || (isAdmin && post.boardId !== undefined) ? (
             <>
-              <Link
-                href={`/board/${boardId}/posts/${post.id}/edit`}
-                className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5"
-              >
-                수정
-              </Link>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
-              >
-                {isDeleting ? "삭제 중..." : "삭제"}
-              </button>
-              <FormMessage message={deleteError} variant="error" />
+              {isAdmin && post.boardId !== undefined ? (
+                <AdminPostTypeChangeDialog
+                  boardId={post.boardId}
+                  boardRoute={boardId}
+                  postId={post.id!}
+                  currentPostTypeId={post.postType?.id}
+                  postTypes={postTypes}
+                />
+              ) : null}
+              {isAuthor ? (
+                <>
+                  <Link
+                    href={`/board/${boardId}/posts/${post.id}/edit`}
+                    className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5"
+                  >
+                    수정
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                  >
+                    {isDeleting ? "삭제 중..." : "삭제"}
+                  </button>
+                  <FormMessage message={deleteError} variant="error" />
+                </>
+              ) : (
+                <AdminPostDeleteDialog boardId={post.boardId!} boardRoute={boardId} postId={post.id!} />
+              )}
             </>
-          ) : isAdmin && post.boardId !== undefined ? (
-            <AdminPostDeleteDialog boardId={post.boardId} boardRoute={boardId} postId={post.id!} />
           ) : undefined
         }
       />

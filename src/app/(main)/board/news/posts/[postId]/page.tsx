@@ -5,6 +5,7 @@ import { isAdminUser } from "@/lib/role";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import PostDetailContent from "../../../_components/PostDetailContent";
+import { getBoard } from "../../../_lib/board";
 import { NEWS_BOARD_ID } from "../../../_lib/constants";
 
 interface PostDetailPageProps {
@@ -19,11 +20,13 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
   const [session, token] = await Promise.all([getServerSession(authOptions), getAuthToken()]);
 
   const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+  const isAdmin = isAdminUser(session?.user?.roles ?? []);
 
-  // async-parallel: 게시글 + 댓글 병렬 fetch
-  const [postRes, commentsRes] = await Promise.all([
+  // async-parallel: 게시글 + 댓글 + 관리자용 분류 목록 병렬 fetch
+  const [postRes, commentsRes, board] = await Promise.all([
     postApiBoardsBoardidPostsPostidViews(NEWS_BOARD_ID, id, token ? withToken(token) : undefined).catch(() => null),
     getApiBoardsBoardidPostsPostidComments(NEWS_BOARD_ID, id, token ? withToken(token) : undefined).catch(() => null),
+    isAdmin ? getBoard(NEWS_BOARD_ID, token).catch(() => undefined) : Promise.resolve(undefined),
   ]);
 
   if (!postRes) {
@@ -37,7 +40,8 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       currentUserId={currentUserId}
       comments={commentsRes?.data ?? []}
       isLoggedIn={Boolean(token)}
-      isAdmin={isAdminUser(session?.user?.roles ?? [])}
+      isAdmin={isAdmin}
+      postTypes={board?.postTypes ?? []}
     />
   );
 }
