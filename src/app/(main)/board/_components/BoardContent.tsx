@@ -164,12 +164,30 @@ export default function BoardContent({
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-6">
+        <PostList
+          posts={displayPosts}
+          announcements={initialAnnouncements}
+          allAnnouncements={allAnnouncements}
+          boardId={boardId}
+          isMobile={isMobile}
+          isLoadMoreMode={isLoadMoreMode}
+          showPagination={showPagination}
+          currentPage={currentPage}
+          totalPages={totalPages}
+          totalElements={totalElements}
+          loadMoreRemaining={loadMoreRemaining}
+          isLoadingMore={isLoadingMore}
+          onLoadMore={handleLoadMore}
+          onPageChange={handlePageChange}
+          isSearching={Boolean(keyword)}
+        />
+
         {resource === "posts" ? (
           <form
             key={`${searchType ?? "TITLE"}:${keyword ?? ""}`}
             action={`/board/${boardId}`}
             method="get"
-            className="mb-4 flex flex-col gap-2 sm:flex-row sm:justify-end"
+            className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end"
           >
             <input type="hidden" name="tab" value={tab} />
             <input type="hidden" name="page" value="1" />
@@ -214,24 +232,6 @@ export default function BoardContent({
             </button>
           </form>
         ) : null}
-
-        <PostList
-          posts={displayPosts}
-          announcements={initialAnnouncements}
-          allAnnouncements={allAnnouncements}
-          boardId={boardId}
-          isMobile={isMobile}
-          isLoadMoreMode={isLoadMoreMode}
-          showPagination={showPagination}
-          currentPage={currentPage}
-          totalPages={totalPages}
-          totalElements={totalElements}
-          loadMoreRemaining={loadMoreRemaining}
-          isLoadingMore={isLoadingMore}
-          onLoadMore={handleLoadMore}
-          onPageChange={handlePageChange}
-          isSearching={Boolean(keyword)}
-        />
       </div>
     </div>
   );
