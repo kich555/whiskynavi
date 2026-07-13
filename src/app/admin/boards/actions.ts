@@ -232,20 +232,31 @@ export async function deleteBoardAction(boardId: number): Promise<FormState> {
   }
 }
 
-export async function deleteBoardPostAction(boardId: number, postId: number, deleteReason: string): Promise<FormState> {
+export async function deleteBoardPostAction(
+  boardId: number,
+  postId: number,
+  deleteReason: string,
+  boardRoute?: string,
+): Promise<FormState> {
   const options = await getAdminOptions();
   if (!options) {
     return { success: false, error: "인증이 필요합니다." };
   }
 
+  const normalizedReason = deleteReason.trim();
+  if (!normalizedReason) {
+    return { success: false, error: "삭제 사유를 입력해 주세요." };
+  }
+  if (normalizedReason.length > 500) {
+    return { success: false, error: "삭제 사유는 500자 이내로 입력해 주세요." };
+  }
+
   try {
-    await postApiAdminBoardsBoardidPostsPostidDelete(
-      boardId,
-      postId,
-      { deleteReason: deleteReason || undefined },
-      options,
-    );
+    await postApiAdminBoardsBoardidPostsPostidDelete(boardId, postId, { deleteReason: normalizedReason }, options);
     revalidatePath("/admin/boards");
+    if (boardRoute) {
+      revalidatePath(`/board/${boardRoute}`);
+    }
     return { success: true };
   } catch (error) {
     return {
