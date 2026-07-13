@@ -16694,7 +16694,7 @@ export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: st
 
 
 /**
- * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있으며, postTypeCode를 지정하면 해당 글타입으로 필터링하고 keyword 검색보다 우선 적용합니다.
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 닉네임 검색 조건을 적용할 수 있으며, postTypeCode와 검색 조건을 함께 지정할 수 있습니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {

@@ -22,6 +22,7 @@ interface PostListProps {
   isLoadingMore: boolean;
   onLoadMore: () => void;
   onPageChange: (page: number) => void;
+  isSearching: boolean;
 }
 
 export default function PostList({
@@ -38,6 +39,7 @@ export default function PostList({
   isLoadingMore,
   onLoadMore,
   onPageChange,
+  isSearching,
 }: PostListProps) {
   const [showAllAnnouncements, setShowAllAnnouncements] = useState(false);
   const displayAnnouncements = showAllAnnouncements ? allAnnouncements : announcements;
@@ -46,8 +48,10 @@ export default function PostList({
   if (isEmpty) {
     return (
       <div className="flex min-h-[calc(100vh-430px)] flex-col items-center justify-center text-gray-400">
-        <p className="text-sm">게시글이 없습니다.</p>
-        <p className="mt-1 text-xs">첫 번째 게시글을 작성해보세요!</p>
+        <p className="text-sm">{isSearching ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>
+        <p className="mt-1 text-xs">
+          {isSearching ? "다른 검색어로 다시 시도해보세요." : "첫 번째 게시글을 작성해보세요!"}
+        </p>
       </div>
     );
   }
@@ -98,6 +102,13 @@ export default function PostList({
           )}
         </>
       )}
+
+      {posts.length === 0 && isSearching && announcements.length > 0 ? (
+        <div className="flex min-h-32 flex-col items-center justify-center border-t border-white/10 text-gray-400">
+          <p className="text-sm">검색 결과가 없습니다.</p>
+          <p className="mt-1 text-xs">다른 검색어로 다시 시도해보세요.</p>
+        </div>
+      ) : null}
 
       {/* 페이지네이션 — 게시글이 없어도 공지 탭에서 페이지네이션 필요 */}
       {(posts.length > 0 || announcements.length > 0) && (

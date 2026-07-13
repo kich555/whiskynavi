@@ -1,10 +1,14 @@
 "use client";
 
-import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/apis/generated/api";
+import type {
+  GetApiBoardsBoardidPostsSearchType,
+  PostSummaryResponse,
+  UserAnnouncementSummaryResponse,
+} from "@/apis/generated/api";
 import { getApiBoardsBoardidPosts } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import { Plus, Search, X } from "lucide-react";
 import { getSession } from "next-auth/react";
-import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useIsMobile } from "../_hooks/useIsMobile";
@@ -28,6 +32,8 @@ interface BoardContentProps {
   allAnnouncements: UserAnnouncementSummaryResponse[];
   totalElements: number;
   totalPages: number;
+  searchType?: GetApiBoardsBoardidPostsSearchType;
+  keyword?: string;
 }
 
 export default function BoardContent({
@@ -43,6 +49,8 @@ export default function BoardContent({
   allAnnouncements,
   totalElements,
   totalPages,
+  searchType,
+  keyword,
 }: BoardContentProps) {
   const router = useRouter();
   const isMobile = useIsMobile();
@@ -68,22 +76,34 @@ export default function BoardContent({
   const displayPosts =
     isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
 
+  const buildListHref = useCallback(
+    (nextTab: string, page: number, includeSearch = true) => {
+      const params = new URLSearchParams({ tab: nextTab, page: String(page) });
+      if (includeSearch && searchType && keyword) {
+        params.set("searchType", searchType);
+        params.set("keyword", keyword);
+      }
+      return `/board/${boardId}?${params.toString()}`;
+    },
+    [boardId, keyword, searchType],
+  );
+
   const handleTabChange = useCallback(
     (newTab: string) => {
       setLoadMorePage(1);
       setAccumulatedPosts([]);
-      router.push(`/board/${boardId}?tab=${newTab}&page=1`);
+      router.push(buildListHref(newTab, 1));
     },
-    [router, boardId],
+    [buildListHref, router],
   );
 
   const handlePageChange = useCallback(
     (page: number) => {
       setLoadMorePage(1);
       setAccumulatedPosts([]);
-      router.push(`/board/${boardId}?tab=${tab}&page=${page}`);
+      router.push(buildListHref(tab, page));
     },
-    [router, boardId, tab],
+    [buildListHref, router, tab],
   );
 
   // bundle-dynamic-imports: 모듈은 컴포넌트 최상단에서 정적으로 import.
@@ -100,7 +120,14 @@ export default function BoardContent({
       const opts = withToken(token ?? undefined);
       const res = await getApiBoardsBoardidPosts(
         boardId,
-        { page: nextPage - 1, size: POSTS_PER_PAGE, sort: ["createdAt,desc"], postTypeCode },
+        {
+          page: nextPage - 1,
+          size: POSTS_PER_PAGE,
+          sort: ["createdAt,desc"],
+          postTypeCode,
+          searchType,
+          keyword,
+        },
         opts,
       );
       // 응답이 온 사이 다른 탭으로 전환됐다면 이 결과는 버린다 (탭 간 데이터 오염 방지)
@@ -110,7 +137,7 @@ export default function BoardContent({
     } finally {
       setIsLoadingMore(false);
     }
-  }, [isLoadingMore, postTypeCode, tab, boardId]);
+  }, [boardId, isLoadingMore, keyword, postTypeCode, searchType, tab]);
 
   const showPagination = !isLoadMoreMode && totalPages > 1;
   const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
@@ -137,6 +164,57 @@ export default function BoardContent({
       </div>
 
       <div className="mx-auto max-w-4xl px-4 py-6">
+        {resource === "posts" ? (
+          <form
+            key={`${searchType ?? "TITLE"}:${keyword ?? ""}`}
+            action={`/board/${boardId}`}
+            method="get"
+            className="mb-4 flex flex-col gap-2 sm:flex-row sm:justify-end"
+          >
+            <input type="hidden" name="tab" value={tab} />
+            <input type="hidden" name="page" value="1" />
+            <select
+              name="searchType"
+              aria-label="검색 조건"
+              defaultValue={searchType ?? "TITLE"}
+              className="h-10 rounded-lg border border-white/15 bg-[#252d33] px-3 text-sm text-gray-100 outline-none focus:border-amber-500"
+            >
+              <option value="TITLE">제목</option>
+              <option value="AUTHOR">작성자</option>
+            </select>
+            <div className="relative min-w-0 flex-1 sm:max-w-sm">
+              <Search
+                size={16}
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-gray-500"
+              />
+              <input
+                name="keyword"
+                defaultValue={keyword ?? ""}
+                aria-label="검색어"
+                placeholder="검색어를 입력하세요"
+                className="h-10 w-full rounded-lg border border-white/15 bg-[#252d33] pr-10 pl-9 text-sm text-gray-100 outline-none placeholder:text-gray-500 focus:border-amber-500"
+              />
+              {keyword ? (
+                <button
+                  type="button"
+                  aria-label="검색어 지우기"
+                  onClick={() => router.push(buildListHref(tab, 1, false))}
+                  className="absolute top-1/2 right-2 -translate-y-1/2 rounded p-1 text-gray-500 transition-colors hover:bg-white/10 hover:text-gray-200"
+                >
+                  <X size={14} />
+                </button>
+              ) : null}
+            </div>
+            <button
+              type="submit"
+              className="h-10 rounded-lg bg-amber-600 px-5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+            >
+              검색
+            </button>
+          </form>
+        ) : null}
+
         <PostList
           posts={displayPosts}
           announcements={initialAnnouncements}
@@ -152,6 +230,7 @@ export default function BoardContent({
           isLoadingMore={isLoadingMore}
           onLoadMore={handleLoadMore}
           onPageChange={handlePageChange}
+          isSearching={Boolean(keyword)}
         />
       </div>
     </div>
