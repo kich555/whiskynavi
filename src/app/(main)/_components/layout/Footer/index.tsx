@@ -25,6 +25,9 @@ export default function Footer() {
             <Link href="/reservation" className="transition-colors hover:text-white">
               예약하기
             </Link>
+            <Link href="/terms" className="font-medium text-gray-300 transition-colors hover:text-white">
+              이용약관
+            </Link>
           </nav>
         </div>
 

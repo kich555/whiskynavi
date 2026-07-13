@@ -2,6 +2,7 @@
 
 import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { TERMS_TEXT } from "@/lib/terms";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
@@ -12,31 +13,7 @@ import { signupAgreementFieldNames, type SignupAgreementBooleanValues } from "..
 const TERMS_CONTENT: Record<string, { title: string; content: string }> = {
   terms: {
     title: "이용약관",
-    content: `제1조 (목적)
-이 약관은 위스키네비(이하 "회사")가 제공하는 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다.
-
-제2조 (정의)
-1. "서비스"란 회사가 제공하는 모든 온라인 서비스를 의미합니다.
-2. "회원"이란 이 약관에 동의하고 회원가입을 완료한 자를 의미합니다.
-3. "아이디"란 회원의 식별과 서비스 이용을 위하여 회원이 설정하고 회사가 승인한 문자와 숫자의 조합을 의미합니다.
-
-제3조 (약관의 효력 및 변경)
-1. 이 약관은 서비스를 이용하고자 하는 모든 회원에게 그 효력이 발생합니다.
-2. 회사는 관련 법령을 위반하지 않는 범위에서 이 약관을 변경할 수 있으며, 변경된 약관은 공지사항을 통해 공지합니다.
-
-제4조 (서비스의 제공)
-1. 회사는 다음과 같은 서비스를 제공합니다.
-  - 위스키 정보 검색 및 리뷰 서비스
-  - 매장 예약 및 관리 서비스
-  - 기타 회사가 정하는 서비스
-
-제5조 (회원의 의무)
-1. 회원은 관계 법령, 이 약관의 규정, 이용안내 및 서비스와 관련하여 공지한 주의사항을 준수하여야 합니다.
-2. 회원은 서비스 이용과 관련하여 다음 각 호의 행위를 하여서는 안 됩니다.
-  - 타인의 정보 도용
-  - 회사가 게시한 정보의 변경
-  - 회사가 정한 정보 이외의 정보 송신 또는 게시
-  - 기타 불법적이거나 부당한 행위`,
+    content: TERMS_TEXT,
   },
   privacy: {
     title: "개인정보 수집 및 이용 동의",
