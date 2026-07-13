@@ -42,4 +42,19 @@ describe("PostDetailContent", () => {
     expect(screen.queryByRole("link", { name: "수정" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "삭제" })).not.toBeInTheDocument();
   });
+
+  it("관리자가 작성한 글에는 관리자 표식을 표시한다", () => {
+    render(
+      <PostDetailContent
+        post={post({ authorNickname: "운영자", authorAdmin: true })}
+        boardId="community"
+        comments={[]}
+        isLoggedIn={false}
+        isAdmin={false}
+      />,
+    );
+
+    expect(screen.getByText("운영자")).toBeInTheDocument();
+    expect(screen.getByLabelText("관리자 작성자")).toBeInTheDocument();
+  });
 });

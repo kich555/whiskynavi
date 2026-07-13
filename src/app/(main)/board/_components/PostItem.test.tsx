@@ -55,4 +55,16 @@ describe("PostItem", () => {
 
     expect(screen.queryByRole("img", { name: "이미지 첨부됨" })).not.toBeInTheDocument();
   });
+
+  it.each([true, false])("관리자 작성 게시글에는 관리자 표식을 표시한다", (isMobile) => {
+    render(<PostItem post={post({ authorAdmin: true })} isMobile={isMobile} boardId="community" />);
+
+    expect(screen.getByLabelText("관리자 작성자")).toBeInTheDocument();
+  });
+
+  it("일반 사용자 작성 게시글에는 관리자 표식을 표시하지 않는다", () => {
+    render(<PostItem post={post({ authorAdmin: false })} isMobile boardId="community" />);
+
+    expect(screen.queryByLabelText("관리자 작성자")).not.toBeInTheDocument();
+  });
 });

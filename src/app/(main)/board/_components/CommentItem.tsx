@@ -4,6 +4,7 @@ import type { CommentReplyResponse, CommentResponse } from "@/apis/generated/api
 import { FormMessage } from "@/components/ui/form-message";
 import { useState, useTransition } from "react";
 import { deleteCommentAction } from "../_lib/actions";
+import AdminAuthorBadge from "./AdminAuthorBadge";
 import CommentForm from "./CommentForm";
 
 type CommentLike = CommentResponse | CommentReplyResponse;
@@ -62,8 +63,9 @@ export default function CommentItem({ comment, boardId, postId, currentUserId, i
           />
         ) : (
           <>
-            <div className="mb-1 flex items-center gap-2 text-xs text-gray-500">
+            <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
               <span className="text-gray-300">{comment.authorNickname ?? "알 수 없는 사용자"}</span>
+              {comment.authorAdmin ? <AdminAuthorBadge /> : null}
               <span>·</span>
               <span>{formatDate(comment.createdAt)}</span>
               {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
