@@ -19,7 +19,7 @@ export default async function AnnouncementNewPage({ params }: AnnouncementNewPag
   try {
     [board, postTypes] = await Promise.all([
       getApiAdminBoardsBoardid(id, withToken(token)).then((res) => res.data),
-      getApiAdminBoardsBoardidPostTypes(id, withToken(token))
+      getApiAdminBoardsBoardidPostTypes(id, {}, withToken(token))
         .then((res) => res.data ?? [])
         .catch(() => []),
     ]);

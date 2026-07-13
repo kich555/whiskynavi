@@ -27,6 +27,7 @@ export type FormState = {
 };
 
 const postSchema = z.object({
+  postTypeCode: z.string().trim().min(1, "타입을 선택해주세요.").max(50, "올바른 타입을 선택해주세요."),
   title: z.string().trim().min(1, "제목을 입력해주세요.").max(200, "제목은 최대 200자까지 입력 가능합니다."),
   content: z.string().trim().min(1, "내용을 입력해주세요."),
 });
@@ -71,6 +72,7 @@ export async function createPostAction(
   formData: FormData,
 ): Promise<FormState> {
   const values: Record<string, string> = {
+    postTypeCode: (formData.get("postTypeCode") as string) ?? "",
     title: (formData.get("title") as string) ?? "",
     content: (formData.get("content") as string) ?? "",
   };
@@ -99,7 +101,11 @@ export async function createPostAction(
   });
 
   try {
-    await postApiBoardsBoardidPosts(boardId, { title: parsed.data.title, content: sanitized }, withToken(token));
+    await postApiBoardsBoardidPosts(
+      boardId,
+      { title: parsed.data.title, content: sanitized, postTypeCode: parsed.data.postTypeCode },
+      withToken(token),
+    );
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {
@@ -120,6 +126,7 @@ export async function updatePostAction(
   formData: FormData,
 ): Promise<FormState> {
   const values: Record<string, string> = {
+    postTypeCode: (formData.get("postTypeCode") as string) ?? "",
     title: (formData.get("title") as string) ?? "",
     content: (formData.get("content") as string) ?? "",
   };
@@ -163,7 +170,12 @@ export async function updatePostAction(
   });
 
   try {
-    await putApiBoardsBoardidPostsPostid(boardId, postId, { title: parsed.data.title, content: sanitized }, withToken(token));
+    await putApiBoardsBoardidPostsPostid(
+      boardId,
+      postId,
+      { title: parsed.data.title, content: sanitized, postTypeCode: parsed.data.postTypeCode },
+      withToken(token),
+    );
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {
@@ -177,10 +189,7 @@ export async function updatePostAction(
   redirect(`/board/${boardId}/posts/${postId}`);
 }
 
-export async function deletePostAction(
-  boardId: string,
-  postId: number,
-): Promise<{ success: boolean; error?: string }> {
+export async function deletePostAction(boardId: string, postId: number): Promise<{ success: boolean; error?: string }> {
   const token = await getAuthToken();
   if (!token) {
     return { success: false, error: "로그인이 필요합니다." };
@@ -299,7 +308,13 @@ export async function updateCommentAction(
   }
 
   try {
-    await putApiBoardsBoardidPostsPostidCommentsCommentid(boardId, postId, commentId, { content: parsed.data }, withToken(token));
+    await putApiBoardsBoardidPostsPostidCommentsCommentid(
+      boardId,
+      postId,
+      commentId,
+      { content: parsed.data },
+      withToken(token),
+    );
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {

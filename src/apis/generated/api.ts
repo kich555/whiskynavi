@@ -34,6 +34,7 @@ export const AdminBoardPostTypeResponseUsagesItem = {
 export interface AdminBoardPostTypeResponse {
   active?: boolean;
   boardId?: number;
+  boardSlug?: string;
   code?: string;
   createdAt?: string;
   default?: boolean;
@@ -2320,6 +2321,8 @@ export interface ChangePasswordRequest {
 export interface CommentReplyResponse {
   /** 댓글 작성자 ID입니다. */
   authorId?: number;
+  /** 댓글 작성자 닉네임입니다. */
+  authorNickname?: string;
   /** 댓글 내용입니다. */
   content?: string;
   /** 댓글 생성 일시입니다. */
@@ -2344,6 +2347,8 @@ export interface CommentReplyResponse {
 export interface CommentResponse {
   /** 댓글 작성자 ID입니다. */
   authorId?: number;
+  /** 댓글 작성자 닉네임입니다. */
+  authorNickname?: string;
   /** 댓글 내용입니다. */
   content?: string;
   /** 댓글 생성 일시입니다. */
@@ -3444,8 +3449,12 @@ export interface PostTypeResponse {
 export interface PostSummaryResponse {
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
+  /** 게시글 작성자 닉네임입니다. */
+  authorNickname?: string;
   /** 게시글이 속한 게시판 ID입니다. */
   boardId?: number;
+  /** 삭제되지 않은 댓글과 답글의 총 개수입니다. */
+  commentCount?: number;
   /** 게시글 생성 일시입니다. */
   createdAt?: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. */
@@ -3457,6 +3466,8 @@ export interface PostSummaryResponse {
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
   updatedAt?: string;
+  /** 게시글 조회수입니다. */
+  viewCount?: number;
 }
 
 export interface PagedModelPostSummaryResponse {
@@ -3578,7 +3589,7 @@ export interface UserBoardResponse {
   id?: number;
   /** 사용자에게 노출되는 게시판명입니다. */
   name?: string;
-  /** 게시판에서 선택 가능한 활성 게시글 타입 목록입니다. */
+  /** 게시판에서 선택 가능한 활성 글타입 목록입니다. POST와 ANNOUNCEMENT 용도를 모두 포함합니다. */
   postTypes?: PostTypeResponse[];
   /** 읽기 전용 게시판 여부입니다. true이면 게시글 작성/수정/삭제가 불가능합니다. */
   readOnly?: boolean;
@@ -4318,8 +4329,12 @@ export interface PagedModelUserSaleAnnouncementResponse {
 export interface PostResponse {
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
+  /** 게시글 작성자 닉네임입니다. */
+  authorNickname?: string;
   /** 게시글이 속한 게시판 ID입니다. */
   boardId?: number;
+  /** 삭제되지 않은 댓글과 답글의 총 개수입니다. */
+  commentCount?: number;
   /** 게시글 본문입니다. */
   content?: string;
   /** 게시글 생성 일시입니다. */
@@ -4333,6 +4348,8 @@ export interface PostResponse {
   title?: string;
   /** 게시글 최종 수정 일시입니다. */
   updatedAt?: string;
+  /** 게시글 조회수입니다. */
+  viewCount?: number;
 }
 
 /**
@@ -5983,6 +6000,21 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
   visible?: boolean;
 };
 
+export type GetApiAdminBoardsPostTypesParams = {
+boardId?: number;
+boardSlug?: string;
+usage?: GetApiAdminBoardsPostTypesUsage;
+active?: boolean;
+};
+
+export type GetApiAdminBoardsPostTypesUsage = typeof GetApiAdminBoardsPostTypesUsage[keyof typeof GetApiAdminBoardsPostTypesUsage];
+
+
+export const GetApiAdminBoardsPostTypesUsage = {
+  POST: 'POST',
+  ANNOUNCEMENT: 'ANNOUNCEMENT',
+} as const;
+
 /**
  * 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다.
  */
@@ -6059,6 +6091,19 @@ export type PutApiAdminBoardsBoardidBody = {
   /** 게시글 작성/수정/삭제에 필요한 최소 역할입니다. ROLE_ADMIN은 ROLE_USER 권한 게시판에도 작성할 수 있습니다. 생성 시 생략하면 ROLE_USER, 수정 시 생략하면 기존 값을 유지합니다. */
   writeRole?: PutApiAdminBoardsBoardidBodyWriteRole;
 };
+
+export type GetApiAdminBoardsBoardidPostTypesParams = {
+usage?: GetApiAdminBoardsBoardidPostTypesUsage;
+active?: boolean;
+};
+
+export type GetApiAdminBoardsBoardidPostTypesUsage = typeof GetApiAdminBoardsBoardidPostTypesUsage[keyof typeof GetApiAdminBoardsBoardidPostTypesUsage];
+
+
+export const GetApiAdminBoardsBoardidPostTypesUsage = {
+  POST: 'POST',
+  ANNOUNCEMENT: 'ANNOUNCEMENT',
+} as const;
 
 /**
  * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
@@ -10768,6 +10813,50 @@ export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementI
 
 
 /**
+ * 모든 게시판의 글타입을 조회하며 boardId, boardSlug, usage, active로 필터링할 수 있습니다.
+ * @summary 전체 게시판 글타입 목록 조회(관리자)
+ */
+export type getApiAdminBoardsPostTypesResponse200 = {
+  data: AdminBoardPostTypeResponse[]
+  status: 200
+}
+    
+export type getApiAdminBoardsPostTypesResponseSuccess = (getApiAdminBoardsPostTypesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsPostTypesResponse = (getApiAdminBoardsPostTypesResponseSuccess)
+
+export const getGetApiAdminBoardsPostTypesUrl = (params?: GetApiAdminBoardsPostTypesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards/post-types?${stringifiedParams}` : `/api/admin/boards/post-types`
+}
+
+export const getApiAdminBoardsPostTypes = async (params?: GetApiAdminBoardsPostTypesParams, options?: RequestInit): Promise<getApiAdminBoardsPostTypesResponse> => {
+  
+  return customFetch<getApiAdminBoardsPostTypesResponse>(getGetApiAdminBoardsPostTypesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 게시글이나 게시판 공지가 하나도 없는 게시판만 삭제합니다. 삭제된 게시글도 존재 여부 검증에 포함됩니다.
  * @summary 게시판 삭제(관리자)
  */
@@ -10881,7 +10970,7 @@ export const putApiAdminBoardsBoardid = async (boardId: number,
 
 
 /**
- * 관리자가 특정 게시판에 설정된 글타입 목록과 기본 여부, 활성 상태를 조회합니다.
+ * 관리자가 특정 게시판에 설정된 글타입을 usage와 active로 필터링해 조회합니다.
  * @summary 게시판 글타입 목록 조회(관리자)
  */
 export type getApiAdminBoardsBoardidPostTypesResponse200 = {
@@ -10896,17 +10985,26 @@ export type getApiAdminBoardsBoardidPostTypesResponseSuccess = (getApiAdminBoard
 
 export type getApiAdminBoardsBoardidPostTypesResponse = (getApiAdminBoardsBoardidPostTypesResponseSuccess)
 
-export const getGetApiAdminBoardsBoardidPostTypesUrl = (boardId: number,) => {
+export const getGetApiAdminBoardsBoardidPostTypesUrl = (boardId: number,
+    params?: GetApiAdminBoardsBoardidPostTypesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/admin/boards/${boardId}/post-types`
+  return stringifiedParams.length > 0 ? `/api/admin/boards/${boardId}/post-types?${stringifiedParams}` : `/api/admin/boards/${boardId}/post-types`
 }
 
-export const getApiAdminBoardsBoardidPostTypes = async (boardId: number, options?: RequestInit): Promise<getApiAdminBoardsBoardidPostTypesResponse> => {
+export const getApiAdminBoardsBoardidPostTypes = async (boardId: number,
+    params?: GetApiAdminBoardsBoardidPostTypesParams, options?: RequestInit): Promise<getApiAdminBoardsBoardidPostTypesResponse> => {
   
-  return customFetch<getApiAdminBoardsBoardidPostTypesResponse>(getGetApiAdminBoardsBoardidPostTypesUrl(boardId),
+  return customFetch<getApiAdminBoardsBoardidPostTypesResponse>(getGetApiAdminBoardsBoardidPostTypesUrl(boardId,params),
   {      
     ...options,
     method: 'GET'
@@ -10951,6 +11049,45 @@ export const postApiAdminBoardsBoardidPostTypes = async (boardId: number,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiAdminBoardsBoardidPostTypesBody,)
+  }
+);}
+
+
+
+/**
+ * 글타입을 삭제하고 기존 게시글은 일반 타입으로, 공지는 기본 공지 타입으로 변경합니다.
+ * @summary 게시판 글타입 삭제(관리자)
+ */
+export type deleteApiAdminBoardsBoardidPostTypesPosttypeidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess = (deleteApiAdminBoardsBoardidPostTypesPosttypeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminBoardsBoardidPostTypesPosttypeidResponse = (deleteApiAdminBoardsBoardidPostTypesPosttypeidResponseSuccess)
+
+export const getDeleteApiAdminBoardsBoardidPostTypesPosttypeidUrl = (boardId: number,
+    postTypeId: number,) => {
+
+
+  
+
+  return `/api/admin/boards/${boardId}/post-types/${postTypeId}`
+}
+
+export const deleteApiAdminBoardsBoardidPostTypesPosttypeid = async (boardId: number,
+    postTypeId: number, options?: RequestInit): Promise<deleteApiAdminBoardsBoardidPostTypesPosttypeidResponse> => {
+  
+  return customFetch<deleteApiAdminBoardsBoardidPostTypesPosttypeidResponse>(getDeleteApiAdminBoardsBoardidPostTypesPosttypeidUrl(boardId,postTypeId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
   }
 );}
 
@@ -16130,7 +16267,7 @@ export const getApiBannersId = async (id: number, options?: RequestInit): Promis
 
 
 /**
- * 사용자에게 노출 가능한 활성 게시판만 조회합니다. 숨김 게시판과 비활성 게시판은 사용자 API에서 제외됩니다.
+ * 사용자에게 노출 가능한 활성 게시판만 조회합니다. 숨김/비활성 게시판은 제외하고, postTypes에는 POST와 ANNOUNCEMENT 용도의 활성 글타입을 모두 포함합니다.
  * @summary 게시판 목록 조회
  */
 export type getApiBoardsResponse200 = {

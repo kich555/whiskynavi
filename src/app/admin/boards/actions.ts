@@ -486,7 +486,7 @@ async function findDuplicateCodePostType(
   excludePostTypeId: number | undefined,
   options: RequestInit,
 ) {
-  const res = await getApiAdminBoardsBoardidPostTypes(boardId, options);
+  const res = await getApiAdminBoardsBoardidPostTypes(boardId, {}, options);
   return (res.data ?? []).find((pt) => pt.code === code && pt.id !== excludePostTypeId);
 }
 

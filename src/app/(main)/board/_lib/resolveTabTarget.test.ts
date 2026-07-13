@@ -3,6 +3,12 @@ import { describe, expect, it } from "vitest";
 import { resolveTabTarget } from "./resolveTabTarget";
 
 describe("resolveTabTarget", () => {
+  it("resolves the all tab to unfiltered posts", () => {
+    expect(resolveTabTarget("all", [{ code: "qna", name: "질문", usages: ["POST"] }])).toEqual({
+      resource: "posts",
+    });
+  });
+
   it("resolves a POST-usage postType code to the posts resource with that code as filter", () => {
     const postTypes: PostTypeResponse[] = [
       { code: "qna", name: "질문", usages: ["POST"] },

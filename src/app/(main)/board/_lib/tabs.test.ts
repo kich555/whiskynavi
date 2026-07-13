@@ -3,8 +3,8 @@ import { describe, expect, it } from "vitest";
 import { buildTabs } from "./tabs";
 
 describe("buildTabs", () => {
-  it("returns an empty array when there are no postTypes", () => {
-    expect(buildTabs([])).toEqual([]);
+  it("returns the unfiltered all tab when there are no postTypes", () => {
+    expect(buildTabs([])).toEqual([{ key: "all", label: "전체" }]);
   });
 
   it("converts POST-usage postTypes into tabs, preserving API order", () => {
@@ -14,6 +14,7 @@ describe("buildTabs", () => {
     ];
 
     expect(buildTabs(postTypes)).toEqual([
+      { key: "all", label: "전체" },
       { key: "qna", label: "질문" },
       { key: "info", label: "정보" },
     ]);
@@ -27,6 +28,7 @@ describe("buildTabs", () => {
     ];
 
     expect(buildTabs(postTypes)).toEqual([
+      { key: "all", label: "전체" },
       { key: "qna", label: "질문" },
       { key: "notice-a", label: "공지A" },
       { key: "notice-b", label: "공지B" },
@@ -40,12 +42,18 @@ describe("buildTabs", () => {
       { code: "valid", name: "정상", usages: ["POST"] },
     ];
 
-    expect(buildTabs(postTypes)).toEqual([{ key: "valid", label: "정상" }]);
+    expect(buildTabs(postTypes)).toEqual([
+      { key: "all", label: "전체" },
+      { key: "valid", label: "정상" },
+    ]);
   });
 
   it("renders a postType with both POST and ANNOUNCEMENT usages as a single tab in the announcement group", () => {
     const postTypes: PostTypeResponse[] = [{ code: "mixed", name: "혼합", usages: ["POST", "ANNOUNCEMENT"] }];
 
-    expect(buildTabs(postTypes)).toEqual([{ key: "mixed", label: "혼합" }]);
+    expect(buildTabs(postTypes)).toEqual([
+      { key: "all", label: "전체" },
+      { key: "mixed", label: "혼합" },
+    ]);
   });
 });
