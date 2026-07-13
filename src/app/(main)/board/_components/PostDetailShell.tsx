@@ -16,21 +16,23 @@ interface PostDetailShellProps {
  * 뒤로가기 링크, 카드 박스, 본문 prose 스타일을 고정으로 렌더링하고
  * header/content/actions는 props로 주입받는다.
  */
-export default function PostDetailShell({ header, content, actions, backHref = "/board/community" }: PostDetailShellProps) {
+export default function PostDetailShell({
+  header,
+  content,
+  actions,
+  backHref = "/board/community",
+}: PostDetailShellProps) {
   return (
-    <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
+    <div className="mx-auto mt-20 max-w-[1440px] bg-[#1d2429]">
       <div className="mx-auto max-w-3xl px-4 py-6">
         {/* 뒤로가기 */}
-        <a
-          href={backHref}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white"
-        >
+        <a href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white">
           ← 목록으로
         </a>
 
         <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
           {/* 헤더 */}
-          <div className="border-b border-white/10 px-5 pb-3 pt-5">{header}</div>
+          <div className="border-b border-white/10 px-5 pt-5 pb-3">{header}</div>
 
           {/* 본문 (TipTap HTML) */}
           <div
@@ -39,11 +41,7 @@ export default function PostDetailShell({ header, content, actions, backHref = "
           />
 
           {/* 액션 */}
-          {actions && (
-            <div className="flex items-center gap-3 border-t border-white/10 px-5 pb-5 pt-4">
-              {actions}
-            </div>
-          )}
+          {actions && <div className="flex items-center gap-3 border-t border-white/10 px-5 pt-4 pb-5">{actions}</div>}
         </div>
       </div>
     </div>

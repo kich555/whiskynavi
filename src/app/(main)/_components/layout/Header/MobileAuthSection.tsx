@@ -51,6 +51,13 @@ export default function MobileAuthSection({
       >
         마이페이지
       </Link>
+      <Link
+        href="/my-page/inquiries"
+        onClick={close}
+        className="typo-medium-14 rounded-lg px-3 py-3 text-white/80 transition-colors hover:bg-white/5 hover:text-white"
+      >
+        1:1 문의
+      </Link>
       {isAdmin ? (
         <Link
           href="/admin"
