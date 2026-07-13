@@ -26,6 +26,13 @@ export default function UserMenuDropdown({ close, anchorRect, isAdminUser, isBus
         >
           마이페이지
         </Link>
+        <Link
+          href="/my-page/inquiries"
+          onClick={close}
+          className="typo-regular-14 block px-4 py-2.5 text-white/90 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          1:1 문의
+        </Link>
         {isAdminUser ? (
           <Link
             href="/admin"

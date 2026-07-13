@@ -10,6 +10,7 @@ import {
   History,
   Home,
   ImageIcon,
+  MessageCircleQuestion,
   MessageSquare,
   Package,
   ShoppingCart,
@@ -126,6 +127,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
     id: "operations",
     label: "주문/운영",
     items: [
+      {
+        id: "inquiries",
+        label: "1:1 문의 관리",
+        icon: MessageCircleQuestion,
+        href: "/admin/inquiries",
+      },
       {
         id: "banners",
         label: "배너 관리",
