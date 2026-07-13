@@ -3,7 +3,7 @@ export interface TermsSection {
   paragraphs: string[];
 }
 
-export const TERMS_EFFECTIVE_DATE = "2026년 7월 13일";
+export const TERMS_EFFECTIVE_DATE = "2026년 6월 1일";
 export const TERMS_REPRESENTATIVE = "천관호";
 export const TERMS_CONTACT_PHONE = "010-6848-6231";
 export const TERMS_CONTACT_EMAIL = "contact@whiskynavi.com";
