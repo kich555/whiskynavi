@@ -11,6 +11,10 @@ vi.mock("./AdminPostDeleteDialog", () => ({
   default: () => <button type="button">관리자 삭제</button>,
 }));
 
+vi.mock("./AdminPostTypeChangeDialog", () => ({
+  default: () => <button type="button">관리자 분류 변경</button>,
+}));
+
 vi.mock("./CommentsSection", () => ({
   default: () => null,
 }));
@@ -32,15 +36,32 @@ describe("PostDetailContent", () => {
 
     expect(screen.getByRole("link", { name: "수정" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "관리자 분류 변경" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "관리자 삭제" })).not.toBeInTheDocument();
   });
 
-  it("관리자가 다른 사용자의 글을 보면 관리자 삭제 버튼만 표시한다", () => {
+  it("관리자가 다른 사용자의 글을 보면 관리자 분류 변경과 삭제 버튼을 표시한다", () => {
     render(<PostDetailContent post={post()} boardId="community" currentUserId={30} comments={[]} isLoggedIn isAdmin />);
 
     expect(screen.getByRole("button", { name: "관리자 삭제" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "관리자 분류 변경" })).toBeInTheDocument();
     expect(screen.queryByRole("link", { name: "수정" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "삭제" })).not.toBeInTheDocument();
+  });
+
+  it("일반 사용자는 관리자 분류 변경 버튼을 볼 수 없다", () => {
+    render(
+      <PostDetailContent
+        post={post()}
+        boardId="community"
+        currentUserId={30}
+        comments={[]}
+        isLoggedIn
+        isAdmin={false}
+      />,
+    );
+
+    expect(screen.queryByRole("button", { name: "관리자 분류 변경" })).not.toBeInTheDocument();
   });
 
   it("관리자가 작성한 글에는 관리자 표식을 표시한다", () => {

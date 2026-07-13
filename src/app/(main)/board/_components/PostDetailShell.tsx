@@ -41,7 +41,9 @@ export default function PostDetailShell({
           />
 
           {/* 액션 */}
-          {actions && <div className="flex items-center gap-3 border-t border-white/10 px-5 pt-4 pb-5">{actions}</div>}
+          {actions && (
+            <div className="flex flex-wrap items-center gap-3 border-t border-white/10 px-5 pt-4 pb-5">{actions}</div>
+          )}
         </div>
       </div>
     </div>
