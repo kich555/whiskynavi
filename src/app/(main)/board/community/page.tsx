@@ -4,7 +4,7 @@ import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
 import { getServerSession } from "next-auth";
 import BoardContent from "../_components/BoardContent";
-import { getBoard } from "../_lib/board";
+import { getBoard, resolveBoardPostSearch } from "../_lib/board";
 import {
   ALL_ANNOUNCEMENT_PAGE_SIZE,
   COMMUNITY_BOARD_ID,
@@ -18,6 +18,8 @@ interface CommunityPageProps {
   searchParams: Promise<{
     tab?: string;
     page?: string;
+    searchType?: string;
+    keyword?: string;
   }>;
 }
 
@@ -38,6 +40,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const tab = params.tab ?? defaultTab;
   const page = parseApiPage(params.page);
   const target = resolveTabTarget(tab, postTypes);
+  const search = resolveBoardPostSearch(params.searchType, params.keyword);
 
   if (target.resource === "announcements") {
     const announcementsRes = await getApiBoardsBoardidAnnouncements(
@@ -61,6 +64,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
         allAnnouncements={announcementsRes.data.content ?? []}
         totalElements={announcementsRes.data.page?.totalElements ?? 0}
         totalPages={announcementsRes.data.page?.totalPages ?? 0}
+        searchType={search.searchType}
+        keyword={search.keyword}
       />
     );
   }
@@ -72,7 +77,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
   const [postsRes, allAnnouncementsRes] = await Promise.all([
     getApiBoardsBoardidPosts(
       COMMUNITY_BOARD_ID,
-      { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode },
+      { page, size: POSTS_PER_PAGE, sort, postTypeCode: target.postTypeCode, ...search },
       withToken(token ?? undefined),
     ),
     getApiBoardsBoardidAnnouncements(
@@ -99,6 +104,8 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       allAnnouncements={allAnnouncements}
       totalElements={postsRes.data.page?.totalElements ?? 0}
       totalPages={postsRes.data.page?.totalPages ?? 0}
+      searchType={search.searchType}
+      keyword={search.keyword}
     />
   );
 }

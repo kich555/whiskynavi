@@ -1,0 +1,35 @@
+import type { PostSummaryResponse } from "@/apis/generated/api";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it } from "vitest";
+import PostItem from "./PostItem";
+
+function post(overrides: Partial<PostSummaryResponse> = {}): PostSummaryResponse {
+  return {
+    id: 1,
+    title: "이미지가 있는 게시글",
+    authorNickname: "작성자",
+    commentCount: 3,
+    viewCount: 10,
+    hasImage: true,
+    ...overrides,
+  };
+}
+
+describe("PostItem", () => {
+  it.each([true, false])("이미지가 있으면 제목과 댓글 수 사이에 아이콘을 표시한다", (isMobile) => {
+    render(<PostItem post={post()} isMobile={isMobile} boardId="community" />);
+
+    const title = screen.getByText("이미지가 있는 게시글");
+    const imageIcon = screen.getByRole("img", { name: "이미지 첨부됨" });
+    const commentCount = screen.getByText("[3]");
+
+    expect(title.compareDocumentPosition(imageIcon) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(imageIcon.compareDocumentPosition(commentCount) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+  });
+
+  it("이미지가 없으면 이미지 아이콘을 표시하지 않는다", () => {
+    render(<PostItem post={post({ hasImage: false })} isMobile boardId="community" />);
+
+    expect(screen.queryByRole("img", { name: "이미지 첨부됨" })).not.toBeInTheDocument();
+  });
+});

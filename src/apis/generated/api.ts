@@ -1278,6 +1278,34 @@ export interface AdminPostDeleteRequest {
   deleteReason?: string;
 }
 
+/**
+ * 관리자가 삭제한 게시글의 감사 기록입니다.
+ */
+export interface AdminPostDeletionAuditResponse {
+  /** 게시글 작성자 식별자입니다. */
+  authorId?: number;
+  /** 게시글이 속한 게시판 식별자입니다. */
+  boardId?: number;
+  /** 게시판 이름입니다. */
+  boardName?: string;
+  /** 게시판 라우팅 슬러그입니다. */
+  boardSlug?: string;
+  /** 게시글 작성 일시입니다. */
+  createdAt?: string;
+  /** 관리자가 입력한 삭제 사유입니다. */
+  deleteReason?: string;
+  /** 게시글 삭제 일시입니다. */
+  deletedAt?: string;
+  /** 게시글을 삭제한 관리자 식별자입니다. */
+  deletedBy?: number;
+  /** 게시글을 삭제한 주체의 역할입니다. */
+  deletedByRole?: string;
+  /** 삭제된 게시글 식별자입니다. */
+  postId?: number;
+  /** 삭제 당시 보존된 게시글 제목입니다. */
+  title?: string;
+}
+
 export type AdminReservationBusinessDeliveryResponseCarrierCode = typeof AdminReservationBusinessDeliveryResponseCarrierCode[keyof typeof AdminReservationBusinessDeliveryResponseCarrierCode];
 
 
@@ -3345,6 +3373,11 @@ export interface PagedModelAdminItemReservationApplicationResponse {
 
 export interface PagedModelAdminItemReservationNoticeResponse {
   content?: AdminItemReservationNoticeResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminPostDeletionAuditResponse {
+  content?: AdminPostDeletionAuditResponse[];
   page?: PageMetadata;
 }
 
@@ -5998,6 +6031,23 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
   title?: string;
   /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
   visible?: boolean;
+};
+
+export type GetApiAdminBoardsPostDeletionAuditsParams = {
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
 };
 
 export type GetApiAdminBoardsPostTypesParams = {
@@ -10807,6 +10857,50 @@ export const putApiAdminBoardsAnnouncementsAnnouncementid = async (announcementI
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiAdminBoardsAnnouncementsAnnouncementidBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자가 삭제한 게시글의 게시판, 작성자, 삭제 관리자, 삭제 시각과 사유를 최신순으로 조회합니다.
+ * @summary 게시판 관리기록 조회
+ */
+export type getApiAdminBoardsPostDeletionAuditsResponse200 = {
+  data: PagedModelAdminPostDeletionAuditResponse
+  status: 200
+}
+    
+export type getApiAdminBoardsPostDeletionAuditsResponseSuccess = (getApiAdminBoardsPostDeletionAuditsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminBoardsPostDeletionAuditsResponse = (getApiAdminBoardsPostDeletionAuditsResponseSuccess)
+
+export const getGetApiAdminBoardsPostDeletionAuditsUrl = (params?: GetApiAdminBoardsPostDeletionAuditsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/admin/boards/post-deletion-audits?${stringifiedParams}` : `/api/admin/boards/post-deletion-audits`
+}
+
+export const getApiAdminBoardsPostDeletionAudits = async (params?: GetApiAdminBoardsPostDeletionAuditsParams, options?: RequestInit): Promise<getApiAdminBoardsPostDeletionAuditsResponse> => {
+  
+  return customFetch<getApiAdminBoardsPostDeletionAuditsResponse>(getGetApiAdminBoardsPostDeletionAuditsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
   }
 );}
 
@@ -16600,7 +16694,7 @@ export const getApiBoardsBoardidAnnouncementsAnnouncementid = async (boardId: st
 
 
 /**
- * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 ID 검색 조건을 적용할 수 있으며, postTypeCode를 지정하면 해당 글타입으로 필터링하고 keyword 검색보다 우선 적용합니다.
+ * 활성 상태이고 숨김이 아닌 게시판의 게시글을 페이지 단위로 조회합니다. 제목, 본문, 작성자 닉네임 검색 조건을 적용할 수 있으며, postTypeCode와 검색 조건을 함께 지정할 수 있습니다.
  * @summary 게시글 목록 조회
  */
 export type getApiBoardsBoardidPostsResponse200 = {
