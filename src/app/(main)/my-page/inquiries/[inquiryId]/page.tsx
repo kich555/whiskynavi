@@ -1,11 +1,13 @@
 import { ApiError } from "@/apis/errors";
 import { get1 as getInquiry } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import RichTextContent from "@/components/editor/RichTextContent";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { getAuthToken } from "@/lib/auth";
 import { formatDateTime } from "@/lib/formatters";
 import { parsePositiveInt } from "@/lib/page-response";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -72,14 +74,15 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
               return (
                 <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? "text-right" : "text-left"}`}>
-                    <p className="mb-1 text-xs text-gray-400">{isUser ? "나" : "위스키내비"}</p>
-                    <div
-                      className={`rounded-2xl px-4 py-3 text-left text-sm whitespace-pre-wrap ${
+                    <p className="mb-1 text-xs text-gray-400">
+                      {isUser ? "나" : message.authorNickname?.trim() || "위스키내비"}
+                    </p>
+                    <RichTextContent
+                      html={sanitizeRichTextContent(message.content ?? "")}
+                      className={`rounded-2xl px-4 py-3 text-left text-sm ${
                         isUser ? "rounded-tr-sm bg-white text-[#1d2429]" : "rounded-tl-sm bg-white/10 text-gray-100"
                       }`}
-                    >
-                      {message.content}
-                    </div>
+                    />
                     <time className="mt-1 block text-xs text-gray-500">{formatDateTime(message.createdAt)}</time>
                   </div>
                 </div>

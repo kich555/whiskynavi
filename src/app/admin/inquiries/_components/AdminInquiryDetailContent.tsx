@@ -3,14 +3,15 @@
 import type { AdminInquiryDetailResponse } from "@/apis/generated/api";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
+import RichTextContent from "@/components/editor/RichTextContent";
+import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { formatDateTime } from "@/lib/formatters";
 import { ArrowLeft, ExternalLink, Lock, RotateCcw } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useTransition } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { closeInquiryAction, reopenInquiryAction, replyInquiryAction } from "../actions";
 
@@ -32,6 +33,7 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
   const { toggle } = useSidebar();
   const formRef = useRef<HTMLFormElement>(null);
   const [isStatusPending, startStatusTransition] = useTransition();
+  const [isUploading, setIsUploading] = useState(false);
   const replyAction = replyInquiryAction.bind(null, inquiry.id!);
   const [replyState, replyFormAction, isReplyPending] = useActionState(replyAction, { success: false });
   const isClosed = inquiry.status === "CLOSED";
@@ -109,15 +111,15 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                   <div key={message.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[85%] md:max-w-[70%] ${isAdmin ? "text-right" : "text-left"}`}>
                       <p className="mb-1 text-xs text-gray-500">
-                        {isAdmin ? `관리자 #${message.authorId}` : `사용자 #${message.authorId}`}
+                        {message.authorNickname?.trim() ||
+                          (isAdmin ? `관리자 #${message.authorId}` : `사용자 #${message.authorId}`)}
                       </p>
-                      <div
-                        className={`rounded-2xl px-4 py-3 text-left text-sm whitespace-pre-wrap ${
+                      <RichTextContent
+                        html={message.content ?? ""}
+                        className={`rounded-2xl px-4 py-3 text-left text-sm ${
                           isAdmin ? "rounded-tr-sm bg-amber-600 text-white" : "rounded-tl-sm bg-gray-100 text-gray-900"
                         }`}
-                      >
-                        {message.content}
-                      </div>
+                      />
                       <time className="mt-1 block text-xs text-gray-400">{formatDateTime(message.createdAt)}</time>
                     </div>
                   </div>
@@ -133,13 +135,12 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                   <label htmlFor="content" className="mb-2 block text-sm font-semibold text-gray-900">
                     관리자 답변
                   </label>
-                  <Textarea
-                    id="content"
-                    name="content"
-                    required
-                    rows={6}
+                  <RichTextImageEditor
+                    variant="admin"
+                    compact
+                    resetKey={replyState.submittedAt}
                     placeholder="답변 내용을 입력해주세요."
-                    className="min-h-36"
+                    onUploadingChange={setIsUploading}
                   />
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <div aria-live="polite">
@@ -147,10 +148,10 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                     </div>
                     <Button
                       type="submit"
-                      disabled={isReplyPending}
+                      disabled={isReplyPending || isUploading}
                       className="bg-amber-600 text-white hover:bg-amber-700"
                     >
-                      {isReplyPending ? "등록 중..." : "답변 등록"}
+                      {isUploading ? "이미지 업로드 중..." : isReplyPending ? "등록 중..." : "답변 등록"}
                     </Button>
                   </div>
                 </form>
