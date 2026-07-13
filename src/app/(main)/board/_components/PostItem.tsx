@@ -2,6 +2,7 @@ import type { PostSummaryResponse } from "@/apis/generated/api";
 import { ImageIcon } from "lucide-react";
 import Link from "next/link";
 import { memo } from "react";
+import AdminAuthorBadge from "./AdminAuthorBadge";
 
 interface PostItemProps {
   post: PostSummaryResponse;
@@ -57,7 +58,8 @@ const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemPro
         </span>
         <PostTitle post={post} />
         <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-gray-500">
-          <span>{authorNickname}</span>
+          <span className="truncate">{authorNickname}</span>
+          {post.authorAdmin ? <AdminAuthorBadge variant="icon" /> : null}
           <span>·</span>
           <span>조회 {post.viewCount ?? 0}</span>
           <span>·</span>
@@ -76,7 +78,10 @@ const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemPro
     >
       <span className="truncate text-xs text-gray-400">{postTypeName}</span>
       <PostTitle post={post} />
-      <span className="text-right text-xs text-gray-400">{authorNickname}</span>
+      <span className="flex min-w-0 items-center justify-end gap-1.5 text-right text-xs text-gray-400">
+        <span className="truncate">{authorNickname}</span>
+        {post.authorAdmin ? <AdminAuthorBadge variant="icon" /> : null}
+      </span>
       <span className="text-right text-xs text-gray-400">{post.viewCount ?? 0}</span>
       <span className="text-right text-xs text-gray-400">{formatDate(post.createdAt)}</span>
     </Link>

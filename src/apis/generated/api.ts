@@ -2380,6 +2380,8 @@ export interface ChangePasswordRequest {
  * 게시글 댓글의 답글 정보를 담은 응답 DTO입니다.
  */
 export interface CommentReplyResponse {
+  /** 댓글 작성자가 관리자 권한을 보유하고 있는지 여부입니다. */
+  authorAdmin?: boolean;
   /** 댓글 작성자 ID입니다. */
   authorId?: number;
   /** 댓글 작성자 닉네임입니다. */
@@ -2406,6 +2408,8 @@ export interface CommentReplyResponse {
  * 게시글 댓글 정보를 담은 응답 DTO입니다.
  */
 export interface CommentResponse {
+  /** 댓글 작성자가 관리자 권한을 보유하고 있는지 여부입니다. */
+  authorAdmin?: boolean;
   /** 댓글 작성자 ID입니다. */
   authorId?: number;
   /** 댓글 작성자 닉네임입니다. */
@@ -3514,6 +3518,8 @@ export interface PostTypeResponse {
  * 게시글 목록에 사용하는 요약 응답 DTO입니다.
  */
 export interface PostSummaryResponse {
+  /** 게시글 작성자가 관리자 권한을 보유하고 있는지 여부입니다. */
+  authorAdmin?: boolean;
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
   /** 게시글 작성자 닉네임입니다. */
@@ -4394,6 +4400,8 @@ export interface PagedModelUserSaleAnnouncementResponse {
  * 게시글 정보를 담은 응답 DTO입니다.
  */
 export interface PostResponse {
+  /** 게시글 작성자가 관리자 권한을 보유하고 있는지 여부입니다. */
+  authorAdmin?: boolean;
   /** 게시글 작성자 ID입니다. */
   authorId?: number;
   /** 게시글 작성자 닉네임입니다. */
@@ -15381,7 +15389,7 @@ export type deleteApiAdminUsersIdPostCreationRestrictionResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-
+    
 export type deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess = (deleteApiAdminUsersIdPostCreationRestrictionResponse200) & {
   headers: Headers;
 };
@@ -15392,19 +15400,19 @@ export type deleteApiAdminUsersIdPostCreationRestrictionResponse = (deleteApiAdm
 export const getDeleteApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
 
 
-
+  
 
   return `/api/admin/users/${id}/post-creation-restriction`
 }
 
 export const deleteApiAdminUsersIdPostCreationRestriction = async (id: number, options?: RequestInit): Promise<deleteApiAdminUsersIdPostCreationRestrictionResponse> => {
-
+  
   return customFetch<deleteApiAdminUsersIdPostCreationRestrictionResponse>(getDeleteApiAdminUsersIdPostCreationRestrictionUrl(id),
-  {
+  {      
     ...options,
     method: 'DELETE'
-
-
+    
+    
   }
 );}
 
@@ -15418,7 +15426,7 @@ export type putApiAdminUsersIdPostCreationRestrictionResponse200 = {
   data: AdminUserResponse
   status: 200
 }
-
+    
 export type putApiAdminUsersIdPostCreationRestrictionResponseSuccess = (putApiAdminUsersIdPostCreationRestrictionResponse200) & {
   headers: Headers;
 };
@@ -15429,16 +15437,16 @@ export type putApiAdminUsersIdPostCreationRestrictionResponse = (putApiAdminUser
 export const getPutApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
 
 
-
+  
 
   return `/api/admin/users/${id}/post-creation-restriction`
 }
 
 export const putApiAdminUsersIdPostCreationRestriction = async (id: number,
     putApiAdminUsersIdPostCreationRestrictionBody: PutApiAdminUsersIdPostCreationRestrictionBody, options?: RequestInit): Promise<putApiAdminUsersIdPostCreationRestrictionResponse> => {
-
+  
   return customFetch<putApiAdminUsersIdPostCreationRestrictionResponse>(getPutApiAdminUsersIdPostCreationRestrictionUrl(id),
-  {
+  {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },

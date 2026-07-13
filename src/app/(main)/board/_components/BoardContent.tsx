@@ -60,7 +60,8 @@ export default function BoardContent({
   const isMobile = useIsMobile();
 
   // 모바일 "더보기" 상태
-  const [loadMorePage, setLoadMorePage] = useState(1);
+  const [loadMorePage, setLoadMorePage] = useState(currentPage);
+  const [loadMoreCount, setLoadMoreCount] = useState(0);
   const [accumulatedPosts, setAccumulatedPosts] = useState<PostSummaryResponse[]>([]);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
 
@@ -74,11 +75,16 @@ export default function BoardContent({
   const tabRef = useRef(tab);
   tabRef.current = tab;
 
-  // 더보기 모드인가? (게시글 탭이고 2페이지 이상 있을 때만. 공지 postType 탭은 게시글 API를 쓰지 않으므로 제외)
-  const isLoadMoreMode = resource === "posts" && isMobile && totalPages > 1 && loadMorePage <= LOAD_MORE_MAX_CLICKS;
+  const hasMorePages = loadMorePage < totalPages;
+  const hasLoadMoreAttempts = loadMoreCount < LOAD_MORE_MAX_CLICKS;
+
+  // 더보기 모드인가? (게시글 탭이고 남은 페이지와 더보기 가능 횟수가 있을 때만)
+  const isLoadMoreMode = resource === "posts" && isMobile && totalPages > 1 && hasMorePages && hasLoadMoreAttempts;
 
   const displayPosts =
-    isLoadMoreMode && accumulatedPosts.length > 0 ? [...initialPosts, ...accumulatedPosts] : initialPosts;
+    resource === "posts" && isMobile && accumulatedPosts.length > 0
+      ? [...initialPosts, ...accumulatedPosts]
+      : initialPosts;
 
   const buildListHref = useCallback(
     (nextTab: string, page: number, includeSearch = true) => {
@@ -95,6 +101,7 @@ export default function BoardContent({
   const handleTabChange = useCallback(
     (newTab: string) => {
       setLoadMorePage(1);
+      setLoadMoreCount(0);
       setAccumulatedPosts([]);
       router.push(buildListHref(newTab, 1));
     },
@@ -103,7 +110,8 @@ export default function BoardContent({
 
   const handlePageChange = useCallback(
     (page: number) => {
-      setLoadMorePage(1);
+      setLoadMorePage(page);
+      setLoadMoreCount(0);
       setAccumulatedPosts([]);
       router.push(buildListHref(tab, page));
     },
@@ -138,19 +146,21 @@ export default function BoardContent({
       if (tabRef.current !== requestedTab) return;
       setAccumulatedPosts((prev) => [...prev, ...(res.data.content ?? [])]);
       setLoadMorePage(nextPage);
+      setLoadMoreCount((count) => count + 1);
     } finally {
       setIsLoadingMore(false);
     }
   }, [boardId, isLoadingMore, keyword, postTypeCode, searchType, tab]);
 
-  const showPagination = !isLoadMoreMode && totalPages > 1;
-  const loadMoreRemaining = LOAD_MORE_MAX_CLICKS - Math.min(loadMorePage, LOAD_MORE_MAX_CLICKS);
+  const showPagination =
+    totalPages > 1 && (!isMobile || resource !== "posts" || (hasMorePages && !hasLoadMoreAttempts));
+  const loadMoreRemaining = Math.max(0, Math.min(LOAD_MORE_MAX_CLICKS - loadMoreCount, totalPages - loadMorePage));
 
   return (
     <div className="mx-auto mt-20 min-h-screen max-w-[1440px] bg-[#1d2429]">
       {/* 탭 헤더 — 페이지 상단에 위치, sticky로 고정 */}
       <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
+        <div className="mx-auto flex max-w-4xl min-w-0 items-center gap-2 px-4">
           <BoardTabs tabs={tabs} activeTab={tab} onTabChange={handleTabChange} />
           {/* 글쓰기 버튼 — 게시글 탭(POST)에서만, canWritePost 권한이 있을 때만 상시 노출.
             공지 탭(ANNOUNCEMENT)은 admin이 admin 페이지에서 공지를 등록하므로 사용자 화면에서는 숨긴다. */}

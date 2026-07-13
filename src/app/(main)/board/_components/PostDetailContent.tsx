@@ -5,6 +5,7 @@ import { FormMessage } from "@/components/ui/form-message";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { deletePostAction } from "../_lib/actions";
+import AdminAuthorBadge from "./AdminAuthorBadge";
 import AdminPostDeleteDialog from "./AdminPostDeleteDialog";
 import CommentsSection from "./CommentsSection";
 import PostDetailShell from "./PostDetailShell";
@@ -47,8 +48,9 @@ export default function PostDetailContent({
         header={
           <>
             <h1 className="mb-2 text-lg leading-snug font-bold text-white">{post.title}</h1>
-            <div className="flex items-center gap-2 text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
               <span>{post.authorNickname ?? "알 수 없는 사용자"}</span>
+              {post.authorAdmin ? <AdminAuthorBadge /> : null}
               <span>·</span>
               <span>{post.createdAt ? new Date(post.createdAt).toLocaleString("ko-KR") : ""}</span>
             </div>
