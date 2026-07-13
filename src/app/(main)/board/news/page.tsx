@@ -2,6 +2,7 @@ import { getApiBoardsBoardidAnnouncements, getApiBoardsBoardidPosts } from "@/ap
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
+import { isAdminUser } from "@/lib/role";
 import { getServerSession } from "next-auth";
 import BoardContent from "../_components/BoardContent";
 import { getBoard } from "../_lib/board";
@@ -30,17 +31,16 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
     getServerSession(authOptions),
     getBoard(NEWS_BOARD_ID, token ?? undefined),
   ]);
-  console.log("board=-:?", board);
-  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
+
   const postTypes = board?.postTypes ?? [];
-  console.log(postTypes);
   const tabs = buildTabs(postTypes);
-  console.log(tabs);
   // 기본 탭은 첫 postType 코드 (없으면 빈 목록 fallback)
   const defaultTab = tabs[0]?.key ?? "";
   const tab = params.tab ?? defaultTab;
   const page = parseApiPage(params.page);
   const target = resolveTabTarget(tab, postTypes);
+  // news 게시판은 admin/super_admin만 게시글 작성 가능
+  const canWritePost = isAdminUser(session?.user?.roles ?? []);
 
   if (target.resource === "announcements") {
     const announcementsRes = await getApiBoardsBoardidAnnouncements(
@@ -57,7 +57,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
         resource="announcements"
         postTypeCode={target.postTypeCode}
         currentPage={Number(params.page) || 1}
-        currentUserId={currentUserId}
+        canWritePost={canWritePost}
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
         allAnnouncements={announcementsRes.data.content ?? []}
@@ -94,7 +94,7 @@ export default async function NewsPage({ searchParams }: NewsPageProps) {
       resource="posts"
       postTypeCode={target.postTypeCode}
       currentPage={Number(params.page) || 1}
-      currentUserId={currentUserId}
+      canWritePost={canWritePost}
       initialPosts={postsRes.data.content ?? []}
       initialAnnouncements={pinnedRes.data.content ?? []}
       allAnnouncements={allAnnouncementsRes.data.content ?? []}

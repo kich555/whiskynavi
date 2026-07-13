@@ -20,7 +20,9 @@ interface BoardContentProps {
   resource: "posts" | "announcements";
   postTypeCode?: string;
   currentPage: number;
-  currentUserId?: number;
+  /** 게시글 작성 권한 여부. 페이지에서 session/board 권한으로 결정해 전달.
+   *  community는 로그인 사용자, news는 admin/super_admin만 true. */
+  canWritePost: boolean;
   initialPosts: PostSummaryResponse[];
   initialAnnouncements: UserAnnouncementSummaryResponse[];
   allAnnouncements: UserAnnouncementSummaryResponse[];
@@ -35,7 +37,7 @@ export default function BoardContent({
   resource,
   postTypeCode,
   currentPage,
-  currentUserId,
+  canWritePost,
   initialPosts,
   initialAnnouncements,
   allAnnouncements,
@@ -119,9 +121,9 @@ export default function BoardContent({
       <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
           <BoardTabs tabs={tabs} activeTab={tab} onTabChange={handleTabChange} />
-          {/* 글쓰기 버튼 — 게시글 탭(POST)에서만, 로그인 상태일 때만 상시 노출.
-            공지 탭(ANNOUNCEMENT)은 admin이 공지를 등록하는 영역이므로 사용자 글쓰기 진입점을 숨긴다. */}
-          {resource === "posts" && currentUserId ? (
+          {/* 글쓰기 버튼 — 게시글 탭(POST)에서만, canWritePost 권한이 있을 때만 상시 노출.
+            공지 탭(ANNOUNCEMENT)은 admin이 admin 페이지에서 공지를 등록하므로 사용자 화면에서는 숨긴다. */}
+          {resource === "posts" && canWritePost ? (
             <button
               type="button"
               onClick={() => router.push(`/board/${boardId}/posts/new`)}

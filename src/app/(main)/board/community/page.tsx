@@ -54,7 +54,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
         resource="announcements"
         postTypeCode={target.postTypeCode}
         currentPage={Number(params.page) || 1}
-        currentUserId={currentUserId}
+        canWritePost={Boolean(currentUserId)}
         // 공지 postType 탭에서는 게시글 영역에 공지를 표시 (페이지네이션 적용, 고정 공지 배너 없음)
         initialPosts={[]}
         initialAnnouncements={announcementsRes.data.content ?? []}
@@ -94,7 +94,7 @@ export default async function CommunityPage({ searchParams }: CommunityPageProps
       resource="posts"
       postTypeCode={target.postTypeCode}
       currentPage={Number(params.page) || 1}
-      currentUserId={currentUserId}
+      canWritePost={Boolean(currentUserId)}
       initialPosts={postsRes.data.content ?? []}
       initialAnnouncements={pinnedRes.data.content ?? []}
       allAnnouncements={allAnnouncementsRes.data.content ?? []}
