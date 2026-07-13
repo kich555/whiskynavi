@@ -11,8 +11,8 @@ interface PostCreateContentProps {
 }
 
 export default function PostCreateContent({ boardId, postTypes }: PostCreateContentProps) {
-  const boundAction = async (_prev: Awaited<ReturnType<typeof createPostAction>> | null, formData: FormData) =>
-    createPostAction(boardId, _prev, formData);
+  // Server Action 참조를 그대로 bind해야 redirect 응답을 Next.js가 폼 내비게이션으로 처리한다.
+  const boundAction = createPostAction.bind(null, boardId);
   const [state, formAction] = useActionState(boundAction, null);
 
   return (

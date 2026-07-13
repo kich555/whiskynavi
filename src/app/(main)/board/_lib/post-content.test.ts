@@ -26,4 +26,14 @@ describe("buildPostPayload", () => {
       }).hasImage,
     ).toBe(false);
   });
+
+  it("TipTap의 빈 문단을 표시 가능한 줄바꿈으로 보존한다", () => {
+    expect(
+      buildPostPayload({
+        title: "빈 줄이 있는 글",
+        content: "<p>첫 줄</p><p></p><p>   </p><p>마지막 줄</p>",
+        postTypeCode: "general",
+      }).content,
+    ).toBe("<p>첫 줄</p><p><br /></p><p><br /></p><p>마지막 줄</p>");
+  });
 });

@@ -26,6 +26,7 @@ import type { ReactNode } from "react";
 import { useCallback, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_MB } from "../_lib/constants";
+import { getPastedUrl } from "../_lib/pasted-url";
 
 interface PostFormProps {
   action: (formData: FormData) => void;
@@ -128,7 +129,7 @@ export default function PostForm({
     ],
     content: defaultValues?.content ?? state?.values?.content ?? "",
     editorProps: {
-      handlePaste: (_view, event) => {
+      handlePaste: (view, event) => {
         const items = Array.from(event.clipboardData?.items ?? []);
         const imageItems = items.filter(
           (item) =>
@@ -136,7 +137,17 @@ export default function PostForm({
             item.type.startsWith("image/") &&
             ALLOWED_IMAGE_TYPES.includes(item.type as (typeof ALLOWED_IMAGE_TYPES)[number]),
         );
-        if (imageItems.length === 0) return false; // TipTap 기본 paste 처리 (텍스트)
+        if (imageItems.length === 0) {
+          if (!event.clipboardData) return false;
+
+          const pastedUrl = getPastedUrl(event.clipboardData);
+          if (!pastedUrl) return false; // TipTap 기본 paste 처리 (일반 텍스트/HTML)
+
+          const linkMark = view.state.schema.marks.link?.create({ href: pastedUrl });
+          const urlNode = view.state.schema.text(pastedUrl, linkMark ? [linkMark] : undefined);
+          view.dispatch(view.state.tr.replaceSelectionWith(urlNode, false).scrollIntoView());
+          return true;
+        }
 
         // 이미지 붙여넣기 → 우리의 업로드 플로우 사용
         for (const item of imageItems) {
