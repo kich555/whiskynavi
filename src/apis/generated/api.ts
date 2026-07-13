@@ -1510,6 +1510,14 @@ export interface UserExtInfo {
   privacyAgree?: boolean;
   /** SMS 수신 동의 여부입니다. */
   smsAgree?: boolean;
+  /** 게시글 작성 제한 여부입니다. */
+  isPostCreationRestricted?: boolean;
+  /** 게시글 작성 제한 사유입니다. */
+  postCreationRestrictionReason?: string;
+  /** 게시글 작성 제한 시작 일시입니다. */
+  postCreationRestrictionStartAt?: string;
+  /** 게시글 작성 제한 종료 일시입니다. */
+  postCreationRestrictionEndAt?: string;
 }
 
 /**
@@ -1659,6 +1667,14 @@ export interface UserSelfResponse {
   status?: string;
   /** 사용자 아이디 */
   username?: string;
+  /** 게시글 작성 제한 여부 */
+  isPostCreationRestricted?: boolean;
+  /** 게시글 작성 제한 사유 */
+  postCreationRestrictionReason?: string;
+  /** 게시글 작성 제한 시작 시각 */
+  postCreationRestrictionStartAt?: string;
+  /** 게시글 작성 제한 종료 시각 */
+  postCreationRestrictionEndAt?: string;
 }
 
 /**
@@ -5754,6 +5770,22 @@ export interface UsernameRequest {
   username?: string;
 }
 
+/**
+ * 관리자가 회원의 게시글 작성 제한 정보를 입력하기 위한 요청입니다.
+ */
+export interface AdminPostCreationRestrictionRequest {
+  /**
+   * 게시글 작성 제한 사유
+   * @minLength 1
+   * @maxLength 1000
+   */
+  reason: string;
+  /** 게시글 작성 제한 시작 시각 */
+  startAt: string;
+  /** 게시글 작성 제한 종료 시각. 시작 시각으로부터 최소 1시간, 최대 9999년까지 허용됩니다. */
+  endAt: string;
+}
+
 export type GetApiAdminBannersParams = {
 /**
  * Zero-based page index (0..N)
@@ -8212,6 +8244,7 @@ updatedAtFrom?: string;
 updatedAtTo?: string;
 lastLoginAtFrom?: string;
 lastLoginAtTo?: string;
+isPostCreationRestricted?: boolean;
 };
 
 /**
@@ -21690,6 +21723,82 @@ export const getDeleteApiUsersMeSocialLinksProviderUrl = (provider: string,) => 
 export const deleteApiUsersMeSocialLinksProvider = async (provider: string, options?: RequestInit): Promise<deleteApiUsersMeSocialLinksProviderResponse> => {
   
   return customFetch<deleteApiUsersMeSocialLinksProviderResponse>(getDeleteApiUsersMeSocialLinksProviderUrl(provider),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 계정 밴과 별개로 사유와 기간을 입력해 사용자의 게시글 작성을 제한합니다. 기간은 최소 1시간, 최대 9999년입니다.
+ * @summary 게시글 작성 제한 설정(관리자)
+ */
+export type putApiAdminUsersIdPostCreationRestrictionResponse200 = {
+  data: AdminUserResponse
+  status: 200
+}
+    
+export type putApiAdminUsersIdPostCreationRestrictionResponseSuccess = (putApiAdminUsersIdPostCreationRestrictionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminUsersIdPostCreationRestrictionResponse = (putApiAdminUsersIdPostCreationRestrictionResponseSuccess)
+
+export const getPutApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
+
+
+  
+
+  return `/api/admin/users/${id}/post-creation-restriction`
+}
+
+export const putApiAdminUsersIdPostCreationRestriction = async (id: number,
+    adminPostCreationRestrictionRequest: AdminPostCreationRestrictionRequest, options?: RequestInit): Promise<putApiAdminUsersIdPostCreationRestrictionResponse> => {
+  
+  return customFetch<putApiAdminUsersIdPostCreationRestrictionResponse>(getPutApiAdminUsersIdPostCreationRestrictionUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      adminPostCreationRestrictionRequest,)
+  }
+);}
+
+
+
+/**
+ * 사용자의 게시글 작성 제한을 즉시 해제합니다.
+ * @summary 게시글 작성 제한 해제(관리자)
+ */
+export type deleteApiAdminUsersIdPostCreationRestrictionResponse200 = {
+  data: AdminUserResponse
+  status: 200
+}
+    
+export type deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess = (deleteApiAdminUsersIdPostCreationRestrictionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminUsersIdPostCreationRestrictionResponse = (deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess)
+
+export const getDeleteApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
+
+
+  
+
+  return `/api/admin/users/${id}/post-creation-restriction`
+}
+
+export const deleteApiAdminUsersIdPostCreationRestriction = async (id: number, options?: RequestInit): Promise<deleteApiAdminUsersIdPostCreationRestrictionResponse> => {
+  
+  return customFetch<deleteApiAdminUsersIdPostCreationRestrictionResponse>(getDeleteApiAdminUsersIdPostCreationRestrictionUrl(id),
   {      
     ...options,
     method: 'DELETE'

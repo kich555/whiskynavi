@@ -550,6 +550,37 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
           </div>
         </div>
       )}
+
+      {userDetails.userExt?.isPostCreationRestricted && (
+        <div className="rounded-xl border border-orange-200 bg-orange-50 p-6">
+          <h3 className="typo-bold-18 mb-4 flex items-center gap-2 text-orange-900">
+            <Edit2 size={20} className="text-orange-600" />
+            게시글 작성 제한
+          </h3>
+          <div className="space-y-3">
+            <div>
+              <Label htmlFor="postCreationRestrictionReason" className="typo-bold-14 mb-1 block text-orange-700">
+                제한 사유
+              </Label>
+              <p className="whitespace-pre-wrap text-orange-900">{userDetails.userExt.postCreationRestrictionReason}</p>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="postCreationRestrictionStartAt" className="typo-bold-14 mb-1 block text-orange-700">
+                  제한 시작일
+                </Label>
+                <p className="text-orange-900">{userDetails.userExt.postCreationRestrictionStartAt}</p>
+              </div>
+              <div>
+                <Label htmlFor="postCreationRestrictionEndAt" className="typo-bold-14 mb-1 block text-orange-700">
+                  제한 종료일
+                </Label>
+                <p className="text-orange-900">{userDetails.userExt.postCreationRestrictionEndAt}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
