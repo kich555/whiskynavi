@@ -58,7 +58,7 @@ describe("inquiry actions", () => {
 
     const result = await addInquiryMessageAction(10, { success: false }, formDataFrom({ content: " 추가 문의 " }));
 
-    expect(result).toEqual({ success: true });
+    expect(result).toMatchObject({ success: true });
     expect(mockedAddMessage).toHaveBeenCalledWith(
       10,
       { content: "추가 문의", hasImage: false },
@@ -67,6 +67,27 @@ describe("inquiry actions", () => {
     expect(mockedWithToken).toHaveBeenCalledWith("token");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/my-page/inquiries");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/my-page/inquiries/10");
+  });
+
+  it("이미지가 포함된 추가 문의를 정화하고 hasImage를 설정한다", async () => {
+    mockedAddMessage.mockResolvedValue({
+      data: { id: 2, authorType: "USER", content: "문의", hasImage: true },
+      status: 200,
+      headers: new Headers(),
+    });
+
+    const content =
+      '<p>문의</p><img src="https://cdn.example.com/inquiry.png" onerror="alert(1)"><script>alert(1)</script>';
+    await addInquiryMessageAction(10, { success: false }, formDataFrom({ content }));
+
+    expect(mockedAddMessage).toHaveBeenCalledWith(
+      10,
+      {
+        content: '<p>문의</p><img src="https://cdn.example.com/inquiry.png" />',
+        hasImage: true,
+      },
+      { headers: { Authorization: "Bearer token" } },
+    );
   });
 
   it("내 문의를 삭제하고 목록 경로를 갱신한다", async () => {

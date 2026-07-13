@@ -4,12 +4,14 @@ import { getUserErrorMessage } from "@/apis/errors";
 import { close, reopen, reply } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { richTextHasContent, richTextHasImage, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 export type AdminInquiryActionState = {
   success: boolean;
   error?: string;
+  submittedAt?: number;
 };
 
 const replySchema = z.object({
@@ -40,9 +42,14 @@ export async function replyInquiryAction(
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    await reply(inquiryId, { content: parsed.data.content, hasImage: false }, options);
+    const content = sanitizeRichTextContent(parsed.data.content);
+    if (!richTextHasContent(content)) {
+      return { success: false, error: "답변 내용을 입력해주세요." };
+    }
+
+    await reply(inquiryId, { content, hasImage: richTextHasImage(content) }, options);
     revalidateInquiryPages(inquiryId);
-    return { success: true };
+    return { success: true, submittedAt: Date.now() };
   } catch (error) {
     return {
       success: false,

@@ -8,6 +8,7 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { richTextHasContent, richTextHasImage, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
@@ -16,6 +17,7 @@ import { z } from "zod";
 export type InquiryActionState = {
   success: boolean;
   error?: string;
+  submittedAt?: number;
 };
 
 const createInquirySchema = z.object({
@@ -43,7 +45,19 @@ export async function createInquiryAction(
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    const response = await createInquiry({ ...parsed.data, hasImage: false }, withToken(token));
+    const content = sanitizeRichTextContent(parsed.data.content);
+    if (!richTextHasContent(content)) {
+      return { success: false, error: "문의 내용을 입력해주세요." };
+    }
+
+    const response = await createInquiry(
+      {
+        title: parsed.data.title,
+        content,
+        hasImage: richTextHasImage(content),
+      },
+      withToken(token),
+    );
     const inquiryId = response.data.inquiry?.id;
     if (!inquiryId) {
       return { success: false, error: "생성된 문의를 확인할 수 없습니다." };
@@ -74,10 +88,15 @@ export async function addInquiryMessageAction(
       return { success: false, error: parsed.error.issues[0].message };
     }
 
-    await addInquiryMessage(inquiryId, { content: parsed.data.content, hasImage: false }, withToken(token));
+    const content = sanitizeRichTextContent(parsed.data.content);
+    if (!richTextHasContent(content)) {
+      return { success: false, error: "추가 문의 내용을 입력해주세요." };
+    }
+
+    await addInquiryMessage(inquiryId, { content, hasImage: richTextHasImage(content) }, withToken(token));
     revalidatePath("/my-page/inquiries");
     revalidatePath(`/my-page/inquiries/${inquiryId}`);
-    return { success: true };
+    return { success: true, submittedAt: Date.now() };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {
