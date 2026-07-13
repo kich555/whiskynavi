@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createBottleFormAction, updateBottleFormAction } from "./actions";
+import { MAX_BOTTLE_IMAGE_SIZE_MB } from "./image-constraints";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiAdminBottlesId: vi.fn(),
@@ -105,5 +106,17 @@ describe("bottle admin actions", () => {
     );
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/products");
     expect(mockedRedirect).toHaveBeenCalledWith("/admin/products/10");
+  });
+
+  it("returns the bottle image limit without uploading an oversized image", async () => {
+    const oversizedImage = new File([new Uint8Array(MAX_BOTTLE_IMAGE_SIZE_MB * 1024 * 1024 + 1)], "large.png", {
+      type: "image/png",
+    });
+
+    const result = await createBottleFormAction({ success: false }, validBottleFormData({ labelImg: oversizedImage }));
+
+    expect(result.error).toContain(`최대 ${MAX_BOTTLE_IMAGE_SIZE_MB}MB`);
+    expect(result.values?.name).toBe("나비 1st");
+    expect(mockedUpload).not.toHaveBeenCalled();
   });
 });

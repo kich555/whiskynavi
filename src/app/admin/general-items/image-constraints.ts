@@ -1,0 +1,1 @@
+export const MAX_GENERAL_ITEM_IMAGE_SIZE_MB = 5;

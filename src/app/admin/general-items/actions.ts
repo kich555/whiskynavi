@@ -12,8 +12,10 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { getImageSizeError } from "@/lib/image-upload";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
+import { MAX_GENERAL_ITEM_IMAGE_SIZE_MB } from "./image-constraints";
 
 export type GeneralItemFormState = {
   success: boolean;
@@ -147,6 +149,12 @@ async function resolveImageKey(formData: FormData, token: string, fallbackKey?: 
   return extractUploadedKey(uploaded.data);
 }
 
+function validateImageFile(formData: FormData): string | undefined {
+  const imageFile = formData.get("imageFile");
+  if (!(imageFile instanceof File) || imageFile.size === 0) return undefined;
+  return getImageSizeError(imageFile, MAX_GENERAL_ITEM_IMAGE_SIZE_MB);
+}
+
 export async function createGeneralItemFormAction(
   _prev: GeneralItemFormState,
   formData: FormData,
@@ -171,6 +179,11 @@ export async function createGeneralItemFormAction(
 
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.", values };
+  }
+
+  const imageSizeError = validateImageFile(formData);
+  if (imageSizeError) {
+    return { success: false, error: imageSizeError, values };
   }
 
   let extraInfos: PostApiAdminItemsBodyExtraInfos | undefined;
@@ -236,6 +249,11 @@ export async function updateGeneralItemFormAction(
 
   if (!parsed.success) {
     return { success: false, error: parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.", values };
+  }
+
+  const imageSizeError = validateImageFile(formData);
+  if (imageSizeError) {
+    return { success: false, error: imageSizeError, values };
   }
 
   let extraInfos: PostApiAdminItemsBodyExtraInfos | undefined;

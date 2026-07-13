@@ -8,6 +8,7 @@ import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import ImageUploadArea from "../../_components/ImageUploadArea";
 import { createBannerFormAction } from "../../actions";
+import { MAX_BANNER_IMAGE_SIZE_MB } from "../../image-constraints";
 
 export default function BannerCreateContent() {
   const { toggle } = useSidebar();
@@ -104,6 +105,7 @@ export default function BannerCreateContent() {
                 inputRef={bgInputRef}
                 onFileChange={handleBgChange}
                 onRemove={handleBgRemove}
+                maxSizeMB={MAX_BANNER_IMAGE_SIZE_MB}
               />
             </div>
           </div>

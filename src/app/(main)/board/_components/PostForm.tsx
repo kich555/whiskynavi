@@ -3,6 +3,7 @@
 import { postApiBoardsUploads, type PostTypeResponse } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { FormMessage } from "@/components/ui/form-message";
+import { getImageSizeError } from "@/lib/image-upload";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
 import Placeholder from "@tiptap/extension-placeholder";
@@ -177,8 +178,9 @@ export default function PostForm({
       if (!editor) return;
 
       setUploadError(null);
-      if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-        alert(`${file.name}: 파일 크기가 ${MAX_IMAGE_SIZE_MB}MB를 초과합니다.`);
+      const sizeError = getImageSizeError(file, MAX_IMAGE_SIZE_MB);
+      if (sizeError) {
+        setUploadError(`${file.name}: ${sizeError}`);
         return;
       }
 
@@ -263,17 +265,21 @@ export default function PostForm({
       if (files.length === 0) return;
       e.target.value = "";
 
+      let validationError: string | null = null;
+
       for (const file of files) {
         if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
-          alert(`${file.name}: 지원하지 않는 파일 형식입니다. (JPG/PNG/WEBP만 가능)`);
+          validationError = `${file.name}: 지원하지 않는 파일 형식입니다. (JPG/PNG/WEBP만 가능)`;
           continue;
         }
-        if (file.size > MAX_IMAGE_SIZE_MB * 1024 * 1024) {
-          alert(`${file.name}: 파일 크기가 ${MAX_IMAGE_SIZE_MB}MB를 초과합니다.`);
+        const sizeError = getImageSizeError(file, MAX_IMAGE_SIZE_MB);
+        if (sizeError) {
+          validationError = `${file.name}: ${sizeError}`;
           continue;
         }
         uploadAndInsertImage(file);
       }
+      if (validationError) setUploadError(validationError);
     },
     [uploadAndInsertImage],
   );
@@ -422,6 +428,9 @@ export default function PostForm({
                 이미지 업로드 중... ({uploadingCount}개)
               </p>
             )}
+            <p className={`mt-1 text-[10px] ${variant === "admin" ? "text-gray-500" : "text-gray-400"}`}>
+              JPG/PNG/WEBP · 이미지당 최대 {MAX_IMAGE_SIZE_MB}MB
+            </p>
           </div>
 
           {/* 추가 필드 (공지 옵션 등) — variant에 상관없이 children으로 주입 */}
