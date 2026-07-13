@@ -27,7 +27,7 @@ export type FormState = {
 };
 
 const postSchema = z.object({
-  postTypeCode: z.string().trim().min(1, "타입을 선택해주세요.").max(50, "올바른 타입을 선택해주세요."),
+  postTypeCode: z.string().trim().min(1, "분류를 선택해주세요.").max(50, "올바른 분류를 선택해주세요."),
   title: z.string().trim().min(1, "제목을 입력해주세요.").max(200, "제목은 최대 200자까지 입력 가능합니다."),
   content: z.string().trim().min(1, "내용을 입력해주세요."),
 });

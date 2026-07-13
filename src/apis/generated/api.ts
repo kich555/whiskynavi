@@ -16478,6 +16478,43 @@ formData.append(`file`, postApiBoardsUploadsBody.file);
 
 
 /**
+ * 라우트에 해당하는 활성 게시판과 선택 가능한 활성 글타입을 반환합니다.
+ * @summary 게시판 단건 조회
+ */
+export type getApiBoardsBoardidResponse200 = {
+  data: UserBoardResponse
+  status: 200
+}
+    
+export type getApiBoardsBoardidResponseSuccess = (getApiBoardsBoardidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBoardsBoardidResponse = (getApiBoardsBoardidResponseSuccess)
+
+export const getGetApiBoardsBoardidUrl = (boardId: string,) => {
+
+
+  
+
+  return `/api/boards/${boardId}`
+}
+
+export const getApiBoardsBoardid = async (boardId: string, options?: RequestInit): Promise<getApiBoardsBoardidResponse> => {
+  
+  return customFetch<getApiBoardsBoardidResponse>(getGetApiBoardsBoardidUrl(boardId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 전체 공지와 해당 게시판 공지 중 visible=true이고 예약 게시/만료 조건을 만족하는 공지만 반환합니다. postTypeCode를 지정하면 해당 글타입의 게시판 공지만 조회합니다. 고정 여부와 우선순위가 높은 공지가 먼저 정렬됩니다.
  * @summary 게시판 공지 조회
  */
@@ -16925,6 +16962,45 @@ export const putApiBoardsBoardidPostsPostidCommentsCommentid = async (boardId: s
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiBoardsBoardidPostsPostidCommentsCommentidBody,)
+  }
+);}
+
+
+
+/**
+ * 실제 게시글 상세 화면 진입 시 조회수를 증가시키고 상세 정보를 반환합니다.
+ * @summary 게시글 조회 기록
+ */
+export type postApiBoardsBoardidPostsPostidViewsResponse200 = {
+  data: PostResponse
+  status: 200
+}
+    
+export type postApiBoardsBoardidPostsPostidViewsResponseSuccess = (postApiBoardsBoardidPostsPostidViewsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiBoardsBoardidPostsPostidViewsResponse = (postApiBoardsBoardidPostsPostidViewsResponseSuccess)
+
+export const getPostApiBoardsBoardidPostsPostidViewsUrl = (boardId: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/boards/${boardId}/posts/${postId}/views`
+}
+
+export const postApiBoardsBoardidPostsPostidViews = async (boardId: string,
+    postId: number, options?: RequestInit): Promise<postApiBoardsBoardidPostsPostidViewsResponse> => {
+  
+  return customFetch<postApiBoardsBoardidPostsPostidViewsResponse>(getPostApiBoardsBoardidPostsPostidViewsUrl(boardId,postId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 
