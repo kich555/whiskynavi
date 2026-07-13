@@ -4,6 +4,7 @@ import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/api
 import { getApiBoardsBoardidPosts } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getSession } from "next-auth/react";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
 import { useIsMobile } from "../_hooks/useIsMobile";
@@ -118,6 +119,18 @@ export default function BoardContent({
       <div className="sticky top-[64px] z-10 border-b border-white/10 bg-[#1d2429]/95 backdrop-blur-lg lg:top-20">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4">
           <BoardTabs tabs={tabs} activeTab={tab} onTabChange={handleTabChange} />
+          {/* 글쓰기 버튼 — 게시글 탭(POST)에서만, 로그인 상태일 때만 상시 노출.
+            공지 탭(ANNOUNCEMENT)은 admin이 공지를 등록하는 영역이므로 사용자 글쓰기 진입점을 숨긴다. */}
+          {resource === "posts" && currentUserId ? (
+            <button
+              type="button"
+              onClick={() => router.push(`/board/${boardId}/posts/new`)}
+              className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+            >
+              <Plus size={14} />
+              글쓰기
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -127,7 +140,6 @@ export default function BoardContent({
           announcements={initialAnnouncements}
           allAnnouncements={allAnnouncements}
           boardId={boardId}
-          currentUserId={currentUserId}
           isMobile={isMobile}
           isLoadMoreMode={isLoadMoreMode}
           showPagination={showPagination}

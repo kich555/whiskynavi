@@ -1,7 +1,6 @@
 "use client";
 
 import type { PostSummaryResponse, UserAnnouncementSummaryResponse } from "@/apis/generated/api";
-import Link from "next/link";
 import { useState } from "react";
 import AnnouncementItem from "./AnnouncementItem";
 import LoadMorePagination from "./LoadMorePagination";
@@ -13,7 +12,6 @@ interface PostListProps {
   announcements: UserAnnouncementSummaryResponse[];
   allAnnouncements: UserAnnouncementSummaryResponse[];
   boardId: string;
-  currentUserId?: number;
   isMobile: boolean;
   isLoadMoreMode: boolean;
   showPagination: boolean;
@@ -34,7 +32,6 @@ export default function PostList({
   isMobile,
   isLoadMoreMode,
   showPagination,
-  currentUserId,
   currentPage,
   totalPages,
   loadMoreRemaining,
@@ -51,14 +48,6 @@ export default function PostList({
       <div className="flex min-h-[calc(100vh-430px)] flex-col items-center justify-center text-gray-400">
         <p className="text-sm">게시글이 없습니다.</p>
         <p className="mt-1 text-xs">첫 번째 게시글을 작성해보세요!</p>
-        {currentUserId ? (
-          <Link
-            href={`/board/${boardId}/posts/new`}
-            className="mt-4 shrink-0 rounded-lg bg-amber-600 px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
-          >
-            글쓰기
-          </Link>
-        ) : null}
       </div>
     );
   }
