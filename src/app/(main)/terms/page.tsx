@@ -1,4 +1,10 @@
-import { TERMS_EFFECTIVE_DATE, TERMS_SECTIONS } from "@/lib/terms";
+import {
+  TERMS_CONTACT_EMAIL,
+  TERMS_CONTACT_PHONE,
+  TERMS_EFFECTIVE_DATE,
+  TERMS_REPRESENTATIVE,
+  TERMS_SECTIONS,
+} from "@/lib/terms";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -41,7 +47,9 @@ export default function TermsPage() {
 
         <aside className="mt-10 border border-white/10 bg-white/5 p-5 text-sm leading-6 text-gray-300 md:p-6">
           <p className="font-semibold text-white">약관 및 주문 관련 문의</p>
-          <p className="mt-2">주식회사 캐스크야드 · contact@whiskynavi.com · 010-6848-6231</p>
+          <p className="mt-2">
+            주식회사 캐스크야드 · 대표 {TERMS_REPRESENTATIVE} · {TERMS_CONTACT_PHONE} · {TERMS_CONTACT_EMAIL}
+          </p>
         </aside>
       </div>
     </main>
