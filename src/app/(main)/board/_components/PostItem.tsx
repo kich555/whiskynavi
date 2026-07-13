@@ -28,6 +28,11 @@ function formatDate(dateStr?: string): string {
 function PostTitle({ post }: { post: PostSummaryResponse }) {
   return (
     <span className="flex min-w-0 items-center gap-1 text-sm font-medium text-white">
+      {post.postType?.name ? (
+        <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
+          {post.postType.name}
+        </span>
+      ) : null}
       <span className="truncate">{post.title}</span>
       {post.hasImage ? (
         <ImageIcon role="img" aria-label="이미지 첨부됨" className="size-3.5 shrink-0 text-gray-400" />
