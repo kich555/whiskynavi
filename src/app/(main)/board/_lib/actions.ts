@@ -17,8 +17,8 @@ import { getServerSession } from "next-auth";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
-import sanitizeHtml from "sanitize-html";
 import { z } from "zod/v4";
+import { buildPostPayload } from "./post-content";
 
 export type FormState = {
   success: boolean;
@@ -89,23 +89,8 @@ export async function createPostAction(
     return { success: false, error: firstMessage, values };
   }
 
-  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
-  const sanitized = sanitizeHtml(parsed.data.content, {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "h1", "h2", "h3"]),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      img: ["src", "alt", "title", "width", "height"],
-      a: ["href", "target", "rel"],
-    },
-    allowedSchemes: ["http", "https"],
-  });
-
   try {
-    await postApiBoardsBoardidPosts(
-      boardId,
-      { title: parsed.data.title, content: sanitized, postTypeCode: parsed.data.postTypeCode },
-      withToken(token),
-    );
+    await postApiBoardsBoardidPosts(boardId, buildPostPayload(parsed.data), withToken(token));
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {
@@ -158,24 +143,8 @@ export async function updatePostAction(
     return { success: false, error: firstMessage, values };
   }
 
-  // HTML sanitize: TipTap 에디터에서 출력된 HTML을 정화
-  const sanitized = sanitizeHtml(parsed.data.content, {
-    allowedTags: sanitizeHtml.defaults.allowedTags.concat(["img", "h1", "h2", "h3"]),
-    allowedAttributes: {
-      ...sanitizeHtml.defaults.allowedAttributes,
-      img: ["src", "alt", "title", "width", "height"],
-      a: ["href", "target", "rel"],
-    },
-    allowedSchemes: ["http", "https"],
-  });
-
   try {
-    await putApiBoardsBoardidPostsPostid(
-      boardId,
-      postId,
-      { title: parsed.data.title, content: sanitized, postTypeCode: parsed.data.postTypeCode },
-      withToken(token),
-    );
+    await putApiBoardsBoardidPostsPostid(boardId, postId, buildPostPayload(parsed.data), withToken(token));
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {
