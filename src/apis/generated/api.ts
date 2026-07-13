@@ -757,6 +757,7 @@ export const AdminInquiryMessageResponseAuthorType = {
 
 export interface AdminInquiryMessageResponse {
   authorId?: number;
+  authorNickname?: string;
   authorType?: AdminInquiryMessageResponseAuthorType;
   content?: string;
   createdAt?: string;
@@ -1267,6 +1268,22 @@ CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
 }
 
 /**
+ * 관리자가 회원의 게시글 작성 제한 정보를 입력하기 위한 요청입니다.
+ */
+export interface AdminPostCreationRestrictionRequest {
+  /** 게시글 작성 제한 종료 시각. 시작 시각으로부터 최소 1시간, 최대 9999년까지 허용됩니다. */
+  endAt: string;
+  /**
+   * 게시글 작성 제한 사유
+   * @minLength 0
+   * @maxLength 1000
+   */
+  reason?: string;
+  /** 게시글 작성 제한 시작 시각 */
+  startAt: string;
+}
+
+/**
  * 관리자가 게시글을 삭제할 때 사용하는 요청 본문입니다. 삭제 사유는 감사 정보로 게시글에 함께 기록됩니다.
  */
 export interface AdminPostDeleteRequest {
@@ -1504,20 +1521,20 @@ export interface UserExtInfo {
   emailAgree?: boolean;
   /** 사용자 정지 여부입니다. */
   isBanned?: boolean;
-  /** 마케팅 수신 동의 여부입니다. */
-  marketingAgree?: boolean;
-  /** 개인정보 처리 방침 동의 여부입니다. */
-  privacyAgree?: boolean;
-  /** SMS 수신 동의 여부입니다. */
-  smsAgree?: boolean;
   /** 게시글 작성 제한 여부입니다. */
   isPostCreationRestricted?: boolean;
+  /** 마케팅 수신 동의 여부입니다. */
+  marketingAgree?: boolean;
+  /** 게시글 작성 제한 종료 일시입니다. */
+  postCreationRestrictionEndAt?: string;
   /** 게시글 작성 제한 사유입니다. */
   postCreationRestrictionReason?: string;
   /** 게시글 작성 제한 시작 일시입니다. */
   postCreationRestrictionStartAt?: string;
-  /** 게시글 작성 제한 종료 일시입니다. */
-  postCreationRestrictionEndAt?: string;
+  /** 개인정보 처리 방침 동의 여부입니다. */
+  privacyAgree?: boolean;
+  /** SMS 수신 동의 여부입니다. */
+  smsAgree?: boolean;
 }
 
 /**
@@ -1649,12 +1666,20 @@ export interface UserSelfResponse {
   id?: number;
   /** 정지 여부 */
   isBanned?: boolean;
+  /** 게시글 작성 제한 여부 */
+  isPostCreationRestricted?: boolean;
   /** 마케팅 동의 */
   marketingAgree?: boolean;
   /** 이름 */
   name?: string;
   /** 전화번호 */
   phone?: string;
+  /** 게시글 작성 제한 종료 시각 */
+  postCreationRestrictionEndAt?: string;
+  /** 게시글 작성 제한 사유 */
+  postCreationRestrictionReason?: string;
+  /** 게시글 작성 제한 시작 시각 */
+  postCreationRestrictionStartAt?: string;
   /** 개인정보 동의 */
   privacyAgree?: boolean;
   /** 권한 목록 */
@@ -1667,14 +1692,6 @@ export interface UserSelfResponse {
   status?: string;
   /** 사용자 아이디 */
   username?: string;
-  /** 게시글 작성 제한 여부 */
-  isPostCreationRestricted?: boolean;
-  /** 게시글 작성 제한 사유 */
-  postCreationRestrictionReason?: string;
-  /** 게시글 작성 제한 시작 시각 */
-  postCreationRestrictionStartAt?: string;
-  /** 게시글 작성 제한 종료 시각 */
-  postCreationRestrictionEndAt?: string;
 }
 
 /**
@@ -2727,6 +2744,7 @@ export const InquiryMessageResponseAuthorType = {
 } as const;
 
 export interface InquiryMessageResponse {
+  authorNickname?: string;
   authorType?: InquiryMessageResponseAuthorType;
   content?: string;
   createdAt?: string;
@@ -5770,22 +5788,6 @@ export interface UsernameRequest {
   username?: string;
 }
 
-/**
- * 관리자가 회원의 게시글 작성 제한 정보를 입력하기 위한 요청입니다.
- */
-export interface AdminPostCreationRestrictionRequest {
-  /**
-   * 게시글 작성 제한 사유
-   * @minLength 1
-   * @maxLength 1000
-   */
-  reason: string;
-  /** 게시글 작성 제한 시작 시각 */
-  startAt: string;
-  /** 게시글 작성 제한 종료 시각. 시작 시각으로부터 최소 1시간, 최대 9999년까지 허용됩니다. */
-  endAt: string;
-}
-
 export type GetApiAdminBannersParams = {
 /**
  * Zero-based page index (0..N)
@@ -8238,13 +8240,13 @@ status?: string;
 role?: string;
 excludedRoles?: string[];
 isBanned?: boolean;
+isPostCreationRestricted?: boolean;
 createdAtFrom?: string;
 createdAtTo?: string;
 updatedAtFrom?: string;
 updatedAtTo?: string;
 lastLoginAtFrom?: string;
 lastLoginAtTo?: string;
-isPostCreationRestricted?: boolean;
 };
 
 /**
@@ -8275,6 +8277,22 @@ export type PatchApiAdminUsersIdBanUpdateBody = {
   reason?: string;
   /** 밴 시작 시각 */
   startAt?: string;
+};
+
+/**
+ * 관리자가 회원의 게시글 작성 제한 정보를 입력하기 위한 요청입니다.
+ */
+export type PutApiAdminUsersIdPostCreationRestrictionBody = {
+  /** 게시글 작성 제한 종료 시각. 시작 시각으로부터 최소 1시간, 최대 9999년까지 허용됩니다. */
+  endAt: string;
+  /**
+   * 게시글 작성 제한 사유
+   * @minLength 0
+   * @maxLength 1000
+   */
+  reason?: string;
+  /** 게시글 작성 제한 시작 시각 */
+  startAt: string;
 };
 
 /**
@@ -15356,6 +15374,82 @@ export const patchApiAdminUsersIdBanUpdate = async (id: number,
 
 
 /**
+ * 사용자의 게시글 작성 제한을 즉시 해제합니다.
+ * @summary 게시글 작성 제한 해제(관리자)
+ */
+export type deleteApiAdminUsersIdPostCreationRestrictionResponse200 = {
+  data: AdminUserResponse
+  status: 200
+}
+
+export type deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess = (deleteApiAdminUsersIdPostCreationRestrictionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiAdminUsersIdPostCreationRestrictionResponse = (deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess)
+
+export const getDeleteApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/users/${id}/post-creation-restriction`
+}
+
+export const deleteApiAdminUsersIdPostCreationRestriction = async (id: number, options?: RequestInit): Promise<deleteApiAdminUsersIdPostCreationRestrictionResponse> => {
+
+  return customFetch<deleteApiAdminUsersIdPostCreationRestrictionResponse>(getDeleteApiAdminUsersIdPostCreationRestrictionUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+/**
+ * 계정 밴과 별개로 사유와 기간을 입력해 사용자의 게시글 작성을 제한합니다. 기간은 최소 1시간, 최대 9999년입니다.
+ * @summary 게시글 작성 제한 설정(관리자)
+ */
+export type putApiAdminUsersIdPostCreationRestrictionResponse200 = {
+  data: AdminUserResponse
+  status: 200
+}
+
+export type putApiAdminUsersIdPostCreationRestrictionResponseSuccess = (putApiAdminUsersIdPostCreationRestrictionResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminUsersIdPostCreationRestrictionResponse = (putApiAdminUsersIdPostCreationRestrictionResponseSuccess)
+
+export const getPutApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
+
+
+
+
+  return `/api/admin/users/${id}/post-creation-restriction`
+}
+
+export const putApiAdminUsersIdPostCreationRestriction = async (id: number,
+    putApiAdminUsersIdPostCreationRestrictionBody: PutApiAdminUsersIdPostCreationRestrictionBody, options?: RequestInit): Promise<putApiAdminUsersIdPostCreationRestrictionResponse> => {
+
+  return customFetch<putApiAdminUsersIdPostCreationRestrictionResponse>(getPutApiAdminUsersIdPostCreationRestrictionUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminUsersIdPostCreationRestrictionBody,)
+  }
+);}
+
+
+
+/**
  * 관리자가 사용자에게 역할을 추가합니다.
  * @summary 사용자 역할 추가(관리자)
  */
@@ -21723,82 +21817,6 @@ export const getDeleteApiUsersMeSocialLinksProviderUrl = (provider: string,) => 
 export const deleteApiUsersMeSocialLinksProvider = async (provider: string, options?: RequestInit): Promise<deleteApiUsersMeSocialLinksProviderResponse> => {
   
   return customFetch<deleteApiUsersMeSocialLinksProviderResponse>(getDeleteApiUsersMeSocialLinksProviderUrl(provider),
-  {      
-    ...options,
-    method: 'DELETE'
-    
-    
-  }
-);}
-
-
-
-/**
- * 계정 밴과 별개로 사유와 기간을 입력해 사용자의 게시글 작성을 제한합니다. 기간은 최소 1시간, 최대 9999년입니다.
- * @summary 게시글 작성 제한 설정(관리자)
- */
-export type putApiAdminUsersIdPostCreationRestrictionResponse200 = {
-  data: AdminUserResponse
-  status: 200
-}
-    
-export type putApiAdminUsersIdPostCreationRestrictionResponseSuccess = (putApiAdminUsersIdPostCreationRestrictionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type putApiAdminUsersIdPostCreationRestrictionResponse = (putApiAdminUsersIdPostCreationRestrictionResponseSuccess)
-
-export const getPutApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
-
-
-  
-
-  return `/api/admin/users/${id}/post-creation-restriction`
-}
-
-export const putApiAdminUsersIdPostCreationRestriction = async (id: number,
-    adminPostCreationRestrictionRequest: AdminPostCreationRestrictionRequest, options?: RequestInit): Promise<putApiAdminUsersIdPostCreationRestrictionResponse> => {
-  
-  return customFetch<putApiAdminUsersIdPostCreationRestrictionResponse>(getPutApiAdminUsersIdPostCreationRestrictionUrl(id),
-  {      
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      adminPostCreationRestrictionRequest,)
-  }
-);}
-
-
-
-/**
- * 사용자의 게시글 작성 제한을 즉시 해제합니다.
- * @summary 게시글 작성 제한 해제(관리자)
- */
-export type deleteApiAdminUsersIdPostCreationRestrictionResponse200 = {
-  data: AdminUserResponse
-  status: 200
-}
-    
-export type deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess = (deleteApiAdminUsersIdPostCreationRestrictionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type deleteApiAdminUsersIdPostCreationRestrictionResponse = (deleteApiAdminUsersIdPostCreationRestrictionResponseSuccess)
-
-export const getDeleteApiAdminUsersIdPostCreationRestrictionUrl = (id: number,) => {
-
-
-  
-
-  return `/api/admin/users/${id}/post-creation-restriction`
-}
-
-export const deleteApiAdminUsersIdPostCreationRestriction = async (id: number, options?: RequestInit): Promise<deleteApiAdminUsersIdPostCreationRestrictionResponse> => {
-  
-  return customFetch<deleteApiAdminUsersIdPostCreationRestrictionResponse>(getDeleteApiAdminUsersIdPostCreationRestrictionUrl(id),
   {      
     ...options,
     method: 'DELETE'

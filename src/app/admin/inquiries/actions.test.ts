@@ -52,7 +52,7 @@ describe("admin inquiry actions", () => {
 
     const result = await replyInquiryAction(10, { success: false }, replyForm(" 답변 "));
 
-    expect(result).toEqual({ success: true });
+    expect(result).toMatchObject({ success: true });
     expect(mockedReply).toHaveBeenCalledWith(
       10,
       { content: "답변", hasImage: false },
@@ -60,6 +60,29 @@ describe("admin inquiry actions", () => {
     );
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/inquiries");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/inquiries/10");
+  });
+
+  it("이미지가 포함된 답변에 hasImage를 설정한다", async () => {
+    mockedReply.mockResolvedValue({
+      data: { id: 3, authorType: "ADMIN", authorId: 1, content: "답변", hasImage: true },
+      status: 200,
+      headers: new Headers(),
+    });
+
+    await replyInquiryAction(
+      10,
+      { success: false },
+      replyForm('<p>답변</p><img src="https://cdn.example.com/reply.png">'),
+    );
+
+    expect(mockedReply).toHaveBeenCalledWith(
+      10,
+      {
+        content: '<p>답변</p><img src="https://cdn.example.com/reply.png" />',
+        hasImage: true,
+      },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
   });
 
   it("문의를 종료하고 다시 열 수 있다", async () => {

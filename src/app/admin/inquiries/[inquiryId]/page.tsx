@@ -3,6 +3,7 @@ import { get2 as getAdminInquiry } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { notFound } from "next/navigation";
 import AdminInquiryDetailContent from "../_components/AdminInquiryDetailContent";
 
@@ -25,5 +26,12 @@ export default async function AdminInquiryDetailPage({ params }: AdminInquiryDet
   }
 
   if (!response.data.inquiry?.id) notFound();
-  return <AdminInquiryDetailContent detail={response.data} />;
+  const detail = {
+    ...response.data,
+    messages: (response.data.messages ?? []).map((message) => ({
+      ...message,
+      content: sanitizeRichTextContent(message.content ?? ""),
+    })),
+  };
+  return <AdminInquiryDetailContent detail={detail} />;
 }
