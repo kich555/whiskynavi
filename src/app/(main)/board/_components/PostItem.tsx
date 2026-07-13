@@ -28,11 +28,6 @@ function formatDate(dateStr?: string): string {
 function PostTitle({ post }: { post: PostSummaryResponse }) {
   return (
     <span className="flex min-w-0 items-center gap-1 text-sm font-medium text-white">
-      {post.postType?.name ? (
-        <span className="shrink-0 rounded bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-bold text-amber-500">
-          {post.postType.name}
-        </span>
-      ) : null}
       <span className="truncate">{post.title}</span>
       {post.hasImage ? (
         <ImageIcon role="img" aria-label="이미지 첨부됨" className="size-3.5 shrink-0 text-gray-400" />
@@ -46,18 +41,22 @@ function PostTitle({ post }: { post: PostSummaryResponse }) {
 // 부모 리렌더 시 불필요한 재생성을 막기 위해 React.memo로 감쌈
 const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemProps) {
   const authorNickname = post.authorNickname ?? "알 수 없는 사용자";
+  const postTypeName = post.postType?.name ?? "-";
 
   if (isMobile) {
     return (
       <Link
         href={`/board/${boardId}/posts/${post.id}`}
         prefetch={false}
-        className="block border-b border-white/10 px-1 py-3 transition-colors hover:bg-white/5"
+        className="grid grid-cols-[64px_minmax(0,1fr)] grid-rows-[auto_auto] items-center gap-x-2 border-b border-white/10 px-1 py-3 transition-colors hover:bg-white/5"
         // rendering-content-visibility: 오프스크린 아이템의 layout/paint 생략
         style={{ contentVisibility: "auto", containIntrinsicSize: "0 60px" }}
       >
+        <span className="row-span-2 truncate border-r border-white/10 pr-2 text-center text-xs text-gray-400">
+          {postTypeName}
+        </span>
         <PostTitle post={post} />
-        <div className="mt-1.5 flex items-center gap-2 text-xs text-gray-500">
+        <div className="mt-1.5 flex min-w-0 items-center gap-2 text-xs text-gray-500">
           <span>{authorNickname}</span>
           <span>·</span>
           <span>조회 {post.viewCount ?? 0}</span>
@@ -72,9 +71,10 @@ const PostItem = memo(function PostItem({ post, isMobile, boardId }: PostItemPro
     <Link
       href={`/board/${boardId}/posts/${post.id}`}
       prefetch={false}
-      className="grid grid-cols-[1fr_100px_64px_100px] items-center gap-3 border-b border-white/10 px-4 py-3 transition-colors hover:bg-white/5"
+      className="grid grid-cols-[88px_minmax(0,1fr)_100px_64px_100px] items-center gap-3 border-b border-white/10 px-4 py-3 transition-colors hover:bg-white/5"
       style={{ contentVisibility: "auto", containIntrinsicSize: "0 44px" }}
     >
+      <span className="truncate text-xs text-gray-400">{postTypeName}</span>
       <PostTitle post={post} />
       <span className="text-right text-xs text-gray-400">{authorNickname}</span>
       <span className="text-right text-xs text-gray-400">{post.viewCount ?? 0}</span>

@@ -16,7 +16,7 @@ function post(overrides: Partial<PostSummaryResponse> = {}): PostSummaryResponse
 }
 
 describe("PostItem", () => {
-  it.each([true, false])("글 분류를 제목 앞에 표시한다", (isMobile) => {
+  it.each([true, false])("글 분류와 제목을 별도 칸에 표시한다", (isMobile) => {
     render(
       <PostItem
         post={post({ postType: { code: "question", name: "질문" } })}
@@ -29,12 +29,13 @@ describe("PostItem", () => {
     const title = screen.getByText("이미지가 있는 게시글");
 
     expect(postType.compareDocumentPosition(title) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(postType.parentElement).not.toBe(title.parentElement);
   });
 
-  it("글 분류명이 없으면 분류 라벨을 표시하지 않는다", () => {
+  it("글 분류명이 없으면 분류 칸에 대시를 표시한다", () => {
     render(<PostItem post={post({ postType: { code: "question" } })} isMobile boardId="community" />);
 
-    expect(screen.queryByText("질문")).not.toBeInTheDocument();
+    expect(screen.getByText("-")).toBeInTheDocument();
     expect(screen.getByText("이미지가 있는 게시글")).toBeInTheDocument();
   });
 
