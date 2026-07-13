@@ -46,12 +46,12 @@ interface PostFormProps {
   formTitle?: string;
 }
 
-function SubmitButton({ label, variant }: { label: string; variant: "user" | "admin" }) {
+function SubmitButton({ label, variant, disabled }: { label: string; variant: "user" | "admin"; disabled: boolean }) {
   const { pending } = useFormStatus();
   const base = "w-full rounded-xl py-3 text-sm font-bold text-white transition-colors disabled:opacity-50";
   const theme = variant === "admin" ? "bg-amber-600 hover:bg-amber-700" : "bg-amber-600 hover:bg-amber-700";
   return (
-    <button type="submit" disabled={pending} className={`${base} ${theme}`}>
+    <button type="submit" disabled={pending || disabled} className={`${base} ${theme}`}>
       {pending ? "처리 중..." : label}
     </button>
   );
@@ -442,7 +442,7 @@ export default function PostForm({
           </div>
 
           {/* 제출 */}
-          <SubmitButton label={submitLabel} variant={variant} />
+          <SubmitButton label={submitLabel} variant={variant} disabled={uploadingCount > 0} />
         </div>
       </form>
     </div>
