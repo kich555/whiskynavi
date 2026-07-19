@@ -63,11 +63,11 @@ describe("buildInfoItems", () => {
     ]);
   });
 
-  it("null 필드는 항목에서 제외한다", () => {
+  it("빠진 필드(undefined)는 항목에서 제외한다", () => {
     const items = buildInfoItems({
       ...base,
-      price: null,
-      availableQuantity: null,
+      price: undefined,
+      availableQuantity: undefined,
     });
     expect(items).toEqual([{ label: "브랜드", value: "Macallan" }]);
   });

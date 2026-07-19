@@ -47,7 +47,7 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
         </div>
         <div className="mt-2 flex items-center justify-between">
           {notice.price != null && <span className="text-xs text-gray-400">{formatCurrency(notice.price)}</span>}
-          {notice.availableQuantity != null && (
+          {isActive && notice.availableQuantity != null && (
             <span className="text-xs text-gray-500">{notice.availableQuantity?.toLocaleString() ?? "-"}병</span>
           )}
         </div>
