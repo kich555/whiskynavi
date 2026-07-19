@@ -4,10 +4,6 @@
 
 ## 빌드 & 테스트
 
-- `pnpm dev` — 개발 서버 (Turbopack)
-- `pnpm build` — 프로덕션 빌드
-- `pnpm lint` — ESLint
-- `pnpm format` — Prettier 포매팅
 - `pnpm gen:api` — OpenAPI에서 API 클라이언트 재생성 (Orval)
 - `pnpm gen:icons` — SVG 아이콘 생성
 
@@ -32,7 +28,6 @@
 - Prettier: double quotes, semi, trailing comma, printWidth 80
 - ESLint: next/core-web-vitals + typescript + prettier
 - `src/apis/generated/` 파일은 직접 수정 금지 (Orval 자동 생성)
-- path alias: `@/*` → `./src/*`
 - Tailwind 클래스 정렬: prettier-plugin-tailwindcss
 - import 정렬: prettier-plugin-organize-imports
 

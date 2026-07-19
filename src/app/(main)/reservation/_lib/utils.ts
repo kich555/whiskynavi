@@ -90,7 +90,10 @@ export function getStatusBadge(status: NoticeStatus) {
   }
 }
 
-export function buildInfoItems(notice: UserBottleReservationNoticePublicResponse) {
+export function buildInfoItems(
+  notice: UserBottleReservationNoticePublicResponse,
+  options?: { hideAvailableQuantity?: boolean },
+) {
   return [
     { label: "브랜드", value: notice.bottleBrand },
     {
@@ -99,7 +102,10 @@ export function buildInfoItems(notice: UserBottleReservationNoticePublicResponse
     },
     {
       label: "가용 수량",
-      value: notice.availableQuantity != null ? `${notice.availableQuantity}병` : null,
+      value:
+        options?.hideAvailableQuantity || notice.availableQuantity == null
+          ? null
+          : `${notice.availableQuantity}병`,
     },
   ].filter((item): item is { label: string; value: string } => item.value != null);
 }

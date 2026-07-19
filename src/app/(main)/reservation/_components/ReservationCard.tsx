@@ -35,10 +35,11 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
           <div>
             <p className="text-xs text-gray-400">{notice.bottleBrand ?? "-"}</p>
             <h3
-              className="typo-medium-14 mt-2 line-clamp-2 min-h-[2.8em] text-white group-hover:text-gray-300"
+              className="typo-medium-14 mt-2 min-h-[2.8em] text-white group-hover:text-gray-300"
               style={{ lineHeight: 1.4 }}
             >
-              {notice.bottleName ?? "-"}
+              <span className="block line-clamp-2">{notice.noticeName ?? "-"}</span>
+              <p className="mt-1 line-clamp-2 text-xs text-gray-400">{notice.bottleName ?? "-"}</p>
             </h3>
           </div>
           <Badge className={`shrink-0 border-transparent text-white ${isActive ? "bg-blue-600" : "bg-gray-600"}`}>
@@ -47,7 +48,7 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
         </div>
         <div className="mt-2 flex items-center justify-between">
           {notice.price != null && <span className="text-xs text-gray-400">{formatCurrency(notice.price)}</span>}
-          {notice.availableQuantity != null && (
+          {isActive && notice.availableQuantity != null && (
             <span className="text-xs text-gray-500">{notice.availableQuantity?.toLocaleString() ?? "-"}병</span>
           )}
         </div>

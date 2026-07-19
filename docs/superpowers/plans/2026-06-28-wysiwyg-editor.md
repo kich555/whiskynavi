@@ -1,5 +1,7 @@
 # WYSIWYG 에디터 도입 Implementation Plan
 
+> **Status: ✅ 구현 완료 (2026-07-19 검증)** — TipTap 에디터(`src/app/(main)/board/_components/PostForm.tsx`), 서버 사이드 sanitize-html(`src/lib/rich-text.ts` → `src/app/(main)/board/_lib/post-content.ts` → `actions.ts`), `dangerouslySetInnerHTML` 렌더링(`src/app/(main)/board/_components/PostDetailShell.tsx`) 모두 적용됨. 테스트: `post-content.test.ts`, `pasted-url.test.ts`. 아래 체크박스는 구현 당시 작성 기준이므로 참고용.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** 커뮤니티 게시판의 textarea 기반 에디터를 TipTap WYSIWYG 에디터로 교체하여 이미지가 에디터 내에 바로 렌더링되고 텍스트 포맷팅이 가능하도록 한다.

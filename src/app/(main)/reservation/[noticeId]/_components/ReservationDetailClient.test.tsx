@@ -56,6 +56,7 @@ function notice(
 ): UserBottleReservationNoticePublicResponse {
   return {
     id: 1,
+    noticeName: "테스트 공고명",
     bottleName: "테스트 보틀",
     bottleBrand: "테스트 브랜드",
     bottleImgUrl: "",
