@@ -44,6 +44,7 @@ interface GradeConditionFormValue {
 export interface NoticeFormValues {
   bottleId: string;
   bottleName: string;
+  noticeName: string;
   price: string;
   availableQuantity: string;
   maxOrderQuantity: string;
@@ -107,6 +108,11 @@ const noticeFormSchema = z.object({
   maxOrderQuantity: optionalPositiveInt("인당 최대 예약 가능 병수"),
   reservationStartAt: z.string().min(1, "예약 시작일은 필수입니다."),
   reservationEndAt: z.string().min(1, "예약 종료일은 필수입니다."),
+  noticeName: z.string().transform((v) => {
+    if (!v.trim()) return undefined;
+    if (v.length > 200) throw new Error("공고명은 200자를 초과할 수 없습니다.");
+    return v;
+  }),
   description: z.string().transform((v) => {
     if (!v.trim()) return undefined;
     if (v.length > 5000) throw new Error("설명은 5000자를 초과할 수 없습니다.");
@@ -138,6 +144,7 @@ function extractNoticeFormValues(formData: FormData): NoticeFormValues {
   return {
     bottleId: (formData.get("bottleId") as string) ?? "",
     bottleName: (formData.get("bottleName") as string) ?? "",
+    noticeName: (formData.get("noticeName") as string) ?? "",
     price: (formData.get("price") as string) ?? "",
     availableQuantity: (formData.get("availableQuantity") as string) ?? "",
     maxOrderQuantity: (formData.get("maxOrderQuantity") as string) ?? "",
@@ -253,6 +260,7 @@ function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
     gradeConditions: buildGradeConditions(data),
     availableQuantity: data.availableQuantity,
     maxOrderQuantity: data.maxOrderQuantity,
+    noticeName: data.noticeName,
     description: data.description,
   };
 }
