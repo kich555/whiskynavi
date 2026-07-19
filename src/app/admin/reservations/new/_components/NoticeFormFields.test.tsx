@@ -10,6 +10,7 @@ describe("NoticeFormFields", () => {
         formValues={{
           bottleId: "11",
           bottleName: "테스트 보틀",
+          noticeName: "7월 한정공고",
           price: "120000",
           availableQuantity: "20",
           maxOrderQuantity: "2",
@@ -27,6 +28,7 @@ describe("NoticeFormFields", () => {
     );
 
     expect(screen.getByDisplayValue("테스트 보틀 (ID: 11)")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("7월 한정공고")).toBeInTheDocument();
     expect(screen.getByDisplayValue("테스트 설명")).toBeInTheDocument();
     expect(screen.getByDisplayValue("120,000")).toBeInTheDocument();
     expect(screen.getByDisplayValue("20")).toBeInTheDocument();

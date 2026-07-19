@@ -71,6 +71,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">공고명</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">제품명</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
@@ -84,7 +85,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
               <tbody className="divide-y divide-gray-100">
                 {notices.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={10} className="px-4 py-8 text-center text-gray-500">
                       예약 공고가 없습니다.
                     </td>
                   </tr>
@@ -100,6 +101,9 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         onClick={() => router.push(`/admin/reservations/${notice.id}`)}
                       >
                         <td className="px-4 py-3 text-sm text-gray-900">{notice.id}</td>
+                        <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
+                          {notice.noticeName || "-"}
+                        </td>
                         <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                           {notice.bottleName}
                         </td>

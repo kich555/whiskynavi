@@ -85,6 +85,18 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
         </div>
 
         <div>
+          <label className="typo-medium-14 mb-1 block text-gray-700">공고명</label>
+          <input
+            type="text"
+            name="noticeName"
+            maxLength={200}
+            defaultValue={formValues?.noticeName ?? defaultValues?.noticeName ?? ""}
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            placeholder="예: 7월 한정공고"
+          />
+        </div>
+
+        <div>
           <label className="typo-medium-14 mb-1 block text-gray-700">
             가격 <span className="text-red-500">*</span>
           </label>
