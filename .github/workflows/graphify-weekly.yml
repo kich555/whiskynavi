@@ -52,10 +52,23 @@ jobs:
             echo "GRAPH_REPORT.md not found" >&2
             exit 1
           fi
-          # 헤더(날짜/요약) 추출 — 이슈 본문용
+          # 사람이 볼 가치 있는 섹션만 추출:
+          #   Summary, Graph Freshness, God Nodes, Surprising Connections,
+          #   Import Cycles, Knowledge Gaps, Suggested Questions
+          # 제외: Corpus Check (파일 통계만), Community Hubs (파일명 나열, 의미 낮음),
+          #       Communities 전체 목록 (너무 김)
+          # awk로 섹션 범위를 잡아 합친다.
           {
-            echo "summary<<EOF"
-            head -12 graphify-out/GRAPH_REPORT.md
+            echo "digest<<EOF"
+            awk '
+              /^## Corpus Check/ {skip=1; next}
+              /^## Summary/ {skip=0}
+              /^## Community Hubs/ {skip=1; next}
+              /^## God Nodes/ {skip=0}
+              /^## Communities \(/ {skip=1; next}
+              /^## Knowledge Gaps/ {skip=0}
+              {if(!skip) print}
+            ' graphify-out/GRAPH_REPORT.md
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
           echo "report_size=$(wc -c < graphify-out/GRAPH_REPORT.md)" >> "$GITHUB_OUTPUT"
@@ -79,31 +92,23 @@ jobs:
             const date = new Date().toISOString().slice(0, 10);
             const artifactUrl = `https://github.com/${repo}/actions/runs/${runId}`;
 
-            const summary = process.env.SUMMARY || "(summary extraction failed)";
+            const digest = process.env.DIGEST || "(digest extraction failed)";
             const reportSize = process.env.REPORT_SIZE || "?";
 
             const body = [
               `## graphify 주간 리포트 (${date})`,
               ``,
-              `> 워크플로: \`.github/workflows/graphify-monthly.yml\``,
-              `> 실행: ${artifactUrl}`,
-              `> 리포트 크기: ${reportSize} bytes`,
+              `> 워크플로: \`.github/workflows/graphify-weekly.yml\` · 실행: ${artifactUrl}`,
+              `> 전체 리포트(원본 마크다운/graph.json)는 아티팩트 \`graph-report-${runId}\`에서 (30일 보관).`,
               ``,
-              `### 헤더 요약`,
-              "```",
-              summary,
-              "```",
-              ``,
-              `### 리포트`,
-              `전체 리포트는 워크플로 아티팩트 \`graph-report-${runId}\`에서 다운로드 (90일 보관).`,
+              digest,
               ``,
               `### 리뷰 체크리스트 (docs/agents/graphify-workflow.md)`,
-              `- [ ] God nodes 상위 10 확인 (의도적 중앙 추상화 vs 커플링)`,
-              `- [ ] 커뮤니티 수 / 평균 크기 급격 변화`,
-              `- [ ] 단절된 노드 / weakly-connected`,
-              `- [ ] 순환 의존성`,
+              `- [ ] God nodes 상위 10 변화 확인 (의도적 중앙 추상화 vs 커플링)`,
+              `- [ ] Suggested Questions 중 새로운 것 이슈화 또는 탐색`,
+              `- [ ] Knowledge Gaps: 진짜 단절인지 graphify 한계인지 판단 (mappings.md §2 참고)`,
+              `- [ ] Import Cycles 신규 발생 여부`,
               `- [ ] docs/superpowers/mappings.md 갱신 필요 여부`,
-              `- [ ] 발견된 이슈 → 별도 이슈화`,
               ``,
               `자동 생성됨. 라벨은 수동 부여 (needs-triage 등).`,
             ].join("\n");
@@ -116,5 +121,5 @@ jobs:
             });
             core.info(`Created issue #${issue.data.number}`);
         env:
-          SUMMARY: ${{ steps.verify.outputs.summary }}
+          DIGEST: ${{ steps.verify.outputs.digest }}
           REPORT_SIZE: ${{ steps.verify.outputs.report_size }}
