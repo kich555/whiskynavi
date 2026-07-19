@@ -76,4 +76,6 @@ graphify는 커뮤니티 라벨을 다수 파일 기준으로 붙인다. 유틸�
 - TODO-3 ✅ Wysiwyg 완료 검증 (commit `106022a`)
 - TODO-4 ✅ 본 문서 §2 (라벨링 불일치 9건)
 - TODO-5 ✅ 본 문서 §1 (설계 문서 ↔ 코드 매핑)
-- TODO-6 ~ TODO-10: 별도 진행
+- TODO-9 ✅ ADR-0001 리치 텍스트 살균 레이어 분리 (`docs/adr/0001-rich-text-sanitize-layering.md`)
+- TODO-2 ⏸ membership 기획 — GitHub 이슈 #82 (needs-triage)
+- TODO-6, TODO-7, TODO-8, TODO-10: 별도 진행
