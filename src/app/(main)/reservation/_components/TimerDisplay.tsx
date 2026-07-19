@@ -53,7 +53,7 @@ export default function TimerDisplay({
       <div className={`border ${config.borderClass} ${config.bgClass} p-3 lg:p-4`}>
         <div className="flex items-center justify-between">
           <p className={`typo-bold-14 lg:text-base ${config.labelClass}`}>{config.label}</p>
-          <p className={`text-xs ${config.subClass}`}>{formatDateTime(reservationEndAt)}</p>
+          <p className={`typo-medium-12 ${config.subClass}`}>{formatDateTime(reservationEndAt)}</p>
         </div>
       </div>
     );
@@ -63,7 +63,7 @@ export default function TimerDisplay({
     <div className={`border ${config.borderClass} ${config.bgClass} p-3 lg:p-4`}>
       <div className="mb-2 flex flex-col items-start gap-1 lg:flex-row lg:items-start lg:justify-between">
         <p className={`typo-bold-14 lg:text-base ${config.labelClass}`}>{config.label}</p>
-        <p className={`text-xs ${config.subClass}`}>{formatDateTime(dateStr)}</p>
+        <p className={`typo-medium-12 ${config.subClass}`}>{formatDateTime(dateStr)}</p>
       </div>
       <div className="flex items-center justify-end">
         <p className="typo-bold-18 tracking-wide text-white lg:text-2xl">{timeRemaining}</p>

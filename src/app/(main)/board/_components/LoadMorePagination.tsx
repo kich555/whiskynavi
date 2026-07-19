@@ -34,7 +34,7 @@ export default function LoadMorePagination({
             type="button"
             onClick={onLoadMore}
             disabled={isLoadingMore}
-            className="w-full rounded-xl border border-amber-600/40 bg-amber-600/10 py-2.5 text-sm font-bold text-white backdrop-blur-sm transition-all disabled:cursor-not-allowed disabled:opacity-50"
+            className="typo-bold-14 w-full rounded-xl border border-amber-600/40 bg-amber-600/10 py-2.5 text-white backdrop-blur-sm transition-all disabled:cursor-not-allowed disabled:opacity-50"
           >
             {isLoadingMore ? "로딩 중..." : `더보기 · ${loadMoreRemaining}회 남음`}
           </button>
@@ -55,7 +55,7 @@ export default function LoadMorePagination({
           type="button"
           disabled={currentPage <= 1}
           onClick={() => onPageChange(currentPage - 1)}
-          className="rounded-md border border-white/20 px-2.5 py-1.5 text-sm hover:bg-white/5 disabled:opacity-30"
+          className="typo-medium-14 rounded-md border border-white/20 px-2.5 py-1.5 hover:bg-white/5 disabled:opacity-30"
         >
           ‹
         </button>
@@ -64,7 +64,7 @@ export default function LoadMorePagination({
             key={p}
             type="button"
             onClick={() => onPageChange(p)}
-            className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
+            className={`typo-medium-14 rounded-md px-3 py-1.5 transition-colors ${
               p === currentPage ? "bg-amber-600 text-white" : "border border-white/20 text-gray-400 hover:bg-white/5"
             }`}
           >
@@ -75,7 +75,7 @@ export default function LoadMorePagination({
           type="button"
           disabled={currentPage >= totalPages}
           onClick={() => onPageChange(currentPage + 1)}
-          className="rounded-md border border-white/20 px-2.5 py-1.5 text-sm hover:bg-white/5 disabled:opacity-30"
+          className="typo-medium-14 rounded-md border border-white/20 px-2.5 py-1.5 hover:bg-white/5 disabled:opacity-30"
         >
           ›
         </button>

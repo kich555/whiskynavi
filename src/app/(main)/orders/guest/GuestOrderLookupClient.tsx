@@ -23,8 +23,8 @@ interface GuestOrderLookupClientProps {
 function InfoRow({ label, value }: { label: string; value?: string | number }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3">
-      <dt className="text-sm text-gray-400">{label}</dt>
-      <dd className="max-w-[65%] text-right text-sm font-medium break-words text-white">{value || "-"}</dd>
+      <dt className="typo-medium-14 text-gray-400">{label}</dt>
+      <dd className="typo-medium-14 max-w-[65%] text-right break-words text-white">{value || "-"}</dd>
     </div>
   );
 }
@@ -51,10 +51,10 @@ function GuestOrderDetail({
     <section className="mt-8 border border-white/10 bg-white/5 p-5 md:p-8">
       <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm text-gray-400">주문번호</p>
+          <p className="typo-medium-14 text-gray-400">주문번호</p>
           <h2 className="typo-bold-20 mt-1 text-white">{order.orderNumber}</h2>
         </div>
-        <span className={`w-fit border px-3 py-1 text-sm font-bold ${status.colorClass}`}>{status.label}</span>
+        <span className={`typo-bold-14 w-fit border px-3 py-1 ${status.colorClass}`}>{status.label}</span>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -89,7 +89,7 @@ function GuestOrderDetail({
       {canCancel && (
         <div className="mt-8 border-t border-white/10 pt-6">
           <h3 className="typo-bold-18 text-white">주문 취소</h3>
-          <p className="mt-2 text-sm text-gray-400">
+          <p className="typo-medium-14 mt-2 text-gray-400">
             결제 완료 주문은 취소 요청으로 접수되며, 관리자가 승인하면 결제와 주문이 취소됩니다.
           </p>
           <Textarea
@@ -110,7 +110,7 @@ function GuestOrderDetail({
         </div>
       )}
 
-      <p className="mt-6 font-mono text-xs text-gray-500">조회 코드: {guestOrderToken}</p>
+      <p className="typo-medium-12 mt-6 font-mono text-gray-500">조회 코드: {guestOrderToken}</p>
     </section>
   );
 }
@@ -169,7 +169,7 @@ export default function GuestOrderLookupClient({
   return (
     <div className="mx-auto max-w-4xl px-4 pt-24 pb-10 md:pt-32 md:pb-16">
       <section className="border border-white/10 bg-white/5 p-5 md:p-8">
-        <p className="text-sm text-amber-300">비회원 주문내역 조회</p>
+        <p className="typo-medium-14 text-amber-300">비회원 주문내역 조회</p>
         <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">주문번호와 조회 코드를 입력해 주세요.</h1>
 
         <form
@@ -180,7 +180,7 @@ export default function GuestOrderLookupClient({
           }}
         >
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-200" htmlFor="guestOrderNumber">
+            <label className="typo-medium-14 mb-2 block text-gray-200" htmlFor="guestOrderNumber">
               주문번호
             </label>
             <Input
@@ -192,7 +192,7 @@ export default function GuestOrderLookupClient({
             />
           </div>
           <div>
-            <label className="mb-2 block text-sm font-medium text-gray-200" htmlFor="guestOrderToken">
+            <label className="typo-medium-14 mb-2 block text-gray-200" htmlFor="guestOrderToken">
               비회원 주문 조회 코드
             </label>
             <Input
@@ -208,7 +208,9 @@ export default function GuestOrderLookupClient({
           </Button>
         </form>
 
-        {error && <p className="mt-5 border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-200">{error}</p>}
+        {error && (
+          <p className="typo-medium-14 mt-5 border border-red-400/30 bg-red-400/10 p-3 text-red-200">{error}</p>
+        )}
       </section>
 
       {order && (

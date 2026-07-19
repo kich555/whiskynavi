@@ -28,7 +28,7 @@ export default function BoardTabs({ tabs, activeTab, onTabChange }: BoardTabsPro
           type="button"
           onClick={() => onTabChange(tab.key)}
           aria-current={activeTab === tab.key ? "page" : undefined}
-          className={`relative shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+          className={`typo-medium-14 relative shrink-0 px-4 py-3 whitespace-nowrap transition-colors ${
             activeTab === tab.key ? "text-white" : "text-gray-400 hover:text-gray-300"
           }`}
         >

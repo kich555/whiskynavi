@@ -62,7 +62,7 @@ export default function AdminPostDeleteDialog({ boardId, boardRoute, postId }: A
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50"
+        className="typo-medium-14 rounded-lg border border-red-300 px-3 py-1.5 text-red-600 transition-colors hover:bg-red-50"
       >
         관리자 삭제
       </button>
@@ -77,7 +77,7 @@ export default function AdminPostDeleteDialog({ boardId, boardRoute, postId }: A
           </DialogHeader>
 
           <div className="space-y-2">
-            <label htmlFor="admin-post-delete-reason" className="text-sm font-medium">
+            <label htmlFor="admin-post-delete-reason" className="typo-medium-14">
               삭제 사유 <span className="text-red-600">*</span>
             </label>
             <Textarea
@@ -92,7 +92,7 @@ export default function AdminPostDeleteDialog({ boardId, boardRoute, postId }: A
             />
             <div className="flex items-start justify-between gap-3">
               <FormMessage message={deleteError} variant="error" />
-              <span className="ml-auto shrink-0 text-xs text-gray-500">{deleteReason.length}/500</span>
+              <span className="typo-medium-12 ml-auto shrink-0 text-gray-500">{deleteReason.length}/500</span>
             </div>
           </div>
 

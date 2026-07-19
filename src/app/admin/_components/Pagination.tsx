@@ -56,18 +56,18 @@ export default function Pagination({
   return (
     <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-4">
       <div className="flex items-center gap-2">
-        <Label className="text-sm text-gray-600">페이지당:</Label>
+        <Label className="typo-medium-14 text-gray-600">페이지당:</Label>
         <select
           value={itemsPerPage}
           onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-          className="rounded border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+          className="typo-medium-14 rounded border border-gray-300 px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none"
         >
           <option value={10}>10</option>
           <option value={20}>20</option>
           <option value={50}>50</option>
           <option value={100}>100</option>
         </select>
-        <span className="ml-4 text-sm text-gray-600">
+        <span className="typo-medium-14 ml-4 text-gray-600">
           {totalItems}개 중 {startIndex}-{endIndex}
         </span>
         {isPending && <div className="ml-2 h-4 w-4 animate-spin rounded-full border-b-2 border-amber-600"></div>}
@@ -101,7 +101,7 @@ export default function Pagination({
               key={pageNum}
               onClick={() => handlePageChange(pageNum)}
               disabled={isPending}
-              className={`h-8 w-8 cursor-pointer rounded text-sm font-medium ${
+              className={`typo-medium-14 h-8 w-8 cursor-pointer rounded ${
                 currentPage === pageNum ? "bg-amber-600 text-white" : "border border-gray-300 hover:bg-gray-50"
               } disabled:opacity-50`}
             >

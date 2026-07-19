@@ -108,31 +108,31 @@ export default function BusinessApplicationDetailContent({
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3">
               <div>
-                <p className="text-xs text-gray-500">신청 ID</p>
-                <p className="text-sm font-medium text-gray-900">{application.id}</p>
+                <p className="typo-medium-12 text-gray-500">신청 ID</p>
+                <p className="typo-medium-14 text-gray-900">{application.id}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청자 ID</p>
-                <p className="text-sm font-medium text-gray-900">{application.userId ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">신청자 ID</p>
+                <p className="typo-medium-14 text-gray-900">{application.userId ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.createdAt)}</p>
+                <p className="typo-medium-12 text-gray-500">신청일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">수정일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.updatedAt)}</p>
+                <p className="typo-medium-12 text-gray-500">수정일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.updatedAt)}</p>
               </div>
               {application.rejectReason && (
                 <div className="col-span-2">
-                  <p className="text-xs text-gray-500">반려 사유</p>
-                  <p className="text-sm font-medium text-red-600">{application.rejectReason}</p>
+                  <p className="typo-medium-12 text-gray-500">반려 사유</p>
+                  <p className="typo-medium-14 text-red-600">{application.rejectReason}</p>
                 </div>
               )}
               {application.adminMemo && (
                 <div className="col-span-2">
-                  <p className="text-xs text-gray-500">관리자 메모</p>
-                  <p className="text-sm font-medium text-gray-900">{application.adminMemo}</p>
+                  <p className="typo-medium-12 text-gray-500">관리자 메모</p>
+                  <p className="typo-medium-14 text-gray-900">{application.adminMemo}</p>
                 </div>
               )}
             </div>
@@ -145,45 +145,45 @@ export default function BusinessApplicationDetailContent({
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3">
               <div>
-                <p className="text-xs text-gray-500">업체명</p>
-                <p className="text-sm font-medium text-gray-900">{application.businessName ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">업체명</p>
+                <p className="typo-medium-14 text-gray-900">{application.businessName ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">사업자등록번호</p>
-                <p className="text-sm font-medium text-gray-900">{application.businessRegistrationNumber ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">사업자등록번호</p>
+                <p className="typo-medium-14 text-gray-900">{application.businessRegistrationNumber ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">사업자 구분</p>
-                <p className="text-sm font-medium text-gray-900">{formatBusinessType(application)}</p>
+                <p className="typo-medium-12 text-gray-500">사업자 구분</p>
+                <p className="typo-medium-14 text-gray-900">{formatBusinessType(application)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">대표자명</p>
-                <p className="text-sm font-medium text-gray-900">{application.representativeName ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">대표자명</p>
+                <p className="typo-medium-14 text-gray-900">{application.representativeName ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">연락처</p>
-                <p className="text-sm font-medium text-gray-900">{application.contact ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">연락처</p>
+                <p className="typo-medium-14 text-gray-900">{application.contact ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">개업일</p>
-                <p className="text-sm font-medium text-gray-900">{application.openingDate ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">개업일</p>
+                <p className="typo-medium-14 text-gray-900">{application.openingDate ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">과세유형</p>
-                <p className="text-sm font-medium text-gray-900">{application.taxType ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">과세유형</p>
+                <p className="typo-medium-14 text-gray-900">{application.taxType ?? "-"}</p>
               </div>
               <div className="col-span-2">
-                <p className="text-xs text-gray-500">픽업 주소</p>
-                <p className="text-sm font-medium text-gray-900">{application.pickupAddress ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">픽업 주소</p>
+                <p className="typo-medium-14 text-gray-900">{application.pickupAddress ?? "-"}</p>
               </div>
               {application.documentDownloadUrl && (
                 <div>
-                  <p className="text-xs text-gray-500">사업자등록증</p>
+                  <p className="typo-medium-12 text-gray-500">사업자등록증</p>
                   <a
                     href={application.documentDownloadUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm font-medium text-amber-600 hover:underline"
+                    className="typo-medium-14 text-amber-600 hover:underline"
                   >
                     {application.documentOriginalFilename ?? "다운로드"}
                   </a>
@@ -203,18 +203,18 @@ export default function BusinessApplicationDetailContent({
                   <div key={log.id} className="py-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-gray-600">
+                        <span className="typo-medium-14 text-gray-600">
                           {APPLICATION_STATUS_LABEL[log.beforeStatus ?? ""] ?? log.beforeStatus ?? "-"}
                         </span>
                         <span className="text-gray-400">→</span>
-                        <span className="text-sm font-medium text-amber-600">
+                        <span className="typo-medium-14 text-amber-600">
                           {APPLICATION_STATUS_LABEL[log.afterStatus ?? ""] ?? log.afterStatus ?? "-"}
                         </span>
                       </div>
-                      <span className="text-xs text-gray-400">{formatDate(log.createdAt)}</span>
+                      <span className="typo-medium-12 text-gray-400">{formatDate(log.createdAt)}</span>
                     </div>
-                    {log.actorUsername && <p className="mt-1 text-xs text-gray-500">처리자: {log.actorUsername}</p>}
-                    {log.memo && <p className="mt-1 text-xs text-gray-500">메모: {log.memo}</p>}
+                    {log.actorUsername && <p className="mt-1 typo-medium-12 text-gray-500">처리자: {log.actorUsername}</p>}
+                    {log.memo && <p className="mt-1 typo-medium-12 text-gray-500">메모: {log.memo}</p>}
                   </div>
                 ))}
               </div>

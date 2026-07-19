@@ -91,7 +91,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             name="noticeName"
             maxLength={200}
             defaultValue={formValues?.noticeName ?? defaultValues?.noticeName ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 7월 한정공고"
           />
         </div>
@@ -104,7 +104,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             name="price"
             defaultValue={formValues?.price ?? defaultValues?.price}
             required
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="가격을 입력하세요"
           />
         </div>
@@ -114,7 +114,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             {isEditing ? "남은 수락 수량" : "총 수락할 수량"}
           </label>
           {isEditing && defaultValues?.approvedQuantity != null && (
-            <p className="mb-1 text-xs text-gray-500">현재 수락한 수량 {defaultValues.approvedQuantity}병</p>
+            <p className="typo-medium-12 mb-1 text-gray-500">현재 수락한 수량 {defaultValues.approvedQuantity}병</p>
           )}
           <input
             type="number"
@@ -122,7 +122,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             min={0}
             step={1}
             defaultValue={formValues?.availableQuantity ?? defaultValues?.availableQuantity ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 100"
           />
         </div>
@@ -135,7 +135,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             min={0}
             step={1}
             defaultValue={formValues?.maxOrderQuantity ?? defaultValues?.maxOrderQuantity ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 2"
           />
         </div>
@@ -169,7 +169,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             rows={4}
             maxLength={5000}
             defaultValue={formValues?.description ?? defaultValues?.description ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예약 공고에 대한 설명을 입력하세요"
           />
         </div>
@@ -189,13 +189,13 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
           </button>
         </div>
 
-        {gradeConditions.length === 0 && <p className="text-sm text-gray-400">등급 조건이 없습니다.</p>}
+        {gradeConditions.length === 0 && <p className="typo-medium-14 text-gray-400">등급 조건이 없습니다.</p>}
 
         <div className="space-y-3">
           {gradeConditions.map((cond, idx) => (
             <div key={idx} className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-gray-500">역할</label>
+                <label className="typo-medium-12 mb-1 block text-gray-500">역할</label>
                 <Select
                   value={cond.requiredRole || undefined}
                   onValueChange={(val) => updateCondition(idx, "requiredRole", val)}
@@ -214,7 +214,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
               </div>
 
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-gray-500">적용 시작일</label>
+                <label className="typo-medium-12 mb-1 block text-gray-500">적용 시작일</label>
                 <DateTimePicker
                   value={cond.applicableFrom}
                   onChange={(iso) => updateCondition(idx, "applicableFrom", iso)}

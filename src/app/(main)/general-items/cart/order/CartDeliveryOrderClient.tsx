@@ -1,10 +1,6 @@
 "use client";
 
-import type {
-  CartQuoteResponse,
-  UserDeliveryAddressResponse,
-  UserSelfResponse,
-} from "@/apis/generated/api";
+import type { CartQuoteResponse, UserDeliveryAddressResponse, UserSelfResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
@@ -16,18 +12,11 @@ import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import { toast } from "sonner";
 import { formatCartCurrency, getValidCartItems } from "../_lib/cart-utils";
-import {
-  createGeneralItemCartTossTicket,
-  type GeneralItemCartDeliveryOrderInput,
-} from "./actions";
-import {
-  formatDeliveryAddress,
-  formatOrderDeliveryAddress,
-  getDefaultAddress,
-} from "./_lib/address-utils";
+import { AddressDialog } from "./_components/AddressDialog";
+import { formatDeliveryAddress, formatOrderDeliveryAddress, getDefaultAddress } from "./_lib/address-utils";
 import { loadKakaoPostcodeScript, resolvePostcodeAddress } from "./_lib/kakao-postcode";
 import { requestTossPayment } from "./_lib/toss-payments";
-import { AddressDialog } from "./_components/AddressDialog";
+import { createGeneralItemCartTossTicket, type GeneralItemCartDeliveryOrderInput } from "./actions";
 
 interface CartDeliveryOrderClientProps {
   quote: CartQuoteResponse;
@@ -88,11 +77,9 @@ export default function CartDeliveryOrderClient({
     return attemptKeyRef.current;
   };
 
-  const updateField =
-    (field: keyof typeof form) =>
-    (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      setForm((current) => ({ ...current, [field]: event.target.value }));
-    };
+  const updateField = (field: keyof typeof form) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((current) => ({ ...current, [field]: event.target.value }));
+  };
 
   const applyAddress = (address: UserDeliveryAddressResponse) => {
     setForm((current) => ({
@@ -155,9 +142,7 @@ export default function CartDeliveryOrderClient({
   const handleAddressCreated = (newAddress: UserDeliveryAddressResponse) => {
     openedForSameAsOrderer.current = false;
     setAddresses((current) => {
-      const next = newAddress.defaultAddress
-        ? current.map((a) => ({ ...a, defaultAddress: false }))
-        : current;
+      const next = newAddress.defaultAddress ? current.map((a) => ({ ...a, defaultAddress: false })) : current;
       return [...next, newAddress];
     });
     applyAddress(newAddress);
@@ -178,11 +163,7 @@ export default function CartDeliveryOrderClient({
         }).open();
       })
       .catch((postcodeError) => {
-        toast.error(
-          postcodeError instanceof Error
-            ? postcodeError.message
-            : "주소 검색 서비스를 불러오지 못했습니다.",
-        );
+        toast.error(postcodeError instanceof Error ? postcodeError.message : "주소 검색 서비스를 불러오지 못했습니다.");
       });
   };
 
@@ -212,11 +193,7 @@ export default function CartDeliveryOrderClient({
         await requestTossPayment(result.data.ticket, input);
       } catch (paymentError) {
         attemptKeyRef.current = "";
-        toast.error(
-          paymentError instanceof Error
-            ? paymentError.message
-            : "토스 결제를 시작하지 못했습니다.",
-        );
+        toast.error(paymentError instanceof Error ? paymentError.message : "토스 결제를 시작하지 못했습니다.");
       }
     });
   };
@@ -225,13 +202,9 @@ export default function CartDeliveryOrderClient({
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 md:py-16">
         <div className="border border-white/10 bg-white/5 p-6 text-center">
-          <p className="text-sm text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
-          <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">
-            장바구니에 담긴 상품이 없습니다.
-          </h1>
-          <p className="mt-4 text-sm text-gray-400">
-            주문할 상품을 장바구니에 담은 뒤 다시 진행해 주세요.
-          </p>
+          <p className="typo-medium-14 text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
+          <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">장바구니에 담긴 상품이 없습니다.</h1>
+          <p className="typo-medium-14 mt-4 text-gray-400">주문할 상품을 장바구니에 담은 뒤 다시 진행해 주세요.</p>
           <Button asChild className="mt-6 bg-amber-600 hover:bg-amber-700">
             <Link href="/general-items/cart">장바구니로 이동</Link>
           </Button>
@@ -243,19 +216,16 @@ export default function CartDeliveryOrderClient({
   return (
     <>
       <div className="mx-auto grid max-w-5xl gap-8 px-4 py-10 md:grid-cols-[1fr_360px] md:py-16">
-        <form
-          className="border border-white/10 bg-white/5 p-5 md:p-8"
-          onSubmit={(event) => event.preventDefault()}
-        >
+        <form className="border border-white/10 bg-white/5 p-5 md:p-8" onSubmit={(event) => event.preventDefault()}>
           <div className="mb-8">
             <Button
               onClick={() => router.back()}
-              className="mb-3 inline-flex items-center gap-2 bg-transparent text-sm font-medium text-white/70 transition-colors hover:text-white has-[>svg]:px-0"
+              className="typo-medium-14 mb-3 inline-flex items-center gap-2 bg-transparent text-white/70 transition-colors hover:text-white has-[>svg]:px-0"
             >
               <ArrowLeft size={18} />
               뒤로가기
             </Button>
-            <p className="text-sm text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
+            <p className="typo-medium-14 text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
             <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">장바구니 배송 주문서</h1>
           </div>
 
@@ -268,7 +238,7 @@ export default function CartDeliveryOrderClient({
                   onCheckedChange={handleSameAsOrdererChange}
                   className="border-white/40 data-[state=checked]:border-amber-500 data-[state=checked]:bg-amber-600"
                 />
-                <Label htmlFor="sameAsOrderer" className="text-sm font-medium text-gray-200">
+                <Label htmlFor="sameAsOrderer" className="typo-medium-14 text-gray-200">
                   주문자와 같음
                 </Label>
               </div>
@@ -277,7 +247,7 @@ export default function CartDeliveryOrderClient({
             <div className="grid gap-5 md:grid-cols-2">
               <div>
                 <Label
-                  className="mb-2 text-sm font-medium text-gray-200"
+                  className="typo-medium-14 mb-2 text-gray-200"
                   htmlFor="receiverName"
                   required
                   requiredClassName="text-amber-400"
@@ -296,7 +266,7 @@ export default function CartDeliveryOrderClient({
 
               <div>
                 <Label
-                  className="mb-2 text-sm font-medium text-gray-200"
+                  className="typo-medium-14 mb-2 text-gray-200"
                   htmlFor="receiverPhone"
                   required
                   requiredClassName="text-amber-400"
@@ -316,7 +286,7 @@ export default function CartDeliveryOrderClient({
 
             <div>
               <Label
-                className="mb-2 text-sm font-medium text-gray-200"
+                className="typo-medium-14 mb-2 text-gray-200"
                 htmlFor="guestEmail"
                 required
                 requiredClassName="text-amber-400"
@@ -336,7 +306,7 @@ export default function CartDeliveryOrderClient({
 
             <div>
               <div className="mb-2 flex items-center justify-between gap-3">
-                <span className="block text-sm font-medium text-gray-200">배송 주소</span>
+                <span className="typo-medium-14 block text-gray-200">배송 주소</span>
                 <div className="flex flex-wrap justify-end gap-2">
                   {hasOrdererInfo && (
                     <Button
@@ -358,7 +328,7 @@ export default function CartDeliveryOrderClient({
                     aria-label="배송지 주소록"
                     defaultValue=""
                     onChange={handleAddressSelect}
-                    className="h-10 w-full border border-white/15 bg-black/20 px-3 text-sm text-white outline-none focus:border-amber-400"
+                    className="typo-medium-14 h-10 w-full border border-white/15 bg-black/20 px-3 text-white outline-none focus:border-amber-400"
                   >
                     <option value="" className="bg-[#1d2429] text-gray-300">
                       주소록에서 선택
@@ -375,22 +345,18 @@ export default function CartDeliveryOrderClient({
                     ))}
                   </select>
                   {!hasAddresses && (
-                    <p className="mt-2 text-xs text-amber-200">
+                    <p className="typo-medium-12 mt-2 text-amber-200">
                       등록된 배송지가 없습니다. 주소 추가로 기본 배송지를 등록해 주세요.
                     </p>
                   )}
                 </div>
               )}
               <div className="border-y border-white/10 py-4">
-                <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-                  <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">
-                    1
-                  </span>
+                <div className="typo-semibold-12 flex flex-wrap items-center gap-2">
+                  <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">1</span>
                   <span className="text-amber-200">주소 검색</span>
                   <span className="h-px min-w-8 flex-1 bg-white/10" aria-hidden="true" />
-                  <span className="inline-flex h-6 w-6 items-center justify-center bg-white/10 text-gray-300">
-                    2
-                  </span>
+                  <span className="inline-flex h-6 w-6 items-center justify-center bg-white/10 text-gray-300">2</span>
                   <span className="text-gray-300">상세 주소 입력</span>
                 </div>
 
@@ -406,10 +372,7 @@ export default function CartDeliveryOrderClient({
                       배송 주소 검색
                     </Button>
                     <div>
-                      <Label
-                        className="mb-2 text-sm font-medium text-gray-200"
-                        htmlFor="deliveryPostalCode"
-                      >
+                      <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryPostalCode">
                         우편번호
                       </Label>
                       <Input
@@ -424,7 +387,7 @@ export default function CartDeliveryOrderClient({
 
                   <div>
                     <Label
-                      className="mb-2 text-sm font-medium text-gray-200"
+                      className="typo-medium-14 mb-2 text-gray-200"
                       htmlFor="deliveryBaseAddress"
                       required
                       requiredClassName="text-amber-400"
@@ -442,10 +405,7 @@ export default function CartDeliveryOrderClient({
                   </div>
 
                   <div className="border-t border-white/10 pt-3">
-                    <Label
-                      className="mb-2 text-sm font-medium text-gray-200"
-                      htmlFor="deliveryAddressDetail"
-                    >
+                    <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryAddressDetail">
                       상세 주소
                     </Label>
                     <Input
@@ -463,10 +423,7 @@ export default function CartDeliveryOrderClient({
 
             <div className="grid gap-5 md:grid-cols-2">
               <div>
-                <Label
-                  className="mb-2 text-sm font-medium text-gray-200"
-                  htmlFor="deliveryMemo"
-                >
+                <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryMemo">
                   배송 메모
                 </Label>
                 <Textarea
@@ -479,10 +436,7 @@ export default function CartDeliveryOrderClient({
               </div>
 
               <div>
-                <Label
-                  className="mb-2 text-sm font-medium text-gray-200"
-                  htmlFor="orderNote"
-                >
+                <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="orderNote">
                   주문 메모
                 </Label>
                 <Textarea
@@ -521,22 +475,19 @@ export default function CartDeliveryOrderClient({
           {items.length > 0 && (
             <ul className="mt-5 space-y-3 border-b border-white/10 pb-4">
               {items.map((item) => (
-                <li
-                  key={item.cartItemId ?? `${item.saleAnnouncementId}-${item.itemName}`}
-                  className="text-sm"
-                >
+                <li key={item.cartItemId ?? `${item.saleAnnouncementId}-${item.itemName}`} className="typo-medium-14">
                   <div className="flex justify-between gap-4">
                     <span className="text-gray-300">{item.itemName ?? "장바구니 상품"}</span>
                     <span className="text-white">{item.quantity ?? 0}개</span>
                   </div>
-                  <div className="mt-1 text-right text-xs text-gray-400">
+                  <div className="typo-medium-12 mt-1 text-right text-gray-400">
                     {formatCartCurrency(item.lineTotalPrice)}
                   </div>
                 </li>
               ))}
             </ul>
           )}
-          <dl className="mt-5 space-y-3 text-sm">
+          <dl className="typo-medium-14 mt-5 space-y-3">
             <div className="flex justify-between gap-4">
               <dt className="text-gray-400">상품 합계</dt>
               <dd className="text-white">{formatCartCurrency(quote.itemsTotalPrice)}</dd>
@@ -548,13 +499,13 @@ export default function CartDeliveryOrderClient({
             <div className="border-t border-white/10 pt-3">
               <div className="flex justify-between gap-4">
                 <dt className="text-gray-200">총 결제 금액</dt>
-                <dd className="font-bold text-white">{formatCartCurrency(quote.totalPrice)}</dd>
+                <dd className="typo-bold-14 text-white">{formatCartCurrency(quote.totalPrice)}</dd>
               </div>
             </div>
           </dl>
-          <p className="mt-5 text-xs leading-5 text-gray-400">
-            최종 금액과 주문 가능 여부는 서버 검증 결과를 기준으로 확정됩니다. 같은 주문 시도에서는
-            멱등키가 유지되어 중복 주문을 줄입니다.
+          <p className="typo-medium-12 mt-5 leading-5 text-gray-400">
+            최종 금액과 주문 가능 여부는 서버 검증 결과를 기준으로 확정됩니다. 같은 주문 시도에서는 멱등키가 유지되어
+            중복 주문을 줄입니다.
           </p>
         </aside>
       </div>

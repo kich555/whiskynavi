@@ -36,7 +36,7 @@ export default function AdminConfirmModal({ isOpen, close, userName, username, o
             <br />
             정말로 <span className="font-bold text-red-600">관리자</span>로 등록하시겠습니까?
           </p>
-          <p className="mt-2 text-sm text-red-600">관리자는 모든 회원 정보와 시스템을 관리할 수 있습니다.</p>
+          <p className="typo-medium-14 mt-2 text-red-600">관리자는 모든 회원 정보와 시스템을 관리할 수 있습니다.</p>
         </DialogHeader>
 
         <DialogFooter className="gap-2 sm:gap-2">

@@ -120,7 +120,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
         value={open ? search : displayValue}
         placeholder="보틀명을 검색하세요"
         className={cn(
-          "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none",
+          "w-full rounded-lg border border-gray-300 px-3 py-2 typo-medium-14 focus:ring-2 focus:ring-amber-500 focus:outline-none",
           !open && !selected && "text-gray-400",
         )}
         onChange={(e) => setSearch(e.target.value)}
@@ -134,7 +134,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
       />
 
       {selected && !open && (
-        <p className="mt-1.5 text-xs text-gray-500">
+        <p className="mt-1.5 typo-medium-12 text-gray-500">
           소비자가 <span className="font-medium text-gray-700">{formatPrice(selected.consumerPrice)}</span>
           <span className="mx-1">·</span>
           재고 <span className="font-medium text-gray-700">{formatStockQuantity(selected.stockQuantity)}</span>
@@ -146,9 +146,9 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
           <Command shouldFilter={false}>
             <CommandList>
               {loading ? (
-                <div className="py-4 text-center text-sm text-gray-400">검색 중...</div>
+                <div className="py-4 text-center typo-medium-14 text-gray-400">검색 중...</div>
               ) : error ? (
-                <div className="py-4 text-center text-sm text-red-500">{error}</div>
+                <div className="py-4 text-center typo-medium-14 text-red-500">{error}</div>
               ) : (
                 <>
                   <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
@@ -168,7 +168,7 @@ export default function ManualPurchaseBottleCombobox({ selected, onSelect }: Man
                           {bottle.name} (ID: {bottle.id})
                         </span>
                         <span className="flex shrink-0 items-center gap-2">
-                          <span className="text-xs text-gray-400">{formatPrice(bottle.consumerPrice)}</span>
+                          <span className="typo-medium-12 text-gray-400">{formatPrice(bottle.consumerPrice)}</span>
                           <Check className={cn("h-4 w-4", selected?.id === bottle.id ? "opacity-100" : "opacity-0")} />
                         </span>
                       </CommandItem>

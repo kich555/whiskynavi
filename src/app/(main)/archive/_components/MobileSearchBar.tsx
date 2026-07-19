@@ -15,7 +15,7 @@ const MobileSearchBar = () => {
           placeholder="보틀명, 증류소로 검색하세요"
           value={filters.keyword}
           onChange={(e) => updateKeyword(e.target.value)}
-          className="w-full border border-white/10 bg-white/5 py-3 pr-3 pl-10 text-sm text-white placeholder-gray-400 transition-all focus:border-white/30 focus:outline-none"
+          className="typo-medium-14 w-full border border-white/10 bg-white/5 py-3 pr-3 pl-10 text-white placeholder-gray-400 transition-all focus:border-white/30 focus:outline-none"
         />
       </div>
     </div>

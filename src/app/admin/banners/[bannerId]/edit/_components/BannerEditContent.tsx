@@ -79,7 +79,7 @@ export default function BannerEditContent({ banner }: BannerEditContentProps) {
         </div>
 
         {formState.error ? (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+          <div className="typo-medium-14 mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-red-600">
             {formState.error}
           </div>
         ) : null}

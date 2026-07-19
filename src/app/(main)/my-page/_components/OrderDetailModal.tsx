@@ -43,8 +43,8 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
           {/* 주문 상태 */}
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">주문번호: {order.orderNumber}</p>
-              <p className="text-sm text-gray-500">{formatDate(order.createdAt)}</p>
+              <p className="typo-medium-14 text-gray-500">주문번호: {order.orderNumber}</p>
+              <p className="typo-medium-14 text-gray-500">{formatDate(order.createdAt)}</p>
             </div>
             <span className={`typo-bold-14 rounded px-3 py-1 ${status.colorClass}`}>{status.label}</span>
           </div>
@@ -52,27 +52,27 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
           {/* 상품 정보 */}
           <div className="border-t pt-4">
             <h4 className="mb-3 font-bold text-gray-900">상품 정보</h4>
-            <div className="space-y-2 text-sm">
+            <div className="typo-medium-14 space-y-2">
               <div className="flex justify-between">
                 <span className="text-gray-500">상품명</span>
-                <span className="font-medium">{order.itemName || order.saleTitle || "상품명 없음"}</span>
+                <span className="typo-medium-14">{order.itemName || order.saleTitle || "상품명 없음"}</span>
               </div>
               <DetailRow label="주문 분류" value={orderClassification} />
               <div className="flex justify-between">
                 <span className="text-gray-500">신청 수량</span>
-                <span className="font-medium">{order.requestedQuantity}병</span>
+                <span className="typo-medium-14">{order.requestedQuantity}병</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">배정 수량</span>
-                <span className="font-medium">{order.approvedQuantity}병</span>
+                <span className="typo-medium-14">{order.approvedQuantity}병</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">단가</span>
-                <span className="font-medium">{formatCurrency(order.unitPrice)}</span>
+                <span className="typo-medium-14">{formatCurrency(order.unitPrice)}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
-                <span className="font-semibold text-gray-900">총 금액</span>
-                <span className="font-bold text-gray-900">{formatCurrency(order.totalPrice)}</span>
+                <span className="typo-semibold-14 text-gray-900">총 금액</span>
+                <span className="typo-bold-14 text-gray-900">{formatCurrency(order.totalPrice)}</span>
               </div>
             </div>
           </div>
@@ -81,7 +81,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
           {order.payment && (
             <div className="border-t pt-4">
               <h4 className="mb-3 font-bold text-gray-900">결제 정보</h4>
-              <div className="space-y-2 text-sm">
+              <div className="typo-medium-14 space-y-2">
                 <DetailRow label="결제수단" value={order.payment.paymentMethod} />
                 <DetailRow label="결제상태" value={order.payment.paymentStatus} />
                 <DetailRow label="결제금액" value={formatCurrency(order.payment.paidAmount)} />
@@ -94,7 +94,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
           {order.delivery && (
             <div className="border-t pt-4">
               <h4 className="mb-3 font-bold text-gray-900">배송 정보</h4>
-              <div className="space-y-2 text-sm">
+              <div className="typo-medium-14 space-y-2">
                 <DetailRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, order.delivery)} />
                 <DetailRow label="수령인" value={order.delivery.receiverName} />
                 <DetailRow label="연락처" value={order.delivery.receiverPhone} />
@@ -114,7 +114,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
           {order.cancelReason && (
             <div className="border-t pt-4">
               <h4 className="mb-2 font-bold text-gray-900">취소 사유</h4>
-              <p className="text-sm text-gray-600">{order.cancelReason}</p>
+              <p className="typo-medium-14 text-gray-600">{order.cancelReason}</p>
             </div>
           )}
 
@@ -136,7 +136,7 @@ function DetailRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex justify-between gap-4">
       <span className="shrink-0 text-gray-500">{label}</span>
-      <span className="text-right font-medium break-words text-gray-900">{value || "-"}</span>
+      <span className="typo-medium-14 text-right break-words text-gray-900">{value || "-"}</span>
     </div>
   );
 }

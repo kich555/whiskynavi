@@ -78,7 +78,7 @@ export default function AdminPostTypeChangeDialog({
         type="button"
         onClick={() => handleOpenChange(true)}
         disabled={selectablePostTypes.length === 0}
-        className="rounded-lg border border-amber-300 px-3 py-1.5 text-sm text-amber-600 transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
+        className="typo-medium-14 rounded-lg border border-amber-300 px-3 py-1.5 text-amber-600 transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-50"
       >
         분류 변경
       </button>
@@ -91,7 +91,7 @@ export default function AdminPostTypeChangeDialog({
           </DialogHeader>
 
           <div className="space-y-2">
-            <label htmlFor="admin-post-type" className="text-sm font-medium">
+            <label htmlFor="admin-post-type" className="typo-medium-14">
               분류
             </label>
             <Select value={selectedPostTypeId} onValueChange={setSelectedPostTypeId} disabled={isChanging}>

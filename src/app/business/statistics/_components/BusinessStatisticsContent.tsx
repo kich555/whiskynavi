@@ -47,13 +47,13 @@ function StageProgress({
         className="relative grid size-16 shrink-0 place-items-center rounded-full"
         style={{ background: `conic-gradient(${color} ${rate * 3.6}deg, #e5e7eb 0deg)` }}
       >
-        <div className="grid size-12 place-items-center rounded-full bg-white text-xs font-bold text-gray-900">
+        <div className="grid size-12 place-items-center rounded-full bg-white typo-bold-12 text-gray-900">
           {rate}%
         </div>
       </div>
       <div>
-        <p className="text-xs font-bold text-gray-500">{label}</p>
-        <p className="mt-1 text-sm font-bold text-gray-900">{formatBottleCount(quantity)}</p>
+        <p className="typo-bold-12 text-gray-500">{label}</p>
+        <p className="mt-1 typo-bold-14 text-gray-900">{formatBottleCount(quantity)}</p>
       </div>
     </div>
   );
@@ -68,7 +68,7 @@ function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNotice
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 pb-3">
         <div className="min-w-0">
           <h3 className="truncate text-base font-bold text-gray-900">{notice.bottleName ?? "이름 없는 공고"}</h3>
-          <p className="mt-1 text-xs text-gray-500">공고 #{noticeId ?? "-"}</p>
+          <p className="mt-1 typo-medium-12 text-gray-500">공고 #{noticeId ?? "-"}</p>
         </div>
         {noticeId ? (
           <Button variant="outline" size="sm" asChild>
@@ -125,7 +125,7 @@ function NoticePagination({
   const hasNext = currentPage < totalPages;
 
   if (totalElements <= NOTICE_PAGE_SIZE) {
-    return <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>;
+    return <p className="typo-medium-14 text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>;
   }
 
   const pageHref = (pageNumber: number) => {
@@ -139,7 +139,7 @@ function NoticePagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
-      <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>
+      <p className="typo-medium-14 text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>
       <div className="flex items-center gap-2">
         {hasPrevious ? (
           <Button variant="outline" size="sm" asChild>
@@ -154,7 +154,7 @@ function NoticePagination({
             이전
           </Button>
         )}
-        <span className="min-w-14 text-center text-sm font-semibold text-gray-700">
+        <span className="min-w-14 text-center typo-semibold-14 text-gray-700">
           {currentPage}/{totalPages}
         </span>
         {hasNext ? (
@@ -184,7 +184,7 @@ export default function BusinessStatisticsContent({ statistics, selectedBusiness
 
       <div className="space-y-4 p-6">
         {notices.length === 0 ? (
-          <div className="border border-gray-200 bg-white px-4 py-16 text-center text-sm text-gray-500">
+          <div className="border border-gray-200 bg-white px-4 py-16 text-center typo-medium-14 text-gray-500">
             표시할 공고별 예약 통계가 없습니다.
           </div>
         ) : (

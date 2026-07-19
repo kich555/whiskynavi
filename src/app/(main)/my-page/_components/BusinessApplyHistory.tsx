@@ -31,9 +31,9 @@ const BusinessApplyHistory: FC<Props> = ({ applicationHistory }) => {
               {application.status === "REJECTED" && <XCircle className="mt-0.5 shrink-0 text-red-500" size={20} />}
               <div className="flex-1">
                 <div className="mb-2 flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-gray-900">{application.businessName}</h4>
+                  <h4 className="typo-bold-14 text-gray-900">{application.businessName}</h4>
                   <span
-                    className={`px-2 py-0.5 text-xs font-semibold ${
+                    className={`typo-semibold-12 px-2 py-0.5 ${
                       application.status === "PENDING"
                         ? "border border-yellow-200 bg-yellow-100 text-yellow-700"
                         : application.status === "APPROVED"
@@ -48,7 +48,7 @@ const BusinessApplyHistory: FC<Props> = ({ applicationHistory }) => {
                         : "거부됨"}
                   </span>
                 </div>
-                <div className="space-y-1 text-xs text-gray-600">
+                <div className="typo-medium-12 space-y-1 text-gray-600">
                   <p>사업자 등록번호: {application.businessRegistrationNumber}</p>
                   <p>사업자 구분: {formatBusinessType(application)}</p>
                   <p>대표자: {application.representativeName}</p>
@@ -58,8 +58,8 @@ const BusinessApplyHistory: FC<Props> = ({ applicationHistory }) => {
                   {application.updatedAt && <p>검토일: {application.updatedAt}</p>}
                   {application.status === "REJECTED" && application.rejectReason && (
                     <div className="mt-2 rounded border border-red-200 bg-red-50 p-2">
-                      <p className="font-medium text-red-700">거부 사유:</p>
-                      <p className="text-red-600">{application.rejectReason}</p>
+                      <p className="typo-medium-12 text-red-700">거부 사유:</p>
+                      <p className="typo-medium-12 text-red-600">{application.rejectReason}</p>
                     </div>
                   )}
                 </div>

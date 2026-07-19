@@ -36,7 +36,7 @@ export default function BoardEditContent({ board }: BoardEditContentProps) {
         <button
           type="button"
           onClick={() => router.push(`/admin/boards/${board.id}`)}
-          className="mb-6 inline-flex cursor-pointer items-center gap-2 text-sm text-gray-500 transition-colors hover:text-gray-700"
+          className="mb-6 inline-flex cursor-pointer items-center gap-2 typo-medium-14 text-gray-500 transition-colors hover:text-gray-700"
         >
           <ArrowLeft size={16} />
           게시판 상세로
@@ -46,7 +46,7 @@ export default function BoardEditContent({ board }: BoardEditContentProps) {
           <h2 className="typo-bold-20 mb-8 text-gray-900">게시판 수정</h2>
 
           {state.error && (
-            <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">{state.error}</div>
+            <div className="mb-6 rounded-lg bg-red-50 px-4 py-3 typo-medium-14 text-red-600">{state.error}</div>
           )}
 
           <form action={formAction} className="space-y-6">
@@ -56,14 +56,14 @@ export default function BoardEditContent({ board }: BoardEditContentProps) {
               <button
                 type="button"
                 onClick={() => router.push(`/admin/boards/${board.id}`)}
-                className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 typo-medium-14 text-gray-700 transition-colors hover:bg-gray-50"
               >
                 취소
               </button>
               <button
                 type="submit"
                 disabled={isPending}
-                className="cursor-pointer rounded-lg bg-amber-600 px-6 py-2 text-sm text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                className="cursor-pointer rounded-lg bg-amber-600 px-6 py-2 typo-medium-14 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
               >
                 {isPending ? "수정 중..." : "게시판 수정"}
               </button>

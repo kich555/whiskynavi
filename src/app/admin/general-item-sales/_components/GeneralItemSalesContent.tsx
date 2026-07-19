@@ -65,13 +65,13 @@ export default function GeneralItemSalesContent({ searchParams, sales, totalElem
       <div className="p-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <p className="text-sm text-gray-600">
+ <p className="typo-medium-14 text-gray-600">
               현재 페이지 일반상품판매공고 {totalElements.toLocaleString("ko-KR")}건
             </p>
             <select
               value={searchParams.saleStatus ?? ""}
               onChange={(event) => updateStatusFilter(event.target.value)}
-              className="rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+ className="rounded-md border border-gray-300 px-3 py-2 typo-medium-14 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             >
               <option value="">전체 상태</option>
               {Object.entries(SALE_STATUS_LABEL).map(([value, label]) => (
@@ -84,7 +84,7 @@ export default function GeneralItemSalesContent({ searchParams, sales, totalElem
 
           <Link
             href="/admin/general-item-sales/new"
-            className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+ className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 typo-medium-14 text-white transition-colors hover:bg-amber-700"
           >
             <Plus size={16} />
             일반상품판매공고 등록
@@ -116,32 +116,32 @@ export default function GeneralItemSalesContent({ searchParams, sales, totalElem
                 ) : (
                   sales.map((sale) => (
                     <tr key={sale.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{sale.id ?? "-"}</td>
+ <td className="px-4 py-3 typo-medium-14 text-gray-900">{sale.id ?? "-"}</td>
                       <td className="px-4 py-3">
                         <p className="typo-medium-14 max-w-[240px] truncate text-gray-900">{sale.title ?? "-"}</p>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{sale.itemName ?? sale.productId ?? "-"}</td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(sale.salePrice)}</td>
-                      <td className="px-4 py-3 text-center text-sm text-gray-700">
+ <td className="px-4 py-3 typo-medium-14 text-gray-700">{sale.itemName ?? sale.productId ?? "-"}</td>
+ <td className="px-4 py-3 text-right typo-medium-14 text-gray-900">{formatCurrency(sale.salePrice)}</td>
+ <td className="px-4 py-3 text-center typo-medium-14 text-gray-700">
                         {(sale.availableQuantity ?? 0).toLocaleString("ko-KR")} /{" "}
                         {(sale.totalQuantity ?? 0).toLocaleString("ko-KR")}
                       </td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+ className={`rounded-full px-2 py-1 typo-medium-12 ${
                             SALE_STATUS_COLOR[sale.saleStatus ?? ""] ?? "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {SALE_STATUS_LABEL[sale.saleStatus ?? ""] ?? sale.saleStatus ?? "-"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+ <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">
                         {formatDateTime(sale.saleStartAt)} ~ {formatDateTime(sale.saleEndAt)}
                       </td>
                       <td className="px-4 py-3">
                         <Link
                           href={buildOrderHref(sale)}
-                          className="rounded-md px-2 py-1.5 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50"
+ className="rounded-md px-2 py-1.5 typo-medium-14 text-amber-700 transition-colors hover:bg-amber-50"
                         >
                           상품 화면
                         </Link>

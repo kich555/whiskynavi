@@ -22,8 +22,8 @@ export function UserReferenceTable({ users, selectedUserId, onSelectUser }: User
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-600">
+        <table className="w-full min-w-[700px] typo-medium-14">
+          <thead className="bg-gray-50 typo-medium-12 text-gray-600">
             <tr>
               <th className="px-3 py-2 text-left">관리 ID</th>
               <th className="px-3 py-2 text-left">이름</th>
@@ -86,8 +86,8 @@ export function BottleReferenceTable({ bottles, selectedBottleId, onSelectBottle
   return (
     <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[700px] text-sm">
-          <thead className="bg-gray-50 text-xs text-gray-600">
+        <table className="w-full min-w-[700px] typo-medium-14">
+          <thead className="bg-gray-50 typo-medium-12 text-gray-600">
             <tr>
               <th className="px-3 py-2 text-left">관리 ID</th>
               <th className="px-3 py-2 text-left">보틀명</th>

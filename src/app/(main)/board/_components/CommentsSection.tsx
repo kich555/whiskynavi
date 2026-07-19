@@ -10,7 +10,13 @@ interface CommentsSectionProps {
   isLoggedIn: boolean;
 }
 
-export default function CommentsSection({ boardId, postId, comments, currentUserId, isLoggedIn }: CommentsSectionProps) {
+export default function CommentsSection({
+  boardId,
+  postId,
+  comments,
+  currentUserId,
+  isLoggedIn,
+}: CommentsSectionProps) {
   const totalCount = comments.length + comments.reduce((acc, c) => acc + (c.replies?.length ?? 0), 0);
 
   return (
@@ -25,14 +31,14 @@ export default function CommentsSection({ boardId, postId, comments, currentUser
           <CommentForm boardId={boardId} postId={postId} placeholder="댓글을 입력하세요." />
         </div>
       ) : (
-        <div className="mb-6 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center text-sm text-gray-500">
+        <div className="typo-medium-14 mb-6 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-center text-gray-500">
           댓글을 작성하려면 로그인이 필요합니다.
         </div>
       )}
 
       {/* 댓글 목록 */}
       {comments.length === 0 ? (
-        <p className="py-8 text-center text-sm text-gray-500">아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</p>
+        <p className="typo-medium-14 py-8 text-center text-gray-500">아직 댓글이 없습니다. 첫 댓글을 남겨보세요.</p>
       ) : (
         <div className="space-y-3">
           {comments.map((comment) => (

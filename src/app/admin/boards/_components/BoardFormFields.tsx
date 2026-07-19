@@ -57,7 +57,7 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
           className="font-mono"
           placeholder="free-board"
         />
-        <p className="mt-1 text-xs text-gray-400">영문 소문자, 숫자, 하이픈(-)만 사용 가능</p>
+        <p className="mt-1 typo-medium-12 text-gray-400">영문 소문자, 숫자, 하이픈(-)만 사용 가능</p>
       </div>
 
       <div>
@@ -79,24 +79,24 @@ export default function BoardFormFields({ initialData }: BoardFormFieldsProps) {
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
           <Checkbox name="active" value="true" defaultChecked={initialData?.active ?? true} />
           <div>
-            <span className="text-sm font-medium text-gray-900">활성</span>
-            <p className="text-xs text-gray-400">사용자에게 노출</p>
+            <span className="typo-medium-14 text-gray-900">활성</span>
+            <p className="typo-medium-12 text-gray-400">사용자에게 노출</p>
           </div>
         </label>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
           <Checkbox name="hidden" value="true" defaultChecked={initialData?.hidden ?? false} />
           <div>
-            <span className="text-sm font-medium text-gray-900">숨김</span>
-            <p className="text-xs text-gray-400">목록에서 숨김</p>
+            <span className="typo-medium-14 text-gray-900">숨김</span>
+            <p className="typo-medium-12 text-gray-400">목록에서 숨김</p>
           </div>
         </label>
 
         <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-gray-200 px-4 py-3 transition-colors has-checked:border-amber-500 has-checked:bg-amber-50">
           <Checkbox name="readOnly" value="true" defaultChecked={initialData?.readOnly ?? false} />
           <div>
-            <span className="text-sm font-medium text-gray-900">읽기전용</span>
-            <p className="text-xs text-gray-400">작성 차단</p>
+            <span className="typo-medium-14 text-gray-900">읽기전용</span>
+            <p className="typo-medium-12 text-gray-400">작성 차단</p>
           </div>
         </label>
       </div>

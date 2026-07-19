@@ -54,7 +54,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
 
       <div className="p-8">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements}건</p>
           <button
             type="button"
             onClick={() => router.push("/admin/reservations/new")}
@@ -100,36 +100,36 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         className="cursor-pointer transition-colors hover:bg-gray-50"
                         onClick={() => router.push(`/admin/reservations/${notice.id}`)}
                       >
-                        <td className="px-4 py-3 text-sm text-gray-900">{notice.id}</td>
+                        <td className="px-4 py-3 typo-medium-14 text-gray-900">{notice.id}</td>
                         <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                           {notice.noticeName || "-"}
                         </td>
                         <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                           {notice.bottleName}
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{notice.bottleBrand ?? "-"}</td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">{notice.bottleBrand ?? "-"}</td>
+                        <td className="typo-medium-14 px-4 py-3">
                           <NoticeStatusBadge notice={notice} />
                         </td>
-                        <td className="px-4 py-3 text-right text-sm text-gray-900">{formatCurrency(notice.price)}</td>
-                        <td className="px-4 py-3 text-center text-sm">
+                        <td className="px-4 py-3 text-right typo-medium-14 text-gray-900">{formatCurrency(notice.price)}</td>
+                        <td className="px-4 py-3 text-center typo-medium-14">
                           <span className="font-medium text-blue-600">{quantitySummary.appliedQuantity}</span>
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           <div className="space-y-0.5 whitespace-nowrap">
                             <div className="font-medium text-gray-900">
                               총 수락 가능 {quantitySummary.totalAcceptableQuantity}병
                             </div>
-                            <div className="text-xs text-gray-600">
+                            <div className="typo-medium-12 text-gray-600">
                               현재 수락 {quantitySummary.approvedQuantity}병 · 남은 수락{" "}
                               {quantitySummary.remainingAcceptableQuantity}병
                             </div>
                           </div>
                         </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
                           {formatPeriod(notice.reservationStartAt, notice.reservationEndAt)}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                             <button
                               type="button"

@@ -193,11 +193,11 @@ function DeliveryModal({
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">배송사</label>
+              <label className="mb-1 block typo-medium-12 text-gray-600">배송사</label>
               <Input value={carrierName} onChange={(event) => setCarrierName(event.target.value)} />
             </div>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">운송장번호</label>
+              <label className="mb-1 block typo-medium-12 text-gray-600">운송장번호</label>
               <Input value={trackingNumber} onChange={(event) => setTrackingNumber(event.target.value)} />
             </div>
           </div>
@@ -206,20 +206,20 @@ function DeliveryModal({
             <>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-600">수령인</label>
+                  <label className="mb-1 block typo-medium-12 text-gray-600">수령인</label>
                   <Input value={receiverName} onChange={(event) => setReceiverName(event.target.value)} />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs font-medium text-gray-600">수령인 연락처</label>
+                  <label className="mb-1 block typo-medium-12 text-gray-600">수령인 연락처</label>
                   <Input value={receiverPhone} onChange={(event) => setReceiverPhone(event.target.value)} />
                 </div>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">주소</label>
+                <label className="mb-1 block typo-medium-12 text-gray-600">주소</label>
                 <Textarea value={address} onChange={(event) => setAddress(event.target.value)} />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">배송 메모</label>
+                <label className="mb-1 block typo-medium-12 text-gray-600">배송 메모</label>
                 <Textarea value={deliveryMemo} onChange={(event) => setDeliveryMemo(event.target.value)} />
               </div>
             </>
@@ -242,7 +242,7 @@ function DeliveryModal({
 function CsvResultSummary({ result }: { result: AdminDeliveryCsvUploadResponse }) {
   return (
     <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+      <div className="flex flex-wrap gap-4 typo-medium-14 text-gray-700">
         <span>전체 {result.totalRows ?? 0}행</span>
         <span className="text-green-700">성공 {result.successCount ?? 0}행</span>
         <span className="text-red-700">실패 {result.failureCount ?? 0}행</span>
@@ -250,8 +250,8 @@ function CsvResultSummary({ result }: { result: AdminDeliveryCsvUploadResponse }
       </div>
       {(result.results ?? []).length > 0 && (
         <div className="mt-3 max-h-56 overflow-auto rounded border border-gray-200 bg-white">
-          <table className="w-full text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-600">
+          <table className="w-full typo-medium-14">
+            <thead className="bg-gray-50 typo-medium-12 text-gray-600">
               <tr>
                 <th className="px-3 py-2 text-left">행</th>
                 <th className="px-3 py-2 text-left">주문번호</th>
@@ -368,7 +368,7 @@ export default function AdminOrdersContent({
         <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
           <div className={filterGridClassName}>
             <div>
-              <label className="mb-1 block text-xs font-medium text-gray-600">검색어</label>
+              <label className="mb-1 block typo-medium-12 text-gray-600">검색어</label>
               <div className="relative">
                 <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-gray-400" />
                 <Input
@@ -438,12 +438,12 @@ export default function AdminOrdersContent({
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
               <div>
                 <h2 className="typo-bold-18 text-gray-900">배송 CSV</h2>
-                <p className="mt-1 text-sm text-gray-500">
+                <p className="mt-1 typo-medium-14 text-gray-500">
                   일반 아이템 배송 주문은 먼저 검증한 뒤 실제 발송 처리를 실행합니다.
                 </p>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
-                <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="text-sm" />
+                <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="typo-medium-14" />
                 <Button type="button" variant="outline" onClick={handleExportCsv} disabled={isPending}>
                   <Download className="size-4" />
                   대상 다운로드
@@ -507,35 +507,35 @@ export default function AdminOrdersContent({
                       <tr key={order.id} className="align-top transition-colors hover:bg-gray-50">
                         <td className="px-4 py-4">
                           <div className="font-medium text-gray-900">{order.orderNumber ?? "-"}</div>
-                          <div className="mt-1 text-xs text-gray-500">{formatDateTime(order.createdAt)}</div>
-                          <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 text-xs ${statusColor}`}>
+                          <div className="mt-1 typo-medium-12 text-gray-500">{formatDateTime(order.createdAt)}</div>
+                          <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 typo-medium-12 ${statusColor}`}>
                             {statusLabel}
                           </span>
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-700">
+                        <td className="px-4 py-4 typo-medium-14 text-gray-700">
                           <div className="font-medium text-gray-900">
                             {order.customer?.name ?? order.delivery?.receiverName ?? "-"}
                           </div>
                           <div>{order.customer?.phone ?? order.delivery?.receiverPhone ?? order.guestPhone ?? "-"}</div>
-                          <div className="text-xs text-gray-500">{order.customer?.guest ? "비회원" : "회원"}</div>
+                          <div className="typo-medium-12 text-gray-500">{order.customer?.guest ? "비회원" : "회원"}</div>
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-700">
+                        <td className="px-4 py-4 typo-medium-14 text-gray-700">
                           <div className="flex flex-wrap items-center gap-2">
                             <span className="font-medium text-gray-900">{getOrderItemsSummary(order)}</span>
                             {sourceLabel && (
-                              <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">
+                              <span className="rounded-full bg-gray-100 px-2 py-0.5 typo-medium-12 text-gray-600">
                                 {sourceLabel}
                               </span>
                             )}
                             {order.itemsCount != null && (
-                              <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-700">
+                              <span className="rounded-full bg-amber-50 px-2 py-0.5 typo-medium-12 text-amber-700">
                                 {order.itemsCount}건
                               </span>
                             )}
                           </div>
                           <div className="mt-1">총 수량 {totalQuantity}개</div>
                           {shownLineItems.length > 0 && (
-                            <ul className="mt-2 space-y-1 text-xs text-gray-500">
+                            <ul className="mt-2 space-y-1 typo-medium-12 text-gray-500">
                               {shownLineItems.map((item, index) => (
                                 <li key={item.orderItemId ?? `${item.productId ?? "item"}-${index}`}>
                                   {item.itemName || item.saleTitle || "-"} · {item.quantity ?? 0}개 ·{" "}
@@ -546,7 +546,7 @@ export default function AdminOrdersContent({
                             </ul>
                           )}
                           {hasPriceBreakdown ? (
-                            <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+                            <div className="mt-2 space-y-0.5 typo-medium-12 text-gray-500">
                               <div>상품 {formatCurrency(priceSummary.itemsTotalPrice)}</div>
                               <div>배송비 {formatCurrency(priceSummary.shippingFee)}</div>
                               <div className="font-medium text-gray-900">
@@ -558,23 +558,23 @@ export default function AdminOrdersContent({
                             <div className="mt-1">{formatCurrency(priceSummary.totalPrice)}</div>
                           )}
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-700">
+                        <td className="px-4 py-4 typo-medium-14 text-gray-700">
                           <div>{order.payment?.paymentMethod ?? "-"}</div>
                           <div>{order.payment?.paymentStatus ?? "-"}</div>
                         </td>
-                        <td className="px-4 py-4 text-sm text-gray-700">
+                        <td className="px-4 py-4 typo-medium-14 text-gray-700">
                           {enableGeneralItemActions ? (
                             <>
                               <div>{order.delivery?.carrierName ?? "CJ대한통운"}</div>
                               <div>{order.delivery?.trackingNumber ?? "배송 준비 중"}</div>
-                              <div className="text-xs text-gray-500">{order.delivery?.address ?? "-"}</div>
+                              <div className="typo-medium-12 text-gray-500">{order.delivery?.address ?? "-"}</div>
                             </>
                           ) : (
                             <>
                               <div>{getProductTypeLabel(order.productType)}</div>
                               <div>{getFulfillmentMethodLabel(order.fulfillmentMethod)}</div>
                               <div>{getSaleTimingLabel(order.saleTiming)}</div>
-                              <div className="text-xs text-gray-500">
+                              <div className="typo-medium-12 text-gray-500">
                                 {order.businessId ? `사업장 ${order.businessId}` : "보틀 주문"}
                               </div>
                             </>
@@ -595,7 +595,7 @@ export default function AdminOrdersContent({
                                     상세
                                   </Button>
                                 )}
-                                <span className="text-sm text-gray-400">조회 전용</span>
+                                <span className="typo-medium-14 text-gray-400">조회 전용</span>
                               </>
                             ) : (
                               <>
@@ -675,7 +675,7 @@ export default function AdminOrdersContent({
                                   </Button>
                                 )}
                                 {!order.availableAdminActions?.length && (
-                                  <span className="text-sm text-gray-400">가능 액션 없음</span>
+                                  <span className="typo-medium-14 text-gray-400">가능 액션 없음</span>
                                 )}
                               </>
                             )}
@@ -725,11 +725,11 @@ function SelectFilter({
 }) {
   return (
     <div>
-      <label className="mb-1 block text-xs font-medium text-gray-600">{label}</label>
+      <label className="mb-1 block typo-medium-12 text-gray-600">{label}</label>
       <select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+        className="h-9 w-full rounded-md border border-gray-300 bg-white px-3 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>

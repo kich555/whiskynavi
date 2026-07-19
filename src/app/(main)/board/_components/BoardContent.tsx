@@ -168,7 +168,7 @@ export default function BoardContent({
             <button
               type="button"
               onClick={() => router.push(`/board/${boardId}/posts/new`)}
-              className="inline-flex shrink-0 items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+              className="typo-medium-12 inline-flex shrink-0 items-center gap-1 rounded-lg bg-amber-600 px-3 py-1.5 text-white transition-colors hover:bg-amber-700"
             >
               <Plus size={14} />
               글쓰기
@@ -214,7 +214,7 @@ export default function BoardContent({
               name="searchType"
               aria-label="검색 조건"
               defaultValue={searchType ?? "TITLE"}
-              className="h-10 rounded-lg border border-white/15 bg-[#252d33] px-3 text-sm text-gray-100 outline-none focus:border-amber-500"
+              className="typo-medium-14 h-10 rounded-lg border border-white/15 bg-[#252d33] px-3 text-gray-100 outline-none focus:border-amber-500"
             >
               <option value="TITLE">제목</option>
               <option value="AUTHOR">작성자</option>
@@ -230,7 +230,7 @@ export default function BoardContent({
                 defaultValue={keyword ?? ""}
                 aria-label="검색어"
                 placeholder="검색어를 입력하세요"
-                className="h-10 w-full rounded-lg border border-white/15 bg-[#252d33] pr-10 pl-9 text-sm text-gray-100 outline-none placeholder:text-gray-500 focus:border-amber-500"
+                className="typo-medium-14 h-10 w-full rounded-lg border border-white/15 bg-[#252d33] pr-10 pl-9 text-gray-100 outline-none placeholder:text-gray-500 focus:border-amber-500"
               />
               {keyword ? (
                 <button
@@ -245,7 +245,7 @@ export default function BoardContent({
             </div>
             <button
               type="submit"
-              className="h-10 rounded-lg bg-amber-600 px-5 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+              className="typo-medium-14 h-10 rounded-lg bg-amber-600 px-5 text-white transition-colors hover:bg-amber-700"
             >
               검색
             </button>

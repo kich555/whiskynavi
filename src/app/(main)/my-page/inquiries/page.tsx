@@ -34,14 +34,14 @@ export default async function InquiryListPage({ searchParams }: InquiryListPageP
           <div>
             <Link
               href="/my-page"
-              className="mb-3 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white"
+              className="typo-medium-14 mb-3 inline-flex items-center gap-1 text-gray-400 hover:text-white"
             >
               <ChevronLeft className="size-4" /> 마이페이지
             </Link>
             <h1 className="flex items-center gap-3 text-3xl font-bold text-white md:text-4xl">
               <MessageCircleQuestion className="size-8" /> 1:1 문의
             </h1>
-            <p className="mt-2 text-sm text-gray-400">문의 내역과 답변을 확인하실 수 있습니다.</p>
+            <p className="typo-medium-14 mt-2 text-gray-400">문의 내역과 답변을 확인하실 수 있습니다.</p>
           </div>
           <Button asChild className="bg-white text-[#1d2429] hover:bg-gray-200">
             <Link href="/my-page/inquiries/new">
@@ -55,7 +55,7 @@ export default async function InquiryListPage({ searchParams }: InquiryListPageP
             <div className="px-6 py-20 text-center">
               <MessageCircleQuestion className="mx-auto mb-4 size-10 text-gray-500" />
               <p className="font-semibold text-white">등록한 문의가 없습니다.</p>
-              <p className="mt-2 text-sm text-gray-400">궁금한 점을 남겨주시면 확인 후 답변드리겠습니다.</p>
+              <p className="typo-medium-14 mt-2 text-gray-400">궁금한 점을 남겨주시면 확인 후 답변드리겠습니다.</p>
             </div>
           ) : (
             <ul className="divide-y divide-white/10">
@@ -76,11 +76,13 @@ export default async function InquiryListPage({ searchParams }: InquiryListPageP
                           >
                             {INQUIRY_STATUS_LABEL[inquiry.status ?? ""] ?? inquiry.status}
                           </Badge>
-                          <span className="text-xs text-gray-500">문의 #{inquiry.id}</span>
+                          <span className="typo-medium-12 text-gray-500">문의 #{inquiry.id}</span>
                         </div>
                         <h2 className="truncate font-semibold text-white">{inquiry.title ?? "제목 없음"}</h2>
                       </div>
-                      <time className="shrink-0 text-xs text-gray-400">{formatDateTime(inquiry.lastMessageAt)}</time>
+                      <time className="typo-medium-12 shrink-0 text-gray-400">
+                        {formatDateTime(inquiry.lastMessageAt)}
+                      </time>
                     </div>
                   </Link>
                 </li>
@@ -106,7 +108,7 @@ export default async function InquiryListPage({ searchParams }: InquiryListPageP
                   <ChevronLeft className="size-5" />
                 </span>
               )}
-              <span className="text-sm text-gray-300">
+              <span className="typo-medium-14 text-gray-300">
                 {currentPage} / {totalPages}
               </span>
               {currentPage < totalPages ? (

@@ -44,17 +44,17 @@ export default async function GeneralItemsPage({ searchParams }: GeneralItemsPag
 
       <main className="mx-auto max-w-[1440px] px-4 pt-3 pb-12 lg:px-10 lg:pt-2">
         <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-gray-400">판매중인 일반상품 {totalElements.toLocaleString("ko-KR")}건</p>
+          <p className="typo-medium-14 text-gray-400">판매중인 일반상품 {totalElements.toLocaleString("ko-KR")}건</p>
           <Link
             href="/orders/guest"
-            className="text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline"
+            className="typo-medium-14 text-white/70 underline-offset-4 hover:text-white hover:underline"
           >
             비회원 주문 조회
           </Link>
         </div>
 
         {sales.length === 0 ? (
-          <div className="border border-dashed border-white/10 bg-white/5 px-4 py-12 text-center text-sm text-gray-400">
+          <div className="typo-medium-14 border border-dashed border-white/10 bg-white/5 px-4 py-12 text-center text-gray-400">
             현재 판매 중인 일반상품 공고가 없습니다.
           </div>
         ) : (

@@ -39,7 +39,7 @@ export default function YoutubeContent({ defaultEmbedUrl }: YoutubeContentProps)
         <form action={formAction} className="mx-auto max-w-3xl space-y-8">
           {/* URL Input */}
           <div>
-            <label htmlFor="url" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="url" className="typo-medium-14 mb-2 block text-gray-700">
               YouTube URL
             </label>
             <input
@@ -51,7 +51,7 @@ export default function YoutubeContent({ defaultEmbedUrl }: YoutubeContentProps)
               placeholder="https://www.youtube.com/watch?v=VIDEO_ID"
               className="w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-transparent focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
-            <p className="mt-1 text-xs text-gray-500">
+            <p className="typo-medium-12 mt-1 text-gray-500">
               YouTube 링크를 그대로 붙여넣으세요. (watch, embed, youtu.be, shorts 모두 지원)
             </p>
           </div>
@@ -59,7 +59,7 @@ export default function YoutubeContent({ defaultEmbedUrl }: YoutubeContentProps)
           {/* Preview */}
           {previewUrl ? (
             <div>
-              <h3 className="mb-3 text-sm font-medium text-gray-700">미리보기</h3>
+              <h3 className="typo-medium-14 mb-3 text-gray-700">미리보기</h3>
               <div className="relative aspect-video overflow-hidden rounded-lg border border-gray-200 bg-gray-100">
                 <iframe
                   src={previewUrl}
@@ -71,20 +71,20 @@ export default function YoutubeContent({ defaultEmbedUrl }: YoutubeContentProps)
               </div>
             </div>
           ) : (
-            url && <p className="text-sm text-amber-600">올바른 YouTube URL을 입력해주세요.</p>
+            url && <p className="typo-medium-14 text-amber-600">올바른 YouTube URL을 입력해주세요.</p>
           )}
 
           {/* Error */}
-          {state.error && <p className="text-sm text-red-600">{state.error}</p>}
+          {state.error && <p className="typo-medium-14 text-red-600">{state.error}</p>}
 
           {/* Success */}
-          {showSuccess && <p className="text-sm text-green-600">변경되었습니다.</p>}
+          {showSuccess && <p className="typo-medium-14 text-green-600">변경되었습니다.</p>}
 
           {/* Submit */}
           <button
             type="submit"
             disabled={isPending || !previewUrl}
-            className="rounded-lg bg-amber-600 px-6 py-3 font-medium text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+            className="typo-medium-14 rounded-lg bg-amber-600 px-6 py-3 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
           >
             {isPending ? "변경 중..." : "변경"}
           </button>

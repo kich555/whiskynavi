@@ -93,7 +93,7 @@ export default function GeneralItemSaleCreateContent({ items, initialValues }: G
         </div>
 
         {items.length === 0 ? (
-          <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+ <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-4 typo-medium-14 text-amber-800">
             판매 공고를 만들 일반상품이 없습니다. 먼저 일반상품을 등록해 주세요.
             <Link href="/admin/general-items/new" className="ml-2 font-semibold underline">
               일반상품 등록
@@ -102,13 +102,13 @@ export default function GeneralItemSaleCreateContent({ items, initialValues }: G
         ) : null}
 
         {formState.error ? (
-          <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-600">
+ <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 typo-medium-14 text-red-600">
             {formState.error}
           </div>
         ) : null}
 
         {createdSale ? (
-          <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
+ <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-4 typo-medium-14 text-green-800">
             <p className="font-semibold">일반상품판매공고가 등록되었습니다. 공고 ID: {createdSale.id}</p>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link
@@ -284,12 +284,12 @@ export default function GeneralItemSaleCreateContent({ items, initialValues }: G
 
             <aside className="h-fit rounded-lg border border-gray-200 bg-gray-50 p-5">
               <h3 className="font-semibold text-gray-900">주문 가능 역할</h3>
-              <p className="mt-1 text-sm leading-5 text-gray-600">
+ <p className="mt-1 typo-medium-14 leading-5 text-gray-600">
                 아무 역할도 선택하지 않으면 비회원까지 주문 가능한 일반 판매로 등록됩니다.
               </p>
               <div className="mt-4 grid gap-3">
                 {ORDERABLE_ROLE_OPTIONS.map((role) => (
-                  <label key={role} className="flex items-center gap-2 text-sm text-gray-700">
+ <label key={role} className="flex items-center gap-2 typo-medium-14 text-gray-700">
                     <input
                       type="checkbox"
                       name="orderableRoles"

@@ -26,12 +26,12 @@ const idleState: CommentFormState = { success: false };
 
 function SubmitButton({ isEdit, compact }: { isEdit: boolean; compact: boolean }) {
   const { pending } = useFormStatus();
-  const baseButton = compact ? "px-3 py-1 text-xs" : "px-3 py-1.5 text-sm";
+  const baseButton = compact ? "typo-medium-12 px-3 py-1" : "typo-medium-14 px-3 py-1.5";
   return (
     <button
       type="submit"
       disabled={pending}
-      className={`rounded-lg bg-amber-600 font-medium text-white transition-colors hover:bg-amber-500 disabled:opacity-50 ${baseButton}`}
+      className={`rounded-lg bg-amber-600 text-white transition-colors hover:bg-amber-500 disabled:opacity-50 ${baseButton}`}
     >
       {pending ? "저장 중..." : isEdit ? "수정" : "등록"}
     </button>
@@ -70,8 +70,8 @@ export default function CommentForm({
     }
   }, [state, onCancel, isEdit]);
 
-  const baseInput = compact ? "min-h-[60px] text-sm" : "min-h-[80px] text-sm";
-  const baseButton = compact ? "px-3 py-1 text-xs" : "px-3 py-1.5 text-sm";
+  const baseInput = compact ? "typo-medium-14 min-h-[60px]" : "typo-medium-14 min-h-[80px]";
+  const baseButton = compact ? "typo-medium-12 px-3 py-1" : "typo-medium-14 px-3 py-1.5";
 
   return (
     <form ref={formRef} action={formAction} className="space-y-2">

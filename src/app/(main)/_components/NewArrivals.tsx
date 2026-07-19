@@ -23,7 +23,7 @@ const NewArrivals = ({ bottles }: Props) => {
 
         <div className="mt-4 text-center md:mt-8">
           <Link href="/archive">
-            <span className="inline-flex items-center gap-2 bg-white/90 px-5 py-2 text-xs text-black transition-all hover:bg-white md:px-6 md:py-2.5 md:text-sm">
+            <span className="typo-medium-12 inline-flex items-center gap-2 bg-white/90 px-5 py-2 text-black transition-all hover:bg-white md:px-6 md:py-2.5 md:typo-medium-14">
               전체 제품 보기
               <ArrowRight size={14} className="md:size-4" />
             </span>

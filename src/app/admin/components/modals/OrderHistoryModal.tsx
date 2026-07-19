@@ -58,7 +58,7 @@ export default function OrderHistoryModal({ isOpen, close, user, orders, totalAm
       <DialogContent className="flex max-h-[90vh] flex-col sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle className="typo-bold-20">주문 내역</DialogTitle>
-          <p className="mt-1 text-sm text-gray-600">
+          <p className="typo-medium-14 mt-1 text-gray-600">
             {user.name} ({user.username}) - 총 {orders.length}건 / 총 금액 {formatCurrency(totalAmount)}
           </p>
         </DialogHeader>
@@ -86,14 +86,14 @@ export default function OrderHistoryModal({ isOpen, close, user, orders, totalAm
                       <div className="mb-2 flex items-center gap-3">
                         <h4 className="font-bold text-gray-900">{order.itemName}</h4>
                         <span
-                          className={`rounded px-2 py-1 text-xs font-medium ${
+                          className={`typo-medium-12 rounded px-2 py-1 ${
                             ORDER_STATUS_COLOR[order.orderStatus!] ?? "bg-gray-100 text-gray-700"
                           }`}
                         >
                           {ORDER_STATUS_LABEL[order.orderStatus!] ?? order.orderStatus}
                         </span>
                       </div>
-                      <div className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
+                      <div className="typo-medium-14 grid grid-cols-2 gap-x-6 gap-y-1">
                         <p className="text-gray-600">
                           주문번호: <span className="font-medium text-gray-900">{order.orderNumber}</span>
                         </p>

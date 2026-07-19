@@ -274,32 +274,32 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     const memberType = getMemberType(user.roles ?? []);
                     return (
                       <tr key={user.id} className="transition-colors hover:bg-gray-50">
-                        <td className="px-4 py-3 text-sm text-gray-900">{user.id}</td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-900">{user.id}</td>
                         <td className="typo-medium-14 px-4 py-3 text-gray-900">{user.name}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">@{user.username}</td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{user.email}</td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">@{user.username}</td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">{user.email}</td>
+                        <td className="typo-medium-14 px-4 py-3">
                           {memberType ? (
                             <Badge className={memberType.color}>{memberType.label}</Badge>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           {user.roles?.includes("ROLE_WHISKYNAVI_MEMBER") ? (
                             <Badge className="bg-amber-100 text-amber-700">내비</Badge>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           {user.roles?.includes("ROLE_WHISKYTALES_MEMBER") ? (
                             <Badge className="bg-blue-100 text-blue-700">테일즈</Badge>
                           ) : (
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           {getBusinessRoles(user.roles ?? []).length > 0 ? (
                             <div className="flex flex-wrap gap-1">
                               {getBusinessRoles(user.roles ?? []).map((role) => (
@@ -312,7 +312,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                             <span className="text-gray-400">-</span>
                           )}
                         </td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3">
                           <Badge
                             className={
                               user.status === "ACTIVE" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
@@ -321,8 +321,8 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                             {user.status === "ACTIVE" ? "활성" : "비활성"}
                           </Badge>
                         </td>
-                        <td className="px-4 py-3 text-sm text-gray-600">{formatJoinDate(user.createdAt ?? "")}</td>
-                        <td className="px-4 py-3 text-sm">
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">{formatJoinDate(user.createdAt ?? "")}</td>
+                        <td className="typo-medium-14 px-4 py-3">
                           <div className="flex items-center gap-1">
                             <button
                               type="button"

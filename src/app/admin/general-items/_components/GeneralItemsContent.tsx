@@ -47,11 +47,11 @@ export default function GeneralItemsContent({ searchParams, items, totalElements
 
       <div className="p-8">
         <div className="mb-4 flex items-center justify-between">
-          <p className="text-sm text-gray-600">총 {totalElements.toLocaleString("ko-KR")}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements.toLocaleString("ko-KR")}건</p>
           <div className="flex items-center gap-2">
             <Link
               href="/admin/general-items/new"
-              className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-amber-700"
+              className="flex items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 typo-medium-14 text-white transition-colors hover:bg-amber-700"
             >
               <Plus size={16} />
               일반상품 등록
@@ -84,38 +84,38 @@ export default function GeneralItemsContent({ searchParams, items, totalElements
                 ) : (
                   items.map((item) => (
                     <tr key={item.id ?? item.name} className="hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.id ?? "-"}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{item.id ?? "-"}</td>
                       <td className="px-4 py-3">
                         <div className="max-w-[260px]">
                           <p className="typo-medium-14 truncate text-gray-900">{item.name ?? "-"}</p>
                           {item.description ? (
-                            <p className="truncate text-xs text-gray-500">{item.description}</p>
+                            <p className="truncate typo-medium-12 text-gray-500">{item.description}</p>
                           ) : null}
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 text-gray-900">
                         {(item.stockQuantity ?? 0).toLocaleString("ko-KR")}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 text-gray-900">
                         {formatCurrency(item.consumerPrice)}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm text-gray-600">{formatCurrency(item.supplyPrice)}</td>
+                      <td className="px-4 py-3 text-right typo-medium-14 text-gray-600">{formatCurrency(item.supplyPrice)}</td>
                       <td className="px-4 py-3 text-center">
                         <span
-                          className={`rounded-full px-2 py-1 text-xs font-medium ${
+                          className={`rounded-full px-2 py-1 typo-medium-12 font-medium ${
                             item.visible ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                           }`}
                         >
                           {item.visible ? "노출" : "숨김"}
                         </span>
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">
                         {formatDate(item.updatedAt ?? item.createdAt)}
                       </td>
                       <td className="px-4 py-3">
                         <Link
                           href={item.id != null ? `/admin/general-items/${item.id}` : "/admin/general-items"}
-                          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-50"
+                          className="inline-flex items-center gap-1 rounded-md px-2 py-1.5 typo-medium-14 text-amber-700 transition-colors hover:bg-amber-50"
                         >
                           <Eye size={15} />
                           상세조회

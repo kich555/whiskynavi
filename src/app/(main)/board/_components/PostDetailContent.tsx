@@ -51,7 +51,7 @@ export default function PostDetailContent({
         header={
           <>
             <h1 className="mb-2 text-lg leading-snug font-bold text-white">{post.title}</h1>
-            <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <div className="typo-medium-12 flex flex-wrap items-center gap-2 text-gray-500">
               <span>{post.authorNickname ?? "알 수 없는 사용자"}</span>
               {post.authorAdmin ? <AdminAuthorBadge /> : null}
               <span>·</span>
@@ -76,7 +76,7 @@ export default function PostDetailContent({
                 <>
                   <Link
                     href={`/board/${boardId}/posts/${post.id}/edit`}
-                    className="rounded-lg border border-white/20 px-3 py-1.5 text-sm text-gray-400 transition-colors hover:bg-white/5"
+                    className="typo-medium-14 rounded-lg border border-white/20 px-3 py-1.5 text-gray-400 transition-colors hover:bg-white/5"
                   >
                     수정
                   </Link>
@@ -84,7 +84,7 @@ export default function PostDetailContent({
                     type="button"
                     onClick={handleDelete}
                     disabled={isDeleting}
-                    className="rounded-lg border border-red-300 px-3 py-1.5 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+                    className="typo-medium-14 rounded-lg border border-red-300 px-3 py-1.5 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
                   >
                     {isDeleting ? "삭제 중..." : "삭제"}
                   </button>

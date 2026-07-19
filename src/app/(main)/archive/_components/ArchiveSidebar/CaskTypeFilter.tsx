@@ -38,7 +38,7 @@ export function CaskTypeFilter({ caskTypes, selectedCaskTypes, onChange }: CaskT
           placeholder="캐스크 타입으로 검색"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="h-8 border-white/10 bg-white/5 pl-8 text-xs text-white placeholder:text-white/30 focus-visible:border-white/20 focus-visible:ring-0"
+          className="typo-medium-12 h-8 border-white/10 bg-white/5 pl-8 text-white placeholder:text-white/30 focus-visible:border-white/20 focus-visible:ring-0"
         />
       </div>
       <div className="max-h-40 space-y-2 overflow-y-auto">
@@ -50,12 +50,15 @@ export function CaskTypeFilter({ caskTypes, selectedCaskTypes, onChange }: CaskT
               onCheckedChange={() => toggle(cask)}
               className="border-white/30 bg-white/10 data-[state=checked]:border-white data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
-            <label htmlFor={`cask-${cask}`} className="cursor-pointer text-sm text-white/80 group-hover:text-white">
+            <label
+              htmlFor={`cask-${cask}`}
+              className="typo-medium-14 cursor-pointer text-white/80 group-hover:text-white"
+            >
               {cask}
             </label>
           </div>
         ))}
-        {filtered.length === 0 && <p className="py-2 text-center text-xs text-white/30">검색 결과가 없습니다</p>}
+        {filtered.length === 0 && <p className="typo-medium-12 py-2 text-center text-white/30">검색 결과가 없습니다</p>}
       </div>
     </FilterGroup.Section>
   );

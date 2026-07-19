@@ -39,10 +39,10 @@ export default function PickupRoleConfirmModal({ isOpen, close, businessId, mode
         <DialogHeader>
           <DialogTitle>픽업 권한 {isGrant ? "부여" : "회수"}</DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-gray-600">
+        <p className="typo-medium-14 text-gray-600">
           {isGrant ? "이 사업자에게 픽업 권한을 부여하시겠습니까?" : "이 사업자의 픽업 권한을 회수하시겠습니까?"}
         </p>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="typo-medium-14 text-red-600">{error}</p>}
         <DialogFooter className="gap-2">
           <Button variant="outline" className="flex-1" onClick={close} disabled={isPending}>
             취소

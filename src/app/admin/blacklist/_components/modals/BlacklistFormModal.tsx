@@ -89,7 +89,7 @@ export default function BlacklistFormModal({ isOpen, close, mode, initialData, o
             <div className="space-y-1.5">
               <Label>종료일</Label>
               {formState.isPermanent ? (
-                <div className="flex h-9 w-full items-center rounded-md border bg-gray-100 px-3 py-2 text-sm text-gray-500">
+                <div className="typo-medium-14 flex h-9 w-full items-center rounded-md border bg-gray-100 px-3 py-2 text-gray-500">
                   영구 제재
                 </div>
               ) : (

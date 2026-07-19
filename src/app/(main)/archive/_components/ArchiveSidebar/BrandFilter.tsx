@@ -18,7 +18,7 @@ export function BrandFilter({ brands, selectedBrands, onToggle }: BrandFilterPro
               key={brand}
               type="button"
               onClick={() => onToggle(brand)}
-              className={`rounded-full px-3 py-1.5 text-xs transition-colors ${
+              className={`rounded-full px-3 py-1.5 typo-medium-12 transition-colors ${
                 isSelected ? "bg-white text-black" : "border border-white/10 bg-white/5 text-white hover:bg-white/10"
               }`}
             >
