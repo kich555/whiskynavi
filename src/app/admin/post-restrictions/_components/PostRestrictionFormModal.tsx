@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import DateTimePicker from "../../_components/DateTimePicker";
 import UserSearchInput from "../../blacklist/_components/UserSearchInput";
 import { setPostCreationRestrictionAction } from "../actions";
+import { usePostRestrictionForm, type PostRestrictionFormData } from "./hooks/usePostRestrictionForm";
 
 interface PostRestrictionFormModalProps {
   isOpen: boolean;
@@ -18,11 +18,15 @@ interface PostRestrictionFormModalProps {
   onSaved: () => void;
 }
 
-function defaultPeriod() {
-  const startAt = new Date();
-  startAt.setSeconds(0, 0);
-  const endAt = new Date(startAt.getTime() + 60 * 60 * 1000);
-  return { startAt: startAt.toISOString(), endAt: endAt.toISOString() };
+function toInitialData(user?: AdminUserResponse): PostRestrictionFormData | undefined {
+  if (!user?.id) return undefined;
+  return {
+    userId: user.id,
+    name: user.name ?? "",
+    reason: user.userExt?.postCreationRestrictionReason ?? "",
+    startAt: user.userExt?.postCreationRestrictionStartAt ?? "",
+    endAt: user.userExt?.postCreationRestrictionEndAt ?? "",
+  };
 }
 
 export default function PostRestrictionFormModal({
@@ -31,21 +35,14 @@ export default function PostRestrictionFormModal({
   user: initialUser,
   onSaved,
 }: PostRestrictionFormModalProps) {
-  const [defaults] = useState(() => defaultPeriod());
-  const [selectedUser, setSelectedUser] = useState<AdminUserResponse | undefined>(initialUser);
-  const [reason, setReason] = useState(initialUser?.userExt?.postCreationRestrictionReason ?? "");
-  const [startAt, setStartAt] = useState(initialUser?.userExt?.postCreationRestrictionStartAt ?? defaults.startAt);
-  const [endAt, setEndAt] = useState(initialUser?.userExt?.postCreationRestrictionEndAt ?? defaults.endAt);
-  const [isPending, startTransition] = useTransition();
-
-  const handleSubmit = () => {
-    if (!selectedUser?.id) {
-      toast.error("사용자를 선택해주세요.");
-      return;
-    }
-
-    startTransition(async () => {
-      const result = await setPostCreationRestrictionAction(selectedUser.id!, { reason, startAt, endAt });
+  const { formState, dispatch, isPending, handleSubmit } = usePostRestrictionForm({
+    initialData: toInitialData(initialUser),
+    onSubmit: async (data) => {
+      const result = await setPostCreationRestrictionAction(data.userId, {
+        reason: data.reason,
+        startAt: data.startAt,
+        endAt: data.endAt,
+      });
       if (!result.success) {
         toast.error(result.error);
         return;
@@ -53,8 +50,8 @@ export default function PostRestrictionFormModal({
       toast.success("게시글 작성 제한을 저장했습니다.");
       onSaved();
       close();
-    });
-  };
+    },
+  });
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && close()}>
@@ -72,30 +69,46 @@ export default function PostRestrictionFormModal({
               </div>
             </div>
           ) : (
-            <UserSearchInput onSelect={setSelectedUser} onClear={() => setSelectedUser(undefined)} />
+            <UserSearchInput
+              onSelect={(user) =>
+                dispatch({
+                  type: "SET_USER",
+                  payload: { userId: String(user.id ?? ""), name: user.name ?? "" },
+                })
+              }
+              onClear={() => dispatch({ type: "CLEAR_USER" })}
+            />
           )}
 
           <div className="space-y-1.5">
             <Label htmlFor="post-restriction-reason">사유 *</Label>
             <Textarea
               id="post-restriction-reason"
-              value={reason}
-              onChange={(event) => setReason(event.target.value)}
+              value={formState.reason}
+              onChange={(event) => dispatch({ type: "SET_REASON", payload: event.target.value })}
               rows={4}
               maxLength={1000}
               placeholder="게시글 작성 제한 사유를 입력하세요"
             />
-            <p className="text-right text-xs text-gray-400">{reason.length}/1000</p>
+            <p className="text-right text-xs text-gray-400">{formState.reason.length}/1000</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-1.5">
               <Label>시작 시각 *</Label>
-              <DateTimePicker value={startAt} onChange={setStartAt} required />
+              <DateTimePicker
+                value={formState.startAt}
+                onChange={(value) => dispatch({ type: "SET_START_DATE", payload: value })}
+                required
+              />
             </div>
             <div className="space-y-1.5">
               <Label>종료 시각 *</Label>
-              <DateTimePicker value={endAt} onChange={setEndAt} required />
+              <DateTimePicker
+                value={formState.endAt}
+                onChange={(value) => dispatch({ type: "SET_END_DATE", payload: value })}
+                required
+              />
             </div>
           </div>
           <p className="text-xs text-gray-500">제한 기간은 최소 1시간, 최대 9999년입니다.</p>
