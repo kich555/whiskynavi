@@ -71,4 +71,12 @@ describe("buildInfoItems", () => {
     });
     expect(items).toEqual([{ label: "브랜드", value: "Macallan" }]);
   });
+
+  it("hideAvailableQuantity 옵션이 true면 가용 수량 항목을 제외한다", () => {
+    const items = buildInfoItems(base, { hideAvailableQuantity: true });
+    expect(items).toEqual([
+      { label: "브랜드", value: "Macallan" },
+      { label: "가격", value: "120,000원" },
+    ]);
+  });
 });
