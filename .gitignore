@@ -25,6 +25,9 @@
 *.pem
 .superpowers/
 
+# graphify (local knowledge graph cache)
+graphify-out/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
