@@ -57,7 +57,8 @@ jobs:
           #   Import Cycles, Knowledge Gaps, Suggested Questions
           # 제외: Corpus Check (파일 통계만), Community Hubs (파일명 나열, 의미 낮음),
           #       Communities 전체 목록 (너무 김)
-          # awk로 섹션 범위를 잡아 합친다.
+          # awk로 섹션 범위를 잡고, sed로 제목/고정문구를 한글화(수준 2)한다.
+          # 질문 본문 등 동적 내용은 영어 원문 유지.
           {
             echo "digest<<EOF"
             awk '
@@ -68,7 +69,26 @@ jobs:
               /^## Communities \(/ {skip=1; next}
               /^## Knowledge Gaps/ {skip=0}
               {if(!skip) print}
-            ' graphify-out/GRAPH_REPORT.md
+            ' graphify-out/GRAPH_REPORT.md | sed \
+              -e 's|^## Summary|## 요약|' \
+              -e 's|^## Graph Freshness|## 그래프 신선도|' \
+              -e 's|^## God Nodes (most connected - your core abstractions)|## 핵심 노드 (가장 연결이 많은 추상화)|' \
+              -e 's|^## Surprising Connections (you probably didn'\''t know these)|## 흥미로운 연결 (예상치 못한 교차)|' \
+              -e 's|^## Import Cycles|## 순환 의존성|' \
+              -e 's|^## Knowledge Gaps|## 지식 공백|' \
+              -e 's|^## Suggested Questions|## 탐색 질문 후보|' \
+              -e 's|^- Built from commit:|- 빌드 커밋:|' \
+              -e 's|- Run `git rev-parse HEAD` and compare to check if the graph is stale\.|- `git rev-parse HEAD`와 비교해 그래프 신선도 확인.|' \
+              -e 's|- Run `graphify update .` after code changes (no API cost)\.|- 코드 변경 후 `graphify update .` 실행 (API 비용 없음).|' \
+              -e 's|_Questions this graph is uniquely positioned to answer:_|_이 그래프가 대답할 수 있는 질문들:_|' \
+              -e 's|_High betweenness centrality (\([0-9.]*\)) - this node is a cross-community bridge._|_매개 중심성이 높음(\1) — 커뮤니티 간 다리._|' \
+              -e 's|_Low degree but high betweenness - a critical bridge node._|_차수는 낮지만 매개 중심성이 높음 — 핵심 다리 노드._|' \
+              -e 's|_\([0-9]*\) weakly-connected nodes found - possible documentation gaps or missing edges._|_\1개 약연결 노드 발견 — 문서화 누락 또는 엣지 누락일 수 있음._|' \
+              -e 's|These have ≤1 connection[^.]*\.$|연결이 1개 이하 — 누락된 엣지 또는 미문서화된 컴포넌트일 수 있음.|' \
+              -e 's|^- \*\*\([0-9]*\) isolated node(s):\*\*|- **\1개 고립 노드:**|' \
+              -e 's|^- \*\*\([0-9]*\) thin communities (<3 nodes) omitted from report\*\*|- **\1개 얇은 커뮤니티(<3 노드)는 리포트에서 생략**|' \
+              -e 's|— run `graphify query` to explore isolated nodes\.|— `graphify query`로 고립 노드 탐색.|' \
+              -e 's|None detected\.|없음.|g'
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
           echo "report_size=$(wc -c < graphify-out/GRAPH_REPORT.md)" >> "$GITHUB_OUTPUT"
