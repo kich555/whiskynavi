@@ -1,5 +1,42 @@
 {
   "permissions": {
-    "allow": ["Bash(ACCESS_TOKEN=*)", "WebFetch(domain:api.whiskynavi.com)", "WebFetch(domain:orval.dev)"]
+    "allow": [
+      "Bash",
+      "WebFetch(domain:api.whiskynavi.com)",
+      "WebFetch(domain:orval.dev)",
+      "mcp__github-gw__pull_request_read",
+      "mcp__github-gw__issue_read",
+      "mcp__github-gw__search_code",
+      "mcp__sentry-cloud-gw__search_issues",
+      "mcp__sentry-cloud-gw__search_events",
+      "mcp__sentry-cloud-gw__get_sentry_resource",
+      "mcp__sentry-cloud-gw__find_projects",
+      "mcp__sentry-cloud-gw__find_organizations",
+      "mcp__codegraph__codegraph_search",
+      "mcp__codegraph__codegraph_context",
+      "mcp__codegraph__codegraph_explore",
+      "mcp__codegraph__codegraph_status",
+      "mcp__codegraph__codegraph_callers",
+      "mcp__zabbix-gw__host_get",
+      "mcp__claude_ai_Slack__slack_read_thread",
+      "mcp__claude_ai_Slack__slack_read_channel",
+      "mcp__claude_ai_Slack__slack_search_channels",
+      "mcp__notion-gw__notion-fetch"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~*)",
+      "Bash(rm -rf $HOME*)",
+      "Bash(git push --force*)",
+      "Bash(git push -f*)",
+      "Bash(git push *--force*)",
+      "Bash(kubectl delete *)",
+      "Bash(docker system prune*)",
+      "Bash(docker volume rm*)",
+      "Bash(sudo rm*)",
+      "Bash(mkfs*)",
+      "Bash(chmod -R 777 /)"
+    ]
   }
 }
