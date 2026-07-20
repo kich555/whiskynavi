@@ -2,6 +2,7 @@
 
 import { postApiS3Upload, type BottleAdminParameterValues, type BottleAdminResponse } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUploader";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Label } from "@/components/ui/label";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
@@ -39,6 +40,16 @@ function pickDefaultVisible(submitted: Record<string, string> | undefined, fallb
   return fallback ?? true;
 }
 
+function parseAdditionalImageKeys(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.every((key) => typeof key === "string") ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // API 선택지를 보여주되 관리자가 직접 입력하는 흐름은 그대로 유지한다.
 
 export default function AdminProductDetailEdit({
@@ -66,6 +77,11 @@ export default function AdminProductDetailEdit({
   const newExtraInfoValueRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isDescriptionUploading, setIsDescriptionUploading] = useState(false);
+  const [isAdditionalImageUploading, setIsAdditionalImageUploading] = useState(false);
+  const submittedAdditionalImageKeys = parseAdditionalImageKeys(submittedValues?.additionalImageKeys);
+  const initialAdditionalImageKeys = submittedAdditionalImageKeys ?? defaultValues?.additionalImageKeys ?? [];
+  const initialAdditionalImageUrls = submittedAdditionalImageKeys ? [] : (defaultValues?.imageUrls ?? []);
   const uploadDescriptionImage = useCallback(async (file: File): Promise<string> => {
     const session = await getSession();
     if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
@@ -97,6 +113,10 @@ export default function AdminProductDetailEdit({
       if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    onDescriptionUploadingChange?.(isDescriptionUploading || isAdditionalImageUploading);
+  }, [isAdditionalImageUploading, isDescriptionUploading, onDescriptionUploadingChange]);
 
   const currentImage = previewUrl || FALLBACK_IMAGE;
   const visibleDefaultChecked = pickDefaultVisible(submittedValues, defaultValues?.visible);
@@ -431,7 +451,7 @@ export default function AdminProductDetailEdit({
             placeholder="설명을 입력하세요. 이미지를 붙여넣거나 추가할 수 있습니다."
             variant="admin"
             uploadFn={uploadDescriptionImage}
-            onUploadingChange={onDescriptionUploadingChange}
+            onUploadingChange={setIsDescriptionUploading}
           />
         </div>
 
@@ -511,6 +531,14 @@ export default function AdminProductDetailEdit({
               {imageError}
             </p>
           ) : null}
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <AdditionalImageUploader
+              initialKeys={initialAdditionalImageKeys}
+              initialUrls={initialAdditionalImageUrls}
+              maxSizeMB={MAX_BOTTLE_IMAGE_SIZE_MB}
+              onUploadingChange={setIsAdditionalImageUploading}
+            />
+          </div>
         </div>
       </div>
     </div>

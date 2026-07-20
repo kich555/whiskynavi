@@ -1,7 +1,6 @@
 import { getApiBottlesId } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
-import { ImageLightbox } from "@/components/ui/ImageLightbox";
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -29,20 +28,12 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
             {/* Column 1 - Image */}
             <div>
-              <div className="relative flex aspect-square items-center justify-center border border-white/10">
-                {bottle.imgUrl ? (
-                  <ImageLightbox src={bottle.imgUrl} alt={bottle.name ?? ""}>
-                    <ImageWithFallback
-                      src={bottle.imgUrl}
-                      alt={bottle.name ?? ""}
-                      fill
-                      className="object-contain p-4"
-                    />
-                  </ImageLightbox>
-                ) : (
-                  <div className="text-4xl text-white/60 lg:text-5xl">{bottle.name}</div>
-                )}
-              </div>
+              <RepresentativeImageCarousel
+                images={[bottle.imgUrl, ...(bottle.imageUrls ?? [])]}
+                alt={bottle.name ?? "보틀"}
+                surfaceClassName="border border-white/10 bg-[#1d2429]"
+                emptyContent={<div className="text-4xl text-white/60 lg:text-5xl">{bottle.name}</div>}
+              />
             </div>
 
             {/* Column 2 - Basic Info */}

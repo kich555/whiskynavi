@@ -76,12 +76,19 @@ describe("bottle admin actions", () => {
   });
 
   it("creates a bottle with archive visibility enabled", async () => {
-    await createBottleFormAction({ success: false }, validBottleFormData({ visible: "on" }));
+    await createBottleFormAction(
+      { success: false },
+      validBottleFormData({
+        visible: "on",
+        additionalImageKeys: JSON.stringify(["bottle-images/side.png", "bottle-images/back.png"]),
+      }),
+    );
 
     expect(mockedCreateBottle).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "나비 1st",
         labelImgKey: "bottle-labels/navi-1st.png",
+        additionalImageKeys: ["bottle-images/side.png", "bottle-images/back.png"],
         visible: true,
       }),
       { headers: { Authorization: "Bearer admin-token" } },

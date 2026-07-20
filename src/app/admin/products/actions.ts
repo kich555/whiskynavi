@@ -48,6 +48,7 @@ const FORM_FIELD_NAMES = [
   "distillationDate",
   "bottledDate",
   "description",
+  "additionalImageKeys",
   "extraInfos",
   "abv",
   "capacity",
@@ -102,6 +103,36 @@ const optionalNum = z
   })
   .optional();
 
+const additionalImageKeys = z.string().transform((value, context): string[] | undefined => {
+  if (!value.trim()) return undefined;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    context.addIssue({
+      code: "custom",
+      message: "추가 이미지 정보의 형식이 올바르지 않습니다.",
+    });
+    return z.NEVER;
+  }
+
+  if (
+    !Array.isArray(parsed) ||
+    parsed.length > 9 ||
+    parsed.some((key) => typeof key !== "string" || key.trim().length === 0) ||
+    new Set(parsed).size !== parsed.length
+  ) {
+    context.addIssue({
+      code: "custom",
+      message: "추가 이미지는 중복 없이 최대 9장까지 등록할 수 있습니다.",
+    });
+    return z.NEVER;
+  }
+
+  return parsed;
+});
+
 const bottleFormSchema = z.object({
   name: bounded(200, "제품명"),
   company: bounded(50, "회사"),
@@ -117,6 +148,7 @@ const bottleFormSchema = z.object({
     if (!richTextHasContent(value)) return undefined;
     return sanitizeRichTextContent(value);
   }),
+  additionalImageKeys,
   extraInfos: optionalText,
   abv: optionalNum,
   capacity: optionalNum,
@@ -129,10 +161,7 @@ const bottleFormSchema = z.object({
 function parseBottleFormData(formData: FormData) {
   const raw: Record<string, string | boolean> = {};
   for (const key of Object.keys(bottleFormSchema.shape)) {
-    raw[key] =
-      key === "visible"
-        ? formData.getAll("visible").includes("on")
-        : ((formData.get(key) as string) ?? "");
+    raw[key] = key === "visible" ? formData.getAll("visible").includes("on") : ((formData.get(key) as string) ?? "");
   }
   const result = bottleFormSchema.safeParse(raw);
   if (!result.success) {
