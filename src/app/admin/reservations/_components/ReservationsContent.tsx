@@ -100,10 +100,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         className="cursor-pointer transition-colors hover:bg-gray-50"
                         onClick={() => router.push(`/admin/reservations/${notice.id}`)}
                       >
-                        <td className="px-4 py-3 typo-medium-14 text-gray-900">{notice.id}</td>
-                        <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
-                          {notice.noticeName || "-"}
-                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-900">{notice.id}</td>
                         <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                           {notice.noticeName || "-"}
                         </td>
@@ -114,8 +111,10 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                         <td className="typo-medium-14 px-4 py-3">
                           <NoticeStatusBadge notice={notice} />
                         </td>
-                        <td className="px-4 py-3 text-right typo-medium-14 text-gray-900">{formatCurrency(notice.price)}</td>
-                        <td className="px-4 py-3 text-center typo-medium-14">
+                        <td className="typo-medium-14 px-4 py-3 text-right text-gray-900">
+                          {formatCurrency(notice.price)}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-center">
                           <span className="font-medium text-blue-600">{quantitySummary.appliedQuantity}</span>
                         </td>
                         <td className="typo-medium-14 px-4 py-3">
