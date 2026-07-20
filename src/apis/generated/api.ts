@@ -353,7 +353,7 @@ export interface AdminBottleReservationNoticeResponse {
   editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
-  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  /** 대표 이미지를 제외한 추가 이미지 CloudFront URL 목록입니다. 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환하며, 목록 조회에서는 빈 배열로 반환됩니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -3828,7 +3828,7 @@ export interface UserBottleReservationNoticePublicResponse {
   earliestReservableAt?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
-  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  /** 대표 이미지를 제외한 추가 이미지 CloudFront 공개 URL 목록입니다. 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환하며, 목록 조회에서는 빈 배열로 반환됩니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -5630,6 +5630,7 @@ export interface UserBottleReservationRelatedNoticeResponse {
   description?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
+  /** 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환합니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -12163,7 +12164,7 @@ export const deleteApiAdminBottlesReservationsNoticesNoticeid = async (noticeId:
 
 
 /**
- * 관리자가 예약 공고 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이고 imageUrls와 additionalImageKeys는 대표 이미지를 제외한 공고 추가 이미지 정보입니다.
+ * 관리자가 예약 공고 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이고 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL을 반환합니다. additionalImageKeys는 공고 전용 이미지 키입니다.
  * @summary 예약 공고 상세(관리자)
  */
 export type getApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
@@ -17803,7 +17804,7 @@ export const getApiBottlesReservationsNotices = async (params?: GetApiBottlesRes
 
 
 /**
- * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 상세 형태로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 추가 이미지 URL 목록입니다.
+ * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 상세 형태로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL 목록을 반환합니다.
  * @summary 최근 생성된 진행 예약 공고
  */
 export type getApiBottlesReservationsNoticesLatestActiveResponse200 = {
@@ -17877,7 +17878,7 @@ export const getApiBottlesReservationsNoticesRecentEnded = async ( options?: Req
 
 
 /**
- * 예약 공고의 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 대표 이미지를 제외한 공고 추가 이미지 URL 목록입니다.
+ * 예약 공고의 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL 목록을 반환합니다.
  * @summary 예약 공고 상세
  */
 export type getApiBottlesReservationsNoticesNoticeidResponse200 = {
@@ -20525,6 +20526,11 @@ export type postApiUsersBusinessesApplicationsResponse415 = {
   status: 415
 }
 
+export type postApiUsersBusinessesApplicationsResponse500 = {
+  data: ApiErrorResponse
+  status: 500
+}
+
 export type postApiUsersBusinessesApplicationsResponse502 = {
   data: ApiErrorResponse
   status: 502
@@ -20538,7 +20544,7 @@ export type postApiUsersBusinessesApplicationsResponse503 = {
 export type postApiUsersBusinessesApplicationsResponseSuccess = (postApiUsersBusinessesApplicationsResponse200) & {
   headers: Headers;
 };
-export type postApiUsersBusinessesApplicationsResponseError = (postApiUsersBusinessesApplicationsResponse400 | postApiUsersBusinessesApplicationsResponse409 | postApiUsersBusinessesApplicationsResponse413 | postApiUsersBusinessesApplicationsResponse415 | postApiUsersBusinessesApplicationsResponse502 | postApiUsersBusinessesApplicationsResponse503) & {
+export type postApiUsersBusinessesApplicationsResponseError = (postApiUsersBusinessesApplicationsResponse400 | postApiUsersBusinessesApplicationsResponse409 | postApiUsersBusinessesApplicationsResponse413 | postApiUsersBusinessesApplicationsResponse415 | postApiUsersBusinessesApplicationsResponse500 | postApiUsersBusinessesApplicationsResponse502 | postApiUsersBusinessesApplicationsResponse503) & {
   headers: Headers;
 };
 
