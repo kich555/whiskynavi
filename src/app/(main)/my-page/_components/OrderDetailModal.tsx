@@ -37,12 +37,15 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
 
   return (
     <Dialog open={isOpen} onOpenChange={close}>
-      <DialogContent className="max-w-2xl">
-        <DialogHeader>
+      <DialogContent className="flex max-h-[calc(100dvh-2rem)] max-w-2xl flex-col overflow-hidden">
+        <DialogHeader className="shrink-0">
           <DialogTitle>주문 상세</DialogTitle>
           <DialogDescription className="sr-only">주문 상품과 결제/배송 정보를 확인합니다.</DialogDescription>
         </DialogHeader>
-        <div className="space-y-6 py-4">
+        <div
+          className="min-h-0 space-y-6 overflow-y-auto overscroll-contain py-4 pr-1"
+          data-testid="order-detail-scroll-area"
+        >
           {/* 주문 상태 */}
           <div className="flex items-center justify-between">
             <div>
