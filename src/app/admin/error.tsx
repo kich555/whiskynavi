@@ -54,10 +54,10 @@ export default function AdminErrorPage({ error, reset }: AdminErrorPageProps) {
 
         {process.env.NODE_ENV === "development" && (
           <details className="mt-8 w-full max-w-lg text-left">
-            <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
+            <summary className="typo-medium-14 cursor-pointer text-gray-500 hover:text-gray-700">
               오류 상세 정보 (개발 모드)
             </summary>
-            <pre className="mt-2 overflow-auto rounded-lg bg-gray-100 p-4 text-xs text-gray-800">
+            <pre className="typo-medium-12 mt-2 overflow-auto rounded-lg bg-gray-100 p-4 text-gray-800">
               {error.message}
               {error.stack && `\n\n${error.stack}`}
             </pre>

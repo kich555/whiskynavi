@@ -122,7 +122,7 @@ export default function BottleSearchCombobox({ defaultBottle }: BottleSearchComb
         value={open ? search : displayValue}
         placeholder="제품명을 검색하세요"
         className={cn(
-          "w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none",
+          "typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none",
           !open && !selected && "text-gray-400",
         )}
         onChange={(e) => setSearch(e.target.value)}
@@ -136,7 +136,7 @@ export default function BottleSearchCombobox({ defaultBottle }: BottleSearchComb
       />
 
       {selected && !open && (
-        <p className="mt-1.5 text-xs text-gray-500">
+        <p className="typo-medium-12 mt-1.5 text-gray-500">
           재고 수량: <span className="font-medium text-gray-700">{formatStockQuantity(selected.stockQuantity)}</span>
         </p>
       )}
@@ -146,9 +146,9 @@ export default function BottleSearchCombobox({ defaultBottle }: BottleSearchComb
           <Command shouldFilter={false}>
             <CommandList>
               {loading ? (
-                <div className="py-4 text-center text-sm text-gray-400">검색 중...</div>
+                <div className="typo-medium-14 py-4 text-center text-gray-400">검색 중...</div>
               ) : error ? (
-                <div className="py-4 text-center text-sm text-red-500">{error}</div>
+                <div className="typo-medium-14 py-4 text-center text-red-500">{error}</div>
               ) : (
                 <>
                   <CommandEmpty>검색 결과가 없습니다.</CommandEmpty>
@@ -168,7 +168,7 @@ export default function BottleSearchCombobox({ defaultBottle }: BottleSearchComb
                           {bottle.name} (ID: {bottle.id})
                         </span>
                         <span className="flex items-center gap-2">
-                          <span className="text-xs text-gray-400">{formatStockQuantity(bottle.stockQuantity)}</span>
+                          <span className="typo-medium-12 text-gray-400">{formatStockQuantity(bottle.stockQuantity)}</span>
                           <Check className={cn(selected?.id === bottle.id ? "opacity-100" : "opacity-0")} />
                         </span>
                       </CommandItem>

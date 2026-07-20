@@ -6,14 +6,14 @@ export default function ImportResultSummary({ result }: { result: AdminManualPur
 
   return (
     <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <div className="flex flex-wrap gap-4 text-sm text-gray-700">
+      <div className="flex flex-wrap gap-4 typo-medium-14 text-gray-700">
         <span>전체 {result.totalRows ?? 0}행</span>
         <span className="text-green-700">성공 {result.successCount ?? 0}행</span>
         <span className="text-red-700">실패 {result.failureCount ?? 0}행</span>
         <span>{result.dryRun ? "검증 결과" : "등록 결과"}</span>
       </div>
       {failedRows.length > 0 && (
-        <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+        <div className="mt-3 rounded-md border border-red-200 bg-red-50 p-3 typo-medium-14 text-red-800">
           <p className="font-semibold">실패 행 상세</p>
           <ul className="mt-2 space-y-1">
             {failedRows.map((row) => (
@@ -26,8 +26,8 @@ export default function ImportResultSummary({ result }: { result: AdminManualPur
       )}
       {(result.results ?? []).length > 0 && (
         <div className="mt-3 max-h-72 overflow-auto rounded border border-gray-200 bg-white">
-          <table className="w-full min-w-[720px] text-sm">
-            <thead className="bg-gray-50 text-xs text-gray-600">
+          <table className="w-full min-w-[720px] typo-medium-14">
+            <thead className="bg-gray-50 typo-medium-12 text-gray-600">
               <tr>
                 <th className="px-3 py-2 text-left">행</th>
                 <th className="px-3 py-2 text-left">사용자ID</th>

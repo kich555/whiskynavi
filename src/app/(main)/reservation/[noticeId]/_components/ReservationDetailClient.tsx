@@ -121,7 +121,7 @@ export default function ReservationDetailClient({
           {notice.description && (
             <RichTextContent
               html={sanitizeRichTextContent(notice.description)}
-              className="mt-4 overflow-y-auto text-sm text-gray-300 lg:text-base [&_a]:text-amber-300 [&_a]:underline"
+              className="typo-medium-14 mt-4 overflow-y-auto text-gray-300 lg:text-base [&_a]:text-amber-300 [&_a]:underline"
             />
           )}
         </div>

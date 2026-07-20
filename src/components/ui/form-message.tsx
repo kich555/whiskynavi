@@ -13,7 +13,7 @@ export function FormMessage({ message, variant = "error", className }: FormMessa
     <p
       role={variant === "error" ? "alert" : "status"}
       className={cn(
-        "text-sm",
+        "typo-medium-14",
         variant === "error" && "text-red-500",
         variant === "success" && "text-green-600",
         variant === "info" && "text-blue-600",

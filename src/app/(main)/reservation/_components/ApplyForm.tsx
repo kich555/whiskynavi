@@ -43,9 +43,9 @@ export default function ApplyForm({
     <div className="space-y-3">
       {/* 업장 선택 */}
       <div>
-        <label className="mb-1 block text-xs text-gray-400 lg:text-sm">수령 업장</label>
+        <label className="typo-medium-12 mb-1 block text-gray-400 lg:typo-medium-14">수령 업장</label>
         <Select value={selectedLocationId} onValueChange={setSelectedLocationId}>
-          <SelectTrigger className="w-full border-white/20 bg-white/10 text-sm text-white lg:text-base [&>svg]:text-white/60">
+          <SelectTrigger className="typo-medium-14 w-full border-white/20 bg-white/10 text-white lg:text-base [&>svg]:text-white/60">
             <SelectValue placeholder="업장을 선택해주세요" />
           </SelectTrigger>
           <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
@@ -56,7 +56,7 @@ export default function ApplyForm({
               </SelectItem>
             ))}
             {pickupLocations.length === 0 && (
-              <div className="text-muted-foreground px-2 py-4 text-center text-sm">등록된 업장이 없습니다</div>
+              <div className="text-muted-foreground typo-medium-14 px-2 py-4 text-center">등록된 업장이 없습니다</div>
             )}
           </SelectContent>
         </Select>
@@ -114,7 +114,7 @@ export default function ApplyForm({
             {mode === "edit" ? (isPending ? "수정 중..." : "수정하기") : isPending ? "신청 중..." : "예약하기"}
           </button>
         </div>
-        <p className="text-[10px] text-gray-400 lg:text-xs">
+        <p className="text-[10px] text-gray-400 lg:typo-medium-12">
           * 예약 신청 병수와 실제 배정 병수는 총 신청 수에 따라 달라질 수 있습니다.
         </p>
         <FormMessage message={error} className="mt-2" />

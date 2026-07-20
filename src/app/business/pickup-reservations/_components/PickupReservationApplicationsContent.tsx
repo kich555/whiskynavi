@@ -181,12 +181,12 @@ export default function PickupReservationApplicationsContent({
 
       <div className="p-6">
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements}건</p>
           <form action={handleSearch} className="flex w-full gap-2 md:w-[560px]">
             <select
               name="searchType"
               defaultValue={searchParams.searchType ?? "userName"}
-              className="w-28 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+              className="w-28 rounded-md border border-gray-300 bg-white px-3 py-2 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
             >
               <option value="userName">실명</option>
               <option value="nickname">별명</option>
@@ -200,7 +200,7 @@ export default function PickupReservationApplicationsContent({
               <input
                 name="q"
                 defaultValue={searchParams.q ?? ""}
-                className="w-full rounded-md border border-gray-300 bg-white py-2 pr-9 pl-9 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+                className="w-full rounded-md border border-gray-300 bg-white py-2 pr-9 pl-9 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
                 placeholder="별명, 실명, 전화번호 검색"
               />
               {searchParams.q && (
@@ -225,14 +225,14 @@ export default function PickupReservationApplicationsContent({
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">공고 ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">병 이름</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">신청자</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">신청수량</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">확정수량</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">단가</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">총액</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">ID</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">공고 ID</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">병 이름</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청자</th>
+                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">신청수량</th>
+                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">확정수량</th>
+                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">단가</th>
+                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">총액</th>
                   <FilterHeader
                     label="상태"
                     filterKey="status"
@@ -241,8 +241,8 @@ export default function PickupReservationApplicationsContent({
                     onSelect={updateFilter}
                     dropdownWidth="w-36"
                   />
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">신청일</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">관리</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청일</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -255,33 +255,33 @@ export default function PickupReservationApplicationsContent({
                 ) : (
                   applications.map((app) => (
                     <tr key={app.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{app.id}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{app.noticeId ?? "-"}</td>
-                      <td className="max-w-[220px] truncate px-4 py-3 text-sm font-medium text-gray-900">
+                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{app.noticeId ?? "-"}</td>
+                      <td className="max-w-[220px] truncate px-4 py-3 typo-medium-14 text-gray-900">
                         {app.bottleName ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">
                         <div className="font-medium text-gray-900">실명: {app.applicantUser?.name ?? "-"}</div>
-                        <div className="text-xs text-gray-500">별명: {app.applicantUser?.nickname ?? "-"}</div>
-                        <div className="text-xs text-gray-500">전화: {app.applicantUser?.phone ?? "-"}</div>
+                        <div className="typo-medium-12 text-gray-500">별명: {app.applicantUser?.nickname ?? "-"}</div>
+                        <div className="typo-medium-12 text-gray-500">전화: {app.applicantUser?.phone ?? "-"}</div>
                       </td>
-                      <td className="px-4 py-3 text-center text-sm text-gray-900">{app.quantity ?? "-"}</td>
-                      <td className="px-4 py-3 text-center text-sm font-medium text-amber-600">
+                      <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity ?? "-"}</td>
+                      <td className="px-4 py-3 text-center typo-medium-14 text-amber-600">
                         {app.confirmedQuantity ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatCurrency(app.unitPrice)}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatCurrency(app.totalPrice)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         <Badge className={PICKUP_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                           {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
+                      <td className="px-4 py-3 typo-medium-14">
                         <div className="flex flex-wrap items-center gap-2">
                           <StatusActionButton
                             applicationId={app.id!}

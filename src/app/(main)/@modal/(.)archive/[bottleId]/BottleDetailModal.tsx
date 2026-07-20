@@ -63,7 +63,7 @@ export default function BottleDetailModal({ bottle }: Props) {
                   index < arr.length - 1 ? "border-b border-white/10" : ""
                 }`}
               >
-                <span className="text-sm text-gray-400">{item.label}</span>
+                <span className="typo-medium-14 text-gray-400">{item.label}</span>
                 <span className="typo-medium-14 text-white">{item.value || "-"}</span>
               </div>
             ))}
@@ -75,7 +75,7 @@ export default function BottleDetailModal({ bottle }: Props) {
           <div className="mt-4">
             <h3 className="typo-bold-18 mb-3 text-white">테이스팅 노트</h3>
             <div className="border border-white/10 p-4">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-300">{bottle.description}</p>
+              <p className="typo-medium-14 leading-relaxed whitespace-pre-wrap text-gray-300">{bottle.description}</p>
             </div>
           </div>
         )}

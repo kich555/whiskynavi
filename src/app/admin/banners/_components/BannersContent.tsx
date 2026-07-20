@@ -116,7 +116,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                     <div className="flex items-start justify-between gap-3">
                       <h3 className="font-semibold text-gray-900">{title}</h3>
                       <span
-                        className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
+                        className={`typo-semibold-12 shrink-0 rounded-full px-2 py-1 ${
                           published ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-600"
                         }`}
                       >
@@ -124,13 +124,13 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                       </span>
                     </div>
                     {banner.description ? (
-                      <p className="mt-1 truncate text-sm text-gray-500">{banner.description}</p>
+                      <p className="typo-medium-14 mt-1 truncate text-gray-500">{banner.description}</p>
                     ) : null}
                     <div className="mt-2 flex items-center justify-between gap-3">
-                      <span className="text-xs text-gray-400">ID: {banner.id}</span>
-                      <span className="text-xs text-gray-400">순서: {banner.sortOrder ?? 0}</span>
+                      <span className="typo-medium-12 text-gray-400">ID: {banner.id}</span>
+                      <span className="typo-medium-12 text-gray-400">순서: {banner.sortOrder ?? 0}</span>
                     </div>
-                    {banner.link ? <p className="mt-1 truncate text-xs text-amber-600">{banner.link}</p> : null}
+                    {banner.link ? <p className="typo-medium-12 mt-1 truncate text-amber-600">{banner.link}</p> : null}
 
                     <div className="mt-4 grid grid-cols-2 gap-2">
                       <button
@@ -138,7 +138,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                         aria-label={`${title} 위로`}
                         disabled={index === 0 || isPending}
                         onClick={() => moveBanner(index, -1)}
-                        className="inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-gray-300 px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="typo-medium-12 inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-gray-300 px-2 py-1.5 text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ArrowUp size={14} />
                         위로
@@ -148,7 +148,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                         aria-label={`${title} 아래로`}
                         disabled={index === orderedBanners.length - 1 || isPending}
                         onClick={() => moveBanner(index, 1)}
-                        className="inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-gray-300 px-2 py-1.5 text-xs text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="typo-medium-12 inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-gray-300 px-2 py-1.5 text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <ArrowDown size={14} />
                         아래로
@@ -158,7 +158,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                         aria-label={`${title} ${published ? "게시중단" : "게시"}`}
                         disabled={isPending}
                         onClick={() => togglePublished(banner)}
-                        className="inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-amber-200 px-2 py-1.5 text-xs text-amber-700 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="typo-medium-12 inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-amber-200 px-2 py-1.5 text-amber-700 hover:bg-amber-50 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         {published ? <EyeOff size={14} /> : <Eye size={14} />}
                         {published ? "게시중단" : "게시"}
@@ -168,7 +168,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                         aria-label={`${title} 제거`}
                         disabled={isPending}
                         onClick={() => deleteBanner(banner)}
-                        className="inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-red-200 px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        className="typo-medium-12 inline-flex cursor-pointer items-center justify-center gap-1 rounded border border-red-200 px-2 py-1.5 text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-40"
                       >
                         <Trash2 size={14} />
                         제거
@@ -177,7 +177,7 @@ export default function BannersContent({ searchParams, banners, totalElements }:
                     <button
                       type="button"
                       onClick={() => router.push(`/admin/banners/${banner.id}`)}
-                      className="mt-3 w-full cursor-pointer rounded bg-gray-900 px-3 py-2 text-sm font-medium text-white hover:bg-gray-800"
+                      className="typo-semibold-14 mt-3 w-full cursor-pointer rounded bg-gray-900 px-3 py-2 text-white hover:bg-gray-800"
                     >
                       상세
                     </button>

@@ -40,7 +40,7 @@ export default function RemoveMemberConfirmModal({
             </span>{" "}
             회원의 멤버십을 정말로 <span className="font-bold text-red-600">해제</span>하시겠습니까?
           </p>
-          <p className="mt-2 text-sm text-gray-500">해제된 멤버십은 다시 추가할 수 있습니다.</p>
+          <p className="mt-2 typo-medium-14 text-gray-500">해제된 멤버십은 다시 추가할 수 있습니다.</p>
         </DialogHeader>
 
         <DialogFooter className="gap-2 sm:gap-2">

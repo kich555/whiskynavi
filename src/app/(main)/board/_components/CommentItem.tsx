@@ -63,7 +63,7 @@ export default function CommentItem({ comment, boardId, postId, currentUserId, i
           />
         ) : (
           <>
-            <div className="mb-1 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <div className="typo-medium-12 mb-1 flex flex-wrap items-center gap-2 text-gray-500">
               <span className="text-gray-300">{comment.authorNickname ?? "알 수 없는 사용자"}</span>
               {comment.authorAdmin ? <AdminAuthorBadge /> : null}
               <span>·</span>
@@ -72,9 +72,9 @@ export default function CommentItem({ comment, boardId, postId, currentUserId, i
                 <span className="text-gray-600">(수정됨)</span>
               )}
             </div>
-            <p className="text-sm whitespace-pre-wrap text-white">{comment.content}</p>
+            <p className="typo-medium-14 whitespace-pre-wrap text-white">{comment.content}</p>
 
-            <div className="mt-2 flex items-center gap-3 text-xs">
+            <div className="typo-medium-12 mt-2 flex items-center gap-3">
               {canEdit && !isEditing && (
                 <>
                   <button

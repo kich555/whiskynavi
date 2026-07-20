@@ -131,13 +131,13 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
           <DialogHeader>
             <DialogTitle>사업자 등록 취소</DialogTitle>
           </DialogHeader>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground typo-medium-14">
             {application.businessName} 사업자 등록 신청을 취소하시겠습니까?
           </p>
           <div className="flex justify-end gap-2 pt-2">
             <button
               onClick={close}
-              className="cursor-pointer rounded-md border border-white/10 px-4 py-2 text-sm text-gray-300 transition-colors hover:bg-white/5"
+              className="typo-medium-14 cursor-pointer rounded-md border border-white/10 px-4 py-2 text-gray-300 transition-colors hover:bg-white/5"
             >
               아니요
             </button>
@@ -153,11 +153,13 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                           <DialogHeader>
                             <DialogTitle>오류</DialogTitle>
                           </DialogHeader>
-                          <p className="text-muted-foreground text-sm">{result.error ?? "취소에 실패했습니다."}</p>
+                          <p className="text-muted-foreground typo-medium-14">
+                            {result.error ?? "취소에 실패했습니다."}
+                          </p>
                           <div className="flex justify-end pt-2">
                             <button
                               onClick={errClose}
-                              className="cursor-pointer rounded-md bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100"
+                              className="typo-semibold-14 cursor-pointer rounded-md bg-white px-4 py-2 text-gray-900 transition-colors hover:bg-gray-100"
                             >
                               확인
                             </button>
@@ -168,7 +170,7 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                   }
                 });
               }}
-              className="cursor-pointer rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-700"
+              className="typo-semibold-14 cursor-pointer rounded-md bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               취소하기
             </button>
@@ -187,20 +189,20 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
         </h3>
       </div>
       <div className="space-y-3">
-        <p className="text-sm text-gray-400">
+        <p className="typo-medium-14 text-gray-400">
           사업자로 등록하시면 위스키 픽업 서비스 및 비즈니스 전용 혜택을 받으실 수 있습니다.
         </p>
         <div className="flex flex-wrap gap-2">
           <button
             onClick={handleBusinessRegister}
-            className="cursor-pointer bg-white px-4 py-2 text-sm font-semibold text-gray-900 transition-colors hover:bg-gray-100"
+            className="typo-semibold-14 cursor-pointer bg-white px-4 py-2 text-gray-900 transition-colors hover:bg-gray-100"
           >
             {hasBusinessApplicationHistory ? "새 사업자 등록" : "사업자 등록하기"}
           </button>
           {hasBusinessApplicationHistory && (
             <button
               onClick={handleBusinessHistory}
-              className="border border-white/20 bg-white/10 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-white/20"
+              className="typo-semibold-14 border border-white/20 bg-white/10 px-4 py-2 text-white transition-colors hover:bg-white/20"
             >
               신청내역보기
             </button>
@@ -211,7 +213,7 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
       {visibleBusinessApplications.length > 0 && (
         <div className="mt-3 space-y-2">
           {hasPendingApplication && (
-            <p className="text-xs font-semibold text-gray-300">진행 중인 신청 {pendingBusinessApplications.length}건</p>
+            <p className="typo-semibold-12 text-gray-300">진행 중인 신청 {pendingBusinessApplications.length}건</p>
           )}
           {visibleBusinessApplications.map((application) => (
             <div key={application.id ?? application.businessName} className="border border-white/10 p-3">
@@ -219,8 +221,8 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                 {getStatusIcon(application.status)}
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h4 className="truncate text-sm font-semibold text-white">{application.businessName}</h4>
-                    <span className={`px-2 py-0.5 text-xs font-semibold ${getStatusBadgeClass(application.status)}`}>
+                    <h4 className="typo-semibold-14 truncate text-white">{application.businessName}</h4>
+                    <span className={`typo-semibold-12 px-2 py-0.5 ${getStatusBadgeClass(application.status)}`}>
                       {getStatusLabel(application.status)}
                     </span>
                     {application.status === "PENDING" && (
@@ -228,22 +230,24 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                         type="button"
                         onClick={() => handleBusinessCancel(application)}
                         disabled={isPending}
-                        className="ml-auto border border-red-600/30 bg-red-600/10 px-2.5 py-1 text-xs font-semibold text-red-300 transition-colors hover:bg-red-600/20 disabled:opacity-50"
+                        className="typo-semibold-12 ml-auto border border-red-600/30 bg-red-600/10 px-2.5 py-1 text-red-300 transition-colors hover:bg-red-600/20 disabled:opacity-50"
                       >
                         사업자 등록 취소하기
                       </button>
                     )}
                   </div>
-                  <div className="mt-2 grid gap-x-4 gap-y-1 text-xs text-gray-400 md:grid-cols-2">
+                  <div className="typo-medium-12 mt-2 grid gap-x-4 gap-y-1 text-gray-400 md:grid-cols-2">
                     <p>사업자 등록번호: {application.businessRegistrationNumber}</p>
                     <p>사업자 구분: {formatBusinessType(application)}</p>
                     <p>대표자: {application.representativeName}</p>
                     <p>연락처: {application.contact}</p>
-                    {application.pickupAddress && <p className="md:col-span-2">픽업 주소: {application.pickupAddress}</p>}
+                    {application.pickupAddress && (
+                      <p className="md:col-span-2">픽업 주소: {application.pickupAddress}</p>
+                    )}
                     <p>신청일: {application.createdAt}</p>
                   </div>
                   {application.status === "REJECTED" && application.rejectReason && (
-                    <p className="mt-2 text-xs text-red-400">거부 사유: {application.rejectReason}</p>
+                    <p className="typo-medium-12 mt-2 text-red-400">거부 사유: {application.rejectReason}</p>
                   )}
                 </div>
               </div>

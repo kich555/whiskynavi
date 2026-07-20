@@ -12,17 +12,22 @@ const BottleCard = ({ bottle }: Props) => {
       <div className="relative mb-2 flex aspect-square items-center justify-center">
         {bottle.imgUrl ? (
           <ImageLightbox src={bottle.imgUrl} alt={bottle.name ?? ""}>
-            <ImageWithFallback src={bottle.imgUrl} alt={bottle.name ?? ""} fill className="object-contain p-1.5 sm:p-4" />
+            <ImageWithFallback
+              src={bottle.imgUrl}
+              alt={bottle.name ?? ""}
+              fill
+              className="object-contain p-1.5 sm:p-4"
+            />
           </ImageLightbox>
         ) : (
-          <Link href={`/archive/${bottle.id}`} className="text-sm text-white/60 md:text-base">
+          <Link href={`/archive/${bottle.id}`} className="typo-medium-14 text-white/60 md:text-base">
             {bottle.name}
           </Link>
         )}
       </div>
 
       <Link href={`/archive/${bottle.id}`} className="block">
-        <p className="text-xs text-gray-400">{bottle.brand ?? bottle.company ?? ""}</p>
+        <p className="typo-medium-12 text-gray-400">{bottle.brand ?? bottle.company ?? ""}</p>
         <h3
           className="typo-medium-14 mt-2 line-clamp-2 text-white group-hover:text-gray-300"
           style={{ lineHeight: 1.4 }}
@@ -30,8 +35,8 @@ const BottleCard = ({ bottle }: Props) => {
           {bottle.name}
         </h3>
         <div className="mt-2 flex items-center justify-between">
-          <span className="text-xs text-gray-500">{bottle.distillery ?? ""}</span>
-          {bottle.abv != null && <span className="text-xs text-gray-400">{bottle.abv}%</span>}
+          <span className="typo-medium-12 text-gray-500">{bottle.distillery ?? ""}</span>
+          {bottle.abv != null && <span className="typo-medium-12 text-gray-400">{bottle.abv}%</span>}
         </div>
       </Link>
     </div>

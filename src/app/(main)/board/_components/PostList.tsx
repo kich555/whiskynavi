@@ -48,8 +48,8 @@ export default function PostList({
   if (isEmpty) {
     return (
       <div className="flex min-h-[calc(100vh-430px)] flex-col items-center justify-center text-gray-400">
-        <p className="text-sm">{isSearching ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>
-        <p className="mt-1 text-xs">
+        <p className="typo-medium-14">{isSearching ? "검색 결과가 없습니다." : "게시글이 없습니다."}</p>
+        <p className="typo-medium-12 mt-1">
           {isSearching ? "다른 검색어로 다시 시도해보세요." : "첫 번째 게시글을 작성해보세요!"}
         </p>
       </div>
@@ -69,7 +69,7 @@ export default function PostList({
             <button
               type="button"
               onClick={() => setShowAllAnnouncements((prev) => !prev)}
-              className="flex w-full items-center justify-center gap-1 border-b border-white/10 px-4 py-2 text-xs text-gray-400 transition-colors hover:text-amber-500"
+              className="typo-medium-12 flex w-full items-center justify-center gap-1 border-b border-white/10 px-4 py-2 text-gray-400 transition-colors hover:text-amber-500"
             >
               {showAllAnnouncements ? "△ 접기" : `▽ 공지 전체보기 (${allAnnouncements.length}개)`}
             </button>
@@ -106,8 +106,8 @@ export default function PostList({
 
       {posts.length === 0 && isSearching && announcements.length > 0 ? (
         <div className="flex min-h-32 flex-col items-center justify-center border-t border-white/10 text-gray-400">
-          <p className="text-sm">검색 결과가 없습니다.</p>
-          <p className="mt-1 text-xs">다른 검색어로 다시 시도해보세요.</p>
+          <p className="typo-medium-14">검색 결과가 없습니다.</p>
+          <p className="typo-medium-12 mt-1">다른 검색어로 다시 시도해보세요.</p>
         </div>
       ) : null}
 

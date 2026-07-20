@@ -241,12 +241,12 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
             {fileName ? (
               <div className="space-y-1">
                 <p className="typo-medium-14 text-gray-900">{fileName}</p>
-                <p className="text-xs text-gray-500">파일을 다시 선택하려면 클릭하세요</p>
+                <p className="typo-medium-12 text-gray-500">파일을 다시 선택하려면 클릭하세요</p>
               </div>
             ) : (
               <div className="space-y-1">
                 <p className="typo-medium-14 text-gray-900">파일을 선택하세요</p>
-                <p className="text-xs text-gray-500">PDF, JPG, PNG (최대 10MB)</p>
+                <p className="typo-medium-12 text-gray-500">PDF, JPG, PNG (최대 10MB)</p>
               </div>
             )}
           </label>

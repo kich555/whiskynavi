@@ -99,7 +99,7 @@ export default function AnnouncementFormFields({ postTypeOptions, defaultValues 
               ))}
             </SelectContent>
           </Select>
-          <p className="mt-1 text-xs text-gray-400">
+          <p className="mt-1 typo-medium-12 text-gray-400">
             {isGlobal
               ? "전체 공지는 특정 탭에 속하지 않습니다."
               : "이 공지가 표시될 탭을 선택하세요. 공지 탭(ANNOUNCEMENT) postType만 표시됩니다."}
@@ -118,17 +118,17 @@ export default function AnnouncementFormFields({ postTypeOptions, defaultValues 
           min={0}
           defaultValue={defaultValues?.priority ?? 0}
         />
-        <p className="mt-1 text-xs text-gray-400">숫자가 클수록 상단에 표시됩니다. 같으면 최신순입니다.</p>
+        <p className="mt-1 typo-medium-12 text-gray-400">숫자가 클수록 상단에 표시됩니다. 같으면 최신순입니다.</p>
       </div>
 
       <div className="flex gap-6">
         <label className="flex cursor-pointer items-center gap-2">
           <Checkbox name="visible" value="true" defaultChecked={defaultValues?.visible ?? true} />
-          <span className="text-sm text-gray-700">노출</span>
+          <span className="typo-medium-14 text-gray-700">노출</span>
         </label>
         <label className="flex cursor-pointer items-center gap-2">
           <Checkbox name="pinned" value="true" defaultChecked={defaultValues?.pinned ?? false} />
-          <span className="text-sm text-gray-700">상단 고정</span>
+          <span className="typo-medium-14 text-gray-700">상단 고정</span>
         </label>
       </div>
 
@@ -136,12 +136,12 @@ export default function AnnouncementFormFields({ postTypeOptions, defaultValues 
         <div>
           <Label className="typo-bold-12 mb-1 block text-gray-700">예약 게시</Label>
           <DateTimePicker name="publishedAt" defaultValue={defaultValues?.publishedAt} />
-          <p className="mt-1 text-xs text-gray-400">지정 시각이 지나야 공지가 노출됩니다.</p>
+          <p className="mt-1 typo-medium-12 text-gray-400">지정 시각이 지나야 공지가 노출됩니다.</p>
         </div>
         <div>
           <Label className="typo-bold-12 mb-1 block text-gray-700">만료</Label>
           <DateTimePicker name="expiredAt" defaultValue={defaultValues?.expiredAt} />
-          <p className="mt-1 text-xs text-gray-400">지정 시각이 지나면 공지가 숨겨집니다.</p>
+          <p className="mt-1 typo-medium-12 text-gray-400">지정 시각이 지나면 공지가 숨겨집니다.</p>
         </div>
       </div>
     </div>

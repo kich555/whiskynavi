@@ -30,7 +30,12 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
               <div className="relative flex aspect-square items-center justify-center border border-white/10">
                 {bottle.imgUrl ? (
                   <ImageLightbox src={bottle.imgUrl} alt={bottle.name ?? ""}>
-                    <ImageWithFallback src={bottle.imgUrl} alt={bottle.name ?? ""} fill className="object-contain p-4" />
+                    <ImageWithFallback
+                      src={bottle.imgUrl}
+                      alt={bottle.name ?? ""}
+                      fill
+                      className="object-contain p-4"
+                    />
                   </ImageLightbox>
                 ) : (
                   <div className="text-4xl text-white/60 lg:text-5xl">{bottle.name}</div>
@@ -66,7 +71,7 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
                       index < arr.length - 1 ? "border-b border-white/10" : ""
                     }`}
                   >
-                    <span className="text-sm text-gray-400 lg:text-base">{item.label}</span>
+                    <span className="typo-medium-14 text-gray-400 lg:text-base">{item.label}</span>
                     <span className="typo-medium-14 text-white lg:text-base">{item.value || "-"}</span>
                   </div>
                 ))}
@@ -77,7 +82,7 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
             <div className="flex flex-col">
               <h3 className="typo-bold-18 mb-4 text-white lg:text-xl">테이스팅 노트</h3>
               <div className="overflow-y-auto border border-white/10 p-4 lg:max-h-[500px] lg:p-6">
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-gray-300 lg:text-base">
+                <p className="typo-medium-14 leading-relaxed whitespace-pre-wrap text-gray-300 lg:text-base">
                   {bottle.description || "테이스팅 노트가 제공되지 않았습니다."}
                 </p>
               </div>

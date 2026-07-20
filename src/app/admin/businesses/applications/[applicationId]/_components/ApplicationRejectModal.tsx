@@ -78,7 +78,7 @@ export default function ApplicationRejectModal({
               placeholder="신청자에게 노출되지 않는 내부 메모입니다."
             />
           </div>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="typo-medium-14 text-red-600">{error}</p>}
         </div>
         <DialogFooter className="gap-2">
           <Button

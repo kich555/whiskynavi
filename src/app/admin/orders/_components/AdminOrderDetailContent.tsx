@@ -50,8 +50,8 @@ function getOrderPriceSummary(order: OrderResponse) {
 function DetailField({ label, value }: { label: string; value?: string | number | null }) {
   return (
     <div>
-      <p className="text-xs text-gray-500">{label}</p>
-      <p className="mt-1 text-sm font-medium break-words text-gray-900">{value ?? "-"}</p>
+      <p className="typo-medium-12 text-gray-500">{label}</p>
+      <p className="mt-1 typo-medium-14 break-words text-gray-900">{value ?? "-"}</p>
     </div>
   );
 }
@@ -88,7 +88,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
             <ArrowLeft className="size-4" />
             주문 목록으로 돌아가기
           </Button>
-          <span className={`rounded-full px-3 py-1 text-sm ${statusColor}`}>{statusLabel}</span>
+          <span className={`rounded-full px-3 py-1 typo-medium-14 ${statusColor}`}>{statusLabel}</span>
         </div>
 
         <Section title="주문 정보">
@@ -135,8 +135,8 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
         <Section title="상품 라인">
           {lineItems.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px] text-sm">
-                <thead className="bg-gray-50 text-xs text-gray-600">
+              <table className="w-full min-w-[860px] typo-medium-14">
+                <thead className="bg-gray-50 typo-medium-12 text-gray-600">
                   <tr>
                     <th className="px-3 py-2 text-left">상품명</th>
                     <th className="px-3 py-2 text-left">판매공고</th>
@@ -192,7 +192,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
           </Section>
 
           <Section title="금액 요약">
-            <div className="space-y-3 text-sm">
+            <div className="space-y-3 typo-medium-14">
               <div className="flex justify-between gap-4">
                 <span className="text-gray-500">상품 합계</span>
                 <span className="font-medium text-gray-900">{formatCurrency(priceSummary.itemsTotalPrice)}</span>
@@ -209,7 +209,7 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
                 <span className="font-bold text-gray-900">최종 금액</span>
                 <span className="font-bold text-gray-900">{formatCurrency(priceSummary.totalPrice)}</span>
               </div>
-              <div className="pt-2 text-xs text-gray-500">
+              <div className="pt-2 typo-medium-12 text-gray-500">
                 {priceSummary.freeShippingApplied ? "무료배송 적용" : "무료배송 미적용"}
                 {priceSummary.freeShippingThreshold != null && (
                   <span> · 기준 {formatCurrency(priceSummary.freeShippingThreshold)}</span>

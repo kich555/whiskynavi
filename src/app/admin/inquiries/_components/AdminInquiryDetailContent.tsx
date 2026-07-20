@@ -100,10 +100,10 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                 <Badge variant="outline" className={STATUS_COLOR[inquiry.status ?? ""] ?? STATUS_COLOR.CLOSED}>
                   {STATUS_LABEL[inquiry.status ?? ""] ?? inquiry.status}
                 </Badge>
-                <span className="text-xs text-gray-500">문의 #{inquiry.id}</span>
+ <span className="typo-medium-12 text-gray-500">문의 #{inquiry.id}</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900 md:text-2xl">{inquiry.title}</h1>
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
+ <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 typo-medium-14 text-gray-500">
                 <Link
                   href={`/admin/users/${inquiry.userId}`}
                   className="inline-flex items-center gap-1 text-amber-700 hover:underline"
@@ -121,29 +121,29 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                 return (
                   <div key={message.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[85%] md:max-w-[70%] ${isAdmin ? "text-right" : "text-left"}`}>
-                      <p className="mb-1 text-xs text-gray-500">
+ <p className="mb-1 typo-medium-12 text-gray-500">
                         {message.authorNickname?.trim() ||
                           (isAdmin ? `관리자 #${message.authorId}` : `사용자 #${message.authorId}`)}
                       </p>
                       <RichTextContent
                         html={message.content ?? ""}
-                        className={`rounded-2xl px-4 py-3 text-left text-sm ${
+ className={`rounded-2xl px-4 py-3 text-left typo-medium-14 ${
                           isAdmin ? "rounded-tr-sm bg-amber-600 text-white" : "rounded-tl-sm bg-gray-100 text-gray-900"
                         }`}
                       />
-                      <time className="mt-1 block text-xs text-gray-400">{formatDateTime(message.createdAt)}</time>
+ <time className="mt-1 block typo-medium-12 text-gray-400">{formatDateTime(message.createdAt)}</time>
                     </div>
                   </div>
                 );
               })}
 
               {isClosed ? (
-                <div className="border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
+ <div className="border-t border-gray-200 pt-6 text-center typo-medium-14 text-gray-500">
                   종료된 문의입니다. 답변하려면 문의를 다시 열어주세요.
                 </div>
               ) : (
                 <form ref={formRef} action={replyFormAction} className="border-t border-gray-200 pt-6">
-                  <label htmlFor="content" className="mb-2 block text-sm font-semibold text-gray-900">
+ <label htmlFor="content" className="mb-2 block typo-semibold-14 text-gray-900">
                     관리자 답변
                   </label>
                   <RichTextImageEditor
@@ -156,7 +156,7 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                   />
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <div aria-live="polite">
-                      {replyState.error ? <p className="text-sm text-red-600">{replyState.error}</p> : null}
+ {replyState.error ? <p className="typo-medium-14 text-red-600">{replyState.error}</p> : null}
                     </div>
                     <Button
                       type="submit"

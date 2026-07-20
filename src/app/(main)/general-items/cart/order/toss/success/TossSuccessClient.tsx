@@ -46,7 +46,7 @@ export default function TossSuccessClient({ orderId, paymentKey, amount }: TossS
       {!isPending && result && !result.success && (
         <div role="alert" className="border border-red-400/30 bg-red-400/10 p-6">
           <h1 className="typo-bold-24 text-white">결제 확정에 실패했습니다.</h1>
-          <p className="mt-3 text-sm text-red-100">{result.error}</p>
+          <p className="typo-medium-14 mt-3 text-red-100">{result.error}</p>
           <div className="mt-6 flex flex-col gap-3 sm:flex-row">
             <Button type="button" onClick={confirm} disabled={isPending} className="bg-amber-600 hover:bg-amber-700">
               같은 결제 정보로 다시 확정

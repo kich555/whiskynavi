@@ -36,8 +36,8 @@ export default function OrderCancelModal({ isOpen, close, orderId, itemName }: O
           <DialogTitle>주문 취소</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
-          <p className="text-sm text-gray-600">
-            <span className="font-semibold">{itemName}</span> 주문을 취소하시겠습니까?
+          <p className="typo-medium-14 text-gray-600">
+            <span className="typo-semibold-14">{itemName}</span> 주문을 취소하시겠습니까?
           </p>
           <div>
             <label className="typo-bold-14 mb-2 block text-gray-700">취소 사유 (선택)</label>
@@ -47,7 +47,7 @@ export default function OrderCancelModal({ isOpen, close, orderId, itemName }: O
               maxLength={500}
               rows={3}
               placeholder="취소 사유를 입력해주세요"
-              className="w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-gray-600 focus:outline-none"
+              className="typo-medium-14 w-full rounded-md border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-gray-600 focus:outline-none"
             />
           </div>
           <FormMessage message={error} />

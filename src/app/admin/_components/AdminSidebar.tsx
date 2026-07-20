@@ -184,7 +184,7 @@ export default function AdminSidebar({ isOpen, statsSlot }: AdminSidebarProps) {
         <Link href="/admin">
           <h1 className="typo-bold-24 mb-2 text-gray-900">관리자</h1>
         </Link>
-        <p className="text-sm text-gray-600">위스키내비 운영 관리</p>
+        <p className="typo-medium-14 text-gray-600">위스키내비 운영 관리</p>
       </div>
 
       <nav className="px-3">

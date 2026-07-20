@@ -85,28 +85,28 @@ export default function BoardsContent({ searchParams, boards, totalElements }: B
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">게시판명</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">슬러그</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">설명</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">활성</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">숨김</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">읽기전용</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">읽기 권한</th>
-                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase">쓰기 권한</th>
-                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase">관리</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">ID</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">게시판명</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">슬러그</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">설명</th>
+                  <th className="px-4 py-3 text-center typo-semibold-12 text-gray-500 uppercase">활성</th>
+                  <th className="px-4 py-3 text-center typo-semibold-12 text-gray-500 uppercase">숨김</th>
+                  <th className="px-4 py-3 text-center typo-semibold-12 text-gray-500 uppercase">읽기전용</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">읽기 권한</th>
+                  <th className="px-4 py-3 text-left typo-semibold-12 text-gray-500 uppercase">쓰기 권한</th>
+                  <th className="px-4 py-3 text-center typo-semibold-12 text-gray-500 uppercase">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {boards.map((board) => (
                   <tr key={board.id} className="transition-colors hover:bg-gray-50">
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500">{board.id}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-gray-900">{board.name}</td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-500 font-mono">{board.slug}</td>
-                    <td className="max-w-[200px] truncate px-4 py-3 text-xs text-gray-500">{board.description ?? "-"}</td>
+                    <td className="whitespace-nowrap px-4 py-3 typo-medium-12 text-gray-500">{board.id}</td>
+                    <td className="whitespace-nowrap px-4 py-3 typo-medium-14 text-gray-900">{board.name}</td>
+                    <td className="whitespace-nowrap px-4 py-3 typo-medium-12 text-gray-500 font-mono">{board.slug}</td>
+                    <td className="max-w-[200px] truncate px-4 py-3 typo-medium-12 text-gray-500">{board.description ?? "-"}</td>
                     <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 typo-medium-12 font-medium ${
                           board.active ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
                         }`}
                       >
@@ -116,7 +116,7 @@ export default function BoardsContent({ searchParams, boards, totalElements }: B
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 typo-medium-12 font-medium ${
                           board.hidden ? "bg-yellow-50 text-yellow-700" : "bg-gray-100 text-gray-500"
                         }`}
                       >
@@ -126,17 +126,17 @@ export default function BoardsContent({ searchParams, boards, totalElements }: B
                     </td>
                     <td className="px-4 py-3 text-center">
                       <span
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 typo-medium-12 font-medium ${
                           board.readOnly ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-500"
                         }`}
                       >
                         {board.readOnly ? "ON" : "OFF"}
                       </span>
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-3 typo-medium-12 text-gray-600">
                       {board.readRole ? ROLE_LABELS[board.readRole] ?? board.readRole : "-"}
                     </td>
-                    <td className="whitespace-nowrap px-4 py-3 text-xs text-gray-600">
+                    <td className="whitespace-nowrap px-4 py-3 typo-medium-12 text-gray-600">
                       {board.writeRole ? ROLE_LABELS[board.writeRole] ?? board.writeRole : "-"}
                     </td>
                     <td className="px-4 py-3 text-center">
@@ -145,7 +145,7 @@ export default function BoardsContent({ searchParams, boards, totalElements }: B
                           type="button"
                           disabled={isPending}
                           onClick={() => router.push(`/admin/boards/${board.id}`)}
-                          className="cursor-pointer rounded border border-gray-300 px-2.5 py-1 text-xs text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-40"
+                          className="cursor-pointer rounded border border-gray-300 px-2.5 py-1 typo-medium-12 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-40"
                         >
                           상세
                         </button>
@@ -153,7 +153,7 @@ export default function BoardsContent({ searchParams, boards, totalElements }: B
                           type="button"
                           disabled={isPending}
                           onClick={() => deleteBoard(board)}
-                          className="cursor-pointer rounded border border-red-200 px-2.5 py-1 text-xs text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40"
+                          className="cursor-pointer rounded border border-red-200 px-2.5 py-1 typo-medium-12 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-40"
                         >
                           <Trash2 size={14} />
                         </button>

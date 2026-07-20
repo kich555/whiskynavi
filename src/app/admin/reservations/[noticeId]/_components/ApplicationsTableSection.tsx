@@ -161,13 +161,13 @@ export default function ApplicationsTableSection({
             <h3 className="font-bold text-gray-900">
               신청 목록 <span className="typo-regular-14 text-gray-500">({totalElements}건)</span>
             </h3>
-            <p className="mt-1 text-xs text-gray-500">미처리 신청 {pendingApplicationCount}건</p>
+            <p className="typo-medium-12 mt-1 text-gray-500">미처리 신청 {pendingApplicationCount}건</p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <select
               value={currentStatus ?? "all"}
               onChange={(event) => handleFilterChange("status", event.target.value)}
-              className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               aria-label="신청 상태 필터"
             >
               <option value="all">상태 전체</option>
@@ -180,7 +180,7 @@ export default function ApplicationsTableSection({
             <select
               value={currentRole ?? "all"}
               onChange={(event) => handleFilterChange("role", event.target.value)}
-              className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               aria-label="신청자 권한 필터"
             >
               <option value="all">권한 전체</option>
@@ -243,39 +243,39 @@ export default function ApplicationsTableSection({
             ) : (
               applications.map((app) => (
                 <tr key={app.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-4 py-3 text-sm text-gray-900">{app.id}</td>
+                  <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
                   <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.applicantUser?.name ?? "-"}</td>
-                  <td className="px-4 py-3 text-center text-sm">
+                  <td className="px-4 py-3 text-center typo-medium-14">
                     <CommunityRoleBadge
                       active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYNAVI_MEMBER")}
                       className="bg-amber-100 text-amber-700"
                       label="내비"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center text-sm">
+                  <td className="px-4 py-3 text-center typo-medium-14">
                     <CommunityRoleBadge
                       active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYTALES_MEMBER")}
                       className="bg-blue-100 text-blue-700"
                       label="테일즈"
                     />
                   </td>
-                  <td className="px-4 py-3 text-sm text-gray-600">{app.applicantUser?.phone ?? "-"}</td>
-                  <td className="max-w-[160px] truncate px-4 py-3 text-sm text-gray-600">
+                  <td className="typo-medium-14 px-4 py-3 text-gray-600">{app.applicantUser?.phone ?? "-"}</td>
+                  <td className="typo-medium-14 max-w-[160px] truncate px-4 py-3 text-gray-600">
                     {app.pickupBusiness?.businessName ?? "-"}
                   </td>
-                  <td className="px-4 py-3 text-center text-sm text-gray-900">{app.quantity}</td>
+                  <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity}</td>
                   <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                     {app.confirmedQuantity ?? "-"}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="typo-medium-14 px-4 py-3">
                     <Badge className={RESERVATION_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                       {RESERVATION_STATUS_LABEL[app.status ?? ""] ?? app.status}
                     </Badge>
                   </td>
-                  <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
                     {formatDateTimeWithMilliseconds(app.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-sm">
+                  <td className="typo-medium-14 px-4 py-3">
                     <div className="flex items-center gap-1">
                       {canConfirm(app.status) && (
                         <button

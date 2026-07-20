@@ -20,13 +20,13 @@ export default function ApprovalSummarySection({ notice }: ApprovalSummarySectio
       <div className="mb-3 flex items-center justify-between">
         <div>
           <h3 className="font-bold text-gray-900">수락 현황</h3>
-          <p className="mt-0.5 text-xs text-gray-600">신청 수량 {appliedQuantity}병</p>
+ <p className="mt-0.5 typo-medium-12 text-gray-600">신청 수량 {appliedQuantity}병</p>
         </div>
         <div className="text-right">
           <p className={`typo-bold-24 ${textColor}`}>
-            {approvedQuantity} <span className="text-sm text-gray-500">/ {totalAcceptableQuantity}병</span>
+ {approvedQuantity} <span className="typo-medium-14 text-gray-500">/ {totalAcceptableQuantity}병</span>
           </p>
-          <p className="mt-0.5 text-xs text-gray-600">
+ <p className="mt-0.5 typo-medium-12 text-gray-600">
             현재 수락 {approvedQuantity}병 · 남은 수락 {remainingAcceptableQuantity}병
           </p>
         </div>

@@ -117,11 +117,11 @@ function DeliveryEditModal({
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">배송 방식</label>
+ <label className="mb-1 block typo-medium-12 text-gray-600">배송 방식</label>
             <select
               value={deliveryMethod}
               onChange={(event) => setDeliveryMethod(event.target.value)}
-              className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+ className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
             >
               <option value="PARCEL">택배</option>
               <option value="PRIVATE_CARGO">개인 용달</option>
@@ -131,11 +131,11 @@ function DeliveryEditModal({
           {!isPrivateCargo && (
             <div className="grid gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">택배사</label>
+ <label className="mb-1 block typo-medium-12 text-gray-600">택배사</label>
                 <select
                   value={carrierCode}
                   onChange={(event) => setCarrierCode(event.target.value)}
-                  className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+ className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
                 >
                   {companies.map((company) => (
                     <option key={company.code} value={company.code}>
@@ -146,7 +146,7 @@ function DeliveryEditModal({
               </div>
 
               <div>
-                <label className="mb-1 block text-xs font-medium text-gray-600">송장번호</label>
+ <label className="mb-1 block typo-medium-12 text-gray-600">송장번호</label>
                 <Input
                   value={trackingNumber}
                   onChange={(event) => setTrackingNumber(event.target.value)}
@@ -158,11 +158,11 @@ function DeliveryEditModal({
           )}
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">배송 진행</label>
+ <label className="mb-1 block typo-medium-12 text-gray-600">배송 진행</label>
             <select
               value={deliveryStatus}
               onChange={(event) => setDeliveryStatus(event.target.value)}
-              className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+ className="h-10 w-full rounded-md border border-gray-300 bg-white px-3 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
             >
               {DELIVERY_STATUS_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -173,11 +173,11 @@ function DeliveryEditModal({
           </div>
 
           <div>
-            <label className="mb-1 block text-xs font-medium text-gray-600">메모</label>
+ <label className="mb-1 block typo-medium-12 text-gray-600">메모</label>
             <textarea
               value={deliveryMemo}
               onChange={(event) => setDeliveryMemo(event.target.value)}
-              className="min-h-24 w-full rounded-md border border-gray-300 px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none"
+ className="min-h-24 w-full rounded-md border border-gray-300 px-3 py-2 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
               maxLength={500}
               placeholder="배송 메모"
             />
@@ -212,14 +212,14 @@ function DeliveryRow({
     <div className="grid gap-3 border-t border-gray-100 px-4 py-4 md:grid-cols-[1.2fr_1fr_1.4fr_1fr_120px] md:items-center">
       <div>
         <div className="typo-medium-14 text-gray-900">{delivery.businessName ?? "-"}</div>
-        <div className="mt-1 text-xs text-gray-500">업장 ID {delivery.businessId ?? "-"}</div>
+ <div className="mt-1 typo-medium-12 text-gray-500">업장 ID {delivery.businessId ?? "-"}</div>
       </div>
 
-      <div className="text-sm text-gray-600">
+ <div className="typo-medium-14 text-gray-600">
         {delivery.deliveryMethod ? (DELIVERY_METHOD_LABEL[delivery.deliveryMethod] ?? delivery.deliveryMethod) : "택배"}
       </div>
-      <div className="text-sm text-gray-600">{formatCarrierName(delivery)}</div>
-      <div className="text-sm text-gray-600">{formatTrackingNumber(delivery)}</div>
+ <div className="typo-medium-14 text-gray-600">{formatCarrierName(delivery)}</div>
+ <div className="typo-medium-14 text-gray-600">{formatTrackingNumber(delivery)}</div>
       <Button type="button" onClick={() => setIsOpen(true)} className="bg-amber-600 hover:bg-amber-700">
         수정
       </Button>
@@ -262,7 +262,7 @@ export default function ReservationDeliverySection({
             <span>
               업장별 입고 배송 정보 <span className="typo-regular-14 text-gray-500">({deliveries.length}건)</span>
             </span>
-            <span className="flex items-center gap-1.5 text-sm font-medium text-gray-600">
+ <span className="flex items-center gap-1.5 typo-medium-14 text-gray-600">
               {isExpanded ? "접기" : "펼치기"}
               <ChevronDown className={`size-4 transition-transform ${isExpanded ? "rotate-180" : ""}`} />
             </span>
@@ -272,7 +272,7 @@ export default function ReservationDeliverySection({
 
       {isExpanded && (
         <div id="reservation-delivery-section-content">
-          <div className="hidden grid-cols-[1.2fr_1fr_1.4fr_1fr_120px] gap-3 bg-gray-50 px-4 py-3 text-xs font-bold text-gray-700 md:grid">
+ <div className="hidden grid-cols-[1.2fr_1fr_1.4fr_1fr_120px] gap-3 bg-gray-50 px-4 py-3 typo-bold-12 text-gray-700 md:grid">
             <div>업장</div>
             <div>배송 방식</div>
             <div>택배사</div>
@@ -287,7 +287,7 @@ export default function ReservationDeliverySection({
               <div key={`${delivery.businessId}-${delivery.id ?? "empty"}`}>
                 <DeliveryRow noticeId={noticeId} delivery={delivery} companies={deliveryCompanies} />
                 {(delivery.deliveryStatus || delivery.deliveryMemo) && (
-                  <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 text-xs text-gray-500">
+ <div className="border-t border-gray-100 bg-gray-50 px-4 py-3 typo-medium-12 text-gray-500">
                     {delivery.deliveryStatus && (
                       <span className="mr-4">
                         상태: {DELIVERY_STATUS_LABEL[delivery.deliveryStatus] ?? delivery.deliveryStatus}

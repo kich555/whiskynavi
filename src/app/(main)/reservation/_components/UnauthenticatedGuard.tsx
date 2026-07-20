@@ -12,7 +12,7 @@ export default function UnauthenticatedGuard() {
   return (
     <div className="border border-white/10 bg-white/5 py-20 text-center">
       <p className="mb-4 text-lg text-gray-400">로그인이 필요한 서비스입니다</p>
-      <p className="text-sm text-gray-500">예약 서비스를 이용하시려면 로그인해 주세요.</p>
+      <p className="typo-medium-14 text-gray-500">예약 서비스를 이용하시려면 로그인해 주세요.</p>
     </div>
   );
 }

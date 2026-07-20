@@ -35,7 +35,7 @@ export default function PasswordChangeForm({ onClose }: PasswordChangeFormProps)
             name="currentPassword"
             type="password"
             placeholder="현재 비밀번호를 입력하세요"
-            className="text-sm md:text-base"
+            className="typo-medium-14 md:text-base"
           />
         </div>
         <div>
@@ -46,7 +46,7 @@ export default function PasswordChangeForm({ onClose }: PasswordChangeFormProps)
             placeholder="새 비밀번호를 입력하세요"
             value={newPassword}
             onChange={(e) => setNewPassword(e.target.value)}
-            className="text-sm md:text-base"
+            className="typo-medium-14 md:text-base"
           />
         </div>
         <div>
@@ -57,9 +57,9 @@ export default function PasswordChangeForm({ onClose }: PasswordChangeFormProps)
             placeholder="새 비밀번호를 다시 입력하세요"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
-            className={`text-sm md:text-base ${!passwordMatch ? "border-red-500 focus:ring-red-600" : ""}`}
+            className={`typo-medium-14 md:text-base ${!passwordMatch ? "border-red-500 focus:ring-red-600" : ""}`}
           />
-          {!passwordMatch && <p className="mt-1 text-xs text-red-600">비밀번호가 일치하지 않습니다</p>}
+          {!passwordMatch && <p className="typo-medium-12 mt-1 text-red-600">비밀번호가 일치하지 않습니다</p>}
         </div>
       </div>
 

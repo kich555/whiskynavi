@@ -151,14 +151,14 @@ export default function ImageUploadArea({
           }`}
         >
           <ImagePlus size={32} className={`mb-2 ${isDragOver ? "text-amber-500" : "text-gray-400"}`} />
-          <span className={`text-sm ${isDragOver ? "text-amber-600" : "text-gray-500"}`}>
+          <span className={`typo-medium-14 ${isDragOver ? "text-amber-600" : "text-gray-500"}`}>
             {isDragOver ? "여기에 놓으세요" : "클릭 또는 드래그하여 이미지 업로드"}
           </span>
         </div>
       )}
-      <p className="mt-2 text-xs text-gray-500">이미지 파일 · 최대 {maxSizeMB}MB</p>
+      <p className="typo-medium-12 mt-2 text-gray-500">이미지 파일 · 최대 {maxSizeMB}MB</p>
       {fileError ? (
-        <p role="alert" className="mt-1 text-xs text-red-600">
+        <p role="alert" className="typo-medium-12 mt-1 text-red-600">
           {fileError}
         </p>
       ) : null}

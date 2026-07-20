@@ -200,10 +200,10 @@ export default function BlacklistContent({ searchParams, blacklist }: BlacklistC
                 ) : (
                   paginatedBlacklist.map((item) => (
                     <tr key={item.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-4 py-3 text-sm text-gray-900">{item.id}</td>
+                      <td className="typo-medium-14 px-4 py-3 text-gray-900">{item.id}</td>
                       <td className="typo-medium-14 px-4 py-3 text-gray-900">{item.name}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{item.email}</td>
-                      <td className="max-w-[300px] px-4 py-3 text-sm text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">{item.email}</td>
+                      <td className="typo-medium-14 max-w-[300px] px-4 py-3 text-gray-600">
                         {item.userExt?.banReason ? (
                           <TooltipProvider>
                             <Tooltip>
@@ -219,15 +219,15 @@ export default function BlacklistContent({ searchParams, blacklist }: BlacklistC
                           "-"
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatDate(item.userExt?.banStartDate)}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">{formatDate(item.userExt?.banStartDate)}</td>
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">
                         {isPermanentBan(item.userExt?.banEndDate) ? (
                           <Badge variant="destructive">영구</Badge>
                         ) : (
                           formatDate(item.userExt?.banEndDate)
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="typo-medium-14 px-4 py-3">
                         <div className="flex items-center gap-2">
                           <Button variant="edit" onClick={() => openEditModal(item)} disabled={isPending}>
                             <Edit2 size={16} />

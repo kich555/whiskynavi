@@ -49,7 +49,7 @@ export function ArchiveSidebar({ params }: ArchiveSidebarProps) {
               placeholder="보틀 이름, 시리즈명으로 검색하기"
               value={filters.keyword}
               onChange={(e) => updateKeyword(e.target.value)}
-              className="text-popover-foreground flex h-full w-full bg-transparent text-sm outline-hidden placeholder:text-[#4C4C4C]"
+              className="text-popover-foreground typo-medium-14 flex h-full w-full bg-transparent outline-hidden placeholder:text-[#4C4C4C]"
             />
           </div>
         </div>

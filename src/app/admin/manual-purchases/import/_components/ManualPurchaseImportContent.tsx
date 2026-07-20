@@ -146,7 +146,7 @@ export default function ManualPurchaseImportContent({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
               <h2 className="typo-bold-18 text-gray-900">Excel 업로드</h2>
-              <div className="mt-3 flex flex-wrap gap-2 text-xs text-gray-600">
+              <div className="mt-3 flex flex-wrap gap-2 typo-medium-12 text-gray-600">
                 {["사용자", "보틀", "수량", "단가", "메모"].map((column) => (
                   <span key={column} className="rounded border border-gray-200 px-2 py-1">
                     {column}
@@ -176,12 +176,12 @@ export default function ManualPurchaseImportContent({
                 }`}
               >
                 <span className="block font-semibold text-gray-900">{item.label}</span>
-                <span className="mt-1 block text-sm text-gray-500">{item.detail}</span>
+                <span className="mt-1 block typo-medium-14 text-gray-500">{item.detail}</span>
               </button>
             ))}
           </div>
 
-          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm">
+          <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4 typo-medium-14">
             {mode === "ONE_USER_MANY_BOTTLES" && (
               <div>
                 <span className="font-semibold text-gray-900">선택된 사용자</span>
@@ -200,9 +200,9 @@ export default function ManualPurchaseImportContent({
           </div>
 
           <div className="mt-5 flex flex-col gap-3 lg:flex-row lg:items-center">
-            <label className="inline-flex min-h-10 flex-1 items-center gap-2 rounded-lg border border-gray-200 px-3 text-sm text-gray-700">
+            <label className="inline-flex min-h-10 flex-1 items-center gap-2 rounded-lg border border-gray-200 px-3 typo-medium-14 text-gray-700">
               <FileSpreadsheet className="size-4 text-gray-400" />
-              <input ref={fileInputRef} type="file" accept=".xlsx" className="w-full text-sm" />
+              <input ref={fileInputRef} type="file" accept=".xlsx" className="w-full typo-medium-14" />
             </label>
             <Button type="button" variant="outline" onClick={() => handleUpload(true)} disabled={isPending}>
               <FileCheck2 className="size-4" />
@@ -221,7 +221,7 @@ export default function ManualPurchaseImportContent({
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="typo-bold-18 text-gray-900">사용자 선택</h2>
-              <Link href="/admin/users" className="text-sm text-amber-700">
+              <Link href="/admin/users" className="typo-medium-14 text-amber-700">
                 전체 보기
               </Link>
             </div>
@@ -229,7 +229,7 @@ export default function ManualPurchaseImportContent({
               <select
                 name="userField"
                 defaultValue={searchParams.userField ?? "name"}
-                className="h-10 rounded-md border border-gray-300 bg-white px-3 text-sm"
+                className="h-10 rounded-md border border-gray-300 bg-white px-3 typo-medium-14"
               >
                 {USER_SEARCH_FIELDS.map((field) => (
                   <option key={field.value} value={field.value}>
@@ -252,7 +252,7 @@ export default function ManualPurchaseImportContent({
           <div>
             <div className="mb-3 flex items-center justify-between gap-3">
               <h2 className="typo-bold-18 text-gray-900">보틀 선택</h2>
-              <Link href="/admin/products" className="text-sm text-amber-700">
+              <Link href="/admin/products" className="typo-medium-14 text-amber-700">
                 전체 보기
               </Link>
             </div>

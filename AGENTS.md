@@ -22,3 +22,20 @@ For any Codex request in this repository, including spec discussion, work planni
 - During execution, read the relevant rule/reference files before editing when the request touches the skill's domain.
 - During review, use these skills as a default checklist for React/Next.js correctness, performance, component architecture, and transition behavior.
 - Do not force all three skills into unrelated non-React tasks, but always evaluate whether a request in this repository has React/Next.js, component API, or transition implications.
+
+## Typography Rule (mandatory)
+
+This repo uses a custom `typo-{weight}-{size}` Tailwind typography system defined in `src/app/globals.css` (`@layer components`). **Never use Tailwind's default `text-xs` / `text-sm` classes anywhere in `src/`** — always use the `typo-*` equivalent. This applies to every agent (Codex, Claude, or other) working in this repository.
+
+- Class shape: `typo-{weight}-{size}`
+  - weight: `bold` (700), `medium` (500), `regular` (400)
+  - size (px): `10, 12, 13, 14, 16, 18, 20, 22, 24, 30, 32, 36, 40`
+  - Each class also sets `line-height: 1`.
+- Default Tailwind size mapping:
+  - `text-xs` (12px) → `typo-*-12`
+  - `text-sm` (14px) → `typo-*-14`
+- Choose the weight that matches the surrounding text (e.g. body text → `typo-medium-14`, section labels → `typo-bold-14`).
+- Only use combos that are already defined in `globals.css`. If you need a missing weight/size combo, add the class to `src/app/globals.css` first; an undefined combo will not render its font size/weight.
+- Responsive size overrides (e.g. `lg:text-base`) may be combined with `typo-*`.
+- Exception: inside `src/components/ui/` (shadcn/ui components) leave existing classes as-is. Only migrate classNames you add at the call site.
+- When reviewing or writing code, treat any `text-xs` / `text-sm` in `src/` as a defect to fix.

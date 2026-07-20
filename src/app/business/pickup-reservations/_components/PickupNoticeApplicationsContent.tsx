@@ -315,7 +315,7 @@ export default function PickupNoticeApplicationsContent({
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <h2 className="text-base font-bold text-gray-900">{bottleName}</h2>
-            <p className="mt-1 text-sm text-gray-600">
+            <p className="mt-1 typo-medium-14 text-gray-600">
               공고 #{noticeId} 신청 {totalElements}건
             </p>
           </div>
@@ -345,39 +345,39 @@ export default function PickupNoticeApplicationsContent({
             <h3 className="font-bold text-gray-900">배송정보</h3>
           </div>
           {deliveries.length === 0 ? (
-            <div className="px-4 py-6 text-sm text-gray-500">등록된 배송정보가 없습니다.</div>
+            <div className="px-4 py-6 typo-medium-14 text-gray-500">등록된 배송정보가 없습니다.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">배송 방식</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">택배사</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">송장번호</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">배송 진행</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">메모</th>
+                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">배송 방식</th>
+                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">택배사</th>
+                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">송장번호</th>
+                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">배송 진행</th>
+                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">메모</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {deliveries.map((delivery) => (
                     <tr key={`${delivery.noticeId}-${delivery.businessId}-${delivery.id ?? "empty"}`}>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
                         {delivery.deliveryMethod
                           ? (DELIVERY_METHOD_LABEL[delivery.deliveryMethod] ?? delivery.deliveryMethod)
                           : "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatCarrierName(delivery)}
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatTrackingNumber(delivery)}
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
                         {delivery.deliveryStatus
                           ? (DELIVERY_STATUS_LABEL[delivery.deliveryStatus] ?? delivery.deliveryStatus)
                           : "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{delivery.deliveryMemo ?? "-"}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{delivery.deliveryMemo ?? "-"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -399,12 +399,12 @@ export default function PickupNoticeApplicationsContent({
                       aria-label="전체 선택"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">신청 ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">신청자</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">신청수량</th>
-                  <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">확정수량</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">단가</th>
-                  <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">총액</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청 ID</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청자</th>
+                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">신청수량</th>
+                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">확정수량</th>
+                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">단가</th>
+                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">총액</th>
                   <FilterHeader
                     label="상태"
                     filterKey="status"
@@ -413,8 +413,8 @@ export default function PickupNoticeApplicationsContent({
                     onSelect={updateFilter}
                     dropdownWidth="w-36"
                   />
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">신청일</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">처리</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청일</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">처리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -436,28 +436,28 @@ export default function PickupNoticeApplicationsContent({
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-900">{app.id}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">
                         <div className="font-medium text-gray-900">{app.applicantUser?.name ?? "-"}</div>
-                        <div className="text-xs text-gray-500">{app.applicantUser?.phone ?? "-"}</div>
+                        <div className="typo-medium-12 text-gray-500">{app.applicantUser?.phone ?? "-"}</div>
                       </td>
-                      <td className="px-4 py-3 text-center text-sm text-gray-900">{app.quantity ?? "-"}</td>
-                      <td className="px-4 py-3 text-center text-sm font-medium text-amber-600">
+                      <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity ?? "-"}</td>
+                      <td className="px-4 py-3 text-center typo-medium-14 text-amber-600">
                         {app.confirmedQuantity ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatCurrency(app.unitPrice)}
                       </td>
-                      <td className="px-4 py-3 text-right text-sm font-medium whitespace-nowrap text-gray-900">
+                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
                         {formatCurrency(app.totalPrice)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         <Badge className={PICKUP_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                           {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
+                      <td className="px-4 py-3 typo-medium-14">
                         <div className="flex flex-wrap items-center gap-2">
                           <StatusActionButton
                             applicationId={app.id!}
@@ -491,7 +491,7 @@ export default function PickupNoticeApplicationsContent({
           />
         </div>
 
-        <div className="mt-3 grid gap-2 text-xs text-gray-500 md:grid-cols-3">
+        <div className="mt-3 grid gap-2 typo-medium-12 text-gray-500 md:grid-cols-3">
           <div className="flex items-center gap-2">
             <CreditCard size={14} />
             확정 신청은 결제완료 처리할 수 있습니다.

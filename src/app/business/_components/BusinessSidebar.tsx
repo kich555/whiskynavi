@@ -84,15 +84,15 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
   return (
     <aside className="w-64 shrink-0 border-r border-gray-200 bg-white">
       <div className="border-b border-gray-200 px-5 py-5">
-        <p className="text-xs font-bold tracking-wide text-amber-600">PICKUP BUSINESS</p>
+        <p className="typo-bold-12 tracking-wide text-amber-600">PICKUP BUSINESS</p>
         <h1 className="mt-1 text-lg font-bold text-gray-900">픽업 사업장</h1>
       </div>
 
       <div className="border-b border-gray-200 p-3">
-        <p className="px-2 text-xs font-bold text-gray-500">사업장 선택</p>
+        <p className="px-2 typo-bold-12 text-gray-500">사업장 선택</p>
         <div className="mt-2 space-y-2">
           {businesses.length === 0 ? (
-            <p className="px-2 py-3 text-sm text-gray-500">연결된 사업장이 없습니다.</p>
+            <p className="px-2 py-3 typo-medium-14 text-gray-500">연결된 사업장이 없습니다.</p>
           ) : (
             businesses.map((business) => {
               const businessId = business.businessId;
@@ -114,11 +114,11 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
                     onClick={() => handleSelectBusiness(businessId)}
                     className="w-full px-3 py-2 text-left disabled:cursor-default"
                   >
-                    <span className="block truncate text-sm font-bold">
+                    <span className="block truncate typo-bold-14">
                       {business.businessName ?? "이름 없는 사업장"}
                     </span>
                     <span
-                      className={`mt-1 flex items-center gap-2 text-xs ${isSelected ? "text-gray-200" : "text-gray-500"}`}
+                      className={`mt-1 flex items-center gap-2 typo-medium-12 ${isSelected ? "text-gray-200" : "text-gray-500"}`}
                     >
                       <span>{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</span>
                       {isSelected && <span className="rounded bg-white/20 px-1.5 py-0.5 text-[11px] font-bold">선택됨</span>}
@@ -131,7 +131,7 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
                       disabled={isPending}
                       aria-label={`${business.businessName ?? "이름 없는 사업장"} 대표로 지정`}
                       onClick={() => handleSetPrimaryBusiness(businessId)}
-                      className={`mx-3 mb-2 inline-flex items-center gap-1 rounded border px-2 py-1 text-xs font-bold transition-colors ${
+                      className={`mx-3 mb-2 inline-flex items-center gap-1 rounded border px-2 py-1 typo-bold-12 transition-colors ${
                         isSelected
                           ? "border-white/30 text-white hover:bg-white/10"
                           : "border-gray-200 text-gray-600 hover:border-gray-300 hover:bg-white"
@@ -163,8 +163,8 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
             >
               <Icon size={18} className="mt-0.5 shrink-0" />
               <span>
-                <span className="block text-sm font-bold">{item.label}</span>
-                <span className="mt-0.5 block text-xs opacity-75">{item.description}</span>
+                <span className="block typo-bold-14">{item.label}</span>
+                <span className="mt-0.5 block typo-medium-12 opacity-75">{item.description}</span>
               </span>
             </Link>
           );
@@ -177,7 +177,7 @@ export default function BusinessSidebar({ businesses = [] }: BusinessSidebarProp
             className="flex items-center gap-3 rounded-md px-3 py-3 text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-700"
           >
             <Home size={18} className="shrink-0" />
-            <span className="text-sm font-bold">일반 페이지로 돌아가기</span>
+            <span className="typo-bold-14">일반 페이지로 돌아가기</span>
           </Link>
         </div>
       </nav>

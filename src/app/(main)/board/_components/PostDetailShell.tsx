@@ -26,7 +26,10 @@ export default function PostDetailShell({
     <div className="mx-auto mt-20 max-w-[1440px] bg-[#1d2429]">
       <div className="mx-auto max-w-3xl px-4 py-6">
         {/* 뒤로가기 */}
-        <a href={backHref} className="mb-4 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white">
+        <a
+          href={backHref}
+          className="typo-medium-14 mb-4 inline-flex items-center gap-1 text-gray-400 hover:text-white"
+        >
           ← 목록으로
         </a>
 
@@ -36,7 +39,7 @@ export default function PostDetailShell({
 
           {/* 본문 (TipTap HTML) */}
           <div
-            className="post-rich-text max-w-none px-5 py-5 text-sm text-white [&_img]:my-4 [&_img]:rounded-lg [&_img]:text-transparent [&_p]:min-h-[1.5em]"
+            className="post-rich-text typo-medium-14 max-w-none px-5 py-5 text-white [&_img]:my-4 [&_img]:rounded-lg [&_img]:text-transparent [&_p]:min-h-[1.5em]"
             dangerouslySetInnerHTML={{ __html: content }}
           />
 

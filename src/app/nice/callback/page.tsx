@@ -41,7 +41,7 @@ export default function NiceCallbackPage() {
 
   return (
     <main className="flex min-h-screen items-center justify-center px-6 text-center">
-      <p className="text-sm text-gray-600">본인인증 결과를 확인하고 있습니다.</p>
+      <p className="typo-medium-14 text-gray-600">본인인증 결과를 확인하고 있습니다.</p>
     </main>
   );
 }
