@@ -99,9 +99,9 @@ export default function ReservationDetailClient({
   return (
     <div className="border border-white/10 bg-white/5 p-4 lg:p-8">
       {/* Top: Image + Info */}
-      <div className="mb-6 flex flex-col gap-6 lg:mb-8 lg:gap-8">
+      <div className="mb-6 grid grid-cols-1 gap-6 lg:mb-8 lg:grid-cols-2 lg:gap-8">
         {/* Image */}
-        <div className="relative mx-auto flex aspect-square w-full max-w-sm items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800 lg:max-w-xl">
+        <div className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
           <ImageWithFallback
             src={notice.bottleImgUrl}
             alt={notice.bottleName ?? ""}
@@ -112,23 +112,17 @@ export default function ReservationDetailClient({
         </div>
 
         {/* Info */}
-        <div className="flex flex-col">
+        <div className="flex flex-col justify-center">
           <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">
             <span className="block">{notice.noticeName ?? "-"}</span>
-            <p className="typo-medium-14 mt-2 text-gray-400 lg:text-base">{notice.bottleName ?? "-"}</p>
+            <span className="typo-medium-14 mt-2 block text-gray-400 lg:text-base">{notice.bottleName ?? "-"}</span>
           </h3>
           <InfoList notice={notice} hideAvailableQuantity={status === "closed"} hasBusinessRole={isBusinessUser} />
-          {notice.description && (
-            <RichTextContent
-              html={sanitizeRichTextContent(notice.description)}
-              className="typo-medium-14 mt-4 overflow-y-auto text-gray-300 lg:text-base [&_a]:text-amber-300 [&_a]:underline"
-            />
-          )}
         </div>
       </div>
 
       {/* Bottom: Timer + Action */}
-      <div className="flex flex-col gap-6 lg:gap-8">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:gap-8">
         <TimerDisplay
           status={displayStatus}
           timeRemaining={timeRemaining}
@@ -206,6 +200,13 @@ export default function ReservationDetailClient({
           ) : null}
         </div>
       </div>
+
+      {notice.description && (
+        <RichTextContent
+          html={sanitizeRichTextContent(notice.description)}
+          className="typo-medium-14 mt-6 overflow-y-auto text-gray-300 lg:mt-8 lg:text-base [&_a]:text-amber-300 [&_a]:underline"
+        />
+      )}
     </div>
   );
 }
