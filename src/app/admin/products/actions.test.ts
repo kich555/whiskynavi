@@ -1,4 +1,4 @@
-import { patchApiAdminBottlesId, postApiAdminBottles, postApiS3Upload } from "@/apis/generated/api";
+import { patchApiAdminBottlesId, postApiAdminBottles, postApiAdminImagesPurpose } from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -9,7 +9,7 @@ import { MAX_BOTTLE_IMAGE_SIZE_MB } from "./image-constraints";
 vi.mock("@/apis/generated/api", () => ({
   patchApiAdminBottlesId: vi.fn(),
   postApiAdminBottles: vi.fn(),
-  postApiS3Upload: vi.fn(),
+  postApiAdminImagesPurpose: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -27,7 +27,7 @@ vi.mock("next/navigation", () => ({
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedCreateBottle = vi.mocked(postApiAdminBottles);
 const mockedUpdateBottle = vi.mocked(patchApiAdminBottlesId);
-const mockedUpload = vi.mocked(postApiS3Upload);
+const mockedUpload = vi.mocked(postApiAdminImagesPurpose);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
 const mockedRedirect = vi.mocked(redirect);
 
@@ -76,12 +76,24 @@ describe("bottle admin actions", () => {
   });
 
   it("creates a bottle with archive visibility enabled", async () => {
-    await createBottleFormAction({ success: false }, validBottleFormData({ visible: "on" }));
+    await createBottleFormAction(
+      { success: false },
+      validBottleFormData({
+        visible: "on",
+        additionalImageKeys: JSON.stringify(["bottle-images/side.png", "bottle-images/back.png"]),
+      }),
+    );
 
+    expect(mockedUpload).toHaveBeenCalledWith(
+      "BOTTLE",
+      { file: expect.any(File) },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
     expect(mockedCreateBottle).toHaveBeenCalledWith(
       expect.objectContaining({
         name: "나비 1st",
         labelImgKey: "bottle-labels/navi-1st.png",
+        additionalImageKeys: ["bottle-images/side.png", "bottle-images/back.png"],
         visible: true,
       }),
       { headers: { Authorization: "Bearer admin-token" } },
@@ -152,6 +164,18 @@ describe("bottle admin actions", () => {
 
     expect(result.error).toContain(`최대 ${MAX_BOTTLE_IMAGE_SIZE_MB}MB`);
     expect(result.values?.name).toBe("나비 1st");
+    expect(mockedUpload).not.toHaveBeenCalled();
+  });
+
+  it("백엔드가 허용하지 않는 보틀 이미지 형식은 업로드하지 않는다", async () => {
+    const unsupportedImage = new File(["gif"], "label.gif", { type: "image/gif" });
+
+    const result = await createBottleFormAction(
+      { success: false },
+      validBottleFormData({ labelImg: unsupportedImage }),
+    );
+
+    expect(result.error).toContain("JPG, PNG, WEBP");
     expect(mockedUpload).not.toHaveBeenCalled();
   });
 });

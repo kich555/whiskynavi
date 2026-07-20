@@ -2,8 +2,7 @@
 
 import type { BottleResponse } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
-import { ImageLightbox } from "@/components/ui/ImageLightbox";
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useRouter } from "next/navigation";
@@ -30,15 +29,12 @@ export default function BottleDetailModal({ bottle }: Props) {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           {/* Image */}
-          <div className="relative flex aspect-square items-center justify-center border border-white/10">
-            {bottle.imgUrl ? (
-              <ImageLightbox src={bottle.imgUrl} alt={bottle.name ?? ""}>
-                <ImageWithFallback src={bottle.imgUrl} alt={bottle.name ?? ""} fill className="object-contain p-4" />
-              </ImageLightbox>
-            ) : (
-              <div className="text-2xl text-white/60">{bottle.name}</div>
-            )}
-          </div>
+          <RepresentativeImageCarousel
+            images={[bottle.imgUrl, ...(bottle.imageUrls ?? [])]}
+            alt={bottle.name ?? "보틀"}
+            surfaceClassName="border border-white/10 bg-[#1d2429]"
+            emptyContent={<div className="text-2xl text-white/60">{bottle.name}</div>}
+          />
 
           {/* Info */}
           <div className="space-y-3">

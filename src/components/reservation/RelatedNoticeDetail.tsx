@@ -1,6 +1,6 @@
 import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 
@@ -27,7 +27,6 @@ const ROLE_LABELS: Record<string, string> = {
 
 export default function RelatedNoticeDetail({ notice, appearance, showSupplyPrice = false }: RelatedNoticeDetailProps) {
   const dark = appearance === "dark";
-  const additionalImages = notice.imageUrls ?? [];
   const accessLabel =
     notice.accessReason === "PICKUP_BUSINESS_ASSIGNMENT" ? "픽업 사업장 관계로 열람 중" : "과거 신청 관계로 열람 중";
 
@@ -53,31 +52,12 @@ export default function RelatedNoticeDetail({ notice, appearance, showSupplyPric
 
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <div className={dark ? "relative aspect-square bg-gray-800" : "relative aspect-square bg-gray-100"}>
-            <ImageWithFallback
-              src={notice.bottleImgUrl}
-              alt={notice.bottleName ?? "예약 보틀"}
-              fill
-              className="object-contain p-6"
-            />
-          </div>
-          {additionalImages.length > 0 && (
-            <div className="mt-3 grid grid-cols-4 gap-2">
-              {additionalImages.map((imageUrl, index) => (
-                <div
-                  key={`${imageUrl}-${index}`}
-                  className={dark ? "relative aspect-square bg-gray-800" : "relative aspect-square bg-gray-100"}
-                >
-                  <ImageWithFallback
-                    src={imageUrl}
-                    alt={`${notice.bottleName ?? "예약 보틀"} 추가 이미지 ${index + 1}`}
-                    fill
-                    className="object-contain p-2"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
+          <RepresentativeImageCarousel
+            images={[notice.bottleImgUrl, ...(notice.imageUrls ?? [])]}
+            alt={notice.bottleName ?? "예약 보틀"}
+            surfaceClassName={dark ? "bg-gray-800" : "bg-gray-100"}
+            imageClassName="p-6"
+          />
         </div>
 
         <div>

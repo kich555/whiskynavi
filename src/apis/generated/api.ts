@@ -734,6 +734,30 @@ export interface AdminDeliveryCsvUploadResponse {
   totalRows?: number;
 }
 
+/**
+ * 이미지 업로드 용도입니다.
+ */
+export type AdminImageUploadResponsePurpose = typeof AdminImageUploadResponsePurpose[keyof typeof AdminImageUploadResponsePurpose];
+
+
+export const AdminImageUploadResponsePurpose = {
+  BOTTLE: 'BOTTLE',
+  RESERVATION_NOTICE: 'RESERVATION_NOTICE',
+  ITEM: 'ITEM',
+} as const;
+
+/**
+ * 관리자 이미지 업로드 응답입니다.
+ */
+export interface AdminImageUploadResponse {
+  /** DB에 저장할 S3 object key입니다. */
+  key?: string;
+  /** 이미지 업로드 용도입니다. */
+  purpose?: AdminImageUploadResponsePurpose;
+  /** 화면 미리보기에 사용할 CloudFront URL입니다. */
+  url?: string;
+}
+
 export type AdminInquirySummaryResponseStatus = typeof AdminInquirySummaryResponseStatus[keyof typeof AdminInquirySummaryResponseStatus];
 
 
@@ -7076,6 +7100,10 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
   storeManagerPhone?: string;
 };
 
+export type PostApiAdminImagesPurposeBody = {
+  file: Blob;
+};
+
 export type List1Params = {
 status?: List1Status;
 /**
@@ -13087,6 +13115,47 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
     method: 'POST'
     
     
+  }
+);}
+
+
+
+/**
+ * 관리자가 보틀, 예약 공고, 일반 상품 이미지를 용도별 S3 경로에 업로드합니다. JPG/PNG/WEBP 형식, 실제 파일 구조, 크기와 해상도를 서버에서 검증합니다.
+ * @summary 이미지 업로드(관리자)
+ */
+export type postApiAdminImagesPurposeResponse200 = {
+  data: AdminImageUploadResponse
+  status: 200
+}
+    
+export type postApiAdminImagesPurposeResponseSuccess = (postApiAdminImagesPurposeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminImagesPurposeResponse = (postApiAdminImagesPurposeResponseSuccess)
+
+export const getPostApiAdminImagesPurposeUrl = (purpose: 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM',) => {
+
+
+  
+
+  return `/api/admin/images/${purpose}`
+}
+
+export const postApiAdminImagesPurpose = async (purpose: 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM',
+    postApiAdminImagesPurposeBody: PostApiAdminImagesPurposeBody, options?: RequestInit): Promise<postApiAdminImagesPurposeResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiAdminImagesPurposeBody.file);
+
+  return customFetch<postApiAdminImagesPurposeResponse>(getPostApiAdminImagesPurposeUrl(purpose),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
   }
 );}
 
@@ -19967,8 +20036,9 @@ export const getApiS3Presigned = async (params: GetApiS3PresignedParams, options
 
 
 /**
- * 서버를 통해 바이너리 파일을 받아 지정된 S3 버킷으로 업로드합니다.
- * @summary 파일 업로드
+ * 기존 클라이언트 호환용 공용 업로드 API입니다. 관리자 이미지는 /api/admin/images/{purpose}를 사용해야 합니다.
+ * @deprecated
+ * @summary 파일 업로드(지원 종료 예정)
  */
 export type postApiS3UploadResponse200 = {
   data: PostApiS3Upload200

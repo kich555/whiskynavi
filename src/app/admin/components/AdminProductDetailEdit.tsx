@@ -1,11 +1,16 @@
 "use client";
 
-import { postApiS3Upload, type BottleAdminParameterValues, type BottleAdminResponse } from "@/apis/generated/api";
+import {
+  postApiAdminImagesPurpose,
+  type BottleAdminParameterValues,
+  type BottleAdminResponse,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUploader";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Label } from "@/components/ui/label";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { CalendarDays, Plus, Upload, X } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Image from "next/image";
@@ -39,6 +44,16 @@ function pickDefaultVisible(submitted: Record<string, string> | undefined, fallb
   return fallback ?? true;
 }
 
+function parseAdditionalImageKeys(value: string | undefined): string[] | undefined {
+  if (!value) return undefined;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) && parsed.every((key) => typeof key === "string") ? parsed : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 // API 선택지를 보여주되 관리자가 직접 입력하는 흐름은 그대로 유지한다.
 
 export default function AdminProductDetailEdit({
@@ -66,21 +81,26 @@ export default function AdminProductDetailEdit({
   const newExtraInfoValueRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const [isDescriptionUploading, setIsDescriptionUploading] = useState(false);
+  const [isAdditionalImageUploading, setIsAdditionalImageUploading] = useState(false);
+  const submittedAdditionalImageKeys = parseAdditionalImageKeys(submittedValues?.additionalImageKeys);
+  const initialAdditionalImageKeys = submittedAdditionalImageKeys ?? defaultValues?.additionalImageKeys ?? [];
+  const initialAdditionalImageUrls = submittedAdditionalImageKeys ? [] : (defaultValues?.imageUrls ?? []);
   const uploadDescriptionImage = useCallback(async (file: File): Promise<string> => {
     const session = await getSession();
     if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
 
-    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const response = await postApiAdminImagesPurpose("BOTTLE", { file }, withToken(session.accessToken));
     const key = response.data.key;
     if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
 
-    return buildCloudFrontUrl(key);
+    return response.data.url ?? buildCloudFrontUrl(key);
   }, []);
 
   const selectImage = (file: File) => {
-    const sizeError = getImageSizeError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
-    if (sizeError) {
-      setImageError(sizeError);
+    const validationError = getImageValidationError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
+    if (validationError) {
+      setImageError(validationError);
       return;
     }
     setImageError(null);
@@ -97,6 +117,10 @@ export default function AdminProductDetailEdit({
       if (previewUrl?.startsWith("blob:")) URL.revokeObjectURL(previewUrl);
     };
   }, [previewUrl]);
+
+  useEffect(() => {
+    onDescriptionUploadingChange?.(isDescriptionUploading || isAdditionalImageUploading);
+  }, [isAdditionalImageUploading, isDescriptionUploading, onDescriptionUploadingChange]);
 
   const currentImage = previewUrl || FALLBACK_IMAGE;
   const visibleDefaultChecked = pickDefaultVisible(submittedValues, defaultValues?.visible);
@@ -122,9 +146,7 @@ export default function AdminProductDetailEdit({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      selectImage(file);
-    }
+    if (file) selectImage(file);
   };
 
   const handleAddExtraInfo = () => {
@@ -431,7 +453,7 @@ export default function AdminProductDetailEdit({
             placeholder="설명을 입력하세요. 이미지를 붙여넣거나 추가할 수 있습니다."
             variant="admin"
             uploadFn={uploadDescriptionImage}
-            onUploadingChange={onDescriptionUploadingChange}
+            onUploadingChange={setIsDescriptionUploading}
           />
         </div>
 
@@ -469,7 +491,7 @@ export default function AdminProductDetailEdit({
                   이미지 추가 또는 드래그 앤 드롭
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={IMAGE_FILE_ACCEPT}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
@@ -511,6 +533,15 @@ export default function AdminProductDetailEdit({
               {imageError}
             </p>
           ) : null}
+          <div className="mt-6 border-t border-gray-200 pt-6">
+            <AdditionalImageUploader
+              purpose="BOTTLE"
+              initialKeys={initialAdditionalImageKeys}
+              initialUrls={initialAdditionalImageUrls}
+              maxSizeMB={MAX_BOTTLE_IMAGE_SIZE_MB}
+              onUploadingChange={setIsAdditionalImageUploading}
+            />
+          </div>
         </div>
       </div>
     </div>

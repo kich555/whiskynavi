@@ -75,6 +75,7 @@ function createValidFormData() {
   formData.set("reservationStartAt", "2026-06-08T10:00:00.000Z");
   formData.set("reservationEndAt", "2026-06-08T12:00:00.000Z");
   formData.set("gradeConditions", "");
+  formData.set("additionalImageKeys", JSON.stringify(["reservation-images/detail.jpg"]));
   return formData;
 }
 
@@ -94,6 +95,7 @@ describe("createNoticeFormAction", () => {
 
     expect(postApiAdminBottlesReservationsNotices).toHaveBeenCalledWith(
       expect.objectContaining({
+        additionalImageKeys: ["reservation-images/detail.jpg"],
         gradeConditions: [
           {
             applicableFrom: "2026-06-08T10:00:00.000Z",
