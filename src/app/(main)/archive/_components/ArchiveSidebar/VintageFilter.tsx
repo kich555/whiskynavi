@@ -8,7 +8,7 @@ interface VintageFilterProps {
 }
 
 const inputClassName =
-  "h-8 w-full border-white/10 bg-white/5 text-center text-xs text-white focus-visible:border-white/20 focus-visible:ring-0";
+  "typo-medium-12 h-8 w-full border-white/10 bg-white/5 text-center text-white focus-visible:border-white/20 focus-visible:ring-0";
 
 export function VintageFilter({ value, onChange }: VintageFilterProps) {
   return (
@@ -21,7 +21,7 @@ export function VintageFilter({ value, onChange }: VintageFilterProps) {
           onChange={(v) => onChange([v, value[1]])}
           className={inputClassName}
         />
-        <span className="shrink-0 text-xs text-white/40">~</span>
+        <span className="typo-medium-12 shrink-0 text-white/40">~</span>
         <NumericRangeInput
           value={value[1]}
           min={value[0]}

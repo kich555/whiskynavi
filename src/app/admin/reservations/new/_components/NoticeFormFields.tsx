@@ -1,9 +1,14 @@
 "use client";
 
+import { postApiS3Upload } from "@/apis/generated/api";
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
+import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { buildCloudFrontUrl } from "@/lib/cloudfront";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { getSession } from "next-auth/react";
+import { useCallback, useState } from "react";
 import CurrencyInput from "../../../_components/CurrencyInput";
 import DateTimePicker from "../../../_components/DateTimePicker";
 import { ROLE_LABEL_MAP } from "../../../constants";
@@ -20,10 +25,27 @@ interface GradeCondition {
 interface NoticeFormFieldsProps {
   defaultValues?: AdminBottleReservationNoticeResponse;
   formValues?: NoticeFormValues;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-export default function NoticeFormFields({ defaultValues, formValues }: NoticeFormFieldsProps) {
+export default function NoticeFormFields({ defaultValues, formValues, onUploadingChange }: NoticeFormFieldsProps) {
   const isEditing = defaultValues?.id != null;
+  const [uploading, setUploading] = useState(false);
+  const handleUploadingChange = useCallback(
+    (next: boolean) => {
+      setUploading(next);
+      onUploadingChange?.(next);
+    },
+    [onUploadingChange],
+  );
+  const uploadFn = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const key = response.data.key;
+    if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
+    return buildCloudFrontUrl(key);
+  }, []);
   const [gradeConditions, setGradeConditions] = useState<GradeCondition[]>(
     formValues?.gradeConditions ??
       defaultValues?.gradeConditions?.map((gc) => ({
@@ -69,7 +91,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
           name="noticeName"
           maxLength={200}
           defaultValue={formValues?.noticeName ?? defaultValues?.noticeName ?? ""}
-          className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+          className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
           placeholder="예: 7월 한정공고"
         />
       </div>
@@ -104,7 +126,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             name="price"
             defaultValue={formValues?.price ?? defaultValues?.price}
             required
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="가격을 입력하세요"
           />
         </div>
@@ -114,7 +136,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             {isEditing ? "남은 수락 수량" : "총 수락할 수량"}
           </label>
           {isEditing && defaultValues?.approvedQuantity != null && (
-            <p className="mb-1 text-xs text-gray-500">현재 수락한 수량 {defaultValues.approvedQuantity}병</p>
+            <p className="typo-medium-12 mb-1 text-gray-500">현재 수락한 수량 {defaultValues.approvedQuantity}병</p>
           )}
           <input
             type="number"
@@ -122,7 +144,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             min={0}
             step={1}
             defaultValue={formValues?.availableQuantity ?? defaultValues?.availableQuantity ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 100"
           />
         </div>
@@ -135,7 +157,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
             min={0}
             step={1}
             defaultValue={formValues?.maxOrderQuantity ?? defaultValues?.maxOrderQuantity ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예: 2"
           />
         </div>
@@ -164,14 +186,17 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
 
         <div className="md:col-span-2">
           <label className="typo-medium-14 mb-1 block text-gray-700">설명</label>
-          <textarea
+          <RichTextImageEditor
             name="description"
-            rows={4}
-            maxLength={5000}
+            variant="admin"
             defaultValue={formValues?.description ?? defaultValues?.description ?? ""}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예약 공고에 대한 설명을 입력하세요"
+            uploadFn={uploadFn}
+            onUploadingChange={handleUploadingChange}
           />
+          {uploading && (
+            <p className="typo-medium-12 mt-1 text-amber-600">이미지 업로드 중입니다. 완료 후 저장하세요.</p>
+          )}
         </div>
       </div>
 
@@ -189,13 +214,13 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
           </button>
         </div>
 
-        {gradeConditions.length === 0 && <p className="text-sm text-gray-400">등급 조건이 없습니다.</p>}
+        {gradeConditions.length === 0 && <p className="typo-medium-14 text-gray-400">등급 조건이 없습니다.</p>}
 
         <div className="space-y-3">
           {gradeConditions.map((cond, idx) => (
             <div key={idx} className="flex items-center gap-3 rounded-lg bg-gray-50 p-3">
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-gray-500">역할</label>
+                <label className="typo-medium-12 mb-1 block text-gray-500">역할</label>
                 <Select
                   value={cond.requiredRole || undefined}
                   onValueChange={(val) => updateCondition(idx, "requiredRole", val)}
@@ -214,7 +239,7 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
               </div>
 
               <div className="flex-1">
-                <label className="mb-1 block text-xs text-gray-500">적용 시작일</label>
+                <label className="typo-medium-12 mb-1 block text-gray-500">적용 시작일</label>
                 <DateTimePicker
                   value={cond.applicableFrom}
                   onChange={(iso) => updateCondition(idx, "applicableFrom", iso)}

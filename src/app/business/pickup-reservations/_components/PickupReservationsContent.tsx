@@ -16,17 +16,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Eye } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import BusinessHeader from "../../_components/BusinessHeader";
 import { formatCurrency } from "../../utils";
 import { bulkWaitingPickupAction } from "../actions";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupReservationsContentProps {
   searchParams: {
     page?: string;
     limit?: string;
+    businessId?: string;
   };
   notices: UserBottleReservationPickupNoticeReservationStatusResponse[];
   totalElements: number;
@@ -36,6 +39,7 @@ interface PickupReservationsContentProps {
 interface NoticeGroup {
   noticeId: number;
   bottleId?: number;
+  noticeName?: string;
   bottleName: string;
   bottleImgUrl?: string;
   noticeStatus?: string;
@@ -49,6 +53,7 @@ const mapNoticesToGroups = (notices: UserBottleReservationPickupNoticeReservatio
   return notices.map((notice) => ({
     noticeId: notice.noticeId ?? 0,
     bottleId: notice.bottleId,
+    noticeName: notice.noticeName,
     bottleName: notice.bottleName ?? "이름 없는 예약 공고",
     bottleImgUrl: notice.bottleImgUrl,
     noticeStatus: notice.noticeStatus,
@@ -76,8 +81,11 @@ export default function PickupReservationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
+  const businessId = Number(searchParams.businessId) || undefined;
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
   const noticeGroups = mapNoticesToGroups(notices);
   const deliveryMap = new Map(deliveries.map((delivery) => [delivery.noticeId, delivery]));
+  const bulkNoticeDisplay = bulkNotice ? getReservationNoticeDisplay(bulkNotice) : null;
 
   const handleBulkWaitingPickup = () => {
     if (!bulkNotice) return;
@@ -87,10 +95,13 @@ export default function PickupReservationsContent({
     }
 
     startTransition(async () => {
-      const result = await bulkWaitingPickupAction({
-        bottleId: bulkNotice.bottleId,
-        noticeId: bulkNotice.noticeId,
-      });
+      const result = await bulkWaitingPickupAction(
+        {
+          bottleId: bulkNotice.bottleId,
+          noticeId: bulkNotice.noticeId,
+        },
+        businessId,
+      );
       if (result.success) {
         setBulkNotice(null);
         router.refresh();
@@ -106,8 +117,8 @@ export default function PickupReservationsContent({
 
       <div className="p-6">
         <div className="mb-4">
-          <p className="text-sm text-gray-600">공고 {totalElements}개</p>
-          <p className="mt-1 text-xs text-gray-500">공고별 신청 내역은 상세조회 화면에서 확인하고 처리합니다.</p>
+          <p className="typo-medium-14 text-gray-600">공고 {totalElements}개</p>
+          <p className="typo-medium-12 mt-1 text-gray-500">공고별 신청 내역은 상세조회 화면에서 확인하고 처리합니다.</p>
         </div>
 
         <Dialog open={bulkNotice != null} onOpenChange={(open) => !open && setBulkNotice(null)}>
@@ -115,8 +126,8 @@ export default function PickupReservationsContent({
             <DialogHeader>
               <DialogTitle>공고별 일괄 픽업대기 처리</DialogTitle>
               <DialogDescription>
-                <strong>{bulkNotice?.bottleName ?? "선택한 공고"}</strong>의 결제완료 신청을 일괄로 픽업대기 상태로
-                변경합니다.
+                <strong>{bulkNoticeDisplay?.primaryName ?? "선택한 공고"}</strong>의 결제완료 신청을 일괄로 픽업대기
+                상태로 변경합니다.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -142,65 +153,77 @@ export default function PickupReservationsContent({
               <table className="w-full">
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">공고</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">공고상태</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">단가</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">신청</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">요청</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">확정</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">송장번호</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">관리</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고상태</th>
+                    <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">단가</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">신청</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">요청</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">확정</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">송장번호</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">관리</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {noticeGroups.map((group) => {
                     const delivery = deliveryMap.get(group.noticeId);
+                    const display = getReservationNoticeDisplay(group);
 
                     return (
                       <tr key={group.noticeId} className="transition-colors hover:bg-gray-50">
                         <td className="px-4 py-3">
                           <button
                             type="button"
-                            onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
+                            onClick={() =>
+                              router.push(withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}`))
+                            }
                             className="min-w-0 cursor-pointer text-left"
                           >
-                            <div className="text-sm font-bold text-gray-900">{group.bottleName}</div>
-                            <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                            <div className="typo-bold-14 text-gray-900">{display.primaryName}</div>
+                            {display.secondaryName && (
+                              <div className="typo-medium-12 mt-1 text-gray-500">{display.secondaryName}</div>
+                            )}
+                            <div className="typo-medium-12 mt-1 flex flex-wrap gap-2 text-gray-500">
                               <span>공고 #{group.noticeId || "-"}</span>
                               {group.bottleId != null && <span>병 #{group.bottleId}</span>}
                             </div>
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap">
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap">
                           {group.noticeStatus ? (
                             <Badge className="bg-gray-100 text-gray-700">공고 {group.noticeStatus}</Badge>
                           ) : (
                             "-"
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
                           {formatCurrency(group.price)}
                         </td>
-                        <td className="px-4 py-3 text-center text-sm text-gray-900">{group.totalApplicationCount}건</td>
-                        <td className="px-4 py-3 text-center text-sm text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">
+                          {group.totalApplicationCount}건
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">
                           {group.totalRequestedQuantity}병
                         </td>
-                        <td className="px-4 py-3 text-center text-sm font-medium text-amber-600">
+                        <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                           {group.totalConfirmedQuantity}병
                         </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                           {formatTrackingNumber(delivery)}
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex shrink-0 flex-wrap gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
-                            >
-                              <Eye size={16} />
-                              상세조회
+                            <Button type="button" variant="outline" size="sm" asChild>
+                              <Link
+                                href={withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}/detail`)}
+                              >
+                                <Eye size={16} />
+                                공고 내용
+                              </Link>
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" asChild>
+                              <Link href={withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}`)}>
+                                신청 관리
+                              </Link>
                             </Button>
                             <Button
                               type="button"

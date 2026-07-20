@@ -57,7 +57,7 @@ export default function BannerSection({ banners }: BannerSectionProps) {
               <h1 className="mb-2 text-xl leading-tight text-white md:mb-4 md:text-4xl lg:mb-6 lg:text-5xl xl:text-6xl">
                 {currentBanner.title}
               </h1>
-              <p className="mb-4 text-sm leading-relaxed text-white/90 md:mb-8 md:text-base lg:mb-10 lg:text-lg xl:text-xl">
+              <p className="typo-medium-14 mb-4 leading-relaxed text-white/90 md:mb-8 md:text-base lg:mb-10 lg:text-lg xl:text-xl">
                 {currentBanner.description}
               </p>
               {currentBanner.link ? (

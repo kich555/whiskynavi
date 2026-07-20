@@ -102,7 +102,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
         min={0}
         value={availableQuantity}
         onChange={(event) => setAvailableQuantity(event.target.value)}
-        className="min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+        className="typo-medium-14 min-w-0 flex-1 rounded-md border border-gray-300 px-2 py-1 focus:ring-2 focus:ring-amber-500 focus:outline-none"
       />
       <Button type="button" size="icon" onClick={handleSaveQuantity} disabled={isPending} title="저장">
         <Check className="size-4" />
@@ -163,7 +163,7 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {fields.map((field) => (
           <div key={field.label}>
-            <span className="mb-1 block text-xs text-gray-500">{field.label}</span>
+            <span className="typo-medium-12 mb-1 block text-gray-500">{field.label}</span>
             <span className="typo-medium-14 text-gray-900">{field.value}</span>
           </div>
         ))}
@@ -171,12 +171,12 @@ export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {
 
       {notice.gradeConditions && notice.gradeConditions.length > 0 && (
         <div className="mt-4 border-t border-gray-100 pt-4">
-          <span className="mb-2 block text-xs text-gray-500">등급 조건</span>
+          <span className="typo-medium-12 mb-2 block text-gray-500">등급 조건</span>
           <div className="flex flex-wrap gap-2">
             {notice.gradeConditions.map((gc, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-1 text-xs text-amber-700"
+                className="typo-medium-12 inline-flex items-center gap-1 rounded bg-amber-50 px-2 py-1 text-amber-700"
               >
                 {ROLE_LABEL_MAP[gc.requiredRole as keyof typeof ROLE_LABEL_MAP] ?? gc.requiredRole}
                 {gc.applicableFrom && <span className="text-amber-500">({formatDateTime(gc.applicableFrom)}~)</span>}

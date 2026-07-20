@@ -107,7 +107,7 @@ export default function DateTimePicker({
           <Button
             type="button"
             variant="outline"
-            className={`h-auto w-full justify-start px-3 py-2 text-left text-sm font-normal ${
+            className={`typo-regular-14 h-auto w-full justify-start px-3 py-2 text-left ${
               !currentDate ? "text-gray-400" : "text-gray-900"
             }`}
           >
@@ -118,14 +118,14 @@ export default function DateTimePicker({
         <PopoverContent className="w-auto p-0" align="start">
           <Calendar mode="single" selected={currentDate} onSelect={handleDaySelect} locale={ko} />
           <div className="flex items-center gap-2 border-t border-gray-200 px-4 py-3">
-            <label className="text-sm text-gray-600">시간</label>
+            <label className="typo-medium-14 text-gray-600">시간</label>
             <input
               type="number"
               min={0}
               max={23}
               value={hour}
               onChange={(e) => handleTimeChange("hour", e.target.value)}
-              className="w-14 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="typo-medium-14 w-14 rounded border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
             <span className="text-gray-500">:</span>
             <input
@@ -134,7 +134,7 @@ export default function DateTimePicker({
               max={59}
               value={minute}
               onChange={(e) => handleTimeChange("minute", e.target.value)}
-              className="w-14 rounded border border-gray-300 px-2 py-1 text-center text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="typo-medium-14 w-14 rounded border border-gray-300 px-2 py-1 text-center focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
           </div>
         </PopoverContent>

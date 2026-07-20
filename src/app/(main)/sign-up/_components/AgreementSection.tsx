@@ -122,7 +122,6 @@ export function AgreementSection() {
     smsAgree: smsAgreed,
     snsAgree: snsAgreed,
   };
-  console.log("signupAgreementValues", signupAgreementValues);
   const termsData = viewingTerms ? TERMS_CONTENT[viewingTerms] : null;
 
   return (
@@ -213,7 +212,7 @@ export function AgreementSection() {
           <DialogHeader>
             <DialogTitle>{termsData?.title}</DialogTitle>
           </DialogHeader>
-          <div className="text-sm leading-relaxed whitespace-pre-wrap text-gray-700">{termsData?.content}</div>
+          <div className="typo-medium-14 leading-relaxed whitespace-pre-wrap text-gray-700">{termsData?.content}</div>
         </DialogContent>
       </Dialog>
 

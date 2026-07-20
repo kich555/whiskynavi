@@ -82,7 +82,7 @@ export default function ApplicationConfirmModal({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-gray-900">
+            <div className="typo-medium-14 rounded-lg border border-amber-200 bg-amber-50 p-4 text-gray-900">
               <p>
                 <strong>{applicantName}</strong>님 신청 수량: {requestedQuantity}
               </p>
@@ -126,9 +126,9 @@ export default function ApplicationConfirmModal({
                 min={1}
                 value={quantity}
                 onChange={(e) => setQuantity(Number(e.target.value))}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
-              <p className="mt-1 text-xs text-gray-500">신청 수량: {requestedQuantity}</p>
+              <p className="typo-medium-12 mt-1 text-gray-500">신청 수량: {requestedQuantity}</p>
             </div>
 
             <DialogFooter>

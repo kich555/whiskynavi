@@ -46,7 +46,7 @@ export default function AddMemberModal({ isOpen, close, brand: initialBrand }: A
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="typo-bold-20">멤버십 추가</DialogTitle>
-          <p className="mt-1 text-sm text-gray-500">사용자를 검색하여 멤버십을 추가합니다.</p>
+          <p className="mt-1 typo-medium-14 text-gray-500">사용자를 검색하여 멤버십을 추가합니다.</p>
         </DialogHeader>
 
         <div className="space-y-5 py-2">
@@ -57,7 +57,7 @@ export default function AddMemberModal({ isOpen, close, brand: initialBrand }: A
               <button
                 type="button"
                 onClick={() => setSelectedBrand("navi")}
-                className={`flex-1 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex-1 cursor-pointer rounded-lg px-4 py-2.5 typo-medium-14 font-medium transition-colors ${
                   selectedBrand === "navi" ? "bg-amber-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -66,7 +66,7 @@ export default function AddMemberModal({ isOpen, close, brand: initialBrand }: A
               <button
                 type="button"
                 onClick={() => setSelectedBrand("tales")}
-                className={`flex-1 cursor-pointer rounded-lg px-4 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex-1 cursor-pointer rounded-lg px-4 py-2.5 typo-medium-14 font-medium transition-colors ${
                   selectedBrand === "tales" ? "bg-amber-600 text-white" : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                 }`}
               >
@@ -88,7 +88,7 @@ export default function AddMemberModal({ isOpen, close, brand: initialBrand }: A
           {selectedUser && (
             <div className="space-y-2 rounded-lg border border-gray-200 bg-gray-50 p-4">
               <p className="typo-medium-14 text-gray-900">선택된 사용자</p>
-              <div className="grid grid-cols-2 gap-2 text-sm">
+              <div className="grid grid-cols-2 gap-2 typo-medium-14">
                 <div>
                   <span className="text-gray-500">이름:</span> <span className="font-medium">{selectedUser.name}</span>
                 </div>
@@ -108,7 +108,7 @@ export default function AddMemberModal({ isOpen, close, brand: initialBrand }: A
             </div>
           )}
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="typo-medium-14 text-red-600">{error}</p>}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

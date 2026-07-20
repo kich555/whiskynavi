@@ -44,8 +44,8 @@ function getCartItemMaxQuantity(item: CartItemResponse) {
 function SummaryRow({ label, value, strong = false }: { label: string; value: string; strong?: boolean }) {
   return (
     <div className="flex items-center justify-between gap-4">
-      <dt className={strong ? "text-base font-semibold text-white" : "text-sm text-gray-400"}>{label}</dt>
-      <dd className={strong ? "text-lg font-semibold text-white" : "text-sm font-medium text-white"}>{value}</dd>
+      <dt className={strong ? "text-base font-semibold text-white" : "typo-medium-14 text-gray-400"}>{label}</dt>
+      <dd className={strong ? "text-lg font-semibold text-white" : "typo-medium-14 text-white"}>{value}</dd>
     </div>
   );
 }
@@ -89,17 +89,17 @@ export default function CartContent({ error, quote }: CartContentProps) {
       <div className="mb-8">
         <Button
           onClick={() => router.back()}
-          className="mb-6 inline-flex cursor-pointer items-center gap-2 bg-transparent text-sm font-medium text-white/70 transition-colors hover:text-white"
+          className="typo-medium-14 mb-6 inline-flex cursor-pointer items-center gap-2 bg-transparent text-white/70 transition-colors hover:text-white"
         >
           <ArrowLeft size={18} />
           뒤로가기
         </Button>
-        <p className="text-sm text-amber-300">일반상품 장바구니</p>
+        <p className="typo-medium-14 text-amber-300">일반상품 장바구니</p>
         <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">주문할 상품을 확인해 주세요.</h1>
       </div>
 
       {error && (
-        <div role="alert" className="mb-6 border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-100">
+        <div role="alert" className="typo-medium-14 mb-6 border border-red-400/30 bg-red-500/10 px-4 py-3 text-red-100">
           {error}
         </div>
       )}
@@ -109,7 +109,9 @@ export default function CartContent({ error, quote }: CartContentProps) {
           <section className="border border-white/10 bg-white/5">
             <h2 className="sr-only">장바구니 상품</h2>
             {items.length === 0 ? (
-              <div className="px-5 py-14 text-center text-sm text-gray-400">장바구니에 담긴 상품이 없습니다.</div>
+              <div className="typo-medium-14 px-5 py-14 text-center text-gray-400">
+                장바구니에 담긴 상품이 없습니다.
+              </div>
             ) : (
               <ul className="divide-y divide-white/10">
                 {items.map((item, index) => {
@@ -127,11 +129,13 @@ export default function CartContent({ error, quote }: CartContentProps) {
                         <div className="flex flex-wrap items-center gap-2">
                           <h3 className="text-base font-semibold break-words text-white">{itemName}</h3>
                           {isInvalid && (
-                            <span className="border border-red-400/30 px-2 py-0.5 text-xs text-red-200">주문 불가</span>
+                            <span className="typo-medium-12 border border-red-400/30 px-2 py-0.5 text-red-200">
+                              주문 불가
+                            </span>
                           )}
                         </div>
-                        <p className="mt-1 text-sm text-gray-400">{getCartItemDescription(item)}</p>
-                        {item.invalidReason && <p className="mt-3 text-sm text-red-200">{item.invalidReason}</p>}
+                        <p className="typo-medium-14 mt-1 text-gray-400">{getCartItemDescription(item)}</p>
+                        {item.invalidReason && <p className="typo-medium-14 mt-3 text-red-200">{item.invalidReason}</p>}
                       </div>
 
                       <div className="flex flex-wrap items-center justify-between gap-4 md:justify-end">
@@ -147,7 +151,7 @@ export default function CartContent({ error, quote }: CartContentProps) {
                           >
                             <Minus aria-hidden="true" />
                           </Button>
-                          <span className="w-12 text-center text-sm font-medium text-white">{quantity}</span>
+                          <span className="typo-medium-14 w-12 text-center text-white">{quantity}</span>
                           <Button
                             type="button"
                             variant="ghost"
@@ -165,7 +169,7 @@ export default function CartContent({ error, quote }: CartContentProps) {
                           </Button>
                         </div>
 
-                        <p className="min-w-24 text-right text-sm font-semibold text-white">
+                        <p className="typo-semibold-14 min-w-24 text-right text-white">
                           {formatCartCurrency(item.lineTotalPrice)}
                         </p>
 
@@ -199,7 +203,7 @@ export default function CartContent({ error, quote }: CartContentProps) {
             </dl>
 
             {quote?.freeShipping !== true && quote?.freeShippingRemainingAmount != null && (
-              <p className="mt-4 border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-sm text-amber-100">
+              <p className="typo-medium-14 mt-4 border border-amber-400/30 bg-amber-400/10 px-3 py-2 text-amber-100">
                 {formatCartCurrency(quote.freeShippingRemainingAmount)} 추가 주문 시 무료배송
               </p>
             )}
@@ -210,7 +214,7 @@ export default function CartContent({ error, quote }: CartContentProps) {
                   <Link href={CART_ORDER_PATH}>주문서로 이동</Link>
                 </Button>
               ) : items.length > 0 ? (
-                <p className="border border-white/10 px-4 py-3 text-center text-sm font-semibold text-gray-400">
+                <p className="typo-semibold-14 border border-white/10 px-4 py-3 text-center text-gray-400">
                   {blockingReason}
                 </p>
               ) : null}

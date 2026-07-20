@@ -45,7 +45,7 @@ export default function CurrencyInput({
         {...rest}
       />
       {suffix && (
-        <span className="pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-sm text-gray-400">
+        <span className="typo-medium-14 pointer-events-none absolute top-1/2 right-2.5 -translate-y-1/2 text-gray-400">
           {suffix}
         </span>
       )}

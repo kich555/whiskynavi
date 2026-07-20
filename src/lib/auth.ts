@@ -203,6 +203,25 @@ export const authOptions: NextAuthOptions = {
 };
 
 /**
+ * 비즈니스 계열 역할. 이 중 하나라도 보유하면 비즈니스 사용자로 취급한다.
+ */
+const BUSINESS_ROLES = [
+  "ROLE_BUSINESS",
+  "ROLE_TRAILNTALE_BUSINESS",
+  "ROLE_COMMUNITY_BUSINESS",
+  "ROLE_PICK_UP_BUSINESS",
+] as const;
+
+/**
+ * 세션의 roles에 비즈니스 계열 역할이 하나라도 포함되어 있는지 확인한다.
+ */
+export function hasBusinessRole(roles: string[] | undefined): boolean {
+  return roles?.some((role) =>
+    (BUSINESS_ROLES as readonly string[]).includes(role),
+  ) ?? false;
+}
+
+/**
  * 서버 컴포넌트에서 인증 토큰을 가져오는 헬퍼 함수.
  * getServerSession 호출 시 jwt callback이 트리거되어 만료된 토큰은 자동 갱신됨.
  * @returns accessToken 또는 undefined

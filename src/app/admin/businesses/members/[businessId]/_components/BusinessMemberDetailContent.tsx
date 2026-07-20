@@ -311,16 +311,16 @@ export default function BusinessMemberDetailContent({
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3">
               <div>
-                <p className="text-xs text-gray-500">User ID</p>
-                <p className="text-sm font-medium text-gray-900">{member.userId}</p>
+                <p className="typo-medium-12 text-gray-500">User ID</p>
+                <p className="typo-medium-14 text-gray-900">{member.userId}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">이름</p>
-                <p className="text-sm font-medium text-gray-900">{member.name ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이름</p>
+                <p className="typo-medium-14 text-gray-900">{member.name ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">이메일</p>
-                <p className="text-sm font-medium text-gray-900">{member.username ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이메일</p>
+                <p className="typo-medium-14 text-gray-900">{member.username ?? "-"}</p>
               </div>
             </div>
           </div>
@@ -365,10 +365,10 @@ export default function BusinessMemberDetailContent({
             <div className="space-y-6 p-6">
               {/* 기본 사업자 식별 정보는 가장 먼저 확인할 수 있게 상단에 모은다. */}
               <section>
-                <h4 className="mb-3 text-sm font-semibold text-gray-900">기본 정보</h4>
+                <h4 className="mb-3 typo-semibold-14 text-gray-900">기본 정보</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="businessName" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="businessName" className="mb-1 typo-medium-12 text-gray-500">
                       업체명
                     </Label>
                     {isEditing ? (
@@ -379,11 +379,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.businessName ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.businessName ?? "-"}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="businessRegistrationNumber" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="businessRegistrationNumber" className="mb-1 typo-medium-12 text-gray-500">
                       사업자등록번호
                     </Label>
                     {isEditing ? (
@@ -394,11 +394,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.businessRegistrationNumber ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.businessRegistrationNumber ?? "-"}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="businessType" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="businessType" className="mb-1 typo-medium-12 text-gray-500">
                       사업자 구분
                     </Label>
                     {isEditing ? (
@@ -411,17 +411,17 @@ export default function BusinessMemberDetailContent({
                           }
                         }}
                         disabled={isPending}
-                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 py-1 text-sm outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 py-1 typo-medium-14 outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <option value="HOUSEHOLD">가정용</option>
                         <option value="ENTERTAINMENT">유흥용</option>
                       </select>
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{formatBusinessType(member)}</p>
+                      <p className="typo-medium-14 text-gray-900">{formatBusinessType(member)}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="contact" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="contact" className="mb-1 typo-medium-12 text-gray-500">
                       대표 연락처
                     </Label>
                     {isEditing ? (
@@ -432,11 +432,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.contact ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.contact ?? "-"}</p>
                     )}
                   </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="pickupAddress" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="pickupAddress" className="mb-1 typo-medium-12 text-gray-500">
                       픽업 주소
                     </Label>
                     {isEditing ? (
@@ -447,7 +447,7 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.pickupAddress ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.pickupAddress ?? "-"}</p>
                     )}
                   </div>
                 </div>
@@ -455,10 +455,10 @@ export default function BusinessMemberDetailContent({
 
               {/* 담당자와 정산 계좌는 운영 확인 순서에 맞춰 기본 정보 아래에 분리한다. */}
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 text-sm font-semibold text-gray-900">운영 담당자</h4>
+                <h4 className="mb-3 typo-semibold-14 text-gray-900">운영 담당자</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="storeManagerName" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="storeManagerName" className="mb-1 typo-medium-12 text-gray-500">
                       담당자명
                     </Label>
                     {isEditing ? (
@@ -469,11 +469,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.storeManagerName ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.storeManagerName ?? "-"}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="storeManagerPhone" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="storeManagerPhone" className="mb-1 typo-medium-12 text-gray-500">
                       담당자 전화번호
                     </Label>
                     {isEditing ? (
@@ -484,17 +484,17 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.storeManagerPhone ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.storeManagerPhone ?? "-"}</p>
                     )}
                   </div>
                 </div>
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 text-sm font-semibold text-gray-900">알림 설정</h4>
+                <h4 className="mb-3 typo-semibold-14 text-gray-900">알림 설정</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="reservationConfirmationSmsEnabled" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="reservationConfirmationSmsEnabled" className="mb-1 typo-medium-12 text-gray-500">
                       예약 확정/할당 결제 안내 문자
                     </Label>
                     {isEditing ? (
@@ -508,13 +508,13 @@ export default function BusinessMemberDetailContent({
                         aria-label="예약 확정/할당 결제 안내 문자"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="typo-medium-14 text-gray-900">
                         {member.reservationConfirmationSmsEnabled === false ? "발송 안 함" : "발송"}
                       </p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="reservationPickupSmsEnabled" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="reservationPickupSmsEnabled" className="mb-1 typo-medium-12 text-gray-500">
                       픽업 안내 문자
                     </Label>
                     {isEditing ? (
@@ -526,7 +526,7 @@ export default function BusinessMemberDetailContent({
                         aria-label="픽업 안내 문자"
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="typo-medium-14 text-gray-900">
                         {member.reservationPickupSmsEnabled === false ? "발송 안 함" : "발송"}
                       </p>
                     )}
@@ -535,10 +535,10 @@ export default function BusinessMemberDetailContent({
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 text-sm font-semibold text-gray-900">정산 계좌</h4>
+                <h4 className="mb-3 typo-semibold-14 text-gray-900">정산 계좌</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="bankName" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="bankName" className="mb-1 typo-medium-12 text-gray-500">
                       은행명
                     </Label>
                     {isEditing ? (
@@ -549,11 +549,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.bankName ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.bankName ?? "-"}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="accountHolderName" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="accountHolderName" className="mb-1 typo-medium-12 text-gray-500">
                       예금주명
                     </Label>
                     {isEditing ? (
@@ -564,11 +564,11 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium text-gray-900">{member.accountHolderName ?? "-"}</p>
+                      <p className="typo-medium-14 text-gray-900">{member.accountHolderName ?? "-"}</p>
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="accountNumber" className="mb-1 text-xs text-gray-500">
+                    <Label htmlFor="accountNumber" className="mb-1 typo-medium-12 text-gray-500">
                       계좌번호
                     </Label>
                     {isEditing ? (
@@ -579,27 +579,27 @@ export default function BusinessMemberDetailContent({
                         disabled={isPending}
                       />
                     ) : (
-                      <p className="text-sm font-medium break-all text-gray-900">{member.accountNumber ?? "-"}</p>
+                      <p className="typo-medium-14 break-all text-gray-900">{member.accountNumber ?? "-"}</p>
                     )}
                   </div>
                 </div>
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 text-sm font-semibold text-gray-900">문서 및 변경 이력</h4>
+                <h4 className="mb-3 typo-semibold-14 text-gray-900">문서 및 변경 이력</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   {member.documentDownloadUrl && (
                     <div>
-                      <p className="text-xs text-gray-500">사업자등록증</p>
+                      <p className="typo-medium-12 text-gray-500">사업자등록증</p>
                       <a
                         href={member.documentDownloadUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-sm font-medium text-amber-600 hover:underline"
+                        className="typo-medium-14 text-amber-600 hover:underline"
                       >
                         {member.documentOriginalFilename ?? "다운로드"}
                       </a>
-                      <p className="mt-1 text-xs text-gray-500">
+                      <p className="mt-1 typo-medium-12 text-gray-500">
                         {documentDownloadRemainingSeconds > 0
                           ? `남은 시간 ${formatRemainingTime(documentDownloadRemainingSeconds)}`
                           : "다운로드 주소가 만료되었습니다."}
@@ -607,12 +607,12 @@ export default function BusinessMemberDetailContent({
                     </div>
                   )}
                   <div>
-                    <p className="text-xs text-gray-500">사업자 등록일</p>
-                    <p className="text-sm font-medium text-gray-900">{formatDate(member.businessCreatedAt)}</p>
+                    <p className="typo-medium-12 text-gray-500">사업자 등록일</p>
+                    <p className="typo-medium-14 text-gray-900">{formatDate(member.businessCreatedAt)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">사업자 수정일</p>
-                    <p className="text-sm font-medium text-gray-900">{formatDate(member.businessUpdatedAt)}</p>
+                    <p className="typo-medium-12 text-gray-500">사업자 수정일</p>
+                    <p className="typo-medium-14 text-gray-900">{formatDate(member.businessUpdatedAt)}</p>
                   </div>
                 </div>
               </section>
@@ -635,7 +635,7 @@ export default function BusinessMemberDetailContent({
                 return (
                   <div key={roleConfig.role} className="flex items-center justify-between gap-4 px-6 py-4">
                     <div className="flex items-center gap-3">
-                      <p className="text-sm font-medium text-gray-900">{roleConfig.label}</p>
+                      <p className="typo-medium-14 text-gray-900">{roleConfig.label}</p>
                       {enabled ? (
                         <Badge className={roleConfig.badgeClassName}>보유</Badge>
                       ) : (

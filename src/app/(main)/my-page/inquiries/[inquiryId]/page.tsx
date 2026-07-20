@@ -57,12 +57,12 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
               >
                 {INQUIRY_STATUS_LABEL[inquiry.status ?? ""] ?? inquiry.status}
               </Badge>
-              <span className="text-xs text-gray-500">문의 #{inquiry.id}</span>
+              <span className="typo-medium-12 text-gray-500">문의 #{inquiry.id}</span>
             </div>
             <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
               <div>
                 <h1 className="text-xl font-bold text-white md:text-2xl">{inquiry.title}</h1>
-                <p className="mt-2 text-xs text-gray-400">최근 메시지 {formatDateTime(inquiry.lastMessageAt)}</p>
+                <p className="typo-medium-12 mt-2 text-gray-400">최근 메시지 {formatDateTime(inquiry.lastMessageAt)}</p>
               </div>
               <InquiryDeleteButton inquiryId={inquiry.id} />
             </div>
@@ -74,23 +74,23 @@ export default async function InquiryDetailPage({ params }: InquiryDetailPagePro
               return (
                 <div key={message.id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
                   <div className={`max-w-[85%] md:max-w-[70%] ${isUser ? "text-right" : "text-left"}`}>
-                    <p className="mb-1 text-xs text-gray-400">
+                    <p className="typo-medium-12 mb-1 text-gray-400">
                       {isUser ? "나" : message.authorNickname?.trim() || "위스키내비"}
                     </p>
                     <RichTextContent
                       html={sanitizeRichTextContent(message.content ?? "")}
-                      className={`rounded-2xl px-4 py-3 text-left text-sm ${
+                      className={`typo-medium-14 rounded-2xl px-4 py-3 text-left ${
                         isUser ? "rounded-tr-sm bg-white text-[#1d2429]" : "rounded-tl-sm bg-white/10 text-gray-100"
                       }`}
                     />
-                    <time className="mt-1 block text-xs text-gray-500">{formatDateTime(message.createdAt)}</time>
+                    <time className="typo-medium-12 mt-1 block text-gray-500">{formatDateTime(message.createdAt)}</time>
                   </div>
                 </div>
               );
             })}
 
             {isClosed ? (
-              <div className="border-t border-white/10 pt-6 text-center text-sm text-gray-400">
+              <div className="typo-medium-14 border-t border-white/10 pt-6 text-center text-gray-400">
                 종료된 문의에는 메시지를 추가할 수 없습니다.
               </div>
             ) : (

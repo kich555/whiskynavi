@@ -89,7 +89,7 @@ export function SignInForm() {
         </div>
 
         {/* Error Message */}
-        {error && <p className="mt-4 text-center text-sm text-red-400">{error}</p>}
+        {error && <p className="typo-medium-14 mt-4 text-center text-red-400">{error}</p>}
 
         {/* Login Button */}
         <Button

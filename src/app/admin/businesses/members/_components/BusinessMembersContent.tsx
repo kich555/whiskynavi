@@ -137,17 +137,17 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
 
       <div className="p-8">
         <div className="mb-4 flex items-center justify-between gap-4">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements}건</p>
 
           <div className="flex items-center gap-2">
-            <Label htmlFor="business-members-sort" className="text-sm text-gray-600">
+            <Label htmlFor="business-members-sort" className="typo-medium-14 text-gray-600">
               정렬
             </Label>
             <select
               id="business-members-sort"
               value={currentSort}
               onChange={(e) => handleSortChange(e.target.value)}
-              className="rounded border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="rounded border border-gray-300 bg-white px-3 py-1.5 typo-medium-14 text-gray-700 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             >
               {BUSINESS_MEMBERS_SORT_OPTIONS.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -223,41 +223,41 @@ export default function BusinessMembersContent({ searchParams, members, totalEle
                       className="cursor-pointer transition-colors hover:bg-gray-50"
                       onClick={() => router.push(`/admin/businesses/members/${member.businessId}`)}
                     >
-                      <td className="px-4 py-3 text-sm text-gray-900">{member.businessId}</td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{formatBusinessType(member.businessType)}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{member.businessId}</td>
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{formatBusinessType(member.businessType)}</td>
                       <td className="typo-medium-14 max-w-[220px] truncate px-4 py-3 text-gray-900">
                         {member.businessName ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">{member.username ?? "-"}</td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{member.username ?? "-"}</td>
+                      <td className="px-4 py-3 typo-medium-14">
                         {hasRole(member, "hasBusinessRole", "ROLE_BUSINESS") ? (
                           <Badge className="bg-purple-100 text-purple-700">있음</Badge>
                         ) : (
                           <Badge className="bg-gray-100 text-gray-500">없음</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         {hasRole(member, "hasTrailntaleBusinessRole", "ROLE_TRAILNTALE_BUSINESS") ? (
                           <Badge className="bg-blue-100 text-blue-700">있음</Badge>
                         ) : (
                           <Badge className="bg-gray-100 text-gray-500">없음</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         {hasRole(member, "hasCommunityBusinessRole", "ROLE_COMMUNITY_BUSINESS") ? (
                           <Badge className="bg-emerald-100 text-emerald-700">있음</Badge>
                         ) : (
                           <Badge className="bg-gray-100 text-gray-500">없음</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         {hasRole(member, "hasPickupRole", "ROLE_PICK_UP_BUSINESS") ? (
                           <Badge className="bg-amber-100 text-amber-700">있음</Badge>
                         ) : (
                           <Badge className="bg-gray-100 text-gray-500">없음</Badge>
                         )}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="px-4 py-3 typo-medium-14">
                         <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
                           <button
                             type="button"

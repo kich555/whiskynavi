@@ -49,7 +49,7 @@ interface PostFormProps {
 
 function SubmitButton({ label, variant, disabled }: { label: string; variant: "user" | "admin"; disabled: boolean }) {
   const { pending } = useFormStatus();
-  const base = "w-full rounded-xl py-3 text-sm font-bold text-white transition-colors disabled:opacity-50";
+  const base = "w-full rounded-xl py-3 typo-bold-14 text-white transition-colors disabled:opacity-50";
   const theme = variant === "admin" ? "bg-amber-600 hover:bg-amber-700" : "bg-amber-600 hover:bg-amber-700";
   return (
     <button type="submit" disabled={pending || disabled} className={`${base} ${theme}`}>
@@ -62,12 +62,12 @@ function SubmitButton({ label, variant, disabled }: { label: string; variant: "u
 const VARIANT_THEME = {
   user: {
     shell: "mt-20 min-h-screen bg-[#1d2429]",
-    backLink: "mb-4 inline-flex items-center gap-1 text-sm text-gray-400 hover:text-white",
+    backLink: "mb-4 inline-flex items-center gap-1 typo-medium-14 text-gray-400 hover:text-white",
     card: "overflow-hidden rounded-xl border border-white/10 bg-white/5 p-5",
     title: "mb-5 text-lg font-bold text-white",
     label: "mb-1.5 block text-[11px] font-bold text-gray-400 uppercase",
     input:
-      "w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2.5 text-sm text-white placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/40 focus:outline-none",
+      "w-full rounded-lg border border-white/20 bg-white/5 px-3 py-2.5 typo-medium-14 text-white placeholder-gray-500 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/40 focus:outline-none",
     toolbar: "mb-1 flex flex-wrap items-center gap-0.5 rounded-t-lg border border-white/20 bg-white/5 px-2 py-1.5",
     editorBorder: "border-white/20",
     editorBg: "bg-white/5",
@@ -75,12 +75,12 @@ const VARIANT_THEME = {
   },
   admin: {
     shell: "min-h-screen bg-gray-50",
-    backLink: "mb-4 inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700",
+    backLink: "mb-4 inline-flex items-center gap-1 typo-medium-14 text-gray-500 hover:text-gray-700",
     card: "overflow-hidden rounded-xl border border-gray-200 bg-white p-6",
     title: "mb-5 text-lg font-bold text-gray-900",
     label: "mb-1.5 block text-[11px] font-bold text-gray-500 uppercase",
     input:
-      "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/40 focus:outline-none",
+      "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 typo-medium-14 text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:ring-2 focus:ring-amber-500/40 focus:outline-none",
     toolbar: "mb-1 flex flex-wrap items-center gap-0.5 rounded-t-lg border border-gray-300 bg-gray-50 px-2 py-1.5",
     editorBorder: "border-gray-300",
     editorBg: "bg-white",
@@ -432,7 +432,7 @@ export default function PostForm({
             </div>
             {/* 에디터 영역 */}
             <div
-              className={`post-rich-text min-h-[200px] rounded-b-lg border border-t-0 ${theme.editorBorder} ${theme.editorBg} px-3 py-2.5 text-sm ${theme.editorText} [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]`}
+              className={`post-rich-text min-h-[200px] rounded-b-lg border border-t-0 ${theme.editorBorder} ${theme.editorBg} typo-medium-14 px-3 py-2.5 ${theme.editorText} [&_.ProseMirror]:min-h-[160px] [&_.ProseMirror]:outline-none [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]`}
             >
               <EditorContent editor={editor} />
             </div>
@@ -483,7 +483,7 @@ function ToolbarButton({ onClick, active, ariaLabel, label }: ToolbarButtonProps
       type="button"
       onClick={onClick}
       aria-label={ariaLabel}
-      className={`rounded px-2 py-1 text-sm transition-colors ${
+      className={`typo-medium-14 rounded px-2 py-1 transition-colors ${
         active ? "bg-amber-600/30 text-amber-400" : "text-gray-400 hover:bg-white/10 hover:text-white"
       }`}
     >

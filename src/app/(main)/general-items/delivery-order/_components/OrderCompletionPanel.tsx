@@ -13,8 +13,8 @@ interface OrderCompletionPanelProps {
 function InfoRow({ label, value }: { label: string; value?: string | number }) {
   return (
     <div className="flex items-start justify-between gap-4 border-b border-white/10 pb-3">
-      <dt className="text-sm text-gray-400">{label}</dt>
-      <dd className="max-w-[65%] text-right text-sm font-medium break-words text-white">{value || "-"}</dd>
+      <dt className="typo-medium-14 text-gray-400">{label}</dt>
+      <dd className="typo-medium-14 max-w-[65%] text-right break-words text-white">{value || "-"}</dd>
     </div>
   );
 }
@@ -39,7 +39,7 @@ export default function OrderCompletionPanel({ result }: OrderCompletionPanelPro
   return (
     <section className="border border-white/10 bg-white/5 p-5 md:p-8">
       <div className="mb-6">
-        <p className="text-sm text-amber-300">주문 접수가 완료되었습니다.</p>
+        <p className="typo-medium-14 text-amber-300">주문 접수가 완료되었습니다.</p>
         <h2 className="typo-bold-24 mt-2 text-white">주문 정보를 확인해 주세요.</h2>
       </div>
 
@@ -54,14 +54,14 @@ export default function OrderCompletionPanel({ result }: OrderCompletionPanelPro
 
       {result.guestOrderToken && (
         <div className="mt-6 border border-amber-400/30 bg-amber-400/10 p-4">
-          <p className="text-sm text-amber-200">비회원 조회 코드</p>
+          <p className="typo-medium-14 text-amber-200">비회원 조회 코드</p>
           <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <strong className="font-mono text-lg text-white">{result.guestOrderToken}</strong>
             <Button type="button" variant="outline" onClick={handleCopyToken}>
               {copied ? "복사됨" : "조회 코드 복사"}
             </Button>
           </div>
-          <p className="mt-3 text-xs leading-5 text-amber-100/80">
+          <p className="typo-medium-12 mt-3 leading-5 text-amber-100/80">
             조회 코드는 최초 주문 완료 화면에서만 다시 확인할 수 있습니다. 주문번호와 함께 보관해 주세요.
           </p>
         </div>

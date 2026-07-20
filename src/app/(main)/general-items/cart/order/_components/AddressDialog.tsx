@@ -3,13 +3,7 @@
 import type { UserDeliveryAddressResponse, UserSelfResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,11 +11,7 @@ import { Search } from "lucide-react";
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import { toast } from "sonner";
 import { createDeliveryAddressFormAction } from "../../../delivery-order/actions";
-import {
-  type KakaoPostcodeData,
-  loadKakaoPostcodeScript,
-  resolvePostcodeAddress,
-} from "../_lib/kakao-postcode";
+import { loadKakaoPostcodeScript, resolvePostcodeAddress, type KakaoPostcodeData } from "../_lib/kakao-postcode";
 
 interface AddressDialogProps {
   open: boolean;
@@ -30,12 +20,7 @@ interface AddressDialogProps {
   onAddressCreated: (address: UserDeliveryAddressResponse) => void;
 }
 
-export function AddressDialog({
-  open,
-  onOpenChange,
-  currentUser,
-  onAddressCreated,
-}: AddressDialogProps) {
+export function AddressDialog({ open, onOpenChange, currentUser, onAddressCreated }: AddressDialogProps) {
   const [addressError, setAddressError] = useState<string | null>(null);
   const [isAddressPending, startAddressTransition] = useTransition();
   const postalCodeRef = useRef<HTMLInputElement>(null);
@@ -85,14 +70,14 @@ export function AddressDialog({
         <form className="grid gap-4" onSubmit={handleSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label className="mb-1 text-sm font-medium text-gray-700" htmlFor="addressName" required>
+              <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="addressName" required>
                 배송지 이름
               </Label>
               <Input id="addressName" name="addressName" placeholder="집" required />
             </div>
             <div className="flex items-end gap-2 pb-2">
               <Checkbox id="defaultAddress" name="defaultAddress" />
-              <Label htmlFor="defaultAddress" className="text-sm text-gray-700">
+              <Label htmlFor="defaultAddress" className="typo-medium-14 text-gray-700">
                 기본 배송지로 설정
               </Label>
             </div>
@@ -100,26 +85,13 @@ export function AddressDialog({
 
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <Label
-                className="mb-1 text-sm font-medium text-gray-700"
-                htmlFor="addressReceiverName"
-                required
-              >
+              <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="addressReceiverName" required>
                 수령인
               </Label>
-              <Input
-                id="addressReceiverName"
-                name="receiverName"
-                defaultValue={currentUser?.name ?? ""}
-                required
-              />
+              <Input id="addressReceiverName" name="receiverName" defaultValue={currentUser?.name ?? ""} required />
             </div>
             <div>
-              <Label
-                className="mb-1 text-sm font-medium text-gray-700"
-                htmlFor="addressReceiverPhone"
-                required
-              >
+              <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="addressReceiverPhone" required>
                 수령인 연락처
               </Label>
               <Input
@@ -133,31 +105,22 @@ export function AddressDialog({
           </div>
 
           <div className="border-y border-gray-200 py-4">
-            <div className="flex flex-wrap items-center gap-2 text-xs font-semibold">
-              <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">
-                1
-              </span>
+            <div className="typo-semibold-12 flex flex-wrap items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">1</span>
               <span className="text-amber-700">주소 검색</span>
               <span className="h-px min-w-8 flex-1 bg-gray-200" aria-hidden="true" />
-              <span className="inline-flex h-6 w-6 items-center justify-center bg-gray-100 text-gray-600">
-                2
-              </span>
+              <span className="inline-flex h-6 w-6 items-center justify-center bg-gray-100 text-gray-600">2</span>
               <span className="text-gray-600">상세 주소 입력</span>
             </div>
 
             <div className="mt-4 grid gap-4">
               <div className="grid gap-3 md:grid-cols-[160px_1fr] md:items-end">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handlePostcodeSearch}
-                  className="h-9"
-                >
+                <Button type="button" variant="outline" onClick={handlePostcodeSearch} className="h-9">
                   <Search aria-hidden="true" />
                   우편번호 검색
                 </Button>
                 <div>
-                  <Label className="mb-1 text-sm font-medium text-gray-700" htmlFor="postalCode">
+                  <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="postalCode">
                     우편번호
                   </Label>
                   <Input
@@ -173,11 +136,7 @@ export function AddressDialog({
               </div>
 
               <div>
-                <Label
-                  className="mb-1 text-sm font-medium text-gray-700"
-                  htmlFor="address"
-                  required
-                >
+                <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="address" required>
                   기본 주소
                 </Label>
                 <Input
@@ -192,7 +151,7 @@ export function AddressDialog({
               </div>
 
               <div className="border-t border-gray-200 pt-4">
-                <Label className="mb-1 text-sm font-medium text-gray-700" htmlFor="addressDetail">
+                <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="addressDetail">
                   상세 주소
                 </Label>
                 <Input
@@ -207,21 +166,13 @@ export function AddressDialog({
           </div>
 
           <div>
-            <Label
-              className="mb-1 text-sm font-medium text-gray-700"
-              htmlFor="addressDeliveryMemo"
-            >
+            <Label className="typo-medium-14 mb-1 text-gray-700" htmlFor="addressDeliveryMemo">
               배송 메모
             </Label>
-            <Textarea
-              id="addressDeliveryMemo"
-              name="deliveryMemo"
-              defaultValue=""
-              placeholder="문 앞에 놓아주세요"
-            />
+            <Textarea id="addressDeliveryMemo" name="deliveryMemo" defaultValue="" placeholder="문 앞에 놓아주세요" />
           </div>
 
-          {addressError && <p className="text-sm text-red-600">{addressError}</p>}
+          {addressError && <p className="typo-medium-14 text-red-600">{addressError}</p>}
 
           <DialogFooter className="gap-2 sm:gap-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

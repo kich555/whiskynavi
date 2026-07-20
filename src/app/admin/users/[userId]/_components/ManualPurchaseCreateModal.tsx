@@ -114,7 +114,7 @@ export default function ManualPurchaseCreateModal({ isOpen, close, userId }: Man
                 step={1}
                 value={unitPrice}
                 onChange={(e) => setUnitPrice(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 typo-medium-14 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
             </div>
 
@@ -129,7 +129,7 @@ export default function ManualPurchaseCreateModal({ isOpen, close, userId }: Man
                 step={1}
                 value={requestedQuantity}
                 onChange={(e) => setRequestedQuantity(e.target.value)}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2 typo-medium-14 focus:ring-2 focus:ring-amber-500 focus:outline-none"
               />
             </div>
           </div>
@@ -144,19 +144,19 @@ export default function ManualPurchaseCreateModal({ isOpen, close, userId }: Man
               maxLength={500}
               onChange={(e) => setOrderNote(e.target.value)}
               rows={3}
-              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              className="w-full resize-none rounded-lg border border-gray-300 px-3 py-2 typo-medium-14 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             />
-            <p className="text-right text-xs text-gray-400">{orderNote.length}/500</p>
+            <p className="text-right typo-medium-12 text-gray-400">{orderNote.length}/500</p>
           </div>
 
           <div className="rounded-lg bg-gray-50 p-4">
-            <div className="flex items-center justify-between text-sm">
+            <div className="flex items-center justify-between typo-medium-14">
               <span className="text-gray-500">추가될 구매 금액</span>
               <span className="font-semibold text-gray-900">{totalPrice.toLocaleString("ko-KR")}원</span>
             </div>
           </div>
 
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="typo-medium-14 text-red-600">{error}</p>}
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

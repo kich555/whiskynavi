@@ -41,7 +41,7 @@ export default function ParameterCombobox({
         maxLength={maxLength}
         required={required}
         defaultValue={defaultValue}
-        className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+        className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
       />
     );
   }
@@ -76,7 +76,7 @@ export default function ParameterCombobox({
         }}
         maxLength={maxLength}
         required={required}
-        className="w-full rounded border border-gray-300 py-1 pr-8 pl-2 text-sm"
+        className="typo-medium-14 w-full rounded border border-gray-300 py-1 pr-8 pl-2"
       />
       <button
         type="button"
@@ -92,7 +92,7 @@ export default function ParameterCombobox({
       {isOpen && (
         <div
           role="listbox"
-          className="absolute top-full z-20 mt-1 max-h-56 w-full overflow-y-auto rounded border border-gray-200 bg-white py-1 text-sm shadow-lg"
+          className="typo-medium-14 absolute top-full z-20 mt-1 max-h-56 w-full overflow-y-auto rounded border border-gray-200 bg-white py-1 shadow-lg"
         >
           {filteredOptions.length > 0 ? (
             filteredOptions.map((option) => (

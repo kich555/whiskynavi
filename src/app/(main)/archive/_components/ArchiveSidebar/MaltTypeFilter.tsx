@@ -20,7 +20,10 @@ export function MaltTypeFilter({ maltTypes, selectedMaltTypes, onToggle }: MaltT
               onCheckedChange={() => onToggle(malt)}
               className="border-white/30 bg-white/10 data-[state=checked]:border-white data-[state=checked]:bg-white data-[state=checked]:text-black"
             />
-            <label htmlFor={`malt-${malt}`} className="cursor-pointer text-sm text-white/80 group-hover:text-white">
+            <label
+              htmlFor={`malt-${malt}`}
+              className="typo-medium-14 cursor-pointer text-white/80 group-hover:text-white"
+            >
               {malt}
             </label>
           </div>

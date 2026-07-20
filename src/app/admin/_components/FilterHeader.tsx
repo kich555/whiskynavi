@@ -73,7 +73,7 @@ function FilterDropdown({
             onSelect(filterKey, option.value);
             close();
           }}
-          className={`block w-full cursor-pointer px-3 py-2 text-left text-xs hover:bg-gray-100 ${
+          className={`typo-medium-12 block w-full cursor-pointer px-3 py-2 text-left hover:bg-gray-100 ${
             currentValue === option.value ? "bg-amber-50 text-amber-700" : ""
           }`}
         >

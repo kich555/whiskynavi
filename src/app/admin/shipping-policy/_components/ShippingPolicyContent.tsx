@@ -32,10 +32,10 @@ export default function ShippingPolicyContent({ policy }: ShippingPolicyContentP
         <form action={formAction} className="max-w-2xl space-y-8 rounded-lg border border-gray-200 bg-white p-6">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <label htmlFor="enabled" className="block text-sm font-medium text-gray-900">
+              <label htmlFor="enabled" className="block typo-medium-14 text-gray-900">
                 정책 사용
               </label>
-              <p className="mt-1 text-sm text-gray-500">배송비 정책 적용 여부를 설정합니다.</p>
+              <p className="mt-1 typo-medium-14 text-gray-500">배송비 정책 적용 여부를 설정합니다.</p>
             </div>
             <input
               id="enabled"
@@ -49,7 +49,7 @@ export default function ShippingPolicyContent({ policy }: ShippingPolicyContentP
           </div>
 
           <div>
-            <label htmlFor="baseShippingFee" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="baseShippingFee" className="mb-2 block typo-medium-14 text-gray-700">
               기본 배송비
             </label>
             <input
@@ -66,7 +66,7 @@ export default function ShippingPolicyContent({ policy }: ShippingPolicyContentP
           </div>
 
           <div>
-            <label htmlFor="freeShippingThreshold" className="mb-2 block text-sm font-medium text-gray-700">
+            <label htmlFor="freeShippingThreshold" className="mb-2 block typo-medium-14 text-gray-700">
               무료배송 기준 금액
             </label>
             <input
@@ -83,12 +83,12 @@ export default function ShippingPolicyContent({ policy }: ShippingPolicyContentP
           </div>
 
           {state.error ? (
-            <p role="alert" className="text-sm text-red-600">
+            <p role="alert" className="typo-medium-14 text-red-600">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p role="status" className="text-sm text-green-600">
+            <p role="status" className="typo-medium-14 text-green-600">
               배송비 정책이 저장되었습니다.
             </p>
           ) : null}

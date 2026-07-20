@@ -49,7 +49,7 @@ export default function AdminInquiriesContent({ searchParams, inquiries, totalEl
 
       <div className="p-4 md:p-8">
         <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements}건</p>
           <Select value={searchParams.status ?? "ALL"} onValueChange={handleStatusChange}>
             <SelectTrigger aria-label="문의 상태" className="w-full bg-white sm:w-40">
               <SelectValue />
@@ -68,12 +68,12 @@ export default function AdminInquiriesContent({ searchParams, inquiries, totalEl
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">사용자</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">제목</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">상태</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">최근 메시지</th>
-                  <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">관리</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">ID</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">사용자</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">제목</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">상태</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">최근 메시지</th>
+                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -91,20 +91,20 @@ export default function AdminInquiriesContent({ searchParams, inquiries, totalEl
                       onClick={() => router.push(`/admin/inquiries/${inquiry.id}`)}
                       className="cursor-pointer transition-colors hover:bg-gray-50"
                     >
-                      <td className="px-4 py-4 text-sm text-gray-700">{inquiry.id}</td>
-                      <td className="px-4 py-4 text-sm text-gray-700">#{inquiry.userId}</td>
-                      <td className="max-w-xs px-4 py-4 text-sm font-medium text-gray-900">
+                      <td className="px-4 py-4 typo-medium-14 text-gray-700">{inquiry.id}</td>
+                      <td className="px-4 py-4 typo-medium-14 text-gray-700">#{inquiry.userId}</td>
+                      <td className="max-w-xs px-4 py-4 typo-medium-14 text-gray-900">
                         <span className="block truncate">{inquiry.title ?? "제목 없음"}</span>
                       </td>
-                      <td className="px-4 py-4 text-sm">
+                      <td className="px-4 py-4 typo-medium-14">
                         <Badge variant="outline" className={STATUS_COLOR[inquiry.status ?? ""] ?? STATUS_COLOR.CLOSED}>
                           {STATUS_LABEL[inquiry.status ?? ""] ?? inquiry.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-4 text-sm whitespace-nowrap text-gray-600">
+                      <td className="px-4 py-4 typo-medium-14 whitespace-nowrap text-gray-600">
                         {formatDateTime(inquiry.lastMessageAt)}
                       </td>
-                      <td className="px-4 py-4 text-sm">
+                      <td className="px-4 py-4 typo-medium-14">
                         <button
                           type="button"
                           onClick={(event) => {

@@ -49,7 +49,7 @@ export default function MyPageClient({ user, orders, businessApplicationOverview
             <nav className="flex">
               <button
                 onClick={() => handleTabChange("orders")}
-                className={`flex-1 px-4 py-3 text-center text-sm font-semibold transition-colors md:px-6 md:py-4 md:text-base ${
+                className={`typo-semibold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
                   activeTab === "orders" ? "border-b-2 border-white text-white" : "text-gray-400 hover:text-gray-300"
                 }`}
               >
@@ -58,7 +58,7 @@ export default function MyPageClient({ user, orders, businessApplicationOverview
               </button>
               <button
                 onClick={() => handleTabChange("membership")}
-                className={`flex-1 px-4 py-3 text-center text-sm font-semibold transition-colors md:px-6 md:py-4 md:text-base ${
+                className={`typo-semibold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
                   activeTab === "membership"
                     ? "border-b-2 border-white text-white"
                     : "text-gray-400 hover:text-gray-300"

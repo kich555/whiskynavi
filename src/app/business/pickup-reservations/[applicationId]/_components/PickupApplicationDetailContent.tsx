@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -20,6 +21,7 @@ import BusinessHeader from "../../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL } from "../../../constants";
 import { formatCurrency, formatDate } from "../../../utils";
 import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../../actions";
+import { getReservationNoticeDisplay } from "../../notice-display";
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
 
@@ -62,9 +64,10 @@ interface StatusActionButtonProps {
   applicationId: number;
   status?: string;
   applicantName?: string;
+  businessId?: number;
 }
 
-function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName, businessId }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -79,11 +82,11 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
       let result: { success: boolean; error?: string };
 
       if (actionType === "payment-complete") {
-        result = await paymentCompleteAction(applicationId);
+        result = await paymentCompleteAction(applicationId, businessId);
       } else if (actionType === "waiting-pickup") {
-        result = await waitingPickupAction(applicationId);
+        result = await waitingPickupAction(applicationId, businessId);
       } else {
-        result = await receiveCompleteAction(applicationId);
+        result = await receiveCompleteAction(applicationId, businessId);
       }
 
       if (result.success) {
@@ -127,10 +130,16 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
 
 interface PickupApplicationDetailContentProps {
   application: UserBottleReservationPickupApplicationResponse;
+  businessId?: number;
 }
 
-export default function PickupApplicationDetailContent({ application }: PickupApplicationDetailContentProps) {
+export default function PickupApplicationDetailContent({
+  application,
+  businessId,
+}: PickupApplicationDetailContentProps) {
   const router = useRouter();
+  const noticeDisplay = getReservationNoticeDisplay(application);
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
 
   return (
     <>
@@ -149,15 +158,25 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
         </div>
 
         <div className="space-y-4">
+          {application.noticeId && (
+            <div className="flex justify-end">
+              <Button variant="outline" asChild>
+                <Link href={withBusinessId(`/business/pickup-reservations/notices/${application.noticeId}/detail`)}>
+                  공고 내용 보기
+                </Link>
+              </Button>
+            </div>
+          )}
           <StatusActionButton
             applicationId={application.id!}
             status={application.status}
             applicantName={application.applicantUser?.name ?? undefined}
+            businessId={businessId}
           />
-          {/* 병 정보 */}
+          {/* 공고 및 병 정보 */}
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-              <h3 className="font-bold text-gray-900">병 정보</h3>
+              <h3 className="font-bold text-gray-900">공고 및 병 정보</h3>
             </div>
             <div className="p-6">
               <div className="flex items-start gap-6">
@@ -173,20 +192,24 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
                 )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500">신청 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.id}</p>
+                    <p className="typo-medium-12 text-gray-500">신청 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.id}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">공고 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.noticeId ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">공고 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.noticeId ?? "-"}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">병 이름</p>
-                    <p className="text-sm font-medium text-gray-900">{application.bottleName ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">공고명</p>
+                    <p className="typo-medium-14 text-gray-900">{noticeDisplay.primaryName}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">병 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.bottleId ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">보틀명</p>
+                    <p className="typo-medium-14 text-gray-900">{application.bottleName ?? "-"}</p>
+                  </div>
+                  <div>
+                    <p className="typo-medium-12 text-gray-500">병 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.bottleId ?? "-"}</p>
                   </div>
                 </div>
               </div>
@@ -200,7 +223,7 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3">
               <div>
-                <p className="text-xs text-gray-500">상태</p>
+                <p className="typo-medium-12 text-gray-500">상태</p>
                 <div className="mt-1">
                   <Badge className={PICKUP_STATUS_COLOR[application.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                     {PICKUP_STATUS_LABEL[application.status ?? ""] ?? application.status}
@@ -208,28 +231,28 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청수량</p>
-                <p className="text-sm font-medium text-gray-900">{application.quantity ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">신청수량</p>
+                <p className="typo-medium-14 text-gray-900">{application.quantity ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">확정수량</p>
-                <p className="text-sm font-medium text-amber-600">{application.confirmedQuantity ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">확정수량</p>
+                <p className="typo-medium-14 text-amber-600">{application.confirmedQuantity ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">단가</p>
-                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.unitPrice)}</p>
+                <p className="typo-medium-12 text-gray-500">단가</p>
+                <p className="typo-medium-14 text-gray-900">{formatCurrency(application.unitPrice)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">총액</p>
-                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.totalPrice)}</p>
+                <p className="typo-medium-12 text-gray-500">총액</p>
+                <p className="typo-medium-14 text-gray-900">{formatCurrency(application.totalPrice)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.createdAt)}</p>
+                <p className="typo-medium-12 text-gray-500">신청일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">수정일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.updatedAt)}</p>
+                <p className="typo-medium-12 text-gray-500">수정일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.updatedAt)}</p>
               </div>
             </div>
           </div>
@@ -241,20 +264,20 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
               <div>
-                <p className="text-xs text-gray-500">이름</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.name ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이름</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.name ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">닉네임</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.nickname ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">닉네임</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.nickname ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">이메일</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.email ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이메일</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.email ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">전화번호</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.phone ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">전화번호</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.phone ?? "-"}</p>
               </div>
             </div>
           </div>

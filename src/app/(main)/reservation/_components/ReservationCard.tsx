@@ -33,13 +33,13 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
       <div>
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs text-gray-400">{notice.bottleBrand ?? "-"}</p>
+            <p className="typo-medium-12 text-gray-400">{notice.bottleBrand ?? "-"}</p>
             <h3
               className="typo-medium-14 mt-2 min-h-[2.8em] text-white group-hover:text-gray-300"
               style={{ lineHeight: 1.4 }}
             >
-              <span className="block line-clamp-2">{notice.noticeName ?? "-"}</span>
-              <p className="mt-1 line-clamp-2 text-xs text-gray-400">{notice.bottleName ?? "-"}</p>
+              <span className="line-clamp-2 block">{notice.noticeName ?? "-"}</span>
+              <p className="typo-medium-12 mt-1 line-clamp-2 text-gray-400">{notice.bottleName ?? "-"}</p>
             </h3>
           </div>
           <Badge className={`shrink-0 border-transparent text-white ${isActive ? "bg-blue-600" : "bg-gray-600"}`}>
@@ -47,13 +47,13 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
           </Badge>
         </div>
         <div className="mt-2 flex items-center justify-between">
-          {notice.price != null && <span className="text-xs text-gray-400">{formatCurrency(notice.price)}</span>}
+          {notice.price != null && <span className="typo-medium-12 text-gray-400">{formatCurrency(notice.price)}</span>}
           {isActive && notice.availableQuantity != null && (
-            <span className="text-xs text-gray-500">{notice.availableQuantity?.toLocaleString() ?? "-"}병</span>
+            <span className="typo-medium-12 text-gray-500">{notice.availableQuantity?.toLocaleString() ?? "-"}병</span>
           )}
         </div>
         {/* Reservation Date */}
-        <div className={`mt-2 text-xs ${isActive ? "text-blue-400" : "text-gray-500"}`}>
+        <div className={`typo-medium-12 mt-2 ${isActive ? "text-blue-400" : "text-gray-500"}`}>
           {isActive ? `마감: ${formatDate(notice.reservationEndAt)}` : `종료: ${formatDate(notice.reservationEndAt)}`}
         </div>
       </div>

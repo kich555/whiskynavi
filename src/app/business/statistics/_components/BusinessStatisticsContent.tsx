@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import BusinessHeader from "../../_components/BusinessHeader";
+import { getReservationNoticeDisplay } from "../../pickup-reservations/notice-display";
 
 interface BusinessStatisticsContentProps {
   statistics: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse;
@@ -47,33 +48,52 @@ function StageProgress({
         className="relative grid size-16 shrink-0 place-items-center rounded-full"
         style={{ background: `conic-gradient(${color} ${rate * 3.6}deg, #e5e7eb 0deg)` }}
       >
-        <div className="grid size-12 place-items-center rounded-full bg-white text-xs font-bold text-gray-900">
-          {rate}%
-        </div>
+        <div className="typo-bold-12 grid size-12 place-items-center rounded-full bg-white text-gray-900">{rate}%</div>
       </div>
       <div>
-        <p className="text-xs font-bold text-gray-500">{label}</p>
-        <p className="mt-1 text-sm font-bold text-gray-900">{formatBottleCount(quantity)}</p>
+        <p className="typo-bold-12 text-gray-500">{label}</p>
+        <p className="typo-bold-14 mt-1 text-gray-900">{formatBottleCount(quantity)}</p>
       </div>
     </div>
   );
 }
 
-function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNoticeStageStatisticsResponse }) {
+function NoticeStageCard({
+  notice,
+  selectedBusinessId,
+}: {
+  notice: UserBottleReservationPickupNoticeStageStatisticsResponse;
+  selectedBusinessId?: number;
+}) {
   const approvedQuantity = notice.approvedQuantity ?? 0;
   const noticeId = notice.noticeId;
+  const display = getReservationNoticeDisplay(notice);
+  const detailHref = selectedBusinessId
+    ? `/business/pickup-reservations/notices/${noticeId}/detail?businessId=${selectedBusinessId}`
+    : `/business/pickup-reservations/notices/${noticeId}/detail`;
+  const managementHref = selectedBusinessId
+    ? `/business/pickup-reservations/notices/${noticeId}?businessId=${selectedBusinessId}`
+    : `/business/pickup-reservations/notices/${noticeId}`;
 
   return (
     <article className="border border-gray-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 pb-3">
         <div className="min-w-0">
-          <h3 className="truncate text-base font-bold text-gray-900">{notice.bottleName ?? "이름 없는 공고"}</h3>
-          <p className="mt-1 text-xs text-gray-500">공고 #{noticeId ?? "-"}</p>
+          <h3 className="truncate text-base font-bold text-gray-900">{display.primaryName}</h3>
+          {display.secondaryName && (
+            <p className="typo-medium-12 mt-1 truncate text-gray-500">{display.secondaryName}</p>
+          )}
+          <p className="typo-medium-12 mt-1 text-gray-500">공고 #{noticeId ?? "-"}</p>
         </div>
         {noticeId ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/business/pickup-reservations/notices/${noticeId}`}>상세</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={detailHref}>공고 내용</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={managementHref}>신청 관리</Link>
+            </Button>
+          </div>
         ) : (
           <Button variant="outline" size="sm" disabled>
             상세
@@ -125,7 +145,7 @@ function NoticePagination({
   const hasNext = currentPage < totalPages;
 
   if (totalElements <= NOTICE_PAGE_SIZE) {
-    return <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>;
+    return <p className="typo-medium-14 text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>;
   }
 
   const pageHref = (pageNumber: number) => {
@@ -139,7 +159,7 @@ function NoticePagination({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border border-gray-200 bg-white px-4 py-3">
-      <p className="text-sm text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>
+      <p className="typo-medium-14 text-gray-500">총 {numberFormatter.format(totalElements)}개 공고</p>
       <div className="flex items-center gap-2">
         {hasPrevious ? (
           <Button variant="outline" size="sm" asChild>
@@ -154,7 +174,7 @@ function NoticePagination({
             이전
           </Button>
         )}
-        <span className="min-w-14 text-center text-sm font-semibold text-gray-700">
+        <span className="typo-semibold-14 min-w-14 text-center text-gray-700">
           {currentPage}/{totalPages}
         </span>
         {hasNext ? (
@@ -184,13 +204,17 @@ export default function BusinessStatisticsContent({ statistics, selectedBusiness
 
       <div className="space-y-4 p-6">
         {notices.length === 0 ? (
-          <div className="border border-gray-200 bg-white px-4 py-16 text-center text-sm text-gray-500">
+          <div className="typo-medium-14 border border-gray-200 bg-white px-4 py-16 text-center text-gray-500">
             표시할 공고별 예약 통계가 없습니다.
           </div>
         ) : (
           <div className="space-y-3">
             {notices.map((notice) => (
-              <NoticeStageCard key={notice.noticeId ?? notice.bottleName} notice={notice} />
+              <NoticeStageCard
+                key={notice.noticeId ?? notice.noticeName ?? notice.bottleName}
+                notice={notice}
+                selectedBusinessId={selectedBusinessId}
+              />
             ))}
           </div>
         )}

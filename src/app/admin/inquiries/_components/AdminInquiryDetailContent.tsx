@@ -1,6 +1,7 @@
 "use client";
 
-import type { AdminInquiryDetailResponse } from "@/apis/generated/api";
+import { postApiBoardsUploads, type AdminInquiryDetailResponse } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
 import RichTextContent from "@/components/editor/RichTextContent";
@@ -9,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/formatters";
 import { ArrowLeft, ExternalLink, Lock, RotateCcw } from "lucide-react";
+import { getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { closeInquiryAction, reopenInquiryAction, replyInquiryAction } from "../actions";
 
@@ -37,6 +39,15 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
   const replyAction = replyInquiryAction.bind(null, inquiry.id!);
   const [replyState, replyFormAction, isReplyPending] = useActionState(replyAction, { success: false });
   const isClosed = inquiry.status === "CLOSED";
+
+  const uploadFn = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+    const response = await postApiBoardsUploads({ file }, withToken(session.accessToken));
+    const url = response.data.url;
+    if (!url) throw new Error("업로드된 이미지 URL을 확인할 수 없습니다.");
+    return url;
+  }, []);
 
   useEffect(() => {
     if (!replyState.success) return;
@@ -89,10 +100,10 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                 <Badge variant="outline" className={STATUS_COLOR[inquiry.status ?? ""] ?? STATUS_COLOR.CLOSED}>
                   {STATUS_LABEL[inquiry.status ?? ""] ?? inquiry.status}
                 </Badge>
-                <span className="text-xs text-gray-500">문의 #{inquiry.id}</span>
+ <span className="typo-medium-12 text-gray-500">문의 #{inquiry.id}</span>
               </div>
               <h1 className="text-xl font-bold text-gray-900 md:text-2xl">{inquiry.title}</h1>
-              <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-sm text-gray-500">
+ <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 typo-medium-14 text-gray-500">
                 <Link
                   href={`/admin/users/${inquiry.userId}`}
                   className="inline-flex items-center gap-1 text-amber-700 hover:underline"
@@ -110,41 +121,42 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                 return (
                   <div key={message.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
                     <div className={`max-w-[85%] md:max-w-[70%] ${isAdmin ? "text-right" : "text-left"}`}>
-                      <p className="mb-1 text-xs text-gray-500">
+ <p className="mb-1 typo-medium-12 text-gray-500">
                         {message.authorNickname?.trim() ||
                           (isAdmin ? `관리자 #${message.authorId}` : `사용자 #${message.authorId}`)}
                       </p>
                       <RichTextContent
                         html={message.content ?? ""}
-                        className={`rounded-2xl px-4 py-3 text-left text-sm ${
+ className={`rounded-2xl px-4 py-3 text-left typo-medium-14 ${
                           isAdmin ? "rounded-tr-sm bg-amber-600 text-white" : "rounded-tl-sm bg-gray-100 text-gray-900"
                         }`}
                       />
-                      <time className="mt-1 block text-xs text-gray-400">{formatDateTime(message.createdAt)}</time>
+ <time className="mt-1 block typo-medium-12 text-gray-400">{formatDateTime(message.createdAt)}</time>
                     </div>
                   </div>
                 );
               })}
 
               {isClosed ? (
-                <div className="border-t border-gray-200 pt-6 text-center text-sm text-gray-500">
+ <div className="border-t border-gray-200 pt-6 text-center typo-medium-14 text-gray-500">
                   종료된 문의입니다. 답변하려면 문의를 다시 열어주세요.
                 </div>
               ) : (
                 <form ref={formRef} action={replyFormAction} className="border-t border-gray-200 pt-6">
-                  <label htmlFor="content" className="mb-2 block text-sm font-semibold text-gray-900">
+ <label htmlFor="content" className="mb-2 block typo-semibold-14 text-gray-900">
                     관리자 답변
                   </label>
                   <RichTextImageEditor
                     variant="admin"
                     compact
+                    uploadFn={uploadFn}
                     resetKey={replyState.submittedAt}
                     placeholder="답변 내용을 입력해주세요."
                     onUploadingChange={setIsUploading}
                   />
                   <div className="mt-3 flex items-center justify-between gap-4">
                     <div aria-live="polite">
-                      {replyState.error ? <p className="text-sm text-red-600">{replyState.error}</p> : null}
+ {replyState.error ? <p className="typo-medium-14 text-red-600">{replyState.error}</p> : null}
                     </div>
                     <Button
                       type="submit"

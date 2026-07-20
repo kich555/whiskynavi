@@ -86,19 +86,19 @@ export default function UserProfileCard({ user }: UserProfileCardProps) {
             <h2 className="typo-bold-24 md:text-3xl">{user.name}님</h2>
             <button
               onClick={handleEditProfile}
-              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:text-sm"
+              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
             >
               내 정보 수정
             </button>
             <button
               onClick={handleChangePassword}
-              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:text-sm"
+              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
             >
               비밀번호 변경
             </button>
           </div>
-          <p className="text-sm text-white/90 md:text-base">@{user.username}</p>
-          <p className="text-xs text-white/60 md:text-sm">{user.email}</p>
+          <p className="typo-medium-14 text-white/90 md:text-base">@{user.username}</p>
+          <p className="typo-medium-12 text-white/60 md:typo-medium-14">{user.email}</p>
         </div>
         <div className="w-full md:w-auto md:text-right">
           <div className="mb-2 flex flex-wrap items-center gap-2 md:mb-3 md:gap-3">

@@ -183,7 +183,7 @@ function InfoFormStep({ verifiedProfile, onReset }: { verifiedProfile: VerifiedS
       </Button>
 
       {(!isEmailVerified || !isUsernameVerified) && (
-        <p className="text-center text-xs text-gray-500">
+        <p className="typo-medium-12 text-center text-gray-500">
           {!isEmailVerified && !isUsernameVerified
             ? "이메일 인증과 닉네임 중복 확인이 필요합니다."
             : !isEmailVerified
@@ -202,7 +202,6 @@ export function SignUpForm() {
     step: "본인인증",
     context: {},
   });
-  console.log("funnel", funnel);
   return funnel.Render({
     본인인증: ({ history }) => (
       <VerificationStep onNext={(profile) => history.push("회원정보입력", { verifiedProfile: profile })} />

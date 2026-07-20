@@ -90,7 +90,7 @@ export default function PostRestrictionFormModal({
               maxLength={1000}
               placeholder="게시글 작성 제한 사유를 입력하세요"
             />
-            <p className="text-right text-xs text-gray-400">{formState.reason.length}/1000</p>
+            <p className="text-right typo-medium-12 text-gray-400">{formState.reason.length}/1000</p>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
@@ -111,7 +111,7 @@ export default function PostRestrictionFormModal({
               />
             </div>
           </div>
-          <p className="text-xs text-gray-500">제한 기간은 최소 1시간, 최대 9999년입니다.</p>
+          <p className="typo-medium-12 text-gray-500">제한 기간은 최소 1시간, 최대 9999년입니다.</p>
         </div>
 
         <DialogFooter className="gap-2 sm:gap-2">

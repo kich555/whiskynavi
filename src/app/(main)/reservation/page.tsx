@@ -56,7 +56,6 @@ export default async function ReservationPage() {
   const activeNotices = normalizeActiveNotices(activeData);
 
   const recentEndedNotices = recentEndedData ?? [];
-  console.log("activeData", activeData);
   const hasNoData = activeNotices.length === 0 && recentEndedNotices.length === 0;
 
   return (

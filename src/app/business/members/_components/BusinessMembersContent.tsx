@@ -93,16 +93,16 @@ export default function BusinessMembersContent({ business, members }: BusinessMe
             <section className="rounded-lg border border-gray-200 bg-white p-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                  <p className="text-sm font-bold text-amber-600">현재 기본 사업장</p>
+                  <p className="typo-bold-14 text-amber-600">현재 기본 사업장</p>
                   <h3 className="mt-1 text-xl font-bold text-gray-900">{business.businessName ?? "이름 없는 사업장"}</h3>
-                  <p className="mt-1 text-sm text-gray-500">{business.pickupAddress ?? "주소 정보 없음"}</p>
+                  <p className="mt-1 typo-medium-14 text-gray-500">{business.pickupAddress ?? "주소 정보 없음"}</p>
                 </div>
                 <Badge className="bg-gray-900 text-white">{ROLE_LABEL[business.role ?? ""] ?? business.role ?? "-"}</Badge>
               </div>
             </section>
 
             {!canManage && (
-              <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              <section className="rounded-lg border border-amber-200 bg-amber-50 p-4 typo-medium-14 text-amber-800">
                 사업장 소유자만 멤버를 변경할 수 있습니다.
               </section>
             )}
@@ -137,21 +137,21 @@ export default function BusinessMembersContent({ business, members }: BusinessMe
                   <table className="w-full">
                     <thead className="border-b border-gray-200 bg-gray-50">
                       <tr>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">사용자</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">이메일</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">권한</th>
-                        <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">관리</th>
+                        <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">사용자</th>
+                        <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">이메일</th>
+                        <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">권한</th>
+                        <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">관리</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-100">
                       {members.map((member) => (
                         <tr key={member.userId ?? member.email}>
-                          <td className="px-4 py-3 text-sm text-gray-900">
+                          <td className="px-4 py-3 typo-medium-14 text-gray-900">
                             <div className="font-bold">{member.name ?? member.username ?? "-"}</div>
-                            <div className="mt-1 text-xs text-gray-500">ID {member.userId ?? "-"}</div>
+                            <div className="mt-1 typo-medium-12 text-gray-500">ID {member.userId ?? "-"}</div>
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-700">{member.email ?? "-"}</td>
-                          <td className="px-4 py-3 text-sm">
+                          <td className="px-4 py-3 typo-medium-14 text-gray-700">{member.email ?? "-"}</td>
+                          <td className="px-4 py-3 typo-medium-14">
                             <Badge variant="secondary">{ROLE_LABEL[member.role ?? ""] ?? member.role ?? "-"}</Badge>
                           </td>
                           <td className="px-4 py-3">
@@ -177,7 +177,7 @@ export default function BusinessMembersContent({ business, members }: BusinessMe
                                 </Button>
                               </div>
                             ) : (
-                              <span className="text-sm text-gray-400">-</span>
+                              <span className="typo-medium-14 text-gray-400">-</span>
                             )}
                           </td>
                         </tr>

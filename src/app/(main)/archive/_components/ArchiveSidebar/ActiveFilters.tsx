@@ -35,11 +35,11 @@ const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) 
   return (
     <div className="mb-4">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs text-white/60">적용된 필터 ({activeFiltersCount})</span>
+        <span className="typo-medium-12 text-white/60">적용된 필터 ({activeFiltersCount})</span>
         <button
           type="button"
           onClick={onClearAll}
-          className="text-xs text-white/40 transition-colors hover:text-white/80"
+          className="typo-medium-12 text-white/40 transition-colors hover:text-white/80"
         >
           전체 초기화
         </button>
@@ -49,7 +49,7 @@ const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) 
           items.map((item) => (
             <span
               key={`${key}-${item}`}
-              className="inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs text-white/80"
+              className="typo-medium-12 inline-flex items-center gap-1 rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-white/80"
             >
               {item}
               <button
