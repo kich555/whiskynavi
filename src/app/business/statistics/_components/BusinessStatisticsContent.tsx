@@ -58,10 +58,19 @@ function StageProgress({
   );
 }
 
-function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNoticeStageStatisticsResponse }) {
+function NoticeStageCard({
+  notice,
+  selectedBusinessId,
+}: {
+  notice: UserBottleReservationPickupNoticeStageStatisticsResponse;
+  selectedBusinessId?: number;
+}) {
   const approvedQuantity = notice.approvedQuantity ?? 0;
   const noticeId = notice.noticeId;
   const display = getReservationNoticeDisplay(notice);
+  const detailHref = selectedBusinessId
+    ? `/business/pickup-reservations/notices/${noticeId}/detail?businessId=${selectedBusinessId}`
+    : `/business/pickup-reservations/notices/${noticeId}/detail`;
 
   return (
     <article className="border border-gray-200 bg-white p-4">
@@ -76,11 +85,13 @@ function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNotice
         {noticeId ? (
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm" asChild>
-              <Link href={`/business/pickup-reservations/notices/${noticeId}/detail`}>공고 내용</Link>
+              <Link href={detailHref}>공고 내용</Link>
             </Button>
-            <Button variant="outline" size="sm" asChild>
-              <Link href={`/business/pickup-reservations/notices/${noticeId}`}>신청 관리</Link>
-            </Button>
+            {!selectedBusinessId && (
+              <Button variant="outline" size="sm" asChild>
+                <Link href={`/business/pickup-reservations/notices/${noticeId}`}>신청 관리</Link>
+              </Button>
+            )}
           </div>
         ) : (
           <Button variant="outline" size="sm" disabled>
@@ -198,7 +209,11 @@ export default function BusinessStatisticsContent({ statistics, selectedBusiness
         ) : (
           <div className="space-y-3">
             {notices.map((notice) => (
-              <NoticeStageCard key={notice.noticeId ?? notice.noticeName ?? notice.bottleName} notice={notice} />
+              <NoticeStageCard
+                key={notice.noticeId ?? notice.noticeName ?? notice.bottleName}
+                notice={notice}
+                selectedBusinessId={selectedBusinessId}
+              />
             ))}
           </div>
         )}

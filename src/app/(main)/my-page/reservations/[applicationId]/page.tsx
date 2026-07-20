@@ -1,3 +1,4 @@
+import { ApiError } from "@/apis/errors";
 import { getApiBottlesReservationsApplicationsApplicationidNotice } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import RelatedNoticeDetail from "@/components/reservation/RelatedNoticeDetail";
@@ -23,10 +24,13 @@ export default async function RelatedReservationNoticePage({ params }: RelatedRe
   const applicationId = parsePositiveInt(applicationIdParam);
   if (!applicationId || !token) notFound();
 
-  const result = await getApiBottlesReservationsApplicationsApplicationidNotice(applicationId, withToken(token)).catch(
-    () => null,
-  );
-  if (!result?.data) notFound();
+  let result: Awaited<ReturnType<typeof getApiBottlesReservationsApplicationsApplicationidNotice>>;
+  try {
+    result = await getApiBottlesReservationsApplicationsApplicationidNotice(applicationId, withToken(token));
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) notFound();
+    throw error;
+  }
 
   return (
     <div className="min-h-screen bg-[#1d2429] pt-20 pb-12">

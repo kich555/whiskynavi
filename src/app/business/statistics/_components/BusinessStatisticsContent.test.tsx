@@ -43,13 +43,18 @@ describe("BusinessStatisticsContent", () => {
     );
   });
 
-  it("선택한 사업장 ID를 페이지네이션 링크에 유지한다", () => {
+  it("선택한 사업장 ID를 페이지네이션과 공고 내용 링크에 유지한다", () => {
     render(<BusinessStatisticsContent statistics={statistics} selectedBusinessId={12} />);
 
     expect(screen.getByRole("link", { name: "다음" })).toHaveAttribute(
       "href",
       "/business/statistics?businessId=12&page=2",
     );
+    expect(screen.getByRole("link", { name: "공고 내용" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10/detail?businessId=12",
+    );
+    expect(screen.queryByRole("link", { name: "신청 관리" })).not.toBeInTheDocument();
   });
 
   it("공고가 없으면 빈 상태를 표시한다", () => {

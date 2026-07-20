@@ -54,7 +54,9 @@ export default async function PickupNoticeApplicationsPage({
       withToken(token),
     ),
     getOptionalData(getApiUsersBusinessesReservationDeliveries({ noticeId }, withToken(token))),
-    getOptionalData(getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, withToken(token))),
+    getOptionalData(
+      getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, undefined, withToken(token)),
+    ),
   ]);
 
   return (

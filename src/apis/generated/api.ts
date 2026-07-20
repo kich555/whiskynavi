@@ -10232,6 +10232,13 @@ size?: number;
 sort?: string[];
 };
 
+export type GetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailParams = {
+/**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
+};
+
 export type GetApiUsersBusinessesReservationDeliveriesParams = {
 noticeId?: number;
 };
@@ -21282,17 +21289,26 @@ export type getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse
 
 export type getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse = (getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponseSuccess)
 
-export const getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl = (noticeId: number,) => {
+export const getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl = (noticeId: number,
+    params?: GetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/notices/${noticeId}/detail`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/notices/${noticeId}/detail?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/notices/${noticeId}/detail`
 }
 
-export const getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail = async (noticeId: number, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse> => {
+export const getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail = async (noticeId: number,
+    params?: GetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse> => {
   
-  return customFetch<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse>(getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl(noticeId),
+  return customFetch<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse>(getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl(noticeId,params),
   {      
     ...options,
     method: 'GET'
