@@ -8,10 +8,16 @@ interface RelatedNoticeDetailProps {
 }
 
 const ROLE_LABELS: Record<string, string> = {
+  ROLE_GUEST: "게스트",
+  ROLE_USER: "일반 회원",
+  ROLE_ADMIN: "관리자",
+  ROLE_SUPER_ADMIN: "총괄 관리자",
+  ROLE_CONSUMER: "소비자",
   ROLE_WHISKYNAVI_MEMBER: "위스키내비 멤버",
   ROLE_WHISKYTALES_MEMBER: "위스키테일즈 멤버",
   ROLE_BLIND_MEMBER: "블라인드 멤버",
   ROLE_BUSINESS: "업장 회원",
+  ROLE_TRAILNTALE_BUSINESS: "트레일앤테일 업장",
   ROLE_COMMUNITY_BUSINESS: "커뮤니티 업장",
   ROLE_PICK_UP_BUSINESS: "픽업 업장",
 };

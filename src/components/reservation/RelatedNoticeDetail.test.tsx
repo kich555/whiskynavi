@@ -14,6 +14,7 @@ describe("RelatedNoticeDetail", () => {
           bottleName: "테스트 보틀",
           price: 120000,
           description: "공고 상세 설명",
+          gradeConditions: [{ requiredRole: "ROLE_USER" }],
         }}
       />,
     );
@@ -21,6 +22,8 @@ describe("RelatedNoticeDetail", () => {
     expect(screen.getByText(/과거 신청 관계로 열람 중/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "과거 커뮤니티 공고" })).toBeInTheDocument();
     expect(screen.getByText("테스트 보틀")).toBeInTheDocument();
+    expect(screen.getByText("일반 회원")).toBeInTheDocument();
+    expect(screen.queryByText("ROLE_USER")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /신청|수정|취소/ })).not.toBeInTheDocument();
   });
 });
