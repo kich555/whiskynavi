@@ -1,7 +1,6 @@
 import type { UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
 
 export type NoticeStatus = "pending" | "active" | "applied" | "closed";
-
 const RESERVATION_ROLE_LABEL_MAP: Record<string, string> = {
   ROLE_GUEST: "게스트",
   ROLE_USER: "일반 회원",
@@ -92,20 +91,20 @@ export function getStatusBadge(status: NoticeStatus) {
 
 export function buildInfoItems(
   notice: UserBottleReservationNoticePublicResponse,
-  options?: { hideAvailableQuantity?: boolean },
+  options?: { hideAvailableQuantity?: boolean; hasBusinessRole?: boolean },
 ) {
+  // 비즈니스 권한 보유 시공가(supplyPrice), 일반 회원은 판매가(price)를 보여준다.
+  const price = options?.hasBusinessRole ? notice.supplyPrice : notice.price;
   return [
     { label: "브랜드", value: notice.bottleBrand },
     {
       label: "가격",
-      value: notice.price != null ? `${notice.price.toLocaleString()}원` : null,
+      value: price != null ? `${price.toLocaleString()}원` : null,
     },
     {
       label: "가용 수량",
       value:
-        options?.hideAvailableQuantity || notice.availableQuantity == null
-          ? null
-          : `${notice.availableQuantity}병`,
+        options?.hideAvailableQuantity || notice.availableQuantity == null ? null : `${notice.availableQuantity}병`,
     },
   ].filter((item): item is { label: string; value: string } => item.value != null);
 }

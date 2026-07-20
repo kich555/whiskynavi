@@ -1,6 +1,7 @@
 "use client";
 
-import type { AdminInquiryDetailResponse } from "@/apis/generated/api";
+import { postApiBoardsUploads, type AdminInquiryDetailResponse } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
 import RichTextContent from "@/components/editor/RichTextContent";
@@ -9,9 +10,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/formatters";
 import { ArrowLeft, ExternalLink, Lock, RotateCcw } from "lucide-react";
+import { getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useState, useTransition } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { closeInquiryAction, reopenInquiryAction, replyInquiryAction } from "../actions";
 
@@ -37,6 +39,15 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
   const replyAction = replyInquiryAction.bind(null, inquiry.id!);
   const [replyState, replyFormAction, isReplyPending] = useActionState(replyAction, { success: false });
   const isClosed = inquiry.status === "CLOSED";
+
+  const uploadFn = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+    const response = await postApiBoardsUploads({ file }, withToken(session.accessToken));
+    const url = response.data.url;
+    if (!url) throw new Error("업로드된 이미지 URL을 확인할 수 없습니다.");
+    return url;
+  }, []);
 
   useEffect(() => {
     if (!replyState.success) return;
@@ -138,6 +149,7 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
                   <RichTextImageEditor
                     variant="admin"
                     compact
+                    uploadFn={uploadFn}
                     resetKey={replyState.submittedAt}
                     placeholder="답변 내용을 입력해주세요."
                     onUploadingChange={setIsUploading}

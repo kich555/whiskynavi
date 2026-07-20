@@ -4,10 +4,11 @@ import { buildInfoItems, formatDateTime, formatReservationRole } from "../_lib/u
 interface InfoListProps {
   notice: UserBottleReservationNoticePublicResponse;
   hideAvailableQuantity?: boolean;
+  hasBusinessRole?: boolean;
 }
 
-export default function InfoList({ notice, hideAvailableQuantity }: InfoListProps) {
-  const infoItems = buildInfoItems(notice, { hideAvailableQuantity });
+export default function InfoList({ notice, hideAvailableQuantity, hasBusinessRole }: InfoListProps) {
+  const infoItems = buildInfoItems(notice, { hideAvailableQuantity, hasBusinessRole });
 
   return (
     <div className="space-y-2 lg:space-y-3">

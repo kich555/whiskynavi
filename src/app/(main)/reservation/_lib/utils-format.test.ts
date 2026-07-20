@@ -51,6 +51,7 @@ describe("buildInfoItems", () => {
   const base: UserBottleReservationNoticePublicResponse = {
     bottleBrand: "Macallan",
     price: 120000,
+    supplyPrice: 100000,
     availableQuantity: 5,
   };
 
@@ -67,6 +68,7 @@ describe("buildInfoItems", () => {
     const items = buildInfoItems({
       ...base,
       price: undefined,
+      supplyPrice: undefined,
       availableQuantity: undefined,
     });
     expect(items).toEqual([{ label: "브랜드", value: "Macallan" }]);
@@ -77,6 +79,23 @@ describe("buildInfoItems", () => {
     expect(items).toEqual([
       { label: "브랜드", value: "Macallan" },
       { label: "가격", value: "120,000원" },
+    ]);
+  });
+
+  it("hasBusinessRole이 true면 supplyPrice를 보여준다", () => {
+    const items = buildInfoItems(base, { hasBusinessRole: true });
+    expect(items).toEqual([
+      { label: "브랜드", value: "Macallan" },
+      { label: "가격", value: "100,000원" },
+      { label: "가용 수량", value: "5병" },
+    ]);
+  });
+
+  it("hasBusinessRole이 true일 때 supplyPrice가 없으면 가격 항목을 제외한다", () => {
+    const items = buildInfoItems({ ...base, supplyPrice: undefined }, { hasBusinessRole: true });
+    expect(items).toEqual([
+      { label: "브랜드", value: "Macallan" },
+      { label: "가용 수량", value: "5병" },
     ]);
   });
 });

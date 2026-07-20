@@ -1,9 +1,14 @@
 "use client";
 
+import { postApiS3Upload } from "@/apis/generated/api";
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
+import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { buildCloudFrontUrl } from "@/lib/cloudfront";
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { getSession } from "next-auth/react";
+import { useCallback, useState } from "react";
 import CurrencyInput from "../../../_components/CurrencyInput";
 import DateTimePicker from "../../../_components/DateTimePicker";
 import { ROLE_LABEL_MAP } from "../../../constants";
@@ -20,10 +25,27 @@ interface GradeCondition {
 interface NoticeFormFieldsProps {
   defaultValues?: AdminBottleReservationNoticeResponse;
   formValues?: NoticeFormValues;
+  onUploadingChange?: (uploading: boolean) => void;
 }
 
-export default function NoticeFormFields({ defaultValues, formValues }: NoticeFormFieldsProps) {
+export default function NoticeFormFields({ defaultValues, formValues, onUploadingChange }: NoticeFormFieldsProps) {
   const isEditing = defaultValues?.id != null;
+  const [uploading, setUploading] = useState(false);
+  const handleUploadingChange = useCallback(
+    (next: boolean) => {
+      setUploading(next);
+      onUploadingChange?.(next);
+    },
+    [onUploadingChange],
+  );
+  const uploadFn = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const key = response.data.key;
+    if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
+    return buildCloudFrontUrl(key);
+  }, []);
   const [gradeConditions, setGradeConditions] = useState<GradeCondition[]>(
     formValues?.gradeConditions ??
       defaultValues?.gradeConditions?.map((gc) => ({
@@ -176,14 +198,18 @@ export default function NoticeFormFields({ defaultValues, formValues }: NoticeFo
 
         <div className="md:col-span-2">
           <label className="typo-medium-14 mb-1 block text-gray-700">설명</label>
-          <textarea
+          <RichTextImageEditor
             name="description"
-            rows={4}
-            maxLength={5000}
+            variant="admin"
             defaultValue={formValues?.description ?? defaultValues?.description ?? ""}
             className="typo-medium-14 w-full rounded-lg border border-gray-300 px-3 py-2 focus:ring-2 focus:ring-amber-500 focus:outline-none"
             placeholder="예약 공고에 대한 설명을 입력하세요"
+            uploadFn={uploadFn}
+            onUploadingChange={handleUploadingChange}
           />
+          {uploading && (
+            <p className="mt-1 text-xs text-amber-600">이미지 업로드 중입니다. 완료 후 저장하세요.</p>
+          )}
         </div>
       </div>
 

@@ -1,7 +1,5 @@
 "use client";
 
-import { postApiBoardsUploads } from "@/apis/generated/api";
-import { withToken } from "@/apis/mutator";
 import { getImageSizeError } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import Image from "@tiptap/extension-image";
@@ -21,7 +19,6 @@ import {
   Strikethrough,
   Unlink,
 } from "lucide-react";
-import { getSession } from "next-auth/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
@@ -36,6 +33,8 @@ interface RichTextImageEditorProps {
   compact?: boolean;
   resetKey?: number;
   onUploadingChange?: (uploading: boolean) => void;
+  /** 파일을 업로드한 뒤 최종 URL을 반환. 인증/토큰 처리는 호출처 책임. */
+  uploadFn: (file: File) => Promise<string>;
 }
 
 function getPastedHttpUrl(clipboardData: DataTransfer): string | null {
@@ -61,6 +60,7 @@ export default function RichTextImageEditor({
   compact = false,
   resetKey,
   onUploadingChange,
+  uploadFn,
 }: RichTextImageEditorProps) {
   const hiddenInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -139,8 +139,12 @@ export default function RichTextImageEditor({
         });
         return changed;
       });
+      // 업로드 완료 직후 hidden input을 동기식으로 갱신.
+      // onUpdate 비동기 콜백에만 의존하면 저장 시점에 아직 blob: URL이 남아
+      // 서버 sanitize에서 이미지가 통째로 날아가는 버그가 발생한다.
+      syncHiddenInput(editor.getHTML());
     },
-    [editor],
+    [editor, syncHiddenInput],
   );
 
   const uploadAndInsertImage = useCallback(
@@ -167,11 +171,8 @@ export default function RichTextImageEditor({
       setUploadingCount((count) => count + 1);
 
       try {
-        const session = await getSession();
-        if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
-        const response = await postApiBoardsUploads({ file }, withToken(session.accessToken));
-        if (!response.data.url) throw new Error("업로드된 이미지 URL을 확인할 수 없습니다.");
-        replaceImageSource(blobUrl, response.data.url);
+        const realUrl = await uploadFn(file);
+        replaceImageSource(blobUrl, realUrl);
       } catch (error) {
         replaceImageSource(blobUrl);
         setUploadError(error instanceof Error ? error.message : "이미지 업로드에 실패했습니다.");
@@ -180,7 +181,7 @@ export default function RichTextImageEditor({
         URL.revokeObjectURL(blobUrl);
       }
     },
-    [countImages, editor, replaceImageSource],
+    [countImages, editor, replaceImageSource, uploadFn],
   );
 
   useEffect(() => {

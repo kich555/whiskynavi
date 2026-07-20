@@ -122,7 +122,6 @@ export function AgreementSection() {
     smsAgree: smsAgreed,
     snsAgree: snsAgreed,
   };
-  console.log("signupAgreementValues", signupAgreementValues);
   const termsData = viewingTerms ? TERMS_CONTENT[viewingTerms] : null;
 
   return (

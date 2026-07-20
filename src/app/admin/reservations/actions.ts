@@ -32,6 +32,7 @@ import {
   NOTICES_RECENT_ENDED_CACHE_TAG,
 } from "@/app/(main)/reservation/_lib/cacheTags";
 import { getAuthToken } from "@/lib/auth";
+import { richTextHasContent, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
@@ -114,9 +115,8 @@ const noticeFormSchema = z.object({
     return v;
   }),
   description: z.string().transform((v) => {
-    if (!v.trim()) return undefined;
-    if (v.length > 5000) throw new Error("설명은 5000자를 초과할 수 없습니다.");
-    return v;
+    if (!richTextHasContent(v)) return undefined;
+    return sanitizeRichTextContent(v);
   }),
   gradeConditions: z.string().transform((v) => {
     if (!v.trim()) return undefined;
@@ -150,7 +150,7 @@ function extractNoticeFormValues(formData: FormData): NoticeFormValues {
     maxOrderQuantity: (formData.get("maxOrderQuantity") as string) ?? "",
     reservationStartAt: (formData.get("reservationStartAt") as string) ?? "",
     reservationEndAt: (formData.get("reservationEndAt") as string) ?? "",
-    description: (formData.get("description") as string) ?? "",
+    description: sanitizeRichTextContent((formData.get("description") as string) ?? ""),
     gradeConditions,
   };
 }
@@ -361,7 +361,11 @@ export async function updateNoticeFormAction(
   if (!parsed.success) return { success: false, error: parsed.error, values: parsed.values };
 
   try {
-    await putApiAdminBottlesReservationsNoticesNoticeid(noticeId, buildNoticeBody(parsed.data), withToken(token));
+    await putApiAdminBottlesReservationsNoticesNoticeid(
+      noticeId,
+      buildNoticeBody(parsed.data),
+      withToken(token),
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "공고 수정에 실패했습니다.";
     return { success: false, error: message, values: parsed.values };

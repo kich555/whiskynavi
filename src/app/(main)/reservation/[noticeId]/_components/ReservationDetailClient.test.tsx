@@ -11,6 +11,10 @@ vi.mock("@/components/ui/ImageWithFallback", () => ({
   ImageWithFallback: ({ alt }: { alt: string }) => <span aria-label={alt} role="img" />,
 }));
 
+vi.mock("next-auth/react", () => ({
+  useSession: vi.fn(() => ({ data: null, status: "unauthenticated" })),
+}));
+
 vi.mock("../../actions", () => ({
   applyReservation: vi.fn(),
   cancelReservation: vi.fn(),

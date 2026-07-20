@@ -23,6 +23,7 @@ const isAppliedApplication = (application: UserBottleReservationApplicationPubli
 
 export default async function ReservationDetailPage({ params }: PageProps) {
   const session = await getServerSession(authOptions);
+
   if (!session) {
     redirect("/sign-in?callbackUrl=/reservation");
   }
@@ -37,7 +38,6 @@ export default async function ReservationDetailPage({ params }: PageProps) {
   } catch {
     notFound();
   }
-
   const pickupLocations = await fetchPickupLocations();
   let myApplication: UserBottleReservationApplicationPublicResponse | null = null;
 
