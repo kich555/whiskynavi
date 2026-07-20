@@ -1,4 +1,4 @@
-import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/reservation-related";
+import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/generated/api";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 

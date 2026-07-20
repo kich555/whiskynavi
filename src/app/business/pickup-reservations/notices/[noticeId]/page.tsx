@@ -1,10 +1,10 @@
 import {
   type GetApiUsersBusinessesPickupReservationsApplicationsStatus,
   getApiUsersBusinessesPickupReservationsApplications,
+  getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail,
   getApiUsersBusinessesReservationDeliveries,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getRelatedBottleReservationNoticeByPickupBusiness } from "@/apis/reservation-related";
 import { getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
 import PickupNoticeApplicationsContent from "../../_components/PickupNoticeApplicationsContent";
@@ -54,7 +54,7 @@ export default async function PickupNoticeApplicationsPage({
       withToken(token),
     ),
     getOptionalData(getApiUsersBusinessesReservationDeliveries({ noticeId }, withToken(token))),
-    getOptionalData(getRelatedBottleReservationNoticeByPickupBusiness(noticeId, withToken(token))),
+    getOptionalData(getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, withToken(token))),
   ]);
 
   return (

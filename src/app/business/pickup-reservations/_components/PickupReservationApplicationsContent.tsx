@@ -1,5 +1,6 @@
 "use client";
 
+import type { UserBottleReservationPickupApplicationResponse } from "@/apis/generated/api";
 import FilterHeader from "@/app/admin/_components/FilterHeader";
 import Pagination from "@/app/admin/_components/Pagination";
 import { useTableFilter } from "@/app/admin/_components/useTableFilter";
@@ -22,7 +23,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL, PICKUP_STATUS_OPTIONS } from "../../constants";
 import { formatCurrency, formatDate } from "../../utils";
 import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../actions";
-import { getReservationNoticeDisplay, type PickupApplicationWithNoticeName } from "../notice-display";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupReservationApplicationsContentProps {
   searchParams: {
@@ -32,7 +33,7 @@ interface PickupReservationApplicationsContentProps {
     q?: string;
     searchType?: string;
   };
-  applications: PickupApplicationWithNoticeName[];
+  applications: UserBottleReservationPickupApplicationResponse[];
   totalElements: number;
 }
 

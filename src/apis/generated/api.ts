@@ -334,12 +334,18 @@ export const AdminBottleReservationNoticeResponseSaleStatus = {
   SOLD_OUT: 'SOLD_OUT',
 } as const;
 
+/**
+ * 관리자용 보틀 예약 공고 응답입니다.
+ */
 export interface AdminBottleReservationNoticeResponse {
+  /** 대표 이미지를 제외한 예약 공고 추가 이미지 S3 키 목록입니다. 수정 및 재정렬 요청에 사용하며 목록 조회에서는 빈 배열로 반환됩니다. */
+  additionalImageKeys?: string[];
   appliedQuantity?: number;
   approvedQuantity?: number;
   availableQuantity?: number;
   bottleBrand?: string;
   bottleId?: number;
+  /** 예약 대상 보틀의 대표 이미지 CloudFront URL입니다. */
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
@@ -347,6 +353,8 @@ export interface AdminBottleReservationNoticeResponse {
   editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
+  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
   pendingApplicationCount?: number;
@@ -1872,6 +1880,8 @@ export const BottleAdminResponseReservationStatus = {
 export interface BottleAdminResponse {
   /** 도수(ABV)입니다. */
   abv?: number;
+  /** 대표 이미지를 제외한 추가 이미지 S3 키 목록입니다. 수정 및 재정렬 요청에 사용하며 목록 조회에서는 빈 배열로 반환됩니다. */
+  additionalImageKeys?: string[];
   /** 병입일입니다. */
   bottledDate?: string;
   /** 브랜드명입니다. */
@@ -1898,7 +1908,9 @@ export interface BottleAdminResponse {
   extraInfos?: BottleAdminResponseExtraInfos;
   /** 보틀 고유 ID입니다. */
   id?: number;
-  /** 라벨 이미지의 CloudFront URL입니다. */
+  /** 대표 이미지를 제외한 추가 이미지의 CloudFront URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  imageUrls?: string[];
+  /** 보틀 대표 라벨 이미지의 CloudFront URL입니다. */
   imgUrl?: string;
   /** 몰트 타입입니다. */
   maltType?: string;
@@ -1929,6 +1941,12 @@ export type BottleCreateRequestExtraInfos = {[key: string]: string};
 export interface BottleCreateRequest {
   /** 알코올 도수(ABV)입니다. */
   abv?: number;
+  /**
+   * 대표 이미지를 제외한 추가 이미지 S3 키 목록입니다. 배열 순서대로 노출되며 최대 9개까지 등록할 수 있습니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   /** 병입 일자입니다. */
   bottledDate?: string;
   /**
@@ -1972,7 +1990,7 @@ export interface BottleCreateRequest {
   /** 추가 메타데이터(key/value)입니다. */
   extraInfos?: BottleCreateRequestExtraInfos;
   /**
-   * 업로드된 라벨 이미지의 S3 키입니다.
+   * 보틀 대표 라벨 이미지로 사용할 업로드된 S3 키입니다.
    * @minLength 0
    * @maxLength 500
    */
@@ -2014,6 +2032,12 @@ export type BottlePatchRequestExtraInfos = {[key: string]: string};
 export interface BottlePatchRequest {
   /** 수정할 알코올 도수입니다. */
   abv?: number;
+  /**
+   * 대표 이미지를 제외한 추가 이미지 S3 키 목록입니다. 생략하면 유지하고 빈 배열이면 모두 제거하며 배열 순서대로 노출됩니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   /** 수정할 병입 일자입니다. */
   bottledDate?: string;
   /**
@@ -2057,7 +2081,7 @@ export interface BottlePatchRequest {
   /** 수정할 추가 메타데이터입니다. */
   extraInfos?: BottlePatchRequestExtraInfos;
   /**
-   * 새로 교체할 라벨 이미지의 S3 키입니다.
+   * 새 보틀 대표 라벨 이미지로 교체할 업로드된 S3 키입니다. 생략하면 기존 대표 이미지를 유지합니다.
    * @minLength 0
    * @maxLength 500
    */
@@ -2146,12 +2170,14 @@ export type BottleReservationNoticeRequestGradeConditionsItem = {
 };
 
 export interface BottleReservationNoticeRequest {
+  /**
+   * 선택한 보틀의 대표 이미지를 제외한 공고 추가 이미지 S3 키 목록입니다. 수정 시 생략하면 유지하고 빈 배열이면 모두 제거하며 배열 순서대로 노출됩니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   availableQuantity?: number;
   bottleId: number;
-  /**
-   * @minLength 0
-   * @maxLength 5000
-   */
   description?: string;
   /** @minItems 1 */
   gradeConditions?: BottleReservationNoticeRequestGradeConditionsItem[];
@@ -2213,7 +2239,9 @@ export interface BottleResponse {
   extraInfos?: BottleResponseExtraInfos;
   /** 보틀 고유 ID입니다. */
   id?: number;
-  /** 라벨 이미지의 CloudFront 공개 URL입니다. */
+  /** 대표 이미지를 제외한 추가 이미지의 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  imageUrls?: string[];
+  /** 보틀 대표 라벨 이미지의 CloudFront 공개 URL입니다. */
   imgUrl?: string;
   /** 몰트 타입입니다. */
   maltType?: string;
@@ -3708,6 +3736,7 @@ export interface UserBottleReservationApplicationPublicResponse {
   createdAt?: string;
   id?: number;
   noticeId?: number;
+  noticeName?: string;
   pickupAddress?: string;
   pickupBusinessName?: string;
   pickupUserBusinessId?: number;
@@ -3746,10 +3775,14 @@ export interface UserBottleReservationGradeConditionResponse {
   requiredRole?: UserBottleReservationGradeConditionResponseRequiredRole;
 }
 
+/**
+ * 사용자용 보틀 예약 공고 응답입니다.
+ */
 export interface UserBottleReservationNoticePublicResponse {
   availableQuantity?: number;
   bottleBrand?: string;
   bottleId?: number;
+  /** 예약 대상 보틀의 대표 이미지 CloudFront 공개 URL입니다. */
   bottleImgUrl?: string;
   bottleName?: string;
   createdAt?: string;
@@ -3757,6 +3790,8 @@ export interface UserBottleReservationNoticePublicResponse {
   earliestReservableAt?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
+  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
   price?: number;
@@ -3800,6 +3835,7 @@ export interface UserBottleReservationPickupApplicationResponse {
   createdAt?: string;
   id?: number;
   noticeId?: number;
+  noticeName?: string;
   quantity?: number;
   status?: UserBottleReservationPickupApplicationResponseStatus;
   totalPrice?: number;
@@ -3948,6 +3984,7 @@ export interface UserItemReservationApplicationPublicResponse {
   itemImgUrl?: string;
   itemName?: string;
   noticeId?: number;
+  noticeName?: string;
   pickupAddress?: string;
   pickupBusinessName?: string;
   pickupUserBusinessId?: number;
@@ -5529,6 +5566,44 @@ export interface UserBottleReservationPickupBulkUpdateResponse {
   updatedCount?: number;
 }
 
+/**
+ * 열람을 허용한 관계
+ */
+export type UserBottleReservationRelatedNoticeResponseAccessReason = typeof UserBottleReservationRelatedNoticeResponseAccessReason[keyof typeof UserBottleReservationRelatedNoticeResponseAccessReason];
+
+
+export const UserBottleReservationRelatedNoticeResponseAccessReason = {
+  OWN_APPLICATION: 'OWN_APPLICATION',
+  PICKUP_BUSINESS_ASSIGNMENT: 'PICKUP_BUSINESS_ASSIGNMENT',
+} as const;
+
+/**
+ * 예약 신청 또는 픽업 사업장 관계로 조회하는 읽기 전용 보틀 예약 공고 상세
+ */
+export interface UserBottleReservationRelatedNoticeResponse {
+  /** 열람을 허용한 관계 */
+  accessReason?: UserBottleReservationRelatedNoticeResponseAccessReason;
+  availableQuantity?: number;
+  bottleBrand?: string;
+  bottleId?: number;
+  bottleImgUrl?: string;
+  bottleName?: string;
+  createdAt?: string;
+  description?: string;
+  gradeConditions?: UserBottleReservationGradeConditionResponse[];
+  id?: number;
+  imageUrls?: string[];
+  maxOrderQuantity?: number;
+  noticeName?: string;
+  price?: number;
+  /** 쓰기 기능이 없는 읽기 전용 응답 여부 */
+  readOnly?: boolean;
+  reservationEndAt?: string;
+  reservationStartAt?: string;
+  supplyPrice?: number;
+  updatedAt?: string;
+}
+
 export interface UserBusinessApplicationCancelRequest {
   /**
    * 신청 취소 사유
@@ -6370,6 +6445,12 @@ export type PostApiAdminBottlesBodyExtraInfos = {[key: string]: string};
 export type PostApiAdminBottlesBody = {
   /** 알코올 도수(ABV)입니다. */
   abv?: number;
+  /**
+   * 대표 이미지를 제외한 추가 이미지 S3 키 목록입니다. 배열 순서대로 노출되며 최대 9개까지 등록할 수 있습니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   /** 병입 일자입니다. */
   bottledDate?: string;
   /**
@@ -6413,7 +6494,7 @@ export type PostApiAdminBottlesBody = {
   /** 추가 메타데이터(key/value)입니다. */
   extraInfos?: PostApiAdminBottlesBodyExtraInfos;
   /**
-   * 업로드된 라벨 이미지의 S3 키입니다.
+   * 보틀 대표 라벨 이미지로 사용할 업로드된 S3 키입니다.
    * @minLength 0
    * @maxLength 500
    */
@@ -6566,12 +6647,14 @@ export type PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem = {
 };
 
 export type PostApiAdminBottlesReservationsNoticesBody = {
+  /**
+   * 선택한 보틀의 대표 이미지를 제외한 공고 추가 이미지 S3 키 목록입니다. 수정 시 생략하면 유지하고 빈 배열이면 모두 제거하며 배열 순서대로 노출됩니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   availableQuantity?: number;
   bottleId: number;
-  /**
-   * @minLength 0
-   * @maxLength 5000
-   */
   description?: string;
   /** @minItems 1 */
   gradeConditions?: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
@@ -6611,12 +6694,14 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem
 };
 
 export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
+  /**
+   * 선택한 보틀의 대표 이미지를 제외한 공고 추가 이미지 S3 키 목록입니다. 수정 시 생략하면 유지하고 빈 배열이면 모두 제거하며 배열 순서대로 노출됩니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   availableQuantity?: number;
   bottleId: number;
-  /**
-   * @minLength 0
-   * @maxLength 5000
-   */
   description?: string;
   /** @minItems 1 */
   gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
@@ -6687,6 +6772,12 @@ export type PatchApiAdminBottlesIdBodyExtraInfos = {[key: string]: string};
 export type PatchApiAdminBottlesIdBody = {
   /** 수정할 알코올 도수입니다. */
   abv?: number;
+  /**
+   * 대표 이미지를 제외한 추가 이미지 S3 키 목록입니다. 생략하면 유지하고 빈 배열이면 모두 제거하며 배열 순서대로 노출됩니다.
+   * @minItems 0
+   * @maxItems 9
+   */
+  additionalImageKeys?: string[];
   /** 수정할 병입 일자입니다. */
   bottledDate?: string;
   /**
@@ -6730,7 +6821,7 @@ export type PatchApiAdminBottlesIdBody = {
   /** 수정할 추가 메타데이터입니다. */
   extraInfos?: PatchApiAdminBottlesIdBodyExtraInfos;
   /**
-   * 새로 교체할 라벨 이미지의 S3 키입니다.
+   * 새 보틀 대표 라벨 이미지로 교체할 업로드된 S3 키입니다. 생략하면 기존 대표 이미지를 유지합니다.
    * @minLength 0
    * @maxLength 500
    */
@@ -11503,7 +11594,7 @@ export const putApiAdminBoardsBoardidPostsPostidPostType = async (boardId: numbe
 
 
 /**
- * 관리자가 병 목록을 조회합니다.
+ * 관리자가 병 목록을 조회합니다. imgUrl은 대표 이미지이며 imageUrls와 additionalImageKeys는 빈 배열로 반환합니다.
  * @summary 병 목록 조회(관리자)
  */
 export type getApiAdminBottlesResponse200 = {
@@ -11547,7 +11638,7 @@ export const getApiAdminBottles = async (params?: GetApiAdminBottlesParams, opti
 
 
 /**
- * 병 메타데이터를 JSON RequestBody 로 받아 저장합니다.
+ * 병 메타데이터를 JSON RequestBody 로 받아 저장합니다. labelImgKey는 대표 이미지이고 additionalImageKeys는 대표 이미지를 제외한 추가 이미지 목록입니다.
  * @summary 병 정보 등록(관리자)
  */
 export type postApiAdminBottlesResponse200 = {
@@ -11857,7 +11948,7 @@ export const postApiAdminBottlesReservationsApplicationsApplicationidReject = as
 
 
 /**
- * 관리자가 예약 공고 목록을 조회합니다.
+ * 관리자가 예약 공고 목록을 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls와 additionalImageKeys는 빈 배열로 반환합니다.
  * @summary 예약 공고 목록(관리자)
  */
 export type getApiAdminBottlesReservationsNoticesResponse200 = {
@@ -11901,7 +11992,7 @@ export const getApiAdminBottlesReservationsNotices = async (params?: GetApiAdmin
 
 
 /**
- * 예약 기간과 가격 정보를 입력해 특정 병 예약 공고를 등록합니다.
+ * 예약 기간과 가격 정보를 입력해 특정 병 예약 공고를 등록합니다. 선택한 보틀 이미지가 대표 이미지이며 additionalImageKeys는 대표 이미지를 제외한 공고 추가 이미지 목록입니다.
  * @summary 예약 공고 생성(관리자)
  */
 export type postApiAdminBottlesReservationsNoticesResponse200 = {
@@ -11976,7 +12067,7 @@ export const deleteApiAdminBottlesReservationsNoticesNoticeid = async (noticeId:
 
 
 /**
- * 관리자가 예약 공고 상세 정보를 조회합니다.
+ * 관리자가 예약 공고 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이고 imageUrls와 additionalImageKeys는 대표 이미지를 제외한 공고 추가 이미지 정보입니다.
  * @summary 예약 공고 상세(관리자)
  */
 export type getApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
@@ -12013,7 +12104,7 @@ export const getApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: nu
 
 
 /**
- * 등록된 예약 공고의 기간, 가격, 수량 정보를 수정합니다.
+ * 등록된 예약 공고 정보를 수정합니다. additionalImageKeys는 생략 시 유지, 빈 배열 전달 시 모두 제거되며 대표 이미지는 선택한 보틀 이미지입니다.
  * @summary 예약 공고 수정(관리자)
  */
 export type putApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
@@ -12326,7 +12417,7 @@ export const deleteApiAdminBottlesId = async (id: number, options?: RequestInit)
 
 
 /**
- * 관리자가 병 상세 정보를 조회합니다.
+ * 관리자가 병 상세 정보를 조회합니다. imgUrl은 대표 이미지이고 imageUrls와 additionalImageKeys는 대표 이미지를 제외한 추가 이미지 정보입니다.
  * @summary 병 상세 조회(관리자)
  */
 export type getApiAdminBottlesIdResponse200 = {
@@ -12363,7 +12454,7 @@ export const getApiAdminBottlesId = async (id: number, options?: RequestInit): P
 
 
 /**
- * 병 메타데이터를 JSON RequestBody 로 받아 부분 수정합니다.
+ * 병 메타데이터를 JSON RequestBody 로 받아 부분 수정합니다. labelImgKey는 대표 이미지이며 additionalImageKeys는 생략 시 유지, 빈 배열 전달 시 모두 제거됩니다.
  * @summary 병 정보 수정(관리자)
  */
 export type patchApiAdminBottlesIdResponse200 = {
@@ -17293,7 +17384,7 @@ export const postApiBoardsBoardidPostsPostidViews = async (boardId: string,
 
 
 /**
- * 사용자에게 노출 가능한 전체 보틀 리스트를 반환합니다.
+ * 사용자에게 노출 가능한 보틀 목록을 반환합니다. imgUrl은 대표 이미지이며 imageUrls는 추가 이미지를 조회하지 않고 빈 배열로 반환합니다.
  * @summary 보틀 목록 조회
  */
 export type getApiBottlesResponse200 = {
@@ -17494,7 +17585,44 @@ export const putApiBottlesReservationsApplicationsApplicationid = async (applica
 
 
 /**
- * 예약이 가능한 공고 목록을 페이지 단위로 조회합니다.
+ * 현재 신청 자격과 무관하게 본인의 보틀 예약 신청 이력으로 공고 상세를 읽기 전용 조회합니다.
+ * @summary 내 예약 신청 관계로 공고 상세 조회
+ */
+export type getApiBottlesReservationsApplicationsApplicationidNoticeResponse200 = {
+  data: UserBottleReservationRelatedNoticeResponse
+  status: 200
+}
+    
+export type getApiBottlesReservationsApplicationsApplicationidNoticeResponseSuccess = (getApiBottlesReservationsApplicationsApplicationidNoticeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBottlesReservationsApplicationsApplicationidNoticeResponse = (getApiBottlesReservationsApplicationsApplicationidNoticeResponseSuccess)
+
+export const getGetApiBottlesReservationsApplicationsApplicationidNoticeUrl = (applicationId: number,) => {
+
+
+  
+
+  return `/api/bottles/reservations/applications/${applicationId}/notice`
+}
+
+export const getApiBottlesReservationsApplicationsApplicationidNotice = async (applicationId: number, options?: RequestInit): Promise<getApiBottlesReservationsApplicationsApplicationidNoticeResponse> => {
+  
+  return customFetch<getApiBottlesReservationsApplicationsApplicationidNoticeResponse>(getGetApiBottlesReservationsApplicationsApplicationidNoticeUrl(applicationId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 예약이 가능한 공고 목록을 페이지 단위로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 추가 이미지를 조회하지 않고 빈 배열로 반환합니다.
  * @summary 예약 공고 목록
  */
 export type getApiBottlesReservationsNoticesResponse200 = {
@@ -17538,7 +17666,7 @@ export const getApiBottlesReservationsNotices = async (params?: GetApiBottlesRes
 
 
 /**
- * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 조회합니다.
+ * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 상세 형태로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 추가 이미지 URL 목록입니다.
  * @summary 최근 생성된 진행 예약 공고
  */
 export type getApiBottlesReservationsNoticesLatestActiveResponse200 = {
@@ -17575,7 +17703,7 @@ export const getApiBottlesReservationsNoticesLatestActive = async ( options?: Re
 
 
 /**
- * CLOSED 상태 예약 공고 10건을 최근 종료 시각순으로 조회합니다.
+ * CLOSED 상태 예약 공고 10건을 최근 종료 시각순으로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 빈 배열로 반환합니다.
  * @summary 최근 종료된 예약 공고 10건
  */
 export type getApiBottlesReservationsNoticesRecentEndedResponse200 = {
@@ -17612,7 +17740,7 @@ export const getApiBottlesReservationsNoticesRecentEnded = async ( options?: Req
 
 
 /**
- * 예약 공고의 상세 정보를 조회합니다.
+ * 예약 공고의 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 대표 이미지를 제외한 공고 추가 이미지 URL 목록입니다.
  * @summary 예약 공고 상세
  */
 export type getApiBottlesReservationsNoticesNoticeidResponse200 = {
@@ -17688,7 +17816,7 @@ export const postApiBottlesReservationsNoticesNoticeidApplications = async (noti
 
 
 /**
- * 식별자를 기준으로 보틀 상세 정보를 조회합니다.
+ * 식별자를 기준으로 보틀 상세 정보를 조회합니다. imgUrl은 대표 이미지이며 imageUrls는 대표 이미지를 제외한 추가 이미지 URL 목록입니다.
  * @summary 보틀 상세 조회
  */
 export type getApiBottlesIdResponse200 = {
@@ -21128,6 +21256,43 @@ export const getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl = (par
 export const getApiUsersBusinessesPickupReservationsNoticesStatuses = async (params?: GetApiUsersBusinessesPickupReservationsNoticesStatusesParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse> => {
   
   return customFetch<getApiUsersBusinessesPickupReservationsNoticesStatusesResponse>(getGetApiUsersBusinessesPickupReservationsNoticesStatusesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 현재 픽업 사업장에 배정된 신청이 있는 예약 공고의 상세를 읽기 전용 조회합니다.
+ * @summary 픽업 사업장 관계로 예약 공고 상세 조회
+ */
+export type getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse200 = {
+  data: UserBottleReservationRelatedNoticeResponse
+  status: 200
+}
+    
+export type getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponseSuccess = (getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse = (getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponseSuccess)
+
+export const getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/users/businesses/pickup-reservations/notices/${noticeId}/detail`
+}
+
+export const getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail = async (noticeId: number, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse> => {
+  
+  return customFetch<getApiUsersBusinessesPickupReservationsNoticesNoticeidDetailResponse>(getGetApiUsersBusinessesPickupReservationsNoticesNoticeidDetailUrl(noticeId),
   {      
     ...options,
     method: 'GET'

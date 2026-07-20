@@ -1,5 +1,5 @@
+import { getApiBottlesReservationsApplicationsApplicationidNotice } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getRelatedBottleReservationNoticeByApplication } from "@/apis/reservation-related";
 import RelatedNoticeDetail from "@/components/reservation/RelatedNoticeDetail";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
@@ -23,7 +23,7 @@ export default async function RelatedReservationNoticePage({ params }: RelatedRe
   const applicationId = parsePositiveInt(applicationIdParam);
   if (!applicationId || !token) notFound();
 
-  const result = await getRelatedBottleReservationNoticeByApplication(applicationId, withToken(token)).catch(
+  const result = await getApiBottlesReservationsApplicationsApplicationidNotice(applicationId, withToken(token)).catch(
     () => null,
   );
   if (!result?.data) notFound();

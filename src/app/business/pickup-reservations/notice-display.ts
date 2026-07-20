@@ -1,9 +1,3 @@
-import type { UserBottleReservationPickupApplicationResponse } from "@/apis/generated/api";
-
-export type PickupApplicationWithNoticeName = UserBottleReservationPickupApplicationResponse & {
-  noticeName?: string;
-};
-
 interface ReservationNoticeNames {
   noticeName?: string;
   bottleName?: string;

@@ -1,7 +1,10 @@
 "use client";
 
-import type { UserReservationBusinessDeliveryResponse } from "@/apis/generated/api";
-import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/reservation-related";
+import type {
+  UserBottleReservationPickupApplicationResponse,
+  UserBottleReservationRelatedNoticeResponse,
+  UserReservationBusinessDeliveryResponse,
+} from "@/apis/generated/api";
 import FilterHeader from "@/app/admin/_components/FilterHeader";
 import Pagination from "@/app/admin/_components/Pagination";
 import { useTableFilter } from "@/app/admin/_components/useTableFilter";
@@ -25,7 +28,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL, PICKUP_STATUS_OPTIONS } from "../../constants";
 import { formatCurrency, formatDate } from "../../utils";
 import { bulkWaitingPickupAction, paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../actions";
-import { getReservationNoticeDisplay, type PickupApplicationWithNoticeName } from "../notice-display";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupNoticeApplicationsContentProps {
   noticeId: number;
@@ -34,7 +37,7 @@ interface PickupNoticeApplicationsContentProps {
     limit?: string;
     status?: string;
   };
-  applications: PickupApplicationWithNoticeName[];
+  applications: UserBottleReservationPickupApplicationResponse[];
   totalElements: number;
   deliveries: UserReservationBusinessDeliveryResponse[];
   notice?: UserBottleReservationRelatedNoticeResponse;

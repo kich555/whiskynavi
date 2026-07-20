@@ -1,5 +1,6 @@
 "use client";
 
+import type { UserBottleReservationPickupApplicationResponse } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +21,7 @@ import BusinessHeader from "../../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL } from "../../../constants";
 import { formatCurrency, formatDate } from "../../../utils";
 import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../../actions";
-import { getReservationNoticeDisplay, type PickupApplicationWithNoticeName } from "../../notice-display";
+import { getReservationNoticeDisplay } from "../../notice-display";
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
 
@@ -127,7 +128,7 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
 }
 
 interface PickupApplicationDetailContentProps {
-  application: PickupApplicationWithNoticeName;
+  application: UserBottleReservationPickupApplicationResponse;
 }
 
 export default function PickupApplicationDetailContent({ application }: PickupApplicationDetailContentProps) {

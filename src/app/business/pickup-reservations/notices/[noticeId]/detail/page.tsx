@@ -1,5 +1,5 @@
+import { getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
-import { getRelatedBottleReservationNoticeByPickupBusiness } from "@/apis/reservation-related";
 import RelatedNoticeDetail from "@/components/reservation/RelatedNoticeDetail";
 import { getAuthToken } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
@@ -18,7 +18,9 @@ export default async function BusinessRelatedNoticePage({ params }: BusinessRela
   const noticeId = parsePositiveInt(noticeIdParam);
   if (!noticeId || !token) notFound();
 
-  const result = await getRelatedBottleReservationNoticeByPickupBusiness(noticeId, withToken(token)).catch(() => null);
+  const result = await getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, withToken(token)).catch(
+    () => null,
+  );
   if (!result?.data) notFound();
 
   return (
