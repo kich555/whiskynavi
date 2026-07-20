@@ -156,6 +156,10 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                           <p className="text-muted-foreground typo-medium-14">
                             {result.error ?? "취소에 실패했습니다."}
                           </p>
+                          {result.hint && <p className="typo-medium-14 text-blue-600">{result.hint}</p>}
+                          {result.requestId && (
+                            <p className="typo-medium-12 text-gray-500">고객센터 문의 코드: {result.requestId}</p>
+                          )}
                           <div className="flex justify-end pt-2">
                             <button
                               onClick={errClose}

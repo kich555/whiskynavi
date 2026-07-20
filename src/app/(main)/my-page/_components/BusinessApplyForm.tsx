@@ -254,6 +254,8 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
       </div>
 
       <FormMessage message={state.error} />
+      <FormMessage message={state.hint} variant="info" />
+      {state.requestId && <p className="typo-medium-12 text-gray-500">고객센터 문의 코드: {state.requestId}</p>}
       <FormMessage message={state.success ? "사업자 등록 신청이 완료되었습니다." : undefined} variant="success" />
 
       <div className="flex gap-3 pt-4">
