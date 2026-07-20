@@ -1,6 +1,8 @@
 import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/generated/api";
+import RichTextContent from "@/components/editor/RichTextContent";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 
 interface RelatedNoticeDetailProps {
   notice: UserBottleReservationRelatedNoticeResponse;
@@ -141,15 +143,14 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
       {notice.description && (
         <section className={dark ? "mt-8 border-t border-white/10 pt-6" : "mt-8 border-t border-gray-200 pt-6"}>
           <h2 className={dark ? "text-lg font-bold text-white" : "text-lg font-bold text-gray-900"}>공고 내용</h2>
-          <p
+          <RichTextContent
+            html={sanitizeRichTextContent(notice.description)}
             className={
               dark
-                ? "typo-medium-14 mt-3 leading-7 whitespace-pre-line text-gray-300"
-                : "typo-medium-14 mt-3 leading-7 whitespace-pre-line text-gray-700"
+                ? "typo-medium-14 mt-3 leading-7 text-gray-300 [&_a]:text-amber-300"
+                : "typo-medium-14 mt-3 leading-7 text-gray-700 [&_a]:text-amber-700"
             }
-          >
-            {notice.description}
-          </p>
+          />
         </section>
       )}
     </article>

@@ -26,4 +26,24 @@ describe("RelatedNoticeDetail", () => {
     expect(screen.queryByText("ROLE_USER")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /신청|수정|취소/ })).not.toBeInTheDocument();
   });
+
+  it("공고 설명의 HTML을 정제된 리치 텍스트로 표시한다", () => {
+    const { container } = render(
+      <RelatedNoticeDetail
+        appearance="light"
+        notice={{
+          accessReason: "PICKUP_BUSINESS_ASSIGNMENT",
+          readOnly: true,
+          noticeName: "리치 텍스트 공고",
+          description:
+            '<p>공고 <strong>상세</strong> 설명</p><ul><li>신분증 지참</li></ul><script>alert("xss")</script>',
+        }}
+      />,
+    );
+
+    expect(screen.getByText("상세").tagName).toBe("STRONG");
+    expect(screen.getByText("신분증 지참").closest("li")).toBeInTheDocument();
+    expect(container.querySelector("script")).not.toBeInTheDocument();
+    expect(screen.queryByText(/<p>|<strong>|<ul>/)).not.toBeInTheDocument();
+  });
 });
