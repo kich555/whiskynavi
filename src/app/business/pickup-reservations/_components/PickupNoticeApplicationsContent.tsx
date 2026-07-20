@@ -2,6 +2,7 @@
 
 import type {
   UserBottleReservationPickupApplicationResponse,
+  UserBottleReservationRelatedNoticeResponse,
   UserReservationBusinessDeliveryResponse,
 } from "@/apis/generated/api";
 import FilterHeader from "@/app/admin/_components/FilterHeader";
@@ -19,6 +20,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ArrowLeft, CheckCircle2, CreditCard, Eye, PackageCheck } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -26,6 +28,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL, PICKUP_STATUS_OPTIONS } from "../../constants";
 import { formatCurrency, formatDate } from "../../utils";
 import { bulkWaitingPickupAction, paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../actions";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupNoticeApplicationsContentProps {
   noticeId: number;
@@ -33,10 +36,12 @@ interface PickupNoticeApplicationsContentProps {
     page?: string;
     limit?: string;
     status?: string;
+    businessId?: string;
   };
   applications: UserBottleReservationPickupApplicationResponse[];
   totalElements: number;
   deliveries: UserReservationBusinessDeliveryResponse[];
+  notice?: UserBottleReservationRelatedNoticeResponse;
 }
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
@@ -111,9 +116,10 @@ interface StatusActionButtonProps {
   applicationId: number;
   status?: string;
   applicantName?: string;
+  businessId?: number;
 }
 
-function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName, businessId }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -128,11 +134,11 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
       let result: { success: boolean; error?: string };
 
       if (actionType === "payment-complete") {
-        result = await paymentCompleteAction(applicationId);
+        result = await paymentCompleteAction(applicationId, businessId);
       } else if (actionType === "waiting-pickup") {
-        result = await waitingPickupAction(applicationId);
+        result = await waitingPickupAction(applicationId, businessId);
       } else {
-        result = await receiveCompleteAction(applicationId);
+        result = await receiveCompleteAction(applicationId, businessId);
       }
 
       if (result.success) {
@@ -178,6 +184,7 @@ export default function PickupNoticeApplicationsContent({
   applications,
   totalElements,
   deliveries,
+  notice,
 }: PickupNoticeApplicationsContentProps) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -186,7 +193,9 @@ export default function PickupNoticeApplicationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
-  const bottleName = applications[0]?.bottleName ?? `공고 #${noticeId}`;
+  const businessId = Number(searchParams.businessId) || undefined;
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
+  const noticeDisplay = getReservationNoticeDisplay(notice ?? applications[0] ?? {});
   const bottleId = applications.find((app) => app.bottleId != null)?.bottleId;
   const paymentCompletedApps = applications.filter((app) => app.status === "PAYMENT_COMPLETED" && app.id != null);
   const isAllSelected =
@@ -235,9 +244,9 @@ export default function PickupNoticeApplicationsContent({
           toast.error("일괄 처리할 병 정보를 찾을 수 없습니다.");
           return;
         }
-        result = await bulkWaitingPickupAction({ bottleId, noticeId });
+        result = await bulkWaitingPickupAction({ bottleId, noticeId }, businessId);
       } else {
-        result = await bulkWaitingPickupAction({ applicationIds: bulkTarget.applicationIds });
+        result = await bulkWaitingPickupAction({ applicationIds: bulkTarget.applicationIds }, businessId);
       }
 
       if (result.success) {
@@ -287,7 +296,7 @@ export default function PickupNoticeApplicationsContent({
             <DialogHeader>
               <DialogTitle>공고별 일괄 픽업대기 처리</DialogTitle>
               <DialogDescription>
-                <strong>{bottleName}</strong>의{" "}
+                <strong>{noticeDisplay.primaryName}</strong>의{" "}
                 {bulkTarget?.type === "selected" ? (
                   <>
                     선택된 신청 <strong>{selectedCount}건</strong>을 픽업대기 상태로 변경합니다.
@@ -314,12 +323,20 @@ export default function PickupNoticeApplicationsContent({
 
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-base font-bold text-gray-900">{bottleName}</h2>
-            <p className="mt-1 typo-medium-14 text-gray-600">
+            <h2 className="text-base font-bold text-gray-900">{noticeDisplay.primaryName}</h2>
+            {noticeDisplay.secondaryName && (
+              <p className="typo-medium-14 mt-1 text-gray-500">{noticeDisplay.secondaryName}</p>
+            )}
+            <p className="typo-medium-14 mt-1 text-gray-600">
               공고 #{noticeId} 신청 {totalElements}건
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" asChild>
+              <Link href={withBusinessId(`/business/pickup-reservations/notices/${noticeId}/detail`)}>
+                공고 내용 보기
+              </Link>
+            </Button>
             <Button
               type="button"
               onClick={() => setBulkTarget({ type: "notice" })}
@@ -345,39 +362,39 @@ export default function PickupNoticeApplicationsContent({
             <h3 className="font-bold text-gray-900">배송정보</h3>
           </div>
           {deliveries.length === 0 ? (
-            <div className="px-4 py-6 typo-medium-14 text-gray-500">등록된 배송정보가 없습니다.</div>
+            <div className="typo-medium-14 px-4 py-6 text-gray-500">등록된 배송정보가 없습니다.</div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">배송 방식</th>
-                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">택배사</th>
-                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">송장번호</th>
-                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">배송 진행</th>
-                    <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">메모</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">배송 방식</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">택배사</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">송장번호</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">배송 진행</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">메모</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
                   {deliveries.map((delivery) => (
                     <tr key={`${delivery.noticeId}-${delivery.businessId}-${delivery.id ?? "empty"}`}>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                         {delivery.deliveryMethod
                           ? (DELIVERY_METHOD_LABEL[delivery.deliveryMethod] ?? delivery.deliveryMethod)
                           : "-"}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                         {formatCarrierName(delivery)}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                         {formatTrackingNumber(delivery)}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                         {delivery.deliveryStatus
                           ? (DELIVERY_STATUS_LABEL[delivery.deliveryStatus] ?? delivery.deliveryStatus)
                           : "-"}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{delivery.deliveryMemo ?? "-"}</td>
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">{delivery.deliveryMemo ?? "-"}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -399,12 +416,12 @@ export default function PickupNoticeApplicationsContent({
                       aria-label="전체 선택"
                     />
                   </th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청 ID</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청자</th>
-                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">신청수량</th>
-                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">확정수량</th>
-                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">단가</th>
-                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">총액</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">신청 ID</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">신청자</th>
+                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">신청수량</th>
+                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">확정수량</th>
+                  <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">단가</th>
+                  <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">총액</th>
                   <FilterHeader
                     label="상태"
                     filterKey="status"
@@ -413,8 +430,8 @@ export default function PickupNoticeApplicationsContent({
                     onSelect={updateFilter}
                     dropdownWidth="w-36"
                   />
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청일</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">처리</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">신청일</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">처리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -436,37 +453,40 @@ export default function PickupNoticeApplicationsContent({
                           />
                         )}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
-                      <td className="px-4 py-3 typo-medium-14 text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.id}</td>
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">
                         <div className="font-medium text-gray-900">{app.applicantUser?.name ?? "-"}</div>
                         <div className="typo-medium-12 text-gray-500">{app.applicantUser?.phone ?? "-"}</div>
                       </td>
-                      <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity ?? "-"}</td>
-                      <td className="px-4 py-3 text-center typo-medium-14 text-amber-600">
+                      <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">{app.quantity ?? "-"}</td>
+                      <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                         {app.confirmedQuantity ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
                         {formatCurrency(app.unitPrice)}
                       </td>
-                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
                         {formatCurrency(app.totalPrice)}
                       </td>
-                      <td className="px-4 py-3 typo-medium-14">
+                      <td className="typo-medium-14 px-4 py-3">
                         <Badge className={PICKUP_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                           {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
-                      <td className="px-4 py-3 typo-medium-14">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
+                        {formatDate(app.createdAt)}
+                      </td>
+                      <td className="typo-medium-14 px-4 py-3">
                         <div className="flex flex-wrap items-center gap-2">
                           <StatusActionButton
                             applicationId={app.id!}
                             status={app.status}
                             applicantName={app.applicantUser?.name ?? undefined}
+                            businessId={businessId}
                           />
                           <button
                             type="button"
-                            onClick={() => router.push(`/business/pickup-reservations/${app.id}`)}
+                            onClick={() => router.push(withBusinessId(`/business/pickup-reservations/${app.id}`))}
                             className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
                             title="상세"
                           >
@@ -491,7 +511,7 @@ export default function PickupNoticeApplicationsContent({
           />
         </div>
 
-        <div className="mt-3 grid gap-2 typo-medium-12 text-gray-500 md:grid-cols-3">
+        <div className="typo-medium-12 mt-3 grid gap-2 text-gray-500 md:grid-cols-3">
           <div className="flex items-center gap-2">
             <CreditCard size={14} />
             확정 신청은 결제완료 처리할 수 있습니다.

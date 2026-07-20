@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Eye, Search, X } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL, PICKUP_STATUS_OPTIONS } from "../../constants";
 import { formatCurrency, formatDate } from "../../utils";
 import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../actions";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupReservationApplicationsContentProps {
   searchParams: {
@@ -30,6 +32,7 @@ interface PickupReservationApplicationsContentProps {
     status?: string;
     q?: string;
     searchType?: string;
+    businessId?: string;
   };
   applications: UserBottleReservationPickupApplicationResponse[];
   totalElements: number;
@@ -76,9 +79,10 @@ interface StatusActionButtonProps {
   applicationId: number;
   status?: string;
   applicantName?: string;
+  businessId?: number;
 }
 
-function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName, businessId }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -93,11 +97,11 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
       let result: { success: boolean; error?: string };
 
       if (actionType === "payment-complete") {
-        result = await paymentCompleteAction(applicationId);
+        result = await paymentCompleteAction(applicationId, businessId);
       } else if (actionType === "waiting-pickup") {
-        result = await waitingPickupAction(applicationId);
+        result = await waitingPickupAction(applicationId, businessId);
       } else {
-        result = await receiveCompleteAction(applicationId);
+        result = await receiveCompleteAction(applicationId, businessId);
       }
 
       if (result.success) {
@@ -146,6 +150,8 @@ export default function PickupReservationApplicationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
+  const businessId = Number(searchParams.businessId) || undefined;
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
 
   const { getFilterValue, updateFilter } = useTableFilter({
     searchParams,
@@ -186,7 +192,7 @@ export default function PickupReservationApplicationsContent({
             <select
               name="searchType"
               defaultValue={searchParams.searchType ?? "userName"}
-              className="w-28 rounded-md border border-gray-300 bg-white px-3 py-2 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
+              className="typo-medium-14 w-28 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900 focus:border-amber-500 focus:outline-none"
             >
               <option value="userName">실명</option>
               <option value="nickname">별명</option>
@@ -200,7 +206,7 @@ export default function PickupReservationApplicationsContent({
               <input
                 name="q"
                 defaultValue={searchParams.q ?? ""}
-                className="w-full rounded-md border border-gray-300 bg-white py-2 pr-9 pl-9 typo-medium-14 text-gray-900 focus:border-amber-500 focus:outline-none"
+                className="typo-medium-14 w-full rounded-md border border-gray-300 bg-white py-2 pr-9 pl-9 text-gray-900 focus:border-amber-500 focus:outline-none"
                 placeholder="별명, 실명, 전화번호 검색"
               />
               {searchParams.q && (
@@ -225,14 +231,14 @@ export default function PickupReservationApplicationsContent({
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">ID</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">공고 ID</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">병 이름</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청자</th>
-                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">신청수량</th>
-                  <th className="px-4 py-3 text-center typo-bold-12 text-gray-700">확정수량</th>
-                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">단가</th>
-                  <th className="px-4 py-3 text-right typo-bold-12 text-gray-700">총액</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">ID</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고 ID</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">신청자</th>
+                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">신청수량</th>
+                  <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">확정수량</th>
+                  <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">단가</th>
+                  <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">총액</th>
                   <FilterHeader
                     label="상태"
                     filterKey="status"
@@ -241,8 +247,8 @@ export default function PickupReservationApplicationsContent({
                     onSelect={updateFilter}
                     dropdownWidth="w-36"
                   />
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">신청일</th>
-                  <th className="px-4 py-3 text-left typo-bold-12 text-gray-700">관리</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">신청일</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">관리</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -253,53 +259,71 @@ export default function PickupReservationApplicationsContent({
                     </td>
                   </tr>
                 ) : (
-                  applications.map((app) => (
-                    <tr key={app.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
-                      <td className="px-4 py-3 typo-medium-14 text-gray-600">{app.noticeId ?? "-"}</td>
-                      <td className="max-w-[220px] truncate px-4 py-3 typo-medium-14 text-gray-900">
-                        {app.bottleName ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 typo-medium-14 text-gray-600">
-                        <div className="font-medium text-gray-900">실명: {app.applicantUser?.name ?? "-"}</div>
-                        <div className="typo-medium-12 text-gray-500">별명: {app.applicantUser?.nickname ?? "-"}</div>
-                        <div className="typo-medium-12 text-gray-500">전화: {app.applicantUser?.phone ?? "-"}</div>
-                      </td>
-                      <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity ?? "-"}</td>
-                      <td className="px-4 py-3 text-center typo-medium-14 text-amber-600">
-                        {app.confirmedQuantity ?? "-"}
-                      </td>
-                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
-                        {formatCurrency(app.unitPrice)}
-                      </td>
-                      <td className="px-4 py-3 text-right typo-medium-14 whitespace-nowrap text-gray-900">
-                        {formatCurrency(app.totalPrice)}
-                      </td>
-                      <td className="px-4 py-3 typo-medium-14">
-                        <Badge className={PICKUP_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
-                          {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
-                        </Badge>
-                      </td>
-                      <td className="px-4 py-3 typo-medium-14 whitespace-nowrap text-gray-600">{formatDate(app.createdAt)}</td>
-                      <td className="px-4 py-3 typo-medium-14">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <StatusActionButton
-                            applicationId={app.id!}
-                            status={app.status}
-                            applicantName={app.applicantUser?.name ?? undefined}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => router.push(`/business/pickup-reservations/${app.id}`)}
-                            className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
-                            title="상세"
-                          >
-                            <Eye size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
+                  applications.map((app) => {
+                    const display = getReservationNoticeDisplay(app);
+
+                    return (
+                      <tr key={app.id} className="transition-colors hover:bg-gray-50">
+                        <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.id}</td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">{app.noticeId ?? "-"}</td>
+                        <td className="typo-medium-14 max-w-[220px] truncate px-4 py-3 text-gray-900">
+                          <div className="truncate">{display.primaryName}</div>
+                          {display.secondaryName && (
+                            <div className="typo-medium-12 mt-1 truncate text-gray-500">{display.secondaryName}</div>
+                          )}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">
+                          <div className="font-medium text-gray-900">실명: {app.applicantUser?.name ?? "-"}</div>
+                          <div className="typo-medium-12 text-gray-500">별명: {app.applicantUser?.nickname ?? "-"}</div>
+                          <div className="typo-medium-12 text-gray-500">전화: {app.applicantUser?.phone ?? "-"}</div>
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">{app.quantity ?? "-"}</td>
+                        <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
+                          {app.confirmedQuantity ?? "-"}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
+                          {formatCurrency(app.unitPrice)}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
+                          {formatCurrency(app.totalPrice)}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3">
+                          <Badge className={PICKUP_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
+                            {PICKUP_STATUS_LABEL[app.status ?? ""] ?? app.status}
+                          </Badge>
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
+                          {formatDate(app.createdAt)}
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <StatusActionButton
+                              applicationId={app.id!}
+                              status={app.status}
+                              applicantName={app.applicantUser?.name ?? undefined}
+                              businessId={businessId}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => router.push(withBusinessId(`/business/pickup-reservations/${app.id}`))}
+                              className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
+                              title="상세"
+                            >
+                              <Eye size={16} />
+                            </button>
+                            {app.noticeId && (
+                              <Link
+                                href={withBusinessId(`/business/pickup-reservations/notices/${app.noticeId}/detail`)}
+                                className="typo-medium-12 text-amber-700 hover:text-amber-900"
+                              >
+                                공고 내용
+                              </Link>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
                 )}
               </tbody>
             </table>

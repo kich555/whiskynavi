@@ -4,13 +4,15 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { parseApiPage } from "@/lib/page-response";
+import { parseApiPage, parsePositiveInt } from "@/lib/page-response";
+import { notFound } from "next/navigation";
 import PickupReservationsContent from "./_components/PickupReservationsContent";
 
 interface PickupReservationsPageProps {
   searchParams: Promise<{
     page?: string;
     limit?: string;
+    businessId?: string;
   }>;
 }
 
@@ -26,16 +28,19 @@ async function getOptionalData<T>(request: Promise<{ data: T }>): Promise<T | un
 export default async function PickupReservationsPage({ searchParams }: PickupReservationsPageProps) {
   const params = await searchParams;
   const token = await getAuthToken();
+  const businessId = params.businessId ? parsePositiveInt(params.businessId) : undefined;
+  if (params.businessId && !businessId) notFound();
 
   const [noticesRes, deliveriesData] = await Promise.all([
     getApiUsersBusinessesPickupReservationsNoticesStatuses(
       {
         page: parseApiPage(params.page),
         size: params.limit ? Number(params.limit) : 20,
+        businessId,
       },
       withToken(token),
     ),
-    getOptionalData(getApiUsersBusinessesReservationDeliveries(undefined, withToken(token))),
+    getOptionalData(getApiUsersBusinessesReservationDeliveries({ businessId }, withToken(token))),
   ]);
 
   return (

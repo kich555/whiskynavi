@@ -4,7 +4,8 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { parseApiPage } from "@/lib/page-response";
+import { parseApiPage, parsePositiveInt } from "@/lib/page-response";
+import { notFound } from "next/navigation";
 import PickupReservationApplicationsContent from "../_components/PickupReservationApplicationsContent";
 
 interface PickupReservationApplicationsPageProps {
@@ -14,6 +15,7 @@ interface PickupReservationApplicationsPageProps {
     status?: string;
     q?: string;
     searchType?: string;
+    businessId?: string;
   }>;
 }
 
@@ -25,6 +27,8 @@ export default async function PickupReservationApplicationsPage({
   const pageSize = params.limit ? Number(params.limit) : 20;
   const keyword = params.q?.trim();
   const searchType = params.searchType ?? "userName";
+  const businessId = params.businessId ? parsePositiveInt(params.businessId) : undefined;
+  if (params.businessId && !businessId) notFound();
   const apiSearchParams = keyword
     ? {
         ...(searchType === "nickname" ? { nickname: keyword } : {}),
@@ -37,6 +41,7 @@ export default async function PickupReservationApplicationsPage({
     {
       page: parseApiPage(params.page),
       size: pageSize,
+      businessId,
       ...apiSearchParams,
       ...(params.status
         ? {
