@@ -2,7 +2,7 @@
 
 import { ArrowLeft, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import { createNoticeFormAction } from "../../actions";
@@ -13,6 +13,8 @@ export default function NoticeCreateContent() {
   const router = useRouter();
 
   const [formState, formAction, isPending] = useActionState(createNoticeFormAction, { success: false });
+  const [uploading, setUploading] = useState(false);
+  const submitDisabled = isPending || uploading;
 
   return (
     <>
@@ -31,11 +33,11 @@ export default function NoticeCreateContent() {
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={submitDisabled}
             className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
           >
             <Save size={16} />
-            {isPending ? "저장 중..." : "저장"}
+            {isPending ? "저장 중..." : uploading ? "이미지 업로드 중..." : "저장"}
           </button>
         </div>
 
@@ -45,7 +47,11 @@ export default function NoticeCreateContent() {
           </div>
         )}
 
-        <NoticeFormFields key={JSON.stringify(formState.values ?? null)} formValues={formState.values} />
+        <NoticeFormFields
+          key={JSON.stringify(formState.values ?? null)}
+          formValues={formState.values}
+          onUploadingChange={setUploading}
+        />
       </form>
     </>
   );

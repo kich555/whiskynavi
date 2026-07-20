@@ -3,7 +3,7 @@
 import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { ArrowLeft, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import AdminHeader from "../../../../_components/AdminHeader";
 import { useSidebar } from "../../../../_components/AdminLayoutClient";
 import { updateNoticeFormAction } from "../../../actions";
@@ -22,6 +22,8 @@ export default function NoticeEditContent({ notice }: NoticeEditContentProps) {
     success: false,
   });
 
+  const [uploading, setUploading] = useState(false);
+  const submitDisabled = isPending || uploading;
   return (
     <>
       <AdminHeader title="예약 공고 편집" onToggleSidebar={toggle} showSearch={false} />
@@ -40,11 +42,11 @@ export default function NoticeEditContent({ notice }: NoticeEditContentProps) {
           <div className="flex gap-2">
             <button
               type="submit"
-              disabled={isPending}
+              disabled={submitDisabled}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
             >
               <Save size={16} />
-              {isPending ? "저장 중..." : "저장"}
+              {isPending ? "저장 중..." : uploading ? "이미지 업로드 중..." : "저장"}
             </button>
             <button
               type="button"
@@ -64,7 +66,12 @@ export default function NoticeEditContent({ notice }: NoticeEditContentProps) {
           </div>
         )}
 
-        <NoticeFormFields defaultValues={notice} />
+        <NoticeFormFields
+          key={JSON.stringify(formState.values ?? null)}
+          defaultValues={notice}
+          formValues={formState.values}
+          onUploadingChange={setUploading}
+        />
       </form>
     </>
   );

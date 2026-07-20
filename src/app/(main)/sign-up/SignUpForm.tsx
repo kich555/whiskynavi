@@ -202,7 +202,6 @@ export function SignUpForm() {
     step: "본인인증",
     context: {},
   });
-  console.log("funnel", funnel);
   return funnel.Render({
     본인인증: ({ history }) => (
       <VerificationStep onNext={(profile) => history.push("회원정보입력", { verifiedProfile: profile })} />

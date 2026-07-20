@@ -1,9 +1,12 @@
 "use client";
 
+import { postApiBoardsUploads } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Button } from "@/components/ui/button";
+import { getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import { addInquiryMessageAction } from "../actions";
 
 export default function InquiryMessageForm({ inquiryId }: { inquiryId: number }) {
@@ -12,6 +15,15 @@ export default function InquiryMessageForm({ inquiryId }: { inquiryId: number })
   const [isUploading, setIsUploading] = useState(false);
   const action = addInquiryMessageAction.bind(null, inquiryId);
   const [state, formAction, isPending] = useActionState(action, { success: false });
+
+  const uploadFn = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+    const response = await postApiBoardsUploads({ file }, withToken(session.accessToken));
+    const url = response.data.url;
+    if (!url) throw new Error("업로드된 이미지 URL을 확인할 수 없습니다.");
+    return url;
+  }, []);
 
   useEffect(() => {
     if (!state.success) return;
@@ -25,6 +37,7 @@ export default function InquiryMessageForm({ inquiryId }: { inquiryId: number })
         추가 문의
       </label>
       <RichTextImageEditor
+        uploadFn={uploadFn}
         compact
         resetKey={state.submittedAt}
         placeholder="추가로 문의하실 내용을 입력해주세요."
