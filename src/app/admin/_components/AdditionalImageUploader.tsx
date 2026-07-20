@@ -1,13 +1,10 @@
 "use client";
 
-import {
-  postApiAdminImagesPurpose,
-  type AdminImageUploadResponsePurpose,
-} from "@/apis/generated/api";
+import { postApiAdminImagesPurpose, type AdminImageUploadResponsePurpose } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { ArrowLeft, ArrowRight, ImagePlus, Loader2, X } from "lucide-react";
 import { getSession } from "next-auth/react";
 import { useMemo, useRef, useState } from "react";
@@ -78,13 +75,9 @@ export default function AdditionalImageUploader({
     }
 
     for (const file of files) {
-      if (!file.type.startsWith("image/")) {
-        setError("이미지 파일만 업로드할 수 있습니다.");
-        return;
-      }
-      const sizeError = getImageSizeError(file, maxSizeMB);
-      if (sizeError) {
-        setError(sizeError);
+      const validationError = getImageValidationError(file, maxSizeMB);
+      if (validationError) {
+        setError(validationError);
         return;
       }
     }
@@ -94,7 +87,7 @@ export default function AdditionalImageUploader({
       const session = await getSession();
       if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
 
-      const uploadedImages = await Promise.all(
+      const uploadResults = await Promise.allSettled(
         files.map(async (file): Promise<AdditionalImage> => {
           const response = await postApiAdminImagesPurpose(purpose, { file }, withToken(session.accessToken));
           const key = response.data.key;
@@ -106,7 +99,17 @@ export default function AdditionalImageUploader({
         }),
       );
 
-      setImages((current) => [...current, ...uploadedImages]);
+      const uploadedImages = uploadResults.flatMap((result) => (result.status === "fulfilled" ? [result.value] : []));
+      if (uploadedImages.length > 0) {
+        setImages((current) => [...current, ...uploadedImages]);
+      }
+
+      const failedUploads = uploadResults.filter((result) => result.status === "rejected");
+      if (failedUploads.length > 0) {
+        const firstReason = failedUploads[0].reason;
+        const message = firstReason instanceof Error ? firstReason.message : "이미지 업로드에 실패했습니다.";
+        setError(files.length === 1 ? message : `${failedUploads.length}개 이미지 업로드에 실패했습니다. ${message}`);
+      }
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "이미지 업로드에 실패했습니다.");
     } finally {
@@ -153,7 +156,7 @@ export default function AdditionalImageUploader({
         <input
           ref={inputRef}
           type="file"
-          accept="image/*"
+          accept={IMAGE_FILE_ACCEPT}
           multiple
           className="hidden"
           onChange={(event) => {

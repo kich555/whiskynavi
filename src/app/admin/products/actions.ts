@@ -10,7 +10,7 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError } from "@/lib/image-upload";
 import { richTextHasContent, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -228,9 +228,9 @@ export async function createBottleFormAction(_prev: FormState, formData: FormDat
   if (!labelImg || labelImg.size === 0) {
     return { success: false, error: "라벨 이미지는 필수입니다.", values };
   }
-  const imageSizeError = getImageSizeError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
-  if (imageSizeError) {
-    return { success: false, error: imageSizeError, values };
+  const imageValidationError = getImageValidationError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
+  if (imageValidationError) {
+    return { success: false, error: imageValidationError, values };
   }
 
   let labelImgKey: string | undefined;
@@ -301,9 +301,9 @@ export async function updateBottleFormAction(id: number, _prev: FormState, formD
   let labelImgKey: string | undefined;
 
   if (labelImg && labelImg.size > 0) {
-    const imageSizeError = getImageSizeError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
-    if (imageSizeError) {
-      return { success: false, error: imageSizeError, values };
+    const imageValidationError = getImageValidationError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
+    if (imageValidationError) {
+      return { success: false, error: imageValidationError, values };
     }
     try {
       const uploaded = await postApiAdminImagesPurpose("BOTTLE", { file: labelImg }, withToken(token));

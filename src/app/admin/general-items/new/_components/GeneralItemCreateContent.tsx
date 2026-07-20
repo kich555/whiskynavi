@@ -1,5 +1,6 @@
 "use client";
 
+import { getImageTypeError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { ArrowLeft, Save } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -193,6 +194,8 @@ export default function GeneralItemCreateContent() {
                 onFileChange={handleFileChange}
                 onRemove={handleRemove}
                 maxSizeMB={MAX_GENERAL_ITEM_IMAGE_SIZE_MB}
+                accept={IMAGE_FILE_ACCEPT}
+                validateFile={getImageTypeError}
               />
               <input type="hidden" name="imageKey" defaultValue={values.imageKey ?? ""} />
             </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import type { ItemAdminResponse } from "@/apis/generated/api";
+import { getImageTypeError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { ArrowLeft, Save } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useActionState, useRef, useState } from "react";
@@ -181,6 +182,8 @@ export default function GeneralItemDetailContent({ item }: GeneralItemDetailCont
                 onFileChange={handleFileChange}
                 onRemove={handleRemove}
                 maxSizeMB={MAX_GENERAL_ITEM_IMAGE_SIZE_MB}
+                accept={IMAGE_FILE_ACCEPT}
+                validateFile={getImageTypeError}
               />
               <input type="hidden" name="imageKey" defaultValue={values.imageKey ?? item.imageKey ?? ""} />
             </div>

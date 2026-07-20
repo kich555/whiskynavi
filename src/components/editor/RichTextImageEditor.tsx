@@ -1,6 +1,6 @@
 "use client";
 
-import { getImageSizeError } from "@/lib/image-upload";
+import { ALLOWED_IMAGE_MIME_TYPES, getImageSizeError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { cn } from "@/lib/utils";
 import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const ALLOWED_IMAGE_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_IMAGE_SIZE_MB = 5;
 const MAX_IMAGE_COUNT = 5;
 
@@ -95,7 +94,7 @@ export default function RichTextImageEditor({
           (item) =>
             item.kind === "file" &&
             item.type.startsWith("image/") &&
-            ALLOWED_IMAGE_TYPES.includes(item.type as (typeof ALLOWED_IMAGE_TYPES)[number]),
+            (ALLOWED_IMAGE_MIME_TYPES as readonly string[]).includes(item.type),
         );
 
         if (imageItems.length > 0) {
@@ -154,7 +153,7 @@ export default function RichTextImageEditor({
       if (!editor) return;
       setUploadError(null);
 
-      if (!ALLOWED_IMAGE_TYPES.includes(file.type as (typeof ALLOWED_IMAGE_TYPES)[number])) {
+      if (!(ALLOWED_IMAGE_MIME_TYPES as readonly string[]).includes(file.type)) {
         setUploadError(`${file.name}: 지원하지 않는 파일 형식입니다. (JPG/PNG/WEBP만 가능)`);
         return;
       }
@@ -288,7 +287,7 @@ export default function RichTextImageEditor({
 
       <div
         className={cn(
-          "rounded-b-md border border-t-0 px-3 py-2.5 typo-medium-14 [&_.ProseMirror]:outline-none [&_.ProseMirror_a]:underline [&_.ProseMirror_img]:my-3 [&_.ProseMirror_img]:max-h-[32rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_img]:object-contain [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
+          "typo-medium-14 rounded-b-md border border-t-0 px-3 py-2.5 [&_.ProseMirror]:outline-none [&_.ProseMirror_a]:underline [&_.ProseMirror_img]:my-3 [&_.ProseMirror_img]:max-h-[32rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_img]:object-contain [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
           compact ? "min-h-36 [&_.ProseMirror]:min-h-28" : "min-h-64 [&_.ProseMirror]:min-h-56",
           isAdmin ? "border-gray-300 bg-white text-gray-900" : "border-white/15 bg-white/5 text-white",
         )}
@@ -299,19 +298,19 @@ export default function RichTextImageEditor({
       <input
         ref={fileInputRef}
         type="file"
-        accept={ALLOWED_IMAGE_TYPES.join(",")}
+        accept={IMAGE_FILE_ACCEPT}
         multiple
         onChange={handleFiles}
         className="hidden"
       />
-      <div className="mt-1 flex flex-wrap justify-between gap-2 typo-medium-12">
+      <div className="typo-medium-12 mt-1 flex flex-wrap justify-between gap-2">
         <span className={isAdmin ? "text-gray-500" : "text-gray-400"}>
           JPG/PNG/WEBP · 이미지당 최대 {MAX_IMAGE_SIZE_MB}MB · 최대 {MAX_IMAGE_COUNT}개
         </span>
         {uploadingCount > 0 ? <span className="text-amber-500">이미지 업로드 중 ({uploadingCount})</span> : null}
       </div>
       {uploadError ? (
-        <p role="alert" className="mt-1 typo-medium-14 text-red-500">
+        <p role="alert" className="typo-medium-14 mt-1 text-red-500">
           {uploadError}
         </p>
       ) : null}

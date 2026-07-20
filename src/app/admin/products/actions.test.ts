@@ -166,4 +166,16 @@ describe("bottle admin actions", () => {
     expect(result.values?.name).toBe("나비 1st");
     expect(mockedUpload).not.toHaveBeenCalled();
   });
+
+  it("백엔드가 허용하지 않는 보틀 이미지 형식은 업로드하지 않는다", async () => {
+    const unsupportedImage = new File(["gif"], "label.gif", { type: "image/gif" });
+
+    const result = await createBottleFormAction(
+      { success: false },
+      validBottleFormData({ labelImg: unsupportedImage }),
+    );
+
+    expect(result.error).toContain("JPG, PNG, WEBP");
+    expect(mockedUpload).not.toHaveBeenCalled();
+  });
 });

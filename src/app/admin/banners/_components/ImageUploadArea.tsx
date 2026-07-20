@@ -13,6 +13,8 @@ interface ImageUploadAreaProps {
   onFileChange: (file: File | null) => void;
   onRemove: () => void;
   maxSizeMB: number;
+  accept?: string;
+  validateFile?: (file: File) => string | undefined;
 }
 
 export default function ImageUploadArea({
@@ -23,6 +25,8 @@ export default function ImageUploadArea({
   onFileChange,
   onRemove,
   maxSizeMB,
+  accept = "image/*",
+  validateFile,
 }: ImageUploadAreaProps) {
   const [isDragOver, setIsDragOver] = useState(false);
   const [fileError, setFileError] = useState<string | null>(null);
@@ -47,9 +51,15 @@ export default function ImageUploadArea({
       return false;
     }
 
-    const sizeError = getImageSizeError(file, maxSizeMB);
-    if (sizeError) {
-      setFileError(sizeError);
+    if (!file.type.startsWith("image/")) {
+      setFileError("이미지 파일만 업로드할 수 있습니다.");
+      setInputFile(acceptedFileRef.current);
+      return false;
+    }
+
+    const validationError = validateFile?.(file) ?? getImageSizeError(file, maxSizeMB);
+    if (validationError) {
+      setFileError(validationError);
       setInputFile(acceptedFileRef.current);
       return false;
     }
@@ -75,7 +85,7 @@ export default function ImageUploadArea({
     setIsDragOver(false);
 
     const file = e.dataTransfer.files[0];
-    if (file?.type.startsWith("image/") && selectFile(file)) {
+    if (file && selectFile(file)) {
       // input에도 파일을 설정해서 form 제출 시 포함되도록
       setInputFile(file);
     }
@@ -88,7 +98,7 @@ export default function ImageUploadArea({
         ref={inputRef}
         type="file"
         name={name}
-        accept="image/*"
+        accept={accept}
         className="hidden"
         onChange={(e) => {
           const file = e.target.files?.[0] ?? null;

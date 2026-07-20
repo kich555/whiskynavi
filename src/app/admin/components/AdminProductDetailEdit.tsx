@@ -10,7 +10,7 @@ import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUplo
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Label } from "@/components/ui/label";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError, IMAGE_FILE_ACCEPT } from "@/lib/image-upload";
 import { CalendarDays, Plus, Upload, X } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Image from "next/image";
@@ -94,13 +94,13 @@ export default function AdminProductDetailEdit({
     const key = response.data.key;
     if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
 
-    return buildCloudFrontUrl(key);
+    return response.data.url ?? buildCloudFrontUrl(key);
   }, []);
 
   const selectImage = (file: File) => {
-    const sizeError = getImageSizeError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
-    if (sizeError) {
-      setImageError(sizeError);
+    const validationError = getImageValidationError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
+    if (validationError) {
+      setImageError(validationError);
       return;
     }
     setImageError(null);
@@ -146,9 +146,7 @@ export default function AdminProductDetailEdit({
     e.stopPropagation();
     setIsDragging(false);
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
-      selectImage(file);
-    }
+    if (file) selectImage(file);
   };
 
   const handleAddExtraInfo = () => {
@@ -493,7 +491,7 @@ export default function AdminProductDetailEdit({
                   이미지 추가 또는 드래그 앤 드롭
                   <input
                     type="file"
-                    accept="image/*"
+                    accept={IMAGE_FILE_ACCEPT}
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {

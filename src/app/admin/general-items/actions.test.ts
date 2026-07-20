@@ -123,6 +123,16 @@ describe("general item admin actions", () => {
     expect(mockedPostS3Upload).not.toHaveBeenCalled();
   });
 
+  it("백엔드가 허용하지 않는 일반상품 이미지 형식은 업로드하지 않는다", async () => {
+    const formData = formDataFrom({ name: "GIF 상품" });
+    formData.set("imageFile", new File(["gif"], "item.gif", { type: "image/gif" }));
+
+    const result = await createGeneralItemFormAction({ success: false }, formData);
+
+    expect(result.error).toContain("JPG, PNG, WEBP");
+    expect(mockedPostS3Upload).not.toHaveBeenCalled();
+  });
+
   it("creates a general item sale announcement fixed to ITEM and GENERAL", async () => {
     mockedPostSale.mockResolvedValue({
       data: { id: 1001, productId: 10, productType: "ITEM", saleType: "GENERAL" },
