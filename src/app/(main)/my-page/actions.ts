@@ -275,22 +275,85 @@ const businessApplySchema = z.object({
 const BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE =
   "국세청 사업자 검증에 실패했습니다. 입력하신 사업자등록번호, 개업일자, 대표자명을 다시 확인해주세요.";
 
-const getBusinessApplicationErrorMessage = (error: unknown): string => {
-  if (
-    error instanceof ApiError &&
-    error.status === 400 &&
-    error.userMessage.startsWith("사업자 등록 신청 검증에 실패했습니다.")
-  ) {
-    return BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE;
+const BUSINESS_APPLICATION_NOT_FOUND_MESSAGE =
+  "사업자 등록 신청 페이지에 연결할 수 없습니다. 서비스가 업데이트 중이거나 신청 주소가 변경되었을 수 있습니다. 잠시 후 다시 시도하고, 계속되면 고객센터에 문의해주세요.";
+
+const BUSINESS_APPLICATION_FORBIDDEN_MESSAGE =
+  "현재 계정으로는 사업자 등록을 신청할 수 없습니다. 로그인 계정의 상태와 본인 인증 여부를 확인한 뒤 다시 시도해주세요.";
+
+const BUSINESS_APPLICATION_CONFLICT_MESSAGE =
+  "동일한 사업자등록번호로 접수되었거나 이미 처리 중인 신청이 있습니다. 마이페이지의 사업자 신청 내역을 확인해주세요.";
+
+export interface BusinessApplicationActionResult {
+  success: boolean;
+  error?: string;
+  hint?: string;
+  code?: string;
+  requestId?: string;
+}
+
+type BusinessApplicationErrorDetails = Omit<BusinessApplicationActionResult, "success">;
+
+const getStructuredApiErrorDetails = (error: ApiError): BusinessApplicationErrorDetails => ({
+  error: error.userMessage,
+  ...(error.hint ? { hint: error.hint } : {}),
+  ...(error.code ? { code: error.code } : {}),
+  ...(error.requestId ? { requestId: error.requestId } : {}),
+});
+
+const getBusinessApplicationErrorDetails = (error: unknown): BusinessApplicationErrorDetails => {
+  if (error instanceof ApiError) {
+    if (error.code) return getStructuredApiErrorDetails(error);
+
+    if (error.status === 400 && error.userMessage.startsWith("사업자 등록 신청 검증에 실패했습니다.")) {
+      return { error: BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE };
+    }
+
+    if (error.status === 403) return { error: BUSINESS_APPLICATION_FORBIDDEN_MESSAGE };
+    if (error.status === 404) return { error: BUSINESS_APPLICATION_NOT_FOUND_MESSAGE };
+    if (error.status === 409) return { error: BUSINESS_APPLICATION_CONFLICT_MESSAGE };
+    if (error.status === 413) {
+      return { error: "첨부 파일이 너무 큽니다. 사업자 등록증은 10MB 이하로 업로드해주세요." };
+    }
+    if (error.status === 415) {
+      return { error: "첨부 파일 형식을 지원하지 않습니다. PDF, JPG 또는 PNG 파일을 선택해주세요." };
+    }
+    if (error.status === 429) {
+      return { error: "사업자 등록 신청 요청이 너무 많습니다. 잠시 후 다시 제출해주세요." };
+    }
+    if (error.status >= 500) {
+      return {
+        error:
+          "사업자 등록 신청을 처리하는 서버에 일시적인 문제가 발생했습니다. 입력 내용은 유지한 채 잠시 후 다시 시도해주세요.",
+      };
+    }
   }
 
-  return getUserErrorMessage(error, "사업자 등록 신청에 실패했습니다.");
+  return { error: getUserErrorMessage(error, "사업자 등록 신청에 실패했습니다.") };
+};
+
+const getBusinessApplicationCancelErrorDetails = (error: unknown): BusinessApplicationErrorDetails => {
+  if (error instanceof ApiError) {
+    if (error.code) return getStructuredApiErrorDetails(error);
+
+    if (error.status === 404) {
+      return {
+        error:
+          "취소할 사업자 등록 신청을 찾을 수 없습니다. 이미 취소되었거나 심사가 완료되었을 수 있으니 신청 내역을 새로고침해주세요.",
+      };
+    }
+    if (error.status === 409) {
+      return { error: "이미 처리된 사업자 등록 신청은 취소할 수 없습니다. 최신 신청 상태를 확인해주세요." };
+    }
+  }
+
+  return { error: getUserErrorMessage(error, "사업자 등록 취소에 실패했습니다.") };
 };
 
 export async function submitBusinessApplication(
-  _prevState: { success: boolean; error?: string },
+  _prevState: BusinessApplicationActionResult,
   formData: FormData,
-): Promise<{ success: boolean; error?: string }> {
+): Promise<BusinessApplicationActionResult> {
   try {
     const token = await getAuthToken();
     if (!token) {
@@ -342,12 +405,12 @@ export async function submitBusinessApplication(
     if (isRedirectError(error)) throw error;
     return {
       success: false,
-      error: getBusinessApplicationErrorMessage(error),
+      ...getBusinessApplicationErrorDetails(error),
     };
   }
 }
 
-export async function cancelBusinessApplication(applicationId: number): Promise<{ success: boolean; error?: string }> {
+export async function cancelBusinessApplication(applicationId: number): Promise<BusinessApplicationActionResult> {
   try {
     const token = await getAuthToken();
     if (!token) {
@@ -366,7 +429,7 @@ export async function cancelBusinessApplication(applicationId: number): Promise<
     if (isRedirectError(error)) throw error;
     return {
       success: false,
-      error: getUserErrorMessage(error, "사업자 등록 취소에 실패했습니다."),
+      ...getBusinessApplicationCancelErrorDetails(error),
     };
   }
 }

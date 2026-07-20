@@ -353,7 +353,7 @@ export interface AdminBottleReservationNoticeResponse {
   editable?: boolean;
   gradeConditions?: AdminBottleReservationGradeConditionResponse[];
   id?: number;
-  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  /** 대표 이미지를 제외한 추가 이미지 CloudFront URL 목록입니다. 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환하며, 목록 조회에서는 빈 배열로 반환됩니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -1682,6 +1682,20 @@ export interface AnnouncementRequest {
   title?: string;
   /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
   visible?: boolean;
+}
+
+/**
+ * 구조화된 API 오류 응답
+ */
+export interface ApiErrorResponse {
+  /** 클라이언트 분기용 안정적인 오류 코드 */
+  code: string;
+  /** 사용자가 문제를 해결하기 위한 추가 안내 */
+  hint: string;
+  /** 사용자에게 표시할 오류 메시지 */
+  message: string;
+  /** 고객 문의와 서버 로그 추적에 사용하는 요청 식별자 */
+  requestId: string;
 }
 
 /**
@@ -3814,7 +3828,7 @@ export interface UserBottleReservationNoticePublicResponse {
   earliestReservableAt?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
-  /** 대표 이미지를 제외한 예약 공고 추가 이미지 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  /** 대표 이미지를 제외한 추가 이미지 CloudFront 공개 URL 목록입니다. 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환하며, 목록 조회에서는 빈 배열로 반환됩니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -5616,6 +5630,7 @@ export interface UserBottleReservationRelatedNoticeResponse {
   description?: string;
   gradeConditions?: UserBottleReservationGradeConditionResponse[];
   id?: number;
+  /** 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지를 반환합니다. */
   imageUrls?: string[];
   maxOrderQuantity?: number;
   noticeName?: string;
@@ -12149,7 +12164,7 @@ export const deleteApiAdminBottlesReservationsNoticesNoticeid = async (noticeId:
 
 
 /**
- * 관리자가 예약 공고 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이고 imageUrls와 additionalImageKeys는 대표 이미지를 제외한 공고 추가 이미지 정보입니다.
+ * 관리자가 예약 공고 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이고 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL을 반환합니다. additionalImageKeys는 공고 전용 이미지 키입니다.
  * @summary 예약 공고 상세(관리자)
  */
 export type getApiAdminBottlesReservationsNoticesNoticeidResponse200 = {
@@ -17789,7 +17804,7 @@ export const getApiBottlesReservationsNotices = async (params?: GetApiBottlesRes
 
 
 /**
- * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 상세 형태로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 추가 이미지 URL 목록입니다.
+ * OPEN 상태 예약 공고 중 가장 최근에 생성된 공고를 상세 형태로 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL 목록을 반환합니다.
  * @summary 최근 생성된 진행 예약 공고
  */
 export type getApiBottlesReservationsNoticesLatestActiveResponse200 = {
@@ -17863,7 +17878,7 @@ export const getApiBottlesReservationsNoticesRecentEnded = async ( options?: Req
 
 
 /**
- * 예약 공고의 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 대표 이미지를 제외한 공고 추가 이미지 URL 목록입니다.
+ * 예약 공고의 상세 정보를 조회합니다. bottleImgUrl은 대표 이미지이며 imageUrls는 공고 전용 이미지가 없으면 예약 대상 보틀의 추가 이미지 URL 목록을 반환합니다.
  * @summary 예약 공고 상세
  */
 export type getApiBottlesReservationsNoticesNoticeidResponse200 = {
@@ -20490,13 +20505,50 @@ export type postApiUsersBusinessesApplicationsResponse200 = {
   data: UserBusinessApplicationSubmitResponse
   status: 200
 }
+
+export type postApiUsersBusinessesApplicationsResponse400 = {
+  data: ApiErrorResponse
+  status: 400
+}
+
+export type postApiUsersBusinessesApplicationsResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
+
+export type postApiUsersBusinessesApplicationsResponse413 = {
+  data: ApiErrorResponse
+  status: 413
+}
+
+export type postApiUsersBusinessesApplicationsResponse415 = {
+  data: ApiErrorResponse
+  status: 415
+}
+
+export type postApiUsersBusinessesApplicationsResponse500 = {
+  data: ApiErrorResponse
+  status: 500
+}
+
+export type postApiUsersBusinessesApplicationsResponse502 = {
+  data: ApiErrorResponse
+  status: 502
+}
+
+export type postApiUsersBusinessesApplicationsResponse503 = {
+  data: ApiErrorResponse
+  status: 503
+}
     
 export type postApiUsersBusinessesApplicationsResponseSuccess = (postApiUsersBusinessesApplicationsResponse200) & {
   headers: Headers;
 };
-;
+export type postApiUsersBusinessesApplicationsResponseError = (postApiUsersBusinessesApplicationsResponse400 | postApiUsersBusinessesApplicationsResponse409 | postApiUsersBusinessesApplicationsResponse413 | postApiUsersBusinessesApplicationsResponse415 | postApiUsersBusinessesApplicationsResponse500 | postApiUsersBusinessesApplicationsResponse502 | postApiUsersBusinessesApplicationsResponse503) & {
+  headers: Headers;
+};
 
-export type postApiUsersBusinessesApplicationsResponse = (postApiUsersBusinessesApplicationsResponseSuccess)
+export type postApiUsersBusinessesApplicationsResponse = (postApiUsersBusinessesApplicationsResponseSuccess | postApiUsersBusinessesApplicationsResponseError)
 
 export const getPostApiUsersBusinessesApplicationsUrl = (params: PostApiUsersBusinessesApplicationsParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -20656,13 +20708,30 @@ export type postApiUsersBusinessesApplicationsApplicationidCancelResponse200 = {
   data: UserBusinessApplicationResponse
   status: 200
 }
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse400 = {
+  data: ApiErrorResponse
+  status: 400
+}
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse404 = {
+  data: ApiErrorResponse
+  status: 404
+}
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
     
 export type postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess = (postApiUsersBusinessesApplicationsApplicationidCancelResponse200) & {
   headers: Headers;
 };
-;
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponseError = (postApiUsersBusinessesApplicationsApplicationidCancelResponse400 | postApiUsersBusinessesApplicationsApplicationidCancelResponse404 | postApiUsersBusinessesApplicationsApplicationidCancelResponse409) & {
+  headers: Headers;
+};
 
-export type postApiUsersBusinessesApplicationsApplicationidCancelResponse = (postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess)
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse = (postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess | postApiUsersBusinessesApplicationsApplicationidCancelResponseError)
 
 export const getPostApiUsersBusinessesApplicationsApplicationidCancelUrl = (applicationId: number,) => {
 
