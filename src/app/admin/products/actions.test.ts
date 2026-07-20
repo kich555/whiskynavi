@@ -125,6 +125,24 @@ describe("bottle admin actions", () => {
     expect(mockedRedirect).toHaveBeenCalledWith("/admin/products/10");
   });
 
+  it("keeps an uploaded description image in the bottle update request", async () => {
+    await updateBottleFormAction(
+      10,
+      { success: false },
+      validBottleFormData({
+        description: '<p>설명 이미지</p><img src="https://cdn.example.com/description.png">',
+      }),
+    );
+
+    expect(mockedUpdateBottle).toHaveBeenCalledWith(
+      10,
+      expect.objectContaining({
+        description: '<p>설명 이미지</p><img src="https://cdn.example.com/description.png" />',
+      }),
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
+  });
+
   it("returns the bottle image limit without uploading an oversized image", async () => {
     const oversizedImage = new File([new Uint8Array(MAX_BOTTLE_IMAGE_SIZE_MB * 1024 * 1024 + 1)], "large.png", {
       type: "image/png",
