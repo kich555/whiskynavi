@@ -8,6 +8,7 @@ describe("NoticeFormFields", () => {
     const { container } = render(
       <NoticeFormFields
         formValues={{
+          additionalImageKeys: [],
           bottleId: "11",
           bottleName: "테스트 보틀",
           noticeName: "7월 한정공고",
@@ -47,6 +48,7 @@ describe("NoticeFormFields", () => {
         },
       ]),
     );
+    expect(container.querySelector<HTMLInputElement>('input[name="additionalImageKeys"]')?.value).toBe("[]");
   });
 
   it("기존 공고 편집에서는 잔여 수락 수량 입력임을 표시한다", () => {

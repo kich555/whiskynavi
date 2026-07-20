@@ -3,16 +3,16 @@
 import { getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiAdminItemsId,
+  postApiAdminImagesPurpose,
   postApiAdminItems,
   postApiAdminSales,
-  postApiS3Upload,
   type AdminSaleAnnouncementResponse,
   type ItemAdminResponse,
   type PostApiAdminItemsBodyExtraInfos,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError } from "@/lib/image-upload";
 import { revalidatePath } from "next/cache";
 import { z } from "zod/v4";
 import { MAX_GENERAL_ITEM_IMAGE_SIZE_MB } from "./image-constraints";
@@ -145,14 +145,14 @@ async function resolveImageKey(formData: FormData, token: string, fallbackKey?: 
     return fallbackKey;
   }
 
-  const uploaded = await postApiS3Upload({ file: imageFile }, withToken(token));
+  const uploaded = await postApiAdminImagesPurpose("ITEM", { file: imageFile }, withToken(token));
   return extractUploadedKey(uploaded.data);
 }
 
 function validateImageFile(formData: FormData): string | undefined {
   const imageFile = formData.get("imageFile");
   if (!(imageFile instanceof File) || imageFile.size === 0) return undefined;
-  return getImageSizeError(imageFile, MAX_GENERAL_ITEM_IMAGE_SIZE_MB);
+  return getImageValidationError(imageFile, MAX_GENERAL_ITEM_IMAGE_SIZE_MB);
 }
 
 export async function createGeneralItemFormAction(

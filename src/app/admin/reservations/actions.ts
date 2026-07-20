@@ -43,6 +43,7 @@ interface GradeConditionFormValue {
 }
 
 export interface NoticeFormValues {
+  additionalImageKeys?: string[];
   bottleId: string;
   bottleName: string;
   noticeName: string;
@@ -95,6 +96,35 @@ const optionalPositiveInt = (fieldName: string) =>
   });
 
 const noticeFormSchema = z.object({
+  additionalImageKeys: z.string().transform((value, context): string[] | undefined => {
+    if (!value.trim()) return undefined;
+
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(value);
+    } catch {
+      context.addIssue({
+        code: "custom",
+        message: "추가 이미지 정보의 형식이 올바르지 않습니다.",
+      });
+      return z.NEVER;
+    }
+
+    if (
+      !Array.isArray(parsed) ||
+      parsed.length > 9 ||
+      parsed.some((key) => typeof key !== "string" || key.trim().length === 0) ||
+      new Set(parsed).size !== parsed.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "추가 이미지는 중복 없이 최대 9장까지 등록할 수 있습니다.",
+      });
+      return z.NEVER;
+    }
+
+    return parsed;
+  }),
   bottleId: z.string().transform((v) => {
     const n = Number(v);
     if (!v.trim() || Number.isNaN(n)) throw new Error("bottleId is required");
@@ -142,6 +172,14 @@ function extractNoticeFormValues(formData: FormData): NoticeFormValues {
   }
 
   return {
+    additionalImageKeys: (() => {
+      try {
+        const parsed = JSON.parse((formData.get("additionalImageKeys") as string) ?? "[]");
+        return Array.isArray(parsed) ? parsed.filter((key): key is string => typeof key === "string") : [];
+      } catch {
+        return [];
+      }
+    })(),
     bottleId: (formData.get("bottleId") as string) ?? "",
     bottleName: (formData.get("bottleName") as string) ?? "",
     noticeName: (formData.get("noticeName") as string) ?? "",
@@ -253,6 +291,7 @@ function buildGradeConditions(
 
 function buildNoticeBody(data: z.infer<typeof noticeFormSchema>) {
   return {
+    additionalImageKeys: data.additionalImageKeys,
     bottleId: data.bottleId,
     price: data.price,
     reservationStartAt: new Date(data.reservationStartAt).toISOString(),
@@ -361,11 +400,7 @@ export async function updateNoticeFormAction(
   if (!parsed.success) return { success: false, error: parsed.error, values: parsed.values };
 
   try {
-    await putApiAdminBottlesReservationsNoticesNoticeid(
-      noticeId,
-      buildNoticeBody(parsed.data),
-      withToken(token),
-    );
+    await putApiAdminBottlesReservationsNoticesNoticeid(noticeId, buildNoticeBody(parsed.data), withToken(token));
   } catch (error) {
     const message = error instanceof Error ? error.message : "공고 수정에 실패했습니다.";
     return { success: false, error: message, values: parsed.values };

@@ -1,17 +1,18 @@
 "use client";
 
-import { postApiS3Upload } from "@/apis/generated/api";
-import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
+import { postApiAdminImagesPurpose, type AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
+import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUploader";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
 import { Plus, X } from "lucide-react";
 import { getSession } from "next-auth/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import CurrencyInput from "../../../_components/CurrencyInput";
 import DateTimePicker from "../../../_components/DateTimePicker";
 import { ROLE_LABEL_MAP } from "../../../constants";
+import { MAX_BOTTLE_IMAGE_SIZE_MB } from "../../../products/image-constraints";
 import type { NoticeFormValues } from "../../actions";
 import BottleSearchCombobox from "./BottleSearchCombobox";
 
@@ -30,21 +31,15 @@ interface NoticeFormFieldsProps {
 
 export default function NoticeFormFields({ defaultValues, formValues, onUploadingChange }: NoticeFormFieldsProps) {
   const isEditing = defaultValues?.id != null;
-  const [uploading, setUploading] = useState(false);
-  const handleUploadingChange = useCallback(
-    (next: boolean) => {
-      setUploading(next);
-      onUploadingChange?.(next);
-    },
-    [onUploadingChange],
-  );
+  const [descriptionUploading, setDescriptionUploading] = useState(false);
+  const [additionalImageUploading, setAdditionalImageUploading] = useState(false);
   const uploadFn = useCallback(async (file: File): Promise<string> => {
     const session = await getSession();
     if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
-    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const response = await postApiAdminImagesPurpose("RESERVATION_NOTICE", { file }, withToken(session.accessToken));
     const key = response.data.key;
     if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
-    return buildCloudFrontUrl(key);
+    return response.data.url ?? buildCloudFrontUrl(key);
   }, []);
   const [gradeConditions, setGradeConditions] = useState<GradeCondition[]>(
     formValues?.gradeConditions ??
@@ -54,6 +49,10 @@ export default function NoticeFormFields({ defaultValues, formValues, onUploadin
       })) ??
       [],
   );
+
+  useEffect(() => {
+    onUploadingChange?.(descriptionUploading || additionalImageUploading);
+  }, [additionalImageUploading, descriptionUploading, onUploadingChange]);
 
   const addCondition = () => {
     setGradeConditions((prev) => [...prev, { applicableFrom: "", requiredRole: "" }]);
@@ -185,6 +184,16 @@ export default function NoticeFormFields({ defaultValues, formValues, onUploadin
         </div>
 
         <div className="md:col-span-2">
+          <AdditionalImageUploader
+            purpose="RESERVATION_NOTICE"
+            initialKeys={formValues?.additionalImageKeys ?? defaultValues?.additionalImageKeys ?? []}
+            initialUrls={formValues?.additionalImageKeys ? [] : (defaultValues?.imageUrls ?? [])}
+            maxSizeMB={MAX_BOTTLE_IMAGE_SIZE_MB}
+            onUploadingChange={setAdditionalImageUploading}
+          />
+        </div>
+
+        <div className="md:col-span-2">
           <label className="typo-medium-14 mb-1 block text-gray-700">설명</label>
           <RichTextImageEditor
             name="description"
@@ -192,9 +201,9 @@ export default function NoticeFormFields({ defaultValues, formValues, onUploadin
             defaultValue={formValues?.description ?? defaultValues?.description ?? ""}
             placeholder="예약 공고에 대한 설명을 입력하세요"
             uploadFn={uploadFn}
-            onUploadingChange={handleUploadingChange}
+            onUploadingChange={setDescriptionUploading}
           />
-          {uploading && (
+          {descriptionUploading && (
             <p className="typo-medium-12 mt-1 text-amber-600">이미지 업로드 중입니다. 완료 후 저장하세요.</p>
           )}
         </div>

@@ -1,4 +1,9 @@
-import { patchApiAdminItemsId, postApiAdminItems, postApiAdminSales, postApiS3Upload } from "@/apis/generated/api";
+import {
+  patchApiAdminItemsId,
+  postApiAdminImagesPurpose,
+  postApiAdminItems,
+  postApiAdminSales,
+} from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { createGeneralItemFormAction, createGeneralItemSaleFormAction, updateGeneralItemFormAction } from "./actions";
@@ -8,7 +13,7 @@ vi.mock("@/apis/generated/api", () => ({
   patchApiAdminItemsId: vi.fn(),
   postApiAdminItems: vi.fn(),
   postApiAdminSales: vi.fn(),
-  postApiS3Upload: vi.fn(),
+  postApiAdminImagesPurpose: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -23,7 +28,7 @@ const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedPatchItem = vi.mocked(patchApiAdminItemsId);
 const mockedPostItem = vi.mocked(postApiAdminItems);
 const mockedPostSale = vi.mocked(postApiAdminSales);
-const mockedPostS3Upload = vi.mocked(postApiS3Upload);
+const mockedPostS3Upload = vi.mocked(postApiAdminImagesPurpose);
 
 function formDataFrom(entries: Record<string, string | string[]>) {
   const formData = new FormData();
@@ -62,23 +67,29 @@ describe("general item admin actions", () => {
       headers: new Headers(),
     });
 
-    const result = await createGeneralItemFormAction(
-      { success: false },
-      formDataFrom({
-        name: "배송 패키지",
-        description: "배송 주문 가능한 일반 상품",
-        stockQuantity: "7",
-        supplyPrice: "12000",
-        consumerPrice: "18000",
-        visible: "on",
-        extraInfos: '{"details":{"material":"glass"}}',
-      }),
-    );
+    const formData = formDataFrom({
+      name: "배송 패키지",
+      description: "배송 주문 가능한 일반 상품",
+      stockQuantity: "7",
+      supplyPrice: "12000",
+      consumerPrice: "18000",
+      visible: "on",
+      extraInfos: '{"details":{"material":"glass"}}',
+    });
+    formData.set("imageFile", new File(["image"], "item.png", { type: "image/png" }));
+
+    const result = await createGeneralItemFormAction({ success: false }, formData);
 
     expect(result).toEqual({ success: true, data: { id: 10, name: "배송 패키지" } });
+    expect(mockedPostS3Upload).toHaveBeenCalledWith(
+      "ITEM",
+      { file: expect.any(File) },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
     expect(mockedPostItem).toHaveBeenCalledWith(
       {
         name: "배송 패키지",
+        imageKey: "items/default.png",
         description: "배송 주문 가능한 일반 상품",
         stockQuantity: 7,
         supplyPrice: 12000,
@@ -109,6 +120,16 @@ describe("general item admin actions", () => {
       name: "작성 중인 일반상품",
       description: "보존할 설명",
     });
+    expect(mockedPostS3Upload).not.toHaveBeenCalled();
+  });
+
+  it("백엔드가 허용하지 않는 일반상품 이미지 형식은 업로드하지 않는다", async () => {
+    const formData = formDataFrom({ name: "GIF 상품" });
+    formData.set("imageFile", new File(["gif"], "item.gif", { type: "image/gif" }));
+
+    const result = await createGeneralItemFormAction({ success: false }, formData);
+
+    expect(result.error).toContain("JPG, PNG, WEBP");
     expect(mockedPostS3Upload).not.toHaveBeenCalled();
   });
 

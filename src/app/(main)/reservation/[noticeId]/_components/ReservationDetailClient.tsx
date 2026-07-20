@@ -6,7 +6,7 @@ import type {
   UserBottleReservationNoticePublicResponse,
 } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
-import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { hasBusinessRole } from "@/lib/auth";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useSession } from "next-auth/react";
@@ -101,15 +101,14 @@ export default function ReservationDetailClient({
       {/* Top: Image + Info */}
       <div className="mb-6 grid grid-cols-1 gap-6 lg:mb-8 lg:grid-cols-2 lg:gap-8">
         {/* Image */}
-        <div className="relative flex aspect-square items-center justify-center bg-gradient-to-br from-gray-700 to-gray-800">
-          <ImageWithFallback
-            src={notice.bottleImgUrl}
-            alt={notice.bottleName ?? ""}
-            fill
-            className="object-contain p-6"
-          />
+        <RepresentativeImageCarousel
+          images={[notice.bottleImgUrl, ...(notice.imageUrls ?? [])]}
+          alt={notice.bottleName ?? "예약 보틀"}
+          surfaceClassName="bg-gradient-to-br from-gray-700 to-gray-800"
+          imageClassName="p-6"
+        >
           <StatusBadge status={displayStatus} className="absolute top-2 right-2 lg:top-4 lg:right-4" />
-        </div>
+        </RepresentativeImageCarousel>
 
         {/* Info */}
         <div className="flex flex-col justify-center">

@@ -5,12 +5,12 @@ import {
   deleteApiAdminBottlesId,
   patchApiAdminBottlesId,
   postApiAdminBottles,
-  postApiS3Upload,
+  postApiAdminImagesPurpose,
   type PostApiAdminBottlesBodyExtraInfos,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { getImageSizeError } from "@/lib/image-upload";
+import { getImageValidationError } from "@/lib/image-upload";
 import { richTextHasContent, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -48,6 +48,7 @@ const FORM_FIELD_NAMES = [
   "distillationDate",
   "bottledDate",
   "description",
+  "additionalImageKeys",
   "extraInfos",
   "abv",
   "capacity",
@@ -102,6 +103,36 @@ const optionalNum = z
   })
   .optional();
 
+const additionalImageKeys = z.string().transform((value, context): string[] | undefined => {
+  if (!value.trim()) return undefined;
+
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(value);
+  } catch {
+    context.addIssue({
+      code: "custom",
+      message: "추가 이미지 정보의 형식이 올바르지 않습니다.",
+    });
+    return z.NEVER;
+  }
+
+  if (
+    !Array.isArray(parsed) ||
+    parsed.length > 9 ||
+    parsed.some((key) => typeof key !== "string" || key.trim().length === 0) ||
+    new Set(parsed).size !== parsed.length
+  ) {
+    context.addIssue({
+      code: "custom",
+      message: "추가 이미지는 중복 없이 최대 9장까지 등록할 수 있습니다.",
+    });
+    return z.NEVER;
+  }
+
+  return parsed;
+});
+
 const bottleFormSchema = z.object({
   name: bounded(200, "제품명"),
   company: bounded(50, "회사"),
@@ -117,6 +148,7 @@ const bottleFormSchema = z.object({
     if (!richTextHasContent(value)) return undefined;
     return sanitizeRichTextContent(value);
   }),
+  additionalImageKeys,
   extraInfos: optionalText,
   abv: optionalNum,
   capacity: optionalNum,
@@ -129,10 +161,7 @@ const bottleFormSchema = z.object({
 function parseBottleFormData(formData: FormData) {
   const raw: Record<string, string | boolean> = {};
   for (const key of Object.keys(bottleFormSchema.shape)) {
-    raw[key] =
-      key === "visible"
-        ? formData.getAll("visible").includes("on")
-        : ((formData.get(key) as string) ?? "");
+    raw[key] = key === "visible" ? formData.getAll("visible").includes("on") : ((formData.get(key) as string) ?? "");
   }
   const result = bottleFormSchema.safeParse(raw);
   if (!result.success) {
@@ -163,8 +192,7 @@ function parseExtraInfos(raw: string | undefined): PostApiAdminBottlesBodyExtraI
   return undefined;
 }
 
-// /api/s3/upload 는 { [key: string]: string } 형태 (spec상 키 이름 미지정)라서
-// 응답 본문에서 S3 키를 유추한다. 우선순위: key → s3Key → objectKey → 첫 string 값.
+// 구버전 응답까지 처리할 수 있도록 key 후보를 순서대로 확인한다.
 function extractLabelImgKey(data: unknown): string | undefined {
   if (!data || typeof data !== "object") return undefined;
   const obj = data as Record<string, unknown>;
@@ -200,14 +228,14 @@ export async function createBottleFormAction(_prev: FormState, formData: FormDat
   if (!labelImg || labelImg.size === 0) {
     return { success: false, error: "라벨 이미지는 필수입니다.", values };
   }
-  const imageSizeError = getImageSizeError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
-  if (imageSizeError) {
-    return { success: false, error: imageSizeError, values };
+  const imageValidationError = getImageValidationError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
+  if (imageValidationError) {
+    return { success: false, error: imageValidationError, values };
   }
 
   let labelImgKey: string | undefined;
   try {
-    const uploaded = await postApiS3Upload({ file: labelImg }, withToken(token));
+    const uploaded = await postApiAdminImagesPurpose("BOTTLE", { file: labelImg }, withToken(token));
     labelImgKey = extractLabelImgKey(uploaded.data);
     if (!labelImgKey) {
       return {
@@ -273,12 +301,12 @@ export async function updateBottleFormAction(id: number, _prev: FormState, formD
   let labelImgKey: string | undefined;
 
   if (labelImg && labelImg.size > 0) {
-    const imageSizeError = getImageSizeError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
-    if (imageSizeError) {
-      return { success: false, error: imageSizeError, values };
+    const imageValidationError = getImageValidationError(labelImg, MAX_BOTTLE_IMAGE_SIZE_MB);
+    if (imageValidationError) {
+      return { success: false, error: imageValidationError, values };
     }
     try {
-      const uploaded = await postApiS3Upload({ file: labelImg }, withToken(token));
+      const uploaded = await postApiAdminImagesPurpose("BOTTLE", { file: labelImg }, withToken(token));
       labelImgKey = extractLabelImgKey(uploaded.data);
       if (!labelImgKey) {
         return {
