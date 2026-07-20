@@ -1,6 +1,9 @@
 "use client";
 
-import { postApiS3Upload } from "@/apis/generated/api";
+import {
+  postApiAdminImagesPurpose,
+  type AdminImageUploadResponsePurpose,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { buildCloudFrontUrl } from "@/lib/cloudfront";
@@ -19,6 +22,7 @@ interface AdditionalImageUploaderProps {
   initialUrls?: string[];
   maxImages?: number;
   maxSizeMB: number;
+  purpose: AdminImageUploadResponsePurpose;
   name?: string;
   onUploadingChange?: (uploading: boolean) => void;
 }
@@ -37,6 +41,7 @@ export default function AdditionalImageUploader({
   initialUrls = [],
   maxImages = 9,
   maxSizeMB,
+  purpose,
   name = "additionalImageKeys",
   onUploadingChange,
 }: AdditionalImageUploaderProps) {
@@ -91,7 +96,7 @@ export default function AdditionalImageUploader({
 
       const uploadedImages = await Promise.all(
         files.map(async (file): Promise<AdditionalImage> => {
-          const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+          const response = await postApiAdminImagesPurpose(purpose, { file }, withToken(session.accessToken));
           const key = response.data.key;
           if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
           return {

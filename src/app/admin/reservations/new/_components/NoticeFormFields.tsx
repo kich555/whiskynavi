@@ -1,7 +1,6 @@
 "use client";
 
-import type { AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
-import { postApiS3Upload } from "@/apis/generated/api";
+import { postApiAdminImagesPurpose, type AdminBottleReservationNoticeResponse } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUploader";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
@@ -37,7 +36,11 @@ export default function NoticeFormFields({ defaultValues, formValues, onUploadin
   const uploadFn = useCallback(async (file: File): Promise<string> => {
     const session = await getSession();
     if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
-    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const response = await postApiAdminImagesPurpose(
+      "RESERVATION_NOTICE",
+      { file },
+      withToken(session.accessToken),
+    );
     const key = response.data.key;
     if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
     return buildCloudFrontUrl(key);
@@ -186,6 +189,7 @@ export default function NoticeFormFields({ defaultValues, formValues, onUploadin
 
         <div className="md:col-span-2">
           <AdditionalImageUploader
+            purpose="RESERVATION_NOTICE"
             initialKeys={formValues?.additionalImageKeys ?? defaultValues?.additionalImageKeys ?? []}
             initialUrls={formValues?.additionalImageKeys ? [] : (defaultValues?.imageUrls ?? [])}
             maxSizeMB={MAX_BOTTLE_IMAGE_SIZE_MB}

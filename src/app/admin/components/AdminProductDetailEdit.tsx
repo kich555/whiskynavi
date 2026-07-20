@@ -1,6 +1,10 @@
 "use client";
 
-import { postApiS3Upload, type BottleAdminParameterValues, type BottleAdminResponse } from "@/apis/generated/api";
+import {
+  postApiAdminImagesPurpose,
+  type BottleAdminParameterValues,
+  type BottleAdminResponse,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import AdditionalImageUploader from "@/app/admin/_components/AdditionalImageUploader";
 import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
@@ -86,7 +90,7 @@ export default function AdminProductDetailEdit({
     const session = await getSession();
     if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
 
-    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const response = await postApiAdminImagesPurpose("BOTTLE", { file }, withToken(session.accessToken));
     const key = response.data.key;
     if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
 
@@ -533,6 +537,7 @@ export default function AdminProductDetailEdit({
           ) : null}
           <div className="mt-6 border-t border-gray-200 pt-6">
             <AdditionalImageUploader
+              purpose="BOTTLE"
               initialKeys={initialAdditionalImageKeys}
               initialUrls={initialAdditionalImageUrls}
               maxSizeMB={MAX_BOTTLE_IMAGE_SIZE_MB}

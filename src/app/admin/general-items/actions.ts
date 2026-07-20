@@ -5,7 +5,7 @@ import {
   patchApiAdminItemsId,
   postApiAdminItems,
   postApiAdminSales,
-  postApiS3Upload,
+  postApiAdminImagesPurpose,
   type AdminSaleAnnouncementResponse,
   type ItemAdminResponse,
   type PostApiAdminItemsBodyExtraInfos,
@@ -145,7 +145,7 @@ async function resolveImageKey(formData: FormData, token: string, fallbackKey?: 
     return fallbackKey;
   }
 
-  const uploaded = await postApiS3Upload({ file: imageFile }, withToken(token));
+  const uploaded = await postApiAdminImagesPurpose("ITEM", { file: imageFile }, withToken(token));
   return extractUploadedKey(uploaded.data);
 }
 

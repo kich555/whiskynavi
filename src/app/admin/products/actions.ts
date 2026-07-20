@@ -5,7 +5,7 @@ import {
   deleteApiAdminBottlesId,
   patchApiAdminBottlesId,
   postApiAdminBottles,
-  postApiS3Upload,
+  postApiAdminImagesPurpose,
   type PostApiAdminBottlesBodyExtraInfos,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -192,8 +192,7 @@ function parseExtraInfos(raw: string | undefined): PostApiAdminBottlesBodyExtraI
   return undefined;
 }
 
-// /api/s3/upload 는 { [key: string]: string } 형태 (spec상 키 이름 미지정)라서
-// 응답 본문에서 S3 키를 유추한다. 우선순위: key → s3Key → objectKey → 첫 string 값.
+// 구버전 응답까지 처리할 수 있도록 key 후보를 순서대로 확인한다.
 function extractLabelImgKey(data: unknown): string | undefined {
   if (!data || typeof data !== "object") return undefined;
   const obj = data as Record<string, unknown>;
@@ -236,7 +235,7 @@ export async function createBottleFormAction(_prev: FormState, formData: FormDat
 
   let labelImgKey: string | undefined;
   try {
-    const uploaded = await postApiS3Upload({ file: labelImg }, withToken(token));
+    const uploaded = await postApiAdminImagesPurpose("BOTTLE", { file: labelImg }, withToken(token));
     labelImgKey = extractLabelImgKey(uploaded.data);
     if (!labelImgKey) {
       return {
@@ -307,7 +306,7 @@ export async function updateBottleFormAction(id: number, _prev: FormState, formD
       return { success: false, error: imageSizeError, values };
     }
     try {
-      const uploaded = await postApiS3Upload({ file: labelImg }, withToken(token));
+      const uploaded = await postApiAdminImagesPurpose("BOTTLE", { file: labelImg }, withToken(token));
       labelImgKey = extractLabelImgKey(uploaded.data);
       if (!labelImgKey) {
         return {
