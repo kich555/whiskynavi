@@ -36,9 +36,8 @@ export default async function BusinessRelatedNoticePage({ params, searchParams }
   }
 
   const backHref = businessId
-    ? `/business/statistics?businessId=${businessId}`
+    ? `/business/pickup-reservations/notices/${noticeId}?businessId=${businessId}`
     : `/business/pickup-reservations/notices/${noticeId}`;
-  const backLabel = businessId ? "공고별 예약 통계로 돌아가기" : "공고별 신청 관리로 돌아가기";
 
   return (
     <>
@@ -49,7 +48,7 @@ export default async function BusinessRelatedNoticePage({ params, searchParams }
           className="mb-6 flex items-center gap-2 text-gray-600 transition-colors hover:text-gray-900"
         >
           <ArrowLeft size={20} />
-          {backLabel}
+          공고별 신청 관리로 돌아가기
         </Link>
         <RelatedNoticeDetail notice={result.data} appearance="light" />
       </div>

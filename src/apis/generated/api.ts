@@ -10155,6 +10155,10 @@ nickname?: string;
  */
 phone?: string;
 /**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
+/**
  * Zero-based page index (0..N)
  * @minimum 0
  */
@@ -10183,6 +10187,13 @@ export const GetApiUsersBusinessesPickupReservationsApplicationsStatus = {
   REJECTED: 'REJECTED',
 } as const;
 
+export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupParams = {
+/**
+ * 처리할 사업장 ID. 없으면 기본 사업장을 사용합니다.
+ */
+businessId?: number;
+};
+
 export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody = {
   /** 단건 변경 시 사용하는 예약 신청 ID */
   applicationId?: number;
@@ -10192,6 +10203,34 @@ export type PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBod
   bottleId?: number;
   /** 같은 병이 여러 공고에 걸쳐 있을 때 범위를 좁히는 예약 공고 ID */
   noticeId?: number;
+};
+
+export type GetApiUsersBusinessesPickupReservationsApplicationsApplicationidParams = {
+/**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
+};
+
+export type PostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteParams = {
+/**
+ * 처리할 사업장 ID. 없으면 기본 사업장을 사용합니다.
+ */
+businessId?: number;
+};
+
+export type PostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteParams = {
+/**
+ * 처리할 사업장 ID. 없으면 기본 사업장을 사용합니다.
+ */
+businessId?: number;
+};
+
+export type PostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupParams = {
+/**
+ * 처리할 사업장 ID. 없으면 기본 사업장을 사용합니다.
+ */
+businessId?: number;
 };
 
 export type GetApiUsersBusinessesPickupReservationsNoticeStatisticsParams = {
@@ -10217,6 +10256,10 @@ sort?: string[];
 
 export type GetApiUsersBusinessesPickupReservationsNoticesStatusesParams = {
 /**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
+/**
  * Zero-based page index (0..N)
  * @minimum 0
  */
@@ -10241,6 +10284,10 @@ businessId?: number;
 
 export type GetApiUsersBusinessesReservationDeliveriesParams = {
 noticeId?: number;
+/**
+ * 조회할 사업장 ID. 없으면 기본 사업장을 조회합니다.
+ */
+businessId?: number;
 };
 
 export type PostApiUsersBusinessesBusinessidMembersBody = {
@@ -21015,17 +21062,25 @@ export type postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupRes
 
 export type postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse = (postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponseSuccess)
 
-export const getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl = () => {
+export const getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl = (params?: PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/applications/waiting-pickup`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/applications/waiting-pickup?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/applications/waiting-pickup`
 }
 
-export const postApiUsersBusinessesPickupReservationsApplicationsWaitingPickup = async (postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody: PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse> => {
+export const postApiUsersBusinessesPickupReservationsApplicationsWaitingPickup = async (postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody: PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupBody,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupParams, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse> => {
   
-  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl(),
+  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsWaitingPickupUrl(params),
   {      
     ...options,
     method: 'POST',
@@ -21053,17 +21108,26 @@ export type getApiUsersBusinessesPickupReservationsApplicationsApplicationidResp
 
 export type getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse = (getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponseSuccess)
 
-export const getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl = (applicationId: number,) => {
+export const getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl = (applicationId: number,
+    params?: GetApiUsersBusinessesPickupReservationsApplicationsApplicationidParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/applications/${applicationId}`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/applications/${applicationId}?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/applications/${applicationId}`
 }
 
-export const getApiUsersBusinessesPickupReservationsApplicationsApplicationid = async (applicationId: number, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse> => {
+export const getApiUsersBusinessesPickupReservationsApplicationsApplicationid = async (applicationId: number,
+    params?: GetApiUsersBusinessesPickupReservationsApplicationsApplicationidParams, options?: RequestInit): Promise<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse> => {
   
-  return customFetch<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse>(getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl(applicationId),
+  return customFetch<getApiUsersBusinessesPickupReservationsApplicationsApplicationidResponse>(getGetApiUsersBusinessesPickupReservationsApplicationsApplicationidUrl(applicationId,params),
   {      
     ...options,
     method: 'GET'
@@ -21090,17 +21154,26 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidPay
 
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponseSuccess)
 
-export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl = (applicationId: number,) => {
+export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl = (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/applications/${applicationId}/payment-complete`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/applications/${applicationId}/payment-complete?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/applications/${applicationId}/payment-complete`
 }
 
-export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse> => {
+export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentComplete = async (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteParams, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse> => {
   
-  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl(applicationId),
+  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidPaymentCompleteUrl(applicationId,params),
   {      
     ...options,
     method: 'POST'
@@ -21127,17 +21200,26 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidRec
 
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponseSuccess)
 
-export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl = (applicationId: number,) => {
+export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl = (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/applications/${applicationId}/receive-complete`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/applications/${applicationId}/receive-complete?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/applications/${applicationId}/receive-complete`
 }
 
-export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveComplete = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse> => {
+export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveComplete = async (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteParams, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse> => {
   
-  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl(applicationId),
+  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidReceiveCompleteUrl(applicationId,params),
   {      
     ...options,
     method: 'POST'
@@ -21164,17 +21246,26 @@ export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidWai
 
 export type postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse = (postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponseSuccess)
 
-export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl = (applicationId: number,) => {
+export const getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl = (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/users/businesses/pickup-reservations/applications/${applicationId}/waiting-pickup`
+  return stringifiedParams.length > 0 ? `/api/users/businesses/pickup-reservations/applications/${applicationId}/waiting-pickup?${stringifiedParams}` : `/api/users/businesses/pickup-reservations/applications/${applicationId}/waiting-pickup`
 }
 
-export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickup = async (applicationId: number, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse> => {
+export const postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickup = async (applicationId: number,
+    params?: PostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupParams, options?: RequestInit): Promise<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse> => {
   
-  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl(applicationId),
+  return customFetch<postApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupResponse>(getPostApiUsersBusinessesPickupReservationsApplicationsApplicationidWaitingPickupUrl(applicationId,params),
   {      
     ...options,
     method: 'POST'

@@ -29,6 +29,7 @@ interface PickupReservationsContentProps {
   searchParams: {
     page?: string;
     limit?: string;
+    businessId?: string;
   };
   notices: UserBottleReservationPickupNoticeReservationStatusResponse[];
   totalElements: number;
@@ -80,6 +81,8 @@ export default function PickupReservationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
+  const businessId = Number(searchParams.businessId) || undefined;
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
   const noticeGroups = mapNoticesToGroups(notices);
   const deliveryMap = new Map(deliveries.map((delivery) => [delivery.noticeId, delivery]));
   const bulkNoticeDisplay = bulkNotice ? getReservationNoticeDisplay(bulkNotice) : null;
@@ -92,10 +95,13 @@ export default function PickupReservationsContent({
     }
 
     startTransition(async () => {
-      const result = await bulkWaitingPickupAction({
-        bottleId: bulkNotice.bottleId,
-        noticeId: bulkNotice.noticeId,
-      });
+      const result = await bulkWaitingPickupAction(
+        {
+          bottleId: bulkNotice.bottleId,
+          noticeId: bulkNotice.noticeId,
+        },
+        businessId,
+      );
       if (result.success) {
         setBulkNotice(null);
         router.refresh();
@@ -167,7 +173,9 @@ export default function PickupReservationsContent({
                         <td className="px-4 py-3">
                           <button
                             type="button"
-                            onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
+                            onClick={() =>
+                              router.push(withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}`))
+                            }
                             className="min-w-0 cursor-pointer text-left"
                           >
                             <div className="typo-bold-14 text-gray-900">{display.primaryName}</div>
@@ -205,13 +213,17 @@ export default function PickupReservationsContent({
                         <td className="px-4 py-3">
                           <div className="flex shrink-0 flex-wrap gap-2">
                             <Button type="button" variant="outline" size="sm" asChild>
-                              <Link href={`/business/pickup-reservations/notices/${group.noticeId}/detail`}>
+                              <Link
+                                href={withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}/detail`)}
+                              >
                                 <Eye size={16} />
                                 공고 내용
                               </Link>
                             </Button>
                             <Button type="button" variant="outline" size="sm" asChild>
-                              <Link href={`/business/pickup-reservations/notices/${group.noticeId}`}>신청 관리</Link>
+                              <Link href={withBusinessId(`/business/pickup-reservations/notices/${group.noticeId}`)}>
+                                신청 관리
+                              </Link>
                             </Button>
                             <Button
                               type="button"

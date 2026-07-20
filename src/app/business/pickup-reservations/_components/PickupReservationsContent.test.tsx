@@ -120,11 +120,48 @@ describe("PickupReservationsContent", () => {
     await user.click(screen.getByRole("button", { name: "공고 일괄 픽업대기" }));
     await user.click(screen.getByRole("button", { name: "픽업대기 확인" }));
 
-    expect(mockedBulkWaitingPickupAction).toHaveBeenCalledWith({
-      bottleId: 5,
-      noticeId: 10,
-    });
+    expect(mockedBulkWaitingPickupAction).toHaveBeenCalledWith(
+      {
+        bottleId: 5,
+        noticeId: 10,
+      },
+      undefined,
+    );
     expect(refreshMock).toHaveBeenCalled();
+  });
+
+  it("선택한 사업장 ID를 공고 링크와 일괄 처리에 유지한다", async () => {
+    const user = userEvent.setup();
+    const mockedBulkWaitingPickupAction = vi.mocked(bulkWaitingPickupAction);
+
+    render(
+      <PickupReservationsContent
+        searchParams={{ businessId: "12" }}
+        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12" })]}
+        totalElements={1}
+        deliveries={[]}
+      />,
+    );
+
+    expect(screen.getByRole("link", { name: /공고 내용/ })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10/detail?businessId=12",
+    );
+    expect(screen.getByRole("link", { name: "신청 관리" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10?businessId=12",
+    );
+
+    await user.click(screen.getByRole("button", { name: "공고 일괄 픽업대기" }));
+    await user.click(screen.getByRole("button", { name: "픽업대기 확인" }));
+
+    expect(mockedBulkWaitingPickupAction).toHaveBeenCalledWith(
+      {
+        bottleId: 5,
+        noticeId: 10,
+      },
+      12,
+    );
   });
 
   it("신청 건수가 없는 공고는 일괄 처리 버튼을 비활성화한다", () => {

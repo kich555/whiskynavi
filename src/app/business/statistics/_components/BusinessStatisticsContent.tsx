@@ -71,6 +71,9 @@ function NoticeStageCard({
   const detailHref = selectedBusinessId
     ? `/business/pickup-reservations/notices/${noticeId}/detail?businessId=${selectedBusinessId}`
     : `/business/pickup-reservations/notices/${noticeId}/detail`;
+  const managementHref = selectedBusinessId
+    ? `/business/pickup-reservations/notices/${noticeId}?businessId=${selectedBusinessId}`
+    : `/business/pickup-reservations/notices/${noticeId}`;
 
   return (
     <article className="border border-gray-200 bg-white p-4">
@@ -87,11 +90,9 @@ function NoticeStageCard({
             <Button variant="outline" size="sm" asChild>
               <Link href={detailHref}>공고 내용</Link>
             </Button>
-            {!selectedBusinessId && (
-              <Button variant="outline" size="sm" asChild>
-                <Link href={`/business/pickup-reservations/notices/${noticeId}`}>신청 관리</Link>
-              </Button>
-            )}
+            <Button variant="outline" size="sm" asChild>
+              <Link href={managementHref}>신청 관리</Link>
+            </Button>
           </div>
         ) : (
           <Button variant="outline" size="sm" disabled>

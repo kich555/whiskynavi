@@ -6,7 +6,8 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { parseApiPage } from "@/lib/page-response";
+import { parseApiPage, parsePositiveInt } from "@/lib/page-response";
+import { notFound } from "next/navigation";
 import PickupNoticeApplicationsContent from "../../_components/PickupNoticeApplicationsContent";
 
 interface PickupNoticeApplicationsPageProps {
@@ -17,6 +18,7 @@ interface PickupNoticeApplicationsPageProps {
     page?: string;
     limit?: string;
     status?: string;
+    businessId?: string;
   }>;
 }
 
@@ -38,11 +40,14 @@ export default async function PickupNoticeApplicationsPage({
   const token = await getAuthToken();
   const noticeId = Number(routeParams.noticeId);
   const pageSize = query.limit ? Number(query.limit) : 20;
+  const businessId = query.businessId ? parsePositiveInt(query.businessId) : undefined;
+  if (query.businessId && !businessId) notFound();
 
   const [applicationsRes, deliveriesData, noticeData] = await Promise.all([
     getApiUsersBusinessesPickupReservationsApplications(
       {
         noticeId,
+        businessId,
         page: parseApiPage(query.page),
         size: pageSize,
         ...(query.status
@@ -53,9 +58,9 @@ export default async function PickupNoticeApplicationsPage({
       },
       withToken(token),
     ),
-    getOptionalData(getApiUsersBusinessesReservationDeliveries({ noticeId }, withToken(token))),
+    getOptionalData(getApiUsersBusinessesReservationDeliveries({ noticeId, businessId }, withToken(token))),
     getOptionalData(
-      getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, undefined, withToken(token)),
+      getApiUsersBusinessesPickupReservationsNoticesNoticeidDetail(noticeId, { businessId }, withToken(token)),
     ),
   ]);
 

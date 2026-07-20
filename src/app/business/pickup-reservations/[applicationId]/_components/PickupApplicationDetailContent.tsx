@@ -64,9 +64,10 @@ interface StatusActionButtonProps {
   applicationId: number;
   status?: string;
   applicantName?: string;
+  businessId?: number;
 }
 
-function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName, businessId }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -81,11 +82,11 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
       let result: { success: boolean; error?: string };
 
       if (actionType === "payment-complete") {
-        result = await paymentCompleteAction(applicationId);
+        result = await paymentCompleteAction(applicationId, businessId);
       } else if (actionType === "waiting-pickup") {
-        result = await waitingPickupAction(applicationId);
+        result = await waitingPickupAction(applicationId, businessId);
       } else {
-        result = await receiveCompleteAction(applicationId);
+        result = await receiveCompleteAction(applicationId, businessId);
       }
 
       if (result.success) {
@@ -129,11 +130,16 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
 
 interface PickupApplicationDetailContentProps {
   application: UserBottleReservationPickupApplicationResponse;
+  businessId?: number;
 }
 
-export default function PickupApplicationDetailContent({ application }: PickupApplicationDetailContentProps) {
+export default function PickupApplicationDetailContent({
+  application,
+  businessId,
+}: PickupApplicationDetailContentProps) {
   const router = useRouter();
   const noticeDisplay = getReservationNoticeDisplay(application);
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
 
   return (
     <>
@@ -155,7 +161,7 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
           {application.noticeId && (
             <div className="flex justify-end">
               <Button variant="outline" asChild>
-                <Link href={`/business/pickup-reservations/notices/${application.noticeId}/detail`}>
+                <Link href={withBusinessId(`/business/pickup-reservations/notices/${application.noticeId}/detail`)}>
                   공고 내용 보기
                 </Link>
               </Button>
@@ -165,6 +171,7 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
             applicationId={application.id!}
             status={application.status}
             applicantName={application.applicantUser?.name ?? undefined}
+            businessId={businessId}
           />
           {/* 공고 및 병 정보 */}
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">

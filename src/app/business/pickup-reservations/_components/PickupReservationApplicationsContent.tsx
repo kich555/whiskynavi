@@ -32,6 +32,7 @@ interface PickupReservationApplicationsContentProps {
     status?: string;
     q?: string;
     searchType?: string;
+    businessId?: string;
   };
   applications: UserBottleReservationPickupApplicationResponse[];
   totalElements: number;
@@ -78,9 +79,10 @@ interface StatusActionButtonProps {
   applicationId: number;
   status?: string;
   applicantName?: string;
+  businessId?: number;
 }
 
-function StatusActionButton({ applicationId, status, applicantName }: StatusActionButtonProps) {
+function StatusActionButton({ applicationId, status, applicantName, businessId }: StatusActionButtonProps) {
   const [isPending, startTransition] = useTransition();
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
@@ -95,11 +97,11 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
       let result: { success: boolean; error?: string };
 
       if (actionType === "payment-complete") {
-        result = await paymentCompleteAction(applicationId);
+        result = await paymentCompleteAction(applicationId, businessId);
       } else if (actionType === "waiting-pickup") {
-        result = await waitingPickupAction(applicationId);
+        result = await waitingPickupAction(applicationId, businessId);
       } else {
-        result = await receiveCompleteAction(applicationId);
+        result = await receiveCompleteAction(applicationId, businessId);
       }
 
       if (result.success) {
@@ -148,6 +150,8 @@ export default function PickupReservationApplicationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
+  const businessId = Number(searchParams.businessId) || undefined;
+  const withBusinessId = (path: string) => (businessId ? `${path}?businessId=${businessId}` : path);
 
   const { getFilterValue, updateFilter } = useTableFilter({
     searchParams,
@@ -297,10 +301,11 @@ export default function PickupReservationApplicationsContent({
                               applicationId={app.id!}
                               status={app.status}
                               applicantName={app.applicantUser?.name ?? undefined}
+                              businessId={businessId}
                             />
                             <button
                               type="button"
-                              onClick={() => router.push(`/business/pickup-reservations/${app.id}`)}
+                              onClick={() => router.push(withBusinessId(`/business/pickup-reservations/${app.id}`))}
                               className="cursor-pointer rounded-md p-1.5 text-gray-500 transition-colors hover:bg-amber-50 hover:text-amber-600"
                               title="상세"
                             >
@@ -308,7 +313,7 @@ export default function PickupReservationApplicationsContent({
                             </button>
                             {app.noticeId && (
                               <Link
-                                href={`/business/pickup-reservations/notices/${app.noticeId}/detail`}
+                                href={withBusinessId(`/business/pickup-reservations/notices/${app.noticeId}/detail`)}
                                 className="typo-medium-12 text-amber-700 hover:text-amber-900"
                               >
                                 공고 내용

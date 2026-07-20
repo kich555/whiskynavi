@@ -61,6 +61,15 @@ describe("PickupApplicationDetailContent", () => {
     expect(screen.getByText("야마자키 여름 공고")).toBeInTheDocument();
   });
 
+  it("선택한 사업장 ID를 공고 내용 링크에 유지한다", () => {
+    render(<PickupApplicationDetailContent application={mockApplication} businessId={12} />);
+
+    expect(screen.getByRole("link", { name: "공고 내용 보기" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10/detail?businessId=12",
+    );
+  });
+
   it("renders applicant name", () => {
     render(<PickupApplicationDetailContent application={mockApplication} />);
     expect(screen.getByText("이영희")).toBeInTheDocument();

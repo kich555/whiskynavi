@@ -54,7 +54,10 @@ describe("BusinessStatisticsContent", () => {
       "href",
       "/business/pickup-reservations/notices/10/detail?businessId=12",
     );
-    expect(screen.queryByRole("link", { name: "신청 관리" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "신청 관리" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10?businessId=12",
+    );
   });
 
   it("공고가 없으면 빈 상태를 표시한다", () => {
