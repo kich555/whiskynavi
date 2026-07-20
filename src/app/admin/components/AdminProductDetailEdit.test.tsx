@@ -4,6 +4,13 @@ import { describe, expect, it, vi } from "vitest";
 import AdminProductDetailEdit from "./AdminProductDetailEdit";
 
 describe("AdminProductDetailEdit", () => {
+  it("shows the rich text image controls for the bottle description", () => {
+    render(<AdminProductDetailEdit selectedFile={null} onSelectFile={vi.fn()} />);
+
+    expect(screen.getByRole("toolbar", { name: "본문 서식" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "이미지 추가" })).toBeInTheDocument();
+  });
+
   it("checks archive visibility by default for new bottles", () => {
     render(<AdminProductDetailEdit selectedFile={null} onSelectFile={vi.fn()} />);
 

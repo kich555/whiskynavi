@@ -90,6 +90,23 @@ describe("bottle admin actions", () => {
     expect(mockedRedirect).toHaveBeenCalledWith("/admin/products");
   });
 
+  it("sanitizes rich text and keeps safe description images", async () => {
+    await createBottleFormAction(
+      { success: false },
+      validBottleFormData({
+        description:
+          '<p>테이스팅 노트</p><img src="https://cdn.example.com/note.png" onerror="alert(1)"><script>alert(1)</script>',
+      }),
+    );
+
+    expect(mockedCreateBottle).toHaveBeenCalledWith(
+      expect.objectContaining({
+        description: '<p>테이스팅 노트</p><img src="https://cdn.example.com/note.png" />',
+      }),
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
+  });
+
   it("updates a bottle with archive visibility disabled", async () => {
     const formData = validBottleFormData();
     formData.delete("visible");
@@ -106,6 +123,24 @@ describe("bottle admin actions", () => {
     );
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/products");
     expect(mockedRedirect).toHaveBeenCalledWith("/admin/products/10");
+  });
+
+  it("keeps an uploaded description image in the bottle update request", async () => {
+    await updateBottleFormAction(
+      10,
+      { success: false },
+      validBottleFormData({
+        description: '<p>설명 이미지</p><img src="https://cdn.example.com/description.png">',
+      }),
+    );
+
+    expect(mockedUpdateBottle).toHaveBeenCalledWith(
+      10,
+      expect.objectContaining({
+        description: '<p>설명 이미지</p><img src="https://cdn.example.com/description.png" />',
+      }),
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
   });
 
   it("returns the bottle image limit without uploading an oversized image", async () => {
