@@ -7,6 +7,7 @@ import { sanitizeRichTextContent } from "@/lib/rich-text";
 interface RelatedNoticeDetailProps {
   notice: UserBottleReservationRelatedNoticeResponse;
   appearance: "dark" | "light";
+  showSupplyPrice?: boolean;
 }
 
 const ROLE_LABELS: Record<string, string> = {
@@ -24,7 +25,7 @@ const ROLE_LABELS: Record<string, string> = {
   ROLE_PICK_UP_BUSINESS: "픽업 업장",
 };
 
-export default function RelatedNoticeDetail({ notice, appearance }: RelatedNoticeDetailProps) {
+export default function RelatedNoticeDetail({ notice, appearance, showSupplyPrice = false }: RelatedNoticeDetailProps) {
   const dark = appearance === "dark";
   const additionalImages = notice.imageUrls ?? [];
   const accessLabel =
@@ -33,8 +34,8 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
   const rows = [
     ["브랜드", notice.bottleBrand || "-"],
     ["예약 기간", `${formatDateTime(notice.reservationStartAt)} ~ ${formatDateTime(notice.reservationEndAt)}`],
-    ["판매가", formatCurrency(notice.price)],
-    ...(notice.supplyPrice != null ? [["공급가", formatCurrency(notice.supplyPrice)]] : []),
+    ["소매가", formatCurrency(notice.price)],
+    ...(showSupplyPrice && notice.supplyPrice != null ? [["공급가", formatCurrency(notice.supplyPrice)]] : []),
     ["인당 최대 수량", notice.maxOrderQuantity != null ? `${notice.maxOrderQuantity}병` : "-"],
   ];
 

@@ -50,7 +50,7 @@ export default async function BusinessRelatedNoticePage({ params, searchParams }
           <ArrowLeft size={20} />
           공고별 신청 관리로 돌아가기
         </Link>
-        <RelatedNoticeDetail notice={result.data} appearance="light" />
+        <RelatedNoticeDetail notice={result.data} appearance="light" showSupplyPrice />
       </div>
     </>
   );

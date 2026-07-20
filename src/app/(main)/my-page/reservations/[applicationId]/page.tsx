@@ -2,7 +2,7 @@ import { ApiError } from "@/apis/errors";
 import { getApiBottlesReservationsApplicationsApplicationidNotice } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import RelatedNoticeDetail from "@/components/reservation/RelatedNoticeDetail";
-import { authOptions, getAuthToken } from "@/lib/auth";
+import { authOptions, getAuthToken, hasBusinessRole } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
 import { ArrowLeft } from "lucide-react";
 import { getServerSession } from "next-auth";
@@ -42,7 +42,11 @@ export default async function RelatedReservationNoticePage({ params }: RelatedRe
           <ArrowLeft size={20} />
           주문 상세로 돌아가기
         </Link>
-        <RelatedNoticeDetail notice={result.data} appearance="dark" />
+        <RelatedNoticeDetail
+          notice={result.data}
+          appearance="dark"
+          showSupplyPrice={hasBusinessRole(session.user.roles)}
+        />
       </div>
     </div>
   );

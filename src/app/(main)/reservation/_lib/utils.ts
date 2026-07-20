@@ -93,14 +93,20 @@ export function buildInfoItems(
   notice: UserBottleReservationNoticePublicResponse,
   options?: { hideAvailableQuantity?: boolean; hasBusinessRole?: boolean },
 ) {
-  // 비즈니스 권한 보유 시공가(supplyPrice), 일반 회원은 판매가(price)를 보여준다.
-  const price = options?.hasBusinessRole ? notice.supplyPrice : notice.price;
   return [
     { label: "브랜드", value: notice.bottleBrand },
     {
-      label: "가격",
-      value: price != null ? `${price.toLocaleString()}원` : null,
+      label: "소매가",
+      value: notice.price != null ? `${notice.price.toLocaleString()}원` : null,
     },
+    ...(options?.hasBusinessRole
+      ? [
+          {
+            label: "공급가",
+            value: notice.supplyPrice != null ? `${notice.supplyPrice.toLocaleString()}원` : null,
+          },
+        ]
+      : []),
     {
       label: "가용 수량",
       value:
