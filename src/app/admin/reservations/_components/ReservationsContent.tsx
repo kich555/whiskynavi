@@ -105,6 +105,9 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                           {notice.noticeName || "-"}
                         </td>
                         <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
+                          {notice.noticeName || "-"}
+                        </td>
+                        <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                           {notice.bottleName}
                         </td>
                         <td className="typo-medium-14 px-4 py-3 text-gray-600">{notice.bottleBrand ?? "-"}</td>

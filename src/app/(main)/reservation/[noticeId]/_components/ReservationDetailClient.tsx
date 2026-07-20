@@ -107,7 +107,10 @@ export default function ReservationDetailClient({
 
         {/* Info */}
         <div className="flex flex-col justify-center">
-          <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">{notice.bottleName}</h3>
+          <h3 className="typo-bold-20 mb-4 text-white lg:mb-6 lg:text-3xl">
+            <span className="block">{notice.noticeName ?? "-"}</span>
+            <p className="typo-medium-14 mt-2 text-gray-400 lg:text-base">{notice.bottleName ?? "-"}</p>
+          </h3>
           <InfoList notice={notice} hideAvailableQuantity={status === "closed"} />
           {notice.description && (
             <p className="typo-medium-14 mt-4 max-h-40 overflow-y-auto whitespace-pre-line text-gray-300 lg:max-h-60 lg:text-base">
