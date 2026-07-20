@@ -66,9 +66,11 @@ export default function RichTextImageEditor({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadingCount, setUploadingCount] = useState(0);
+  const [serializedContent, setSerializedContent] = useState(defaultValue);
   const isAdmin = variant === "admin";
 
   const syncHiddenInput = useCallback((html: string) => {
+    setSerializedContent(html);
     if (hiddenInputRef.current) hiddenInputRef.current.value = html;
   }, []);
 
@@ -209,7 +211,7 @@ export default function RichTextImageEditor({
 
   return (
     <div>
-      <input ref={hiddenInputRef} type="hidden" name={name} defaultValue={defaultValue} />
+      <input ref={hiddenInputRef} type="hidden" name={name} value={serializedContent} readOnly />
       <div
         role="toolbar"
         aria-label="본문 서식"
