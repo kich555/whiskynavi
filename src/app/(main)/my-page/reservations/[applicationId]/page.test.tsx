@@ -20,6 +20,7 @@ vi.mock("@/components/reservation/RelatedNoticeDetail", () => ({
 vi.mock("@/lib/auth", () => ({
   authOptions: {},
   getAuthToken: vi.fn(),
+  hasBusinessRole: vi.fn((roles?: string[]) => roles?.includes("ROLE_BUSINESS") ?? false),
 }));
 
 vi.mock("next-auth", () => ({

@@ -13,6 +13,7 @@ describe("RelatedNoticeDetail", () => {
           noticeName: "과거 커뮤니티 공고",
           bottleName: "테스트 보틀",
           price: 120000,
+          supplyPrice: 100000,
           description: "공고 상세 설명",
           gradeConditions: [{ requiredRole: "ROLE_USER" }],
         }}
@@ -22,9 +23,32 @@ describe("RelatedNoticeDetail", () => {
     expect(screen.getByText(/과거 신청 관계로 열람 중/)).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "과거 커뮤니티 공고" })).toBeInTheDocument();
     expect(screen.getByText("테스트 보틀")).toBeInTheDocument();
+    expect(screen.getByText("소매가")).toBeInTheDocument();
+    expect(screen.getByText("120,000원")).toBeInTheDocument();
+    expect(screen.queryByText("공급가")).not.toBeInTheDocument();
+    expect(screen.queryByText("100,000원")).not.toBeInTheDocument();
     expect(screen.getByText("일반 회원")).toBeInTheDocument();
     expect(screen.queryByText("ROLE_USER")).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: /신청|수정|취소/ })).not.toBeInTheDocument();
+  });
+
+  it("비즈니스 회원에게만 공급가를 표시한다", () => {
+    render(
+      <RelatedNoticeDetail
+        appearance="light"
+        showSupplyPrice
+        notice={{
+          noticeName: "비즈니스 공고",
+          price: 120000,
+          supplyPrice: 100000,
+        }}
+      />,
+    );
+
+    expect(screen.getByText("소매가")).toBeInTheDocument();
+    expect(screen.getByText("120,000원")).toBeInTheDocument();
+    expect(screen.getByText("공급가")).toBeInTheDocument();
+    expect(screen.getByText("100,000원")).toBeInTheDocument();
   });
 
   it("공고 설명의 HTML을 정제된 리치 텍스트로 표시한다", () => {

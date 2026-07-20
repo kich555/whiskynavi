@@ -1,11 +1,6 @@
 import type { UserBottleReservationNoticePublicResponse } from "@/apis/generated/api";
 import { describe, expect, it } from "vitest";
-import {
-  buildInfoItems,
-  formatReservationRole,
-  formatDateTime,
-  getStatusBadge,
-} from "./utils";
+import { buildInfoItems, formatDateTime, formatReservationRole, getStatusBadge } from "./utils";
 
 describe("formatReservationRole", () => {
   it("알려진 권한 코드는 한글 라벨로 변환한다", () => {
@@ -55,11 +50,11 @@ describe("buildInfoItems", () => {
     availableQuantity: 5,
   };
 
-  it("브랜드, 가격, 가용 수량을 포맷하여 반환한다", () => {
+  it("일반 회원에게 브랜드, 소매가, 가용 수량을 포맷하여 반환한다", () => {
     const items = buildInfoItems(base);
     expect(items).toEqual([
       { label: "브랜드", value: "Macallan" },
-      { label: "가격", value: "120,000원" },
+      { label: "소매가", value: "120,000원" },
       { label: "가용 수량", value: "5병" },
     ]);
   });
@@ -78,23 +73,25 @@ describe("buildInfoItems", () => {
     const items = buildInfoItems(base, { hideAvailableQuantity: true });
     expect(items).toEqual([
       { label: "브랜드", value: "Macallan" },
-      { label: "가격", value: "120,000원" },
+      { label: "소매가", value: "120,000원" },
     ]);
   });
 
-  it("hasBusinessRole이 true면 supplyPrice를 보여준다", () => {
+  it("비즈니스 회원에게 소매가와 공급가를 함께 보여준다", () => {
     const items = buildInfoItems(base, { hasBusinessRole: true });
     expect(items).toEqual([
       { label: "브랜드", value: "Macallan" },
-      { label: "가격", value: "100,000원" },
+      { label: "소매가", value: "120,000원" },
+      { label: "공급가", value: "100,000원" },
       { label: "가용 수량", value: "5병" },
     ]);
   });
 
-  it("hasBusinessRole이 true일 때 supplyPrice가 없으면 가격 항목을 제외한다", () => {
+  it("비즈니스 회원에게 공급가가 없어도 소매가는 보여준다", () => {
     const items = buildInfoItems({ ...base, supplyPrice: undefined }, { hasBusinessRole: true });
     expect(items).toEqual([
       { label: "브랜드", value: "Macallan" },
+      { label: "소매가", value: "120,000원" },
       { label: "가용 수량", value: "5병" },
     ]);
   });
