@@ -81,7 +81,7 @@ export default function BusinessApplicationsContent({
 
       <div className="p-8">
         <div className="mb-4">
-          <p className="text-sm text-gray-600">총 {totalElements}건</p>
+          <p className="typo-medium-14 text-gray-600">총 {totalElements}건</p>
         </div>
 
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
@@ -145,22 +145,22 @@ export default function BusinessApplicationsContent({
                         )
                       }
                     >
-                      <td className="px-4 py-3 text-sm text-gray-900">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-900">
                         {app.id}
                       </td>
                       <td className="typo-medium-14 max-w-[200px] truncate px-4 py-3 text-gray-900">
                         {app.businessName ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">
                         {app.representativeName ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">
                         {formatBusinessType(app)}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 text-gray-600">
                         {app.contact ?? "-"}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="typo-medium-14 px-4 py-3">
                         <Badge
                           className={
                             APPLICATION_STATUS_COLOR[app.status ?? ""] ??
@@ -171,10 +171,10 @@ export default function BusinessApplicationsContent({
                             app.status}
                         </Badge>
                       </td>
-                      <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-600">
+                      <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
                         {formatDate(app.createdAt)}
                       </td>
-                      <td className="px-4 py-3 text-sm">
+                      <td className="typo-medium-14 px-4 py-3">
                         <div
                           className="flex items-center gap-1"
                           onClick={(e) => e.stopPropagation()}

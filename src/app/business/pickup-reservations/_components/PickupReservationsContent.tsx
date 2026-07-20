@@ -111,8 +111,8 @@ export default function PickupReservationsContent({
 
       <div className="p-6">
         <div className="mb-4">
-          <p className="text-sm text-gray-600">공고 {totalElements}개</p>
-          <p className="mt-1 text-xs text-gray-500">공고별 신청 내역은 상세조회 화면에서 확인하고 처리합니다.</p>
+          <p className="typo-medium-14 text-gray-600">공고 {totalElements}개</p>
+          <p className="typo-medium-12 mt-1 text-gray-500">공고별 신청 내역은 상세조회 화면에서 확인하고 처리합니다.</p>
         </div>
 
         <Dialog open={bulkNotice != null} onOpenChange={(open) => !open && setBulkNotice(null)}>
@@ -147,14 +147,14 @@ export default function PickupReservationsContent({
               <table className="w-full">
                 <thead className="border-b border-gray-200 bg-gray-50">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">공고</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">공고상태</th>
-                    <th className="px-4 py-3 text-right text-xs font-bold text-gray-700">단가</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">신청</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">요청</th>
-                    <th className="px-4 py-3 text-center text-xs font-bold text-gray-700">확정</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">송장번호</th>
-                    <th className="px-4 py-3 text-left text-xs font-bold text-gray-700">관리</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">공고상태</th>
+                    <th className="typo-bold-12 px-4 py-3 text-right text-gray-700">단가</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">신청</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">요청</th>
+                    <th className="typo-bold-12 px-4 py-3 text-center text-gray-700">확정</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">송장번호</th>
+                    <th className="typo-bold-12 px-4 py-3 text-left text-gray-700">관리</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -170,34 +170,36 @@ export default function PickupReservationsContent({
                             onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
                             className="min-w-0 cursor-pointer text-left"
                           >
-                            <div className="text-sm font-bold text-gray-900">{display.primaryName}</div>
+                            <div className="typo-bold-14 text-gray-900">{display.primaryName}</div>
                             {display.secondaryName && (
-                              <div className="mt-1 text-xs text-gray-500">{display.secondaryName}</div>
+                              <div className="typo-medium-12 mt-1 text-gray-500">{display.secondaryName}</div>
                             )}
-                            <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
+                            <div className="typo-medium-12 mt-1 flex flex-wrap gap-2 text-gray-500">
                               <span>공고 #{group.noticeId || "-"}</span>
                               {group.bottleId != null && <span>병 #{group.bottleId}</span>}
                             </div>
                           </button>
                         </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap">
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap">
                           {group.noticeStatus ? (
                             <Badge className="bg-gray-100 text-gray-700">공고 {group.noticeStatus}</Badge>
                           ) : (
                             "-"
                           )}
                         </td>
-                        <td className="px-4 py-3 text-right text-sm whitespace-nowrap text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 text-right whitespace-nowrap text-gray-900">
                           {formatCurrency(group.price)}
                         </td>
-                        <td className="px-4 py-3 text-center text-sm text-gray-900">{group.totalApplicationCount}건</td>
-                        <td className="px-4 py-3 text-center text-sm text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">
+                          {group.totalApplicationCount}건
+                        </td>
+                        <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">
                           {group.totalRequestedQuantity}병
                         </td>
-                        <td className="px-4 py-3 text-center text-sm font-medium text-amber-600">
+                        <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                           {group.totalConfirmedQuantity}병
                         </td>
-                        <td className="px-4 py-3 text-sm whitespace-nowrap text-gray-900">
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">
                           {formatTrackingNumber(delivery)}
                         </td>
                         <td className="px-4 py-3">

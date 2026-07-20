@@ -145,7 +145,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
             {/* 닉네임 */}
             <div>
               <Label className="typo-bold-14 mb-2 block text-gray-700">닉네임</Label>
-              <Input name="username" defaultValue={user.username} className="text-sm md:text-base" />
+              <Input name="username" defaultValue={user.username} className="typo-medium-14 md:text-base" />
             </div>
 
             {/* 이름 (읽기 전용) */}
@@ -154,9 +154,9 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
               <Input
                 defaultValue={user.name}
                 disabled
-                className="cursor-not-allowed bg-gray-50 text-sm text-gray-500 md:text-base"
+                className="cursor-not-allowed bg-gray-50 typo-medium-14 text-gray-500 md:text-base"
               />
-              <p className="mt-1 text-xs text-gray-500">이름은 변경할 수 없습니다</p>
+              <p className="typo-medium-12 mt-1 text-gray-500">이름은 변경할 수 없습니다</p>
             </div>
 
             {/* 이메일 (인증 플로우) */}
@@ -170,7 +170,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                     value={email}
                     onChange={handleEmailChange}
                     readOnly={isEmailVerified}
-                    className="text-sm md:text-base"
+                    className="typo-medium-14 md:text-base"
                   />
                 </div>
                 {emailChanged && emailStep !== "verified" && (
@@ -179,7 +179,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                     variant="outline"
                     onClick={handleSendCode}
                     disabled={isEmailPending || emailStep === "code-sent"}
-                    className="shrink-0 text-xs md:text-sm"
+                    className="shrink-0 typo-medium-12 md:typo-medium-14"
                   >
                     {isEmailPending && emailStep === "idle"
                       ? "발송 중..."
@@ -200,7 +200,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                       value={code}
                       onChange={(e) => setCode(e.target.value)}
                       placeholder="인증 코드 입력"
-                      className="text-sm md:text-base"
+                      className="typo-medium-14 md:text-base"
                     />
                   </div>
                   <Button
@@ -208,7 +208,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                     variant="outline"
                     onClick={handleVerifyCode}
                     disabled={isEmailPending || !code.trim()}
-                    className="shrink-0 text-xs md:text-sm"
+                    className="shrink-0 typo-medium-12 md:typo-medium-14"
                   >
                     {isEmailPending ? "확인 중..." : "확인"}
                   </Button>
@@ -231,7 +231,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
             {/* 전화번호 (읽기 전용) */}
             <div>
               <Label className="typo-bold-14 mb-2 block text-gray-700">전화번호</Label>
-              <Input disabled name="phone" type="tel" defaultValue={user.phone} className="text-sm md:text-base" />
+              <Input disabled name="phone" type="tel" defaultValue={user.phone} className="typo-medium-14 md:text-base" />
             </div>
 
             {/* 생년월일 & 성별 (읽기 전용) */}
@@ -244,7 +244,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                     name="birthDate"
                     type="date"
                     defaultValue={user.birthDate}
-                    className="py-2 pr-3 pl-10 text-sm md:py-3 md:pr-4 md:pl-12 md:text-base"
+                    className="py-2 pr-3 pl-10 typo-medium-14 md:py-3 md:pr-4 md:pl-12 md:text-base"
                   />
                   <CalendarDays
                     className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 text-gray-400 md:left-4"
@@ -258,7 +258,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                   disabled
                   name="gender"
                   defaultValue={user.gender === "M" ? "남성" : user.gender === "F" ? "여성" : "-"}
-                  className="text-sm md:text-base"
+                  className="typo-medium-14 md:text-base"
                 />
               </div>
             </div>
@@ -282,7 +282,7 @@ export default function ProfileEditForm({ user, onClose }: ProfileEditFormProps)
                       }))
                     }
                   />
-                  <span className="text-sm text-gray-900 md:text-base">{item.label}</span>
+                  <span className="typo-medium-14 text-gray-900 md:text-base">{item.label}</span>
                 </label>
               ))}
             </div>

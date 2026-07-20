@@ -7,9 +7,9 @@ export default function Footer() {
         <div className="mb-4 flex flex-col justify-between gap-4 border-b border-white/10 pb-4 md:mb-6 md:gap-6 md:pb-6 lg:flex-row">
           <div>
             <p className="mb-1 text-base text-white md:mb-2 md:text-xl">WHISKYNAVI</p>
-            <p className="text-[10px] text-gray-400 md:text-xs">대한민국 최초의 독립병입 브랜드</p>
+            <p className="text-[10px] text-gray-400 md:typo-medium-12">대한민국 최초의 독립병입 브랜드</p>
           </div>
-          <nav className="flex flex-wrap gap-3 text-xs text-gray-400 md:gap-4 md:text-sm">
+          <nav className="typo-medium-12 flex flex-wrap gap-3 text-gray-400 md:gap-4 md:typo-medium-14">
             <Link href="/about" className="transition-colors hover:text-white">
               회사소개
             </Link>
@@ -25,14 +25,14 @@ export default function Footer() {
             <Link href="/reservation" className="transition-colors hover:text-white">
               예약하기
             </Link>
-            <Link href="/terms" className="font-medium text-gray-300 transition-colors hover:text-white">
+            <Link href="/terms" className="typo-medium-12 text-gray-300 transition-colors hover:text-white">
               이용약관
             </Link>
           </nav>
         </div>
 
         {/* Desktop: 2 rows - Company info on left, CS on right */}
-        <div className="hidden space-y-2 text-xs text-gray-500 md:block">
+        <div className="typo-medium-12 hidden space-y-2 text-gray-500 md:block">
           <div className="flex items-center justify-between">
             <span>(주) 캐스크야드 | 대표 천관호 010-6848-6231 | 사업자등록번호 689-86-03712</span>
             <span>캐스크 카니발: www.caskcarnival.com</span>

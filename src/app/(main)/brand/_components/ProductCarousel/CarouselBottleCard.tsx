@@ -90,7 +90,7 @@ const CarouselBottleCard = memo(function CarouselBottleCard({
               <span className="typo-bold-12 mb-4 inline-block border border-white/20 bg-white/15 px-2.5 py-1 text-white/90 backdrop-blur-sm">
                 {brandName}
               </span>
-              <h4 className="mb-2 line-clamp-2 text-sm leading-snug font-medium break-all text-white">{bottle.name}</h4>
+              <h4 className="typo-medium-14 mb-2 line-clamp-2 leading-snug break-all text-white">{bottle.name}</h4>
             </>
           )}
         </div>

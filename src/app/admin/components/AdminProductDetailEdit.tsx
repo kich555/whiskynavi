@@ -137,7 +137,7 @@ export default function AdminProductDetailEdit({
         {/* 왼쪽: 모든 필드 (설명 제외) */}
         <div className="flex-1 space-y-2 pr-6">
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               제품명
             </Label>
             <input
@@ -146,12 +146,12 @@ export default function AdminProductDetailEdit({
               maxLength={200}
               required
               defaultValue={pickDefault(submittedValues, "name", defaultValues?.name)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               브랜드
             </Label>
             <ParameterCombobox
@@ -164,7 +164,7 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               시리즈
             </Label>
             <ParameterCombobox
@@ -177,7 +177,7 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               회사
             </Label>
             <ParameterCombobox
@@ -190,7 +190,7 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               증류소
             </Label>
             <ParameterCombobox
@@ -203,7 +203,7 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               몰트 타입
             </Label>
             <ParameterCombobox
@@ -216,7 +216,7 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">캐스크 타입</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">캐스크 타입</Label>
             <ParameterCombobox
               name="caskType"
               maxLength={50}
@@ -226,18 +226,18 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">캐스크 번호</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">캐스크 번호</Label>
             <input
               type="text"
               name="caskNumber"
               maxLength={50}
               defaultValue={pickDefault(submittedValues, "caskNumber", defaultValues?.caskNumber)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               알코올 도수 (%)
             </Label>
             <input
@@ -246,12 +246,12 @@ export default function AdminProductDetailEdit({
               step="0.1"
               required
               defaultValue={pickDefault(submittedValues, "abv", defaultValues?.abv)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label required className="flex w-32 items-center gap-1 text-sm text-gray-700">
+            <Label required className="typo-medium-14 flex w-32 items-center gap-1 text-gray-700">
               용량 (ml)
             </Label>
             <input
@@ -259,18 +259,18 @@ export default function AdminProductDetailEdit({
               name="capacity"
               required
               defaultValue={pickDefault(submittedValues, "capacity", defaultValues?.capacity)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">증류 날짜</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">증류 날짜</Label>
             <div className="relative flex-1">
               <input
                 type="date"
                 name="distillationDate"
                 defaultValue={pickDefault(submittedValues, "distillationDate", defaultValues?.distillationDate)}
-                className="w-full rounded border border-gray-300 py-1 pr-2 pl-8 text-sm"
+                className="typo-medium-14 w-full rounded border border-gray-300 py-1 pr-2 pl-8"
               />
               <CalendarDays
                 className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
@@ -280,13 +280,13 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">병입 날짜</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">병입 날짜</Label>
             <div className="relative flex-1">
               <input
                 type="date"
                 name="bottledDate"
                 defaultValue={pickDefault(submittedValues, "bottledDate", defaultValues?.bottledDate)}
-                className="w-full rounded border border-gray-300 py-1 pr-2 pl-8 text-sm"
+                className="typo-medium-14 w-full rounded border border-gray-300 py-1 pr-2 pl-8"
               />
               <CalendarDays
                 className="pointer-events-none absolute top-1/2 left-2 -translate-y-1/2 text-gray-400"
@@ -296,36 +296,36 @@ export default function AdminProductDetailEdit({
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">재고 수량</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">재고 수량</Label>
             <input
               type="number"
               name="stockQuantity"
               defaultValue={pickDefault(submittedValues, "stockQuantity", defaultValues?.stockQuantity)}
-              className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">공급가</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">공급가</Label>
             <CurrencyInput
               name="supplyPrice"
               defaultValue={pickDefault(submittedValues, "supplyPrice", defaultValues?.supplyPrice)}
-              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 w-full rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3">
-            <Label className="w-32 text-sm text-gray-700">소비자가</Label>
+            <Label className="typo-medium-14 w-32 text-gray-700">소비자가</Label>
             <CurrencyInput
               name="consumerPrice"
               defaultValue={pickDefault(submittedValues, "consumerPrice", defaultValues?.consumerPrice)}
-              className="w-full rounded border border-gray-300 px-2 py-1 text-sm"
+              className="typo-medium-14 w-full rounded border border-gray-300 px-2 py-1"
             />
           </div>
 
           <div className="flex items-center gap-3 rounded border border-gray-200 bg-gray-50 px-3 py-2">
-            <span className="w-32 text-sm text-gray-700">노출 설정</span>
-            <label className="flex cursor-pointer items-center gap-2 text-sm text-gray-900">
+            <span className="typo-medium-14 w-32 text-gray-700">노출 설정</span>
+            <label className="typo-medium-14 flex cursor-pointer items-center gap-2 text-gray-900">
               <input
                 type="checkbox"
                 name="visible"
@@ -355,7 +355,7 @@ export default function AdminProductDetailEdit({
                         return next;
                       });
                     }}
-                    className="w-32 rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="typo-medium-14 w-32 rounded border border-gray-300 px-2 py-1"
                     placeholder="키"
                   />
                   <input
@@ -367,7 +367,7 @@ export default function AdminProductDetailEdit({
                         [key]: e.target.value,
                       }));
                     }}
-                    className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+                    className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
                     placeholder="값"
                   />
                   <button
@@ -385,13 +385,13 @@ export default function AdminProductDetailEdit({
                 <input
                   type="text"
                   ref={newExtraInfoKeyRef}
-                  className="w-32 rounded border border-gray-300 px-2 py-1 text-sm"
+                  className="typo-medium-14 w-32 rounded border border-gray-300 px-2 py-1"
                   placeholder="새 키"
                 />
                 <input
                   type="text"
                   ref={newExtraInfoValueRef}
-                  className="flex-1 rounded border border-gray-300 px-2 py-1 text-sm"
+                  className="typo-medium-14 flex-1 rounded border border-gray-300 px-2 py-1"
                   placeholder="새 값"
                 />
                 <button
@@ -408,13 +408,13 @@ export default function AdminProductDetailEdit({
 
         {/* 중간: 설명 */}
         <div className="flex-1 px-6">
-          <div className="mb-1 text-sm text-gray-600">설명</div>
+          <div className="typo-medium-14 mb-1 text-gray-600">설명</div>
           <textarea
             name="description"
             defaultValue={pickDefault(submittedValues, "description", defaultValues?.description)}
             rows={12}
             placeholder="설명을 입력하세요."
-            className="w-full resize-y rounded border border-gray-300 px-2 py-1 text-sm text-gray-900"
+            className="typo-medium-14 w-full resize-y rounded border border-gray-300 px-2 py-1 text-gray-900"
           />
         </div>
 
@@ -488,9 +488,9 @@ export default function AdminProductDetailEdit({
               </div>
             </div>
           )}
-          <p className="mt-2 text-xs text-gray-500">이미지 파일 · 최대 {MAX_BOTTLE_IMAGE_SIZE_MB}MB</p>
+          <p className="typo-medium-12 mt-2 text-gray-500">이미지 파일 · 최대 {MAX_BOTTLE_IMAGE_SIZE_MB}MB</p>
           {imageError ? (
-            <p role="alert" className="mt-1 text-xs text-red-600">
+            <p role="alert" className="typo-medium-12 mt-1 text-red-600">
               {imageError}
             </p>
           ) : null}

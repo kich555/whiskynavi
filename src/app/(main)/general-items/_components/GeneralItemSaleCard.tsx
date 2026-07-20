@@ -35,20 +35,20 @@ const GeneralItemSaleCard = ({ sale, imageUrl }: { sale: UserSaleAnnouncementRes
 
       <div className="space-y-2 border-t border-white/10 pt-4">
         <p className="text-xl font-semibold text-white">{formatCurrency(sale.salePrice)}</p>
-        <p className="text-sm text-gray-400">
+        <p className="typo-medium-14 text-gray-400">
           {remainingQuantity.toLocaleString("ko-KR")} / {(sale.totalQuantity ?? 0).toLocaleString("ko-KR")}개 남음
         </p>
       </div>
 
       <div className="mt-auto pt-6">
         {isSoldOut ? (
-          <span className="block w-full border border-white/10 px-4 py-3 text-center text-sm font-semibold text-gray-500">
+          <span className="typo-semibold-14 block w-full border border-white/10 px-4 py-3 text-center text-gray-500">
             주문 불가
           </span>
         ) : (
           <Link
             href={buildGeneralItemSaleDetailHref(sale)}
-            className="block w-full bg-amber-600 px-4 py-3 text-center text-sm font-semibold text-white transition-colors hover:bg-amber-700"
+            className="typo-semibold-14 block w-full bg-amber-600 px-4 py-3 text-center text-white transition-colors hover:bg-amber-700"
           >
             상세보기
           </Link>

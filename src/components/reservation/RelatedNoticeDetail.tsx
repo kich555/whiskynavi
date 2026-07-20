@@ -35,8 +35,8 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
       <div
         className={
           dark
-            ? "mb-6 border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-sm text-amber-200"
-            : "mb-6 border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800"
+            ? "typo-medium-14 mb-6 border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-amber-200"
+            : "typo-medium-14 mb-6 border border-amber-200 bg-amber-50 px-4 py-3 text-amber-800"
         }
       >
         {accessLabel} · 이 화면에서는 공고 내용만 확인할 수 있습니다.
@@ -72,7 +72,9 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
         </div>
 
         <div>
-          <p className={dark ? "text-sm text-gray-400" : "text-sm text-gray-500"}>{notice.bottleBrand ?? "-"}</p>
+          <p className={dark ? "typo-medium-14 text-gray-400" : "typo-medium-14 text-gray-500"}>
+            {notice.bottleBrand ?? "-"}
+          </p>
           <h1
             className={
               dark ? "mt-2 text-2xl font-bold text-white lg:text-3xl" : "mt-2 text-2xl font-bold text-gray-900"
@@ -96,11 +98,13 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
                     : "flex items-start justify-between gap-6 border-b border-gray-100 pb-3"
                 }
               >
-                <dt className={dark ? "shrink-0 text-sm text-gray-400" : "shrink-0 text-sm text-gray-500"}>{label}</dt>
+                <dt
+                  className={dark ? "typo-medium-14 shrink-0 text-gray-400" : "typo-medium-14 shrink-0 text-gray-500"}
+                >
+                  {label}
+                </dt>
                 <dd
-                  className={
-                    dark ? "text-right text-sm font-medium text-white" : "text-right text-sm font-medium text-gray-900"
-                  }
+                  className={dark ? "typo-medium-14 text-right text-white" : "typo-medium-14 text-right text-gray-900"}
                 >
                   {value}
                 </dd>
@@ -110,10 +114,12 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
 
           {(notice.gradeConditions?.length ?? 0) > 0 && (
             <div className="mt-6">
-              <h2 className={dark ? "text-sm font-bold text-white" : "text-sm font-bold text-gray-900"}>
-                원래 신청 조건
-              </h2>
-              <ul className={dark ? "mt-2 space-y-1 text-sm text-gray-300" : "mt-2 space-y-1 text-sm text-gray-600"}>
+              <h2 className={dark ? "typo-bold-14 text-white" : "typo-bold-14 text-gray-900"}>원래 신청 조건</h2>
+              <ul
+                className={
+                  dark ? "typo-medium-14 mt-2 space-y-1 text-gray-300" : "typo-medium-14 mt-2 space-y-1 text-gray-600"
+                }
+              >
                 {notice.gradeConditions?.map((condition, index) => (
                   <li key={`${condition.requiredRole}-${index}`}>
                     {ROLE_LABELS[condition.requiredRole ?? ""] ?? condition.requiredRole ?? "-"}
@@ -132,8 +138,8 @@ export default function RelatedNoticeDetail({ notice, appearance }: RelatedNotic
           <p
             className={
               dark
-                ? "mt-3 text-sm leading-7 whitespace-pre-line text-gray-300"
-                : "mt-3 text-sm leading-7 whitespace-pre-line text-gray-700"
+                ? "typo-medium-14 mt-3 leading-7 whitespace-pre-line text-gray-300"
+                : "typo-medium-14 mt-3 leading-7 whitespace-pre-line text-gray-700"
             }
           >
             {notice.description}

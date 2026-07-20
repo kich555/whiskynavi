@@ -43,9 +43,9 @@ export default function UserSearchInput({ onSelect, onClear }: UserSearchInputPr
         <div className="flex items-center justify-between rounded-lg border border-gray-300 bg-gray-50 px-3 py-2">
           <div>
             <span className="font-medium">{selectedUser.name}</span>
-            <span className="ml-2 text-sm text-gray-500">({selectedUser.email})</span>
+            <span className="typo-medium-14 ml-2 text-gray-500">({selectedUser.email})</span>
           </div>
-          <button type="button" onClick={handleClearSelection} className="text-sm text-red-500 hover:text-red-700">
+          <button type="button" onClick={handleClearSelection} className="typo-medium-14 text-red-500 hover:text-red-700">
             취소
           </button>
         </div>
@@ -72,15 +72,15 @@ export default function UserSearchInput({ onSelect, onClear }: UserSearchInputPr
                 >
                   <div>
                     <span className="font-medium">{user.name}</span>
-                    <span className="ml-2 text-sm text-gray-500">{user.email}</span>
+                    <span className="typo-medium-14 ml-2 text-gray-500">{user.email}</span>
                   </div>
-                  <span className="text-xs text-gray-400">ID: {user.id}</span>
+                  <span className="typo-medium-12 text-gray-400">ID: {user.id}</span>
                 </button>
               ))}
             </div>
           )}
           {showDropdown && !isSearching && searchQuery && searchResults.length === 0 && (
-            <div className="absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm text-gray-500 shadow-lg">
+            <div className="typo-medium-14 absolute z-50 mt-1 w-full rounded-lg border border-gray-200 bg-white px-3 py-2 text-gray-500 shadow-lg">
               검색 결과가 없습니다
             </div>
           )}

@@ -184,24 +184,24 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
                 )}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-xs text-gray-500">신청 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.id}</p>
+                    <p className="typo-medium-12 text-gray-500">신청 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.id}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">공고 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.noticeId ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">공고 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.noticeId ?? "-"}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">공고명</p>
-                    <p className="text-sm font-medium text-gray-900">{noticeDisplay.primaryName}</p>
+                    <p className="typo-medium-12 text-gray-500">공고명</p>
+                    <p className="typo-medium-14 text-gray-900">{noticeDisplay.primaryName}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">보틀명</p>
-                    <p className="text-sm font-medium text-gray-900">{application.bottleName ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">보틀명</p>
+                    <p className="typo-medium-14 text-gray-900">{application.bottleName ?? "-"}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">병 ID</p>
-                    <p className="text-sm font-medium text-gray-900">{application.bottleId ?? "-"}</p>
+                    <p className="typo-medium-12 text-gray-500">병 ID</p>
+                    <p className="typo-medium-14 text-gray-900">{application.bottleId ?? "-"}</p>
                   </div>
                 </div>
               </div>
@@ -215,7 +215,7 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-3">
               <div>
-                <p className="text-xs text-gray-500">상태</p>
+                <p className="typo-medium-12 text-gray-500">상태</p>
                 <div className="mt-1">
                   <Badge className={PICKUP_STATUS_COLOR[application.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
                     {PICKUP_STATUS_LABEL[application.status ?? ""] ?? application.status}
@@ -223,28 +223,28 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
                 </div>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청수량</p>
-                <p className="text-sm font-medium text-gray-900">{application.quantity ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">신청수량</p>
+                <p className="typo-medium-14 text-gray-900">{application.quantity ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">확정수량</p>
-                <p className="text-sm font-medium text-amber-600">{application.confirmedQuantity ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">확정수량</p>
+                <p className="typo-medium-14 text-amber-600">{application.confirmedQuantity ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">단가</p>
-                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.unitPrice)}</p>
+                <p className="typo-medium-12 text-gray-500">단가</p>
+                <p className="typo-medium-14 text-gray-900">{formatCurrency(application.unitPrice)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">총액</p>
-                <p className="text-sm font-medium text-gray-900">{formatCurrency(application.totalPrice)}</p>
+                <p className="typo-medium-12 text-gray-500">총액</p>
+                <p className="typo-medium-14 text-gray-900">{formatCurrency(application.totalPrice)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">신청일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.createdAt)}</p>
+                <p className="typo-medium-12 text-gray-500">신청일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.createdAt)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">수정일</p>
-                <p className="text-sm font-medium text-gray-900">{formatDate(application.updatedAt)}</p>
+                <p className="typo-medium-12 text-gray-500">수정일</p>
+                <p className="typo-medium-14 text-gray-900">{formatDate(application.updatedAt)}</p>
               </div>
             </div>
           </div>
@@ -256,20 +256,20 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
             </div>
             <div className="grid grid-cols-2 gap-6 p-6 md:grid-cols-4">
               <div>
-                <p className="text-xs text-gray-500">이름</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.name ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이름</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.name ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">닉네임</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.nickname ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">닉네임</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.nickname ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">이메일</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.email ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">이메일</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.email ?? "-"}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">전화번호</p>
-                <p className="text-sm font-medium text-gray-900">{application.applicantUser?.phone ?? "-"}</p>
+                <p className="typo-medium-12 text-gray-500">전화번호</p>
+                <p className="typo-medium-14 text-gray-900">{application.applicantUser?.phone ?? "-"}</p>
               </div>
             </div>
           </div>

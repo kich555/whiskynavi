@@ -42,7 +42,7 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
       <div className="mx-auto max-w-[1180px] px-4 lg:px-10">
         <Link
           href="/general-items"
-          className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-white/70 transition-colors hover:text-white"
+          className="typo-medium-14 mb-6 inline-flex items-center gap-2 text-white/70 transition-colors hover:text-white"
         >
           <ArrowLeft size={18} />
           목록으로 돌아가기
@@ -70,13 +70,13 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
             </div>
 
             <p className="text-2xl font-semibold text-white">{formatCurrency(sale.salePrice)}</p>
-            <p className="mt-2 text-sm text-gray-400">
+            <p className="typo-medium-14 mt-2 text-gray-400">
               {remainingQuantity.toLocaleString("ko-KR")} / {totalQuantity.toLocaleString("ko-KR")}개 남음
             </p>
 
             <div className="mt-8 border-t border-white/10 pt-6">
               {isSoldOut ? (
-                <span className="block w-full border border-white/10 px-4 py-3 text-center text-sm font-semibold text-gray-500">
+                <span className="typo-semibold-14 block w-full border border-white/10 px-4 py-3 text-center text-gray-500">
                   주문 불가
                 </span>
               ) : (
@@ -86,7 +86,7 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
 
             <div className="mt-8 border-t border-white/10 pt-6">
               <h2 className="typo-bold-18 text-white">{itemName}</h2>
-              <p className="mt-4 text-sm leading-6 whitespace-pre-line text-gray-300">
+              <p className="typo-medium-14 mt-4 leading-6 whitespace-pre-line text-gray-300">
                 {item?.description || "등록된 상품 설명이 없습니다."}
               </p>
             </div>

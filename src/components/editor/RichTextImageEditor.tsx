@@ -286,7 +286,7 @@ export default function RichTextImageEditor({
 
       <div
         className={cn(
-          "rounded-b-md border border-t-0 px-3 py-2.5 text-sm [&_.ProseMirror]:outline-none [&_.ProseMirror_a]:underline [&_.ProseMirror_img]:my-3 [&_.ProseMirror_img]:max-h-[32rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_img]:object-contain [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
+          "rounded-b-md border border-t-0 px-3 py-2.5 typo-medium-14 [&_.ProseMirror]:outline-none [&_.ProseMirror_a]:underline [&_.ProseMirror_img]:my-3 [&_.ProseMirror_img]:max-h-[32rem] [&_.ProseMirror_img]:max-w-full [&_.ProseMirror_img]:rounded-lg [&_.ProseMirror_img]:object-contain [&_.ProseMirror_p.is-editor-empty:first-child::before]:pointer-events-none [&_.ProseMirror_p.is-editor-empty:first-child::before]:float-left [&_.ProseMirror_p.is-editor-empty:first-child::before]:text-gray-500 [&_.ProseMirror_p.is-editor-empty:first-child::before]:content-[attr(data-placeholder)]",
           compact ? "min-h-36 [&_.ProseMirror]:min-h-28" : "min-h-64 [&_.ProseMirror]:min-h-56",
           isAdmin ? "border-gray-300 bg-white text-gray-900" : "border-white/15 bg-white/5 text-white",
         )}
@@ -302,14 +302,14 @@ export default function RichTextImageEditor({
         onChange={handleFiles}
         className="hidden"
       />
-      <div className="mt-1 flex flex-wrap justify-between gap-2 text-xs">
+      <div className="mt-1 flex flex-wrap justify-between gap-2 typo-medium-12">
         <span className={isAdmin ? "text-gray-500" : "text-gray-400"}>
           JPG/PNG/WEBP · 이미지당 최대 {MAX_IMAGE_SIZE_MB}MB · 최대 {MAX_IMAGE_COUNT}개
         </span>
         {uploadingCount > 0 ? <span className="text-amber-500">이미지 업로드 중 ({uploadingCount})</span> : null}
       </div>
       {uploadError ? (
-        <p role="alert" className="mt-1 text-sm text-red-500">
+        <p role="alert" className="mt-1 typo-medium-14 text-red-500">
           {uploadError}
         </p>
       ) : null}

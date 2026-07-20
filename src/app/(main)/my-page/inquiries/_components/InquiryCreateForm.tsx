@@ -28,7 +28,7 @@ export default function InquiryCreateForm() {
   return (
     <form action={formAction} className="space-y-6">
       <div className="space-y-2">
-        <label htmlFor="title" className="block text-sm font-semibold text-white">
+        <label htmlFor="title" className="typo-semibold-14 block text-white">
           제목
         </label>
         <Input
@@ -42,7 +42,7 @@ export default function InquiryCreateForm() {
       </div>
 
       <div className="space-y-2">
-        <label htmlFor="content" className="block text-sm font-semibold text-white">
+        <label htmlFor="content" className="typo-semibold-14 block text-white">
           문의 내용
         </label>
         <RichTextImageEditor
@@ -53,7 +53,7 @@ export default function InquiryCreateForm() {
       </div>
 
       {state.error ? (
-        <p role="alert" className="text-sm text-red-300">
+        <p role="alert" className="typo-medium-14 text-red-300">
           {state.error}
         </p>
       ) : null}

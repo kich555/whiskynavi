@@ -1,6 +1,10 @@
 "use client";
 
-import type { AdminBoardPostTypeResponse, AdminBoardResponse, AdminAnnouncementSummaryResponse } from "@/apis/generated/api";
+import type {
+  AdminAnnouncementSummaryResponse,
+  AdminBoardPostTypeResponse,
+  AdminBoardResponse,
+} from "@/apis/generated/api";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -171,7 +175,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           <button
             type="button"
             onClick={() => router.push("/admin/boards")}
-            className="inline-flex cursor-pointer items-center gap-2 text-sm text-gray-500 transition-colors hover:text-gray-700"
+            className="typo-medium-14 inline-flex cursor-pointer items-center gap-2 text-gray-500 transition-colors hover:text-gray-700"
           >
             <ArrowLeft size={16} />
             게시판 목록으로
@@ -182,7 +186,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
               type="button"
               disabled={isPending}
               onClick={() => router.push(`/admin/boards/${board.id}/edit`)}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
+              className="typo-medium-14 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50 disabled:opacity-50"
             >
               <Edit size={16} />
               수정
@@ -191,7 +195,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
               type="button"
               disabled={isPending}
               onClick={handleDelete}
-              className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-sm text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
+              className="typo-medium-14 inline-flex cursor-pointer items-center gap-2 rounded-lg border border-red-200 px-4 py-2 text-red-600 transition-colors hover:bg-red-50 disabled:opacity-50"
             >
               <Trash2 size={16} />
               삭제
@@ -205,37 +209,37 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
             <h2 className="mb-6 text-lg font-semibold text-gray-900">기본 정보</h2>
             <dl className="space-y-4">
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500">ID</dt>
-                <dd className="text-sm font-medium text-gray-900">{board.id}</dd>
+                <dt className="typo-medium-14 text-gray-500">ID</dt>
+                <dd className="typo-medium-14 text-gray-900">{board.id}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500">게시판명</dt>
-                <dd className="text-sm font-medium text-gray-900">{board.name}</dd>
+                <dt className="typo-medium-14 text-gray-500">게시판명</dt>
+                <dd className="typo-medium-14 text-gray-900">{board.name}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500">슬러그</dt>
-                <dd className="font-mono text-sm text-gray-900">{board.slug}</dd>
+                <dt className="typo-medium-14 text-gray-500">슬러그</dt>
+                <dd className="typo-medium-14 font-mono text-gray-900">{board.slug}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500">설명</dt>
-                <dd className="text-sm text-gray-900">{board.description ?? "-"}</dd>
+                <dt className="typo-medium-14 text-gray-500">설명</dt>
+                <dd className="typo-medium-14 text-gray-900">{board.description ?? "-"}</dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-sm text-gray-500">생성일</dt>
-                <dd className="text-sm text-gray-900">
+                <dt className="typo-medium-14 text-gray-500">생성일</dt>
+                <dd className="typo-medium-14 text-gray-900">
                   {board.createdAt ? new Date(board.createdAt).toLocaleString("ko-KR") : "-"}
                 </dd>
               </div>
             </dl>
 
             <div className="mt-6 border-t border-gray-100 pt-6">
-              <h3 className="mb-4 text-sm font-semibold text-gray-900">권한 설정</h3>
+              <h3 className="typo-semibold-14 mb-4 text-gray-900">권한 설정</h3>
               <dl className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <dt className="text-xs text-gray-500">활성</dt>
+                  <dt className="typo-medium-12 text-gray-500">활성</dt>
                   <dd>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`typo-medium-12 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${
                         board.active ? "bg-green-50 text-green-700" : "bg-gray-100 text-gray-500"
                       }`}
                     >
@@ -244,10 +248,10 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-xs text-gray-500">숨김</dt>
+                  <dt className="typo-medium-12 text-gray-500">숨김</dt>
                   <dd>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`typo-medium-12 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${
                         board.hidden ? "bg-yellow-50 text-yellow-700" : "bg-gray-100 text-gray-500"
                       }`}
                     >
@@ -256,10 +260,10 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-xs text-gray-500">읽기전용</dt>
+                  <dt className="typo-medium-12 text-gray-500">읽기전용</dt>
                   <dd>
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                      className={`typo-medium-12 inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${
                         board.readOnly ? "bg-red-50 text-red-600" : "bg-gray-100 text-gray-500"
                       }`}
                     >
@@ -268,14 +272,14 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-xs text-gray-500">읽기 권한</dt>
-                  <dd className="text-xs font-medium text-gray-900">
+                  <dt className="typo-medium-12 text-gray-500">읽기 권한</dt>
+                  <dd className="typo-medium-12 text-gray-900">
                     {board.readRole ? (ROLE_LABELS[board.readRole] ?? board.readRole) : "-"}
                   </dd>
                 </div>
                 <div className="flex items-center justify-between">
-                  <dt className="text-xs text-gray-500">쓰기 권한</dt>
-                  <dd className="text-xs font-medium text-gray-900">
+                  <dt className="typo-medium-12 text-gray-500">쓰기 권한</dt>
+                  <dd className="typo-medium-12 text-gray-900">
                     {board.writeRole ? (ROLE_LABELS[board.writeRole] ?? board.writeRole) : "-"}
                   </dd>
                 </div>
@@ -288,12 +292,12 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
             <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 공지사항
-                <span className="ml-2 text-sm font-normal text-gray-400">({announcements.length})</span>
+                <span className="typo-regular-14 ml-2 text-gray-400">({announcements.length})</span>
               </h2>
               <button
                 type="button"
                 onClick={() => router.push(`/admin/boards/${board.id}/announcements/new`)}
-                className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+                className="typo-medium-12 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-white transition-colors hover:bg-amber-700"
               >
                 <Plus size={14} />
                 공지 등록
@@ -301,7 +305,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
             </div>
 
             {announcements.length === 0 ? (
-              <div className="py-12 text-center text-sm text-gray-400">등록된 공지사항이 없습니다.</div>
+              <div className="typo-medium-14 py-12 text-center text-gray-400">등록된 공지사항이 없습니다.</div>
             ) : (
               <ul className="divide-y divide-gray-100">
                 {announcements.map((ann) => {
@@ -323,9 +327,9 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                               고정
                             </span>
                           )}
-                          <span className="truncate text-sm font-medium text-gray-900">{ann.title}</span>
+                          <span className="typo-medium-14 truncate text-gray-900">{ann.title}</span>
                         </div>
-                        <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
+                        <div className="typo-medium-12 mt-1 flex items-center gap-3 text-gray-400">
                           <span>우선순위: {ann.priority ?? 0}</span>
                           {ann.publishedAt && <span>예약: {new Date(ann.publishedAt).toLocaleString("ko-KR")}</span>}
                           {ann.expiredAt && <span>만료: {new Date(ann.expiredAt).toLocaleString("ko-KR")}</span>}
@@ -370,16 +374,16 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           <div className="flex items-center justify-between border-b border-gray-200 px-6 py-4">
             <div>
               <h2 className="text-lg font-semibold text-gray-900">
-                게시판 탭<span className="ml-2 text-sm font-normal text-gray-400">({postTypes.length})</span>
+                게시판 탭<span className="typo-regular-14 ml-2 text-gray-400">({postTypes.length})</span>
               </h2>
-              <p className="mt-1 text-xs text-gray-500">
+              <p className="typo-medium-12 mt-1 text-gray-500">
                 등록한 타입이 사용자 화면의 탭으로 나타납니다. 게시글 탭과 공지 탭이 있습니다.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setShowCreatePostTypeForm(true)}
-              className="inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-medium text-white transition-colors hover:bg-amber-700"
+              className="typo-medium-12 inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-amber-600 px-3 py-1.5 text-white transition-colors hover:bg-amber-700"
             >
               <Plus size={14} />
               글타입 등록
@@ -387,7 +391,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           </div>
 
           {postTypes.length === 0 ? (
-            <div className="py-12 text-center text-sm text-gray-400">
+            <div className="typo-medium-14 py-12 text-center text-gray-400">
               등록된 게시글타입이 없습니다.
               <br />
               탭을 만들려면 글타입을 등록해주세요.
@@ -411,10 +415,10 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                           기본
                         </span>
                       )}
-                      <span className="truncate text-sm font-medium text-gray-900">{postType.name}</span>
-                      <span className="font-mono text-xs text-gray-400">{postType.code}</span>
+                      <span className="typo-medium-14 truncate text-gray-900">{postType.name}</span>
+                      <span className="typo-medium-12 font-mono text-gray-400">{postType.code}</span>
                     </div>
-                    <div className="mt-1 flex items-center gap-3 text-xs text-gray-400">
+                    <div className="typo-medium-12 mt-1 flex items-center gap-3 text-gray-400">
                       <span>노출순서: {postType.displayOrder ?? 0}</span>
                     </div>
                   </div>
@@ -479,12 +483,12 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           >
             <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
               <h3 className="mb-1 text-lg font-semibold text-gray-900">새 탭 등록</h3>
-              <p className="mb-4 text-xs text-gray-500">
+              <p className="typo-medium-12 mb-4 text-gray-500">
                 게시글타입은 게시판 안의 탭이 됩니다. 사용자는 탭으로 글을 종류별로 볼 수 있어요.
               </p>
 
               {createPostTypeState.error && (
-                <div className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-600">
+                <div className="typo-medium-14 mb-4 rounded-lg bg-red-50 px-4 py-3 text-red-600">
                   {createPostTypeState.error}
                 </div>
               )}
@@ -502,7 +506,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     placeholder="예: 제품공지"
                   />
-                  <p className="mt-1 text-xs text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
+                  <p className="typo-medium-12 mt-1 text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
                 </div>
 
                 <div>
@@ -517,7 +521,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     placeholder="예: product-notice"
                   />
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     시스템 식별자. 영문 소문자/숫자/하이픈. 사용자에게는 안 보입니다.
                   </p>
                 </div>
@@ -542,7 +546,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                       <SelectItem value="ANNOUNCEMENT">공지 탭 (관리자 공지 표시)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     게시글 탭은 사용자가 직접 글을 쓰는 공간, 공지 탭은 관리자가 등록한 공지만 표시하는 공간입니다.
                   </p>
                 </div>
@@ -552,28 +556,28 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     노출순서
                   </Label>
                   <Input id="create-pt-order" name="displayOrder" type="number" min={0} defaultValue={0} />
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     숫자가 작을수록 탭이 왼쪽에 나타납니다. 같으면 등록 순서를 따릅니다.
                   </p>
                 </div>
 
                 <label className="flex cursor-pointer items-center gap-2">
                   <Checkbox name="active" value="true" defaultChecked />
-                  <span className="text-sm text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
+                  <span className="typo-medium-14 text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
                 </label>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setShowCreatePostTypeForm(false)}
-                    className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                    className="typo-medium-14 cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                   >
                     취소
                   </button>
                   <button
                     type="submit"
                     disabled={createPostTypePending}
-                    className="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                    className="typo-medium-14 cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
                   >
                     {createPostTypePending ? "등록 중..." : "등록"}
                   </button>
@@ -591,11 +595,11 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
           >
             <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-xl" onClick={(e) => e.stopPropagation()}>
               <h3 className="mb-1 text-lg font-semibold text-gray-900">게시글타입 수정</h3>
-              <p className="mb-4 text-xs text-gray-500">
+              <p className="typo-medium-12 mb-4 text-gray-500">
                 게시글타입은 게시판 안의 탭이 됩니다. 사용자는 탭으로 글을 종류별로 볼 수 있어요.
               </p>
               {(editingPostType.usagesCount ?? 0) > 1 && (
-                <div className="mb-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <div className="typo-medium-14 mb-4 rounded-lg bg-amber-50 px-4 py-3 text-amber-700">
                   이 글타입은 게시글/공지 둘 다에 쓰이고 있습니다. 저장하면 아래 선택한 종류 하나로 축소됩니다.
                 </div>
               )}
@@ -612,7 +616,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     defaultValue={editingPostType.name ?? ""}
                   />
-                  <p className="mt-1 text-xs text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
+                  <p className="typo-medium-12 mt-1 text-gray-400">사용자에게 탭 라벨로 보이는 이름입니다.</p>
                 </div>
 
                 <div>
@@ -627,7 +631,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     required
                     defaultValue={editingPostType.code ?? ""}
                   />
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     시스템 식별자. 영문 소문자/숫자/하이픈. 사용자에게는 안 보입니다.
                   </p>
                 </div>
@@ -657,7 +661,7 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                       <SelectItem value="ANNOUNCEMENT">공지 탭 (관리자 공지 표시)</SelectItem>
                     </SelectContent>
                   </Select>
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     게시글 탭은 사용자가 직접 글을 쓰는 공간, 공지 탭은 관리자가 등록한 공지만 표시하는 공간입니다.
                   </p>
                 </div>
@@ -673,28 +677,28 @@ export default function BoardDetailContent({ board, announcements, postTypes }: 
                     min={0}
                     defaultValue={editingPostType.displayOrder ?? 0}
                   />
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="typo-medium-12 mt-1 text-gray-400">
                     숫자가 작을수록 탭이 왼쪽에 나타납니다. 같으면 등록 순서를 따릅니다.
                   </p>
                 </div>
 
                 <label className="flex cursor-pointer items-center gap-2">
                   <Checkbox name="active" value="true" defaultChecked={editingPostType.active ?? true} />
-                  <span className="text-sm text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
+                  <span className="typo-medium-14 text-gray-700">활성 (체크 해제 시 탭에서 숨김)</span>
                 </label>
 
                 <div className="flex items-center justify-end gap-3 pt-2">
                   <button
                     type="button"
                     onClick={() => setEditingPostType(null)}
-                    className="cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-gray-50"
+                    className="typo-medium-14 cursor-pointer rounded-lg border border-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-50"
                   >
                     취소
                   </button>
                   <button
                     type="submit"
                     disabled={isPending}
-                    className="cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-sm text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
+                    className="typo-medium-14 cursor-pointer rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
                   >
                     {isPending ? "수정 중..." : "수정"}
                   </button>

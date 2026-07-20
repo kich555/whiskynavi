@@ -46,10 +46,10 @@ export default function ApplicationApproveModal({
         <DialogHeader>
           <DialogTitle>사업자 신청 승인</DialogTitle>
         </DialogHeader>
-        <p className="text-sm text-gray-600">
+        <p className="typo-medium-14 text-gray-600">
           이 신청을 승인하시겠습니까? 승인 후 사업자 역할이 부여됩니다.
         </p>
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="typo-medium-14 text-red-600">{error}</p>}
         <DialogFooter className="gap-2">
           <Button
             variant="outline"

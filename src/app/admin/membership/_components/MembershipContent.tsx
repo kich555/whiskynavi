@@ -158,7 +158,7 @@ export default function MembershipContent({ searchParams, brand, users, totalEle
         {/* 정렬 및 요약 */}
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <label className="text-sm text-gray-600">정렬:</label>
+            <label className="typo-medium-14 text-gray-600">정렬:</label>
             <Select value={sortBy} onValueChange={handleSortChange}>
               <SelectTrigger size="sm" className="w-28">
                 <SelectValue />
@@ -171,12 +171,12 @@ export default function MembershipContent({ searchParams, brand, users, totalEle
             <button
               type="button"
               onClick={handleSortDirectionToggle}
-              className="cursor-pointer rounded-lg border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50"
+              className="cursor-pointer rounded-lg border border-gray-300 px-3 py-1.5 typo-medium-14 transition-colors hover:bg-gray-50"
             >
               {sortDirection === "asc" ? "↑ 오름차순" : "↓ 내림차순"}
             </button>
           </div>
-          <div className="flex items-center gap-2 text-sm text-gray-600">
+          <div className="flex items-center gap-2 typo-medium-14 text-gray-600">
             <span>총 {totalElements}명의 멤버</span>
           </div>
         </div>
@@ -223,11 +223,11 @@ export default function MembershipContent({ searchParams, brand, users, totalEle
 
                   return (
                     <tr key={user.id} className="transition-colors hover:bg-gray-50">
-                      <td className="px-3 py-2 text-xs text-gray-900">{user.id}</td>
+                      <td className="px-3 py-2 typo-medium-12 text-gray-900">{user.id}</td>
                       <td className="typo-medium-12 px-3 py-2 text-gray-900">{user.name}</td>
-                      <td className="px-3 py-2 text-xs text-gray-600">@{user.username}</td>
-                      <td className="px-3 py-2 text-xs text-gray-600">{user.phone || "-"}</td>
-                      <td className="px-3 py-2 text-xs">
+                      <td className="px-3 py-2 typo-medium-12 text-gray-600">@{user.username}</td>
+                      <td className="px-3 py-2 typo-medium-12 text-gray-600">{user.phone || "-"}</td>
+                      <td className="px-3 py-2 typo-medium-12">
                         <span
                           className={`rounded px-1.5 py-0.5 text-[10px] font-medium ${
                             memberType === "업장" ? "bg-purple-100 text-purple-700" : "bg-gray-100 text-gray-700"
@@ -236,7 +236,7 @@ export default function MembershipContent({ searchParams, brand, users, totalEle
                           {memberType}
                         </span>
                       </td>
-                      <td className="px-3 py-2 text-xs">
+                      <td className="px-3 py-2 typo-medium-12">
                         <div className="flex flex-wrap gap-1">
                           {membershipRoles.map((role) => (
                             <Badge key={role} className={ROLE_COLOR_MAP[role]}>
@@ -245,8 +245,8 @@ export default function MembershipContent({ searchParams, brand, users, totalEle
                           ))}
                         </div>
                       </td>
-                      <td className="px-3 py-2 text-xs text-gray-600">{formatDate(user.createdAt ?? "")}</td>
-                      <td className="px-3 py-2 text-xs">
+                      <td className="px-3 py-2 typo-medium-12 text-gray-600">{formatDate(user.createdAt ?? "")}</td>
+                      <td className="px-3 py-2 typo-medium-12">
                         <button
                           type="button"
                           onClick={() => handleRemoveMember(user)}

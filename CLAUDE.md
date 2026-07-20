@@ -31,6 +31,21 @@
 - Tailwind 클래스 정렬: prettier-plugin-tailwindcss
 - import 정렬: prettier-plugin-organize-imports
 
+### 타이포그래피 (Typography)
+
+프로젝트는 `src/app/globals.css`의 `@layer components`에 정의된 `typo-{weight}-{size}` 클래스를 타이포그래피 시스템으로 사용한다. **Tailwind 기본 `text-xs` / `text-sm` 클래스는 사용 금지** — 반드시 `typo-*` 클래스로 대체한다.
+
+- **클래스 형식**: `typo-{weight}-{size}`
+  - weight: `bold`(700), `medium`(500), `regular`(400)
+  - size(px): `10, 12, 13, 14, 16, 18, 20, 22, 24, 30, 32, 36, 40`
+  - 모든 클래스는 `line-height: 1`을 포함한다.
+- **Tailwind 기본 사이즈 → typo 매핑**:
+  - `text-xs` (12px) → `typo-*-12`
+  - `text-sm` (14px) → `typo-*-14`
+- **정의되지 않은 조합 사용 금지**: 새 weight/size 조합이 필요하면 `src/app/globals.css`에 먼저 클래스를 추가한 뒤 사용한다. 임의 조합이 렌더링되지 않는다.
+- **shadcn/ui 예외**: `src/components/ui/`의 써드파티 컴포넌트 내부 클래스는 그대로 둔다. shadcn 컴포넌트를 호출하는 쪽에서 추가하는 className만 마이그레이션한다.
+- 반응형 사이즈 오버라이드(예: `lg:text-base`)는 `typo-*`와 함께 써도 된다.
+
 ## 핵심 문서
 
 - .claude/skills/admin-api-auth.md — 관리자 API 인증 패턴, 토큰 처리, Server Action 가이드

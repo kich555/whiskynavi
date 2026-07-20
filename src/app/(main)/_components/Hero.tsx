@@ -65,7 +65,7 @@ const Hero = ({ backgroundText, title, subtitle }: HeroProps) => {
 
             <div className="mx-auto mb-6 h-1 w-24 bg-linear-to-r from-transparent via-white to-transparent opacity-80 md:w-32 lg:w-40" />
 
-            <p className="text-sm leading-relaxed font-light tracking-wider text-white/80 italic md:text-base lg:text-lg">
+            <p className="typo-medium-14 leading-relaxed font-light tracking-wider text-white/80 italic md:text-base lg:text-lg">
               {subtitle}
             </p>
           </div>

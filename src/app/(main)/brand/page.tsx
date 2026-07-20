@@ -44,7 +44,7 @@ const Page = async () => {
                 <BrandTitle brandId={brand.id} title={brand.name} subtitle={brand.subname} />
                 {/* Brand Philosophy */}
                 <div className="mx-auto max-w-3xl px-6 text-center lg:mb-8">
-                  <p className="text-sm leading-relaxed text-white/90 sm:text-base">{brand.description}</p>
+                  <p className="typo-medium-14 leading-relaxed text-white/90 sm:text-base">{brand.description}</p>
                 </div>
 
                 {/* Products Carousel */}
@@ -54,7 +54,7 @@ const Page = async () => {
                 <div className="mt-6 text-center lg:mt-8">
                   <Link
                     href={`/archive?brand=${brand.id}`}
-                    className="inline-block border border-white px-6 py-2 text-sm text-white transition-all hover:bg-white hover:text-[#1d2429] sm:px-7 sm:py-2.5 sm:text-base"
+                    className="typo-medium-14 inline-block border border-white px-6 py-2 text-white transition-all hover:bg-white hover:text-[#1d2429] sm:px-7 sm:py-2.5 sm:text-base"
                   >
                     더 많은 제품 보러가기
                   </Link>

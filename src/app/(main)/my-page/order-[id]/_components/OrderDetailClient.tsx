@@ -41,7 +41,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
             <span className="font-semibold">돌아가기</span>
           </Link>
           <h1 className="typo-bold-24 mb-2 text-white sm:text-3xl">주문 상세</h1>
-          <p className="text-sm text-gray-400 sm:text-base">주문번호: {order.orderNumber}</p>
+          <p className="typo-medium-14 text-gray-400 sm:text-base">주문번호: {order.orderNumber}</p>
         </div>
 
         {/* Order Status */}
@@ -49,7 +49,7 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="typo-bold-20 mb-1 sm:text-2xl">{status.label}</p>
-              <p className="text-sm text-white/60">{formatDate(order.createdAt)}</p>
+              <p className="typo-medium-14 text-white/60">{formatDate(order.createdAt)}</p>
             </div>
             {canCancel && (
               <Button variant="destructive" onClick={handleCancelClick}>
@@ -147,8 +147,10 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
 function InfoRow({ label, value, bold }: { label: string; value: string; bold?: boolean }) {
   return (
     <div className="flex items-center justify-between border-b border-white/10 pb-2.5 sm:pb-3">
-      <span className="text-xs text-gray-400 sm:text-sm lg:text-base">{label}</span>
-      <span className={`text-xs sm:text-sm lg:text-base ${bold ? "font-bold" : "font-medium"} text-white`}>
+      <span className="typo-medium-12 sm:typo-medium-14 text-gray-400 lg:text-base">{label}</span>
+      <span
+        className={`typo-medium-12 sm:typo-medium-14 lg:text-base ${bold ? "typo-bold-12" : "typo-medium-12"} text-white`}
+      >
         {value}
       </span>
     </div>

@@ -14,7 +14,10 @@ export default function PostCreationRestrictionNotice({ restriction }: PostCreat
   });
 
   return (
-    <div role="alert" className="rounded-lg border border-red-500/30 bg-red-950/30 px-4 py-3 text-sm text-red-100">
+    <div
+      role="alert"
+      className="typo-medium-14 rounded-lg border border-red-500/30 bg-red-950/30 px-4 py-3 text-red-100"
+    >
       <p className="font-semibold">게시글 작성이 {endAt}까지 제한되었습니다.</p>
       <p className="mt-1 whitespace-pre-wrap text-red-200">사유: {restriction.reason}</p>
     </div>

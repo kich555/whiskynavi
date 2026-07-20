@@ -26,7 +26,7 @@ export default function FaqSection() {
             <AccordionTrigger className="typo-bold-14 px-4 py-4 text-left text-white hover:bg-white/5 hover:no-underline md:px-5 md:text-base [&[data-state=open]>svg]:rotate-180">
               {faq.question}
             </AccordionTrigger>
-            <AccordionContent className="border-t border-white/10 px-4 pt-3 pb-4 text-xs text-gray-400 md:px-5 md:text-sm">
+            <AccordionContent className="typo-medium-12 border-t border-white/10 px-4 pt-3 pb-4 text-gray-400 md:px-5 md:typo-medium-14">
               {faq.answer}
             </AccordionContent>
           </AccordionItem>

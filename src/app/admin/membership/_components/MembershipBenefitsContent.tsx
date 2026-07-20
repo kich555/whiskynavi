@@ -150,7 +150,7 @@ export default function MembershipBenefitsContent() {
                   {isEditMode ? (
                     <>
                       <div>
-                        <Label className="text-xs text-gray-600">할인율 (%)</Label>
+                        <Label className="typo-medium-12 text-gray-600">할인율 (%)</Label>
                         <Input
                           type="number"
                           value={brandBenefits.discount}
@@ -159,7 +159,7 @@ export default function MembershipBenefitsContent() {
                         />
                       </div>
                       <div>
-                        <Label className="text-xs text-gray-600">조기 접근 (일)</Label>
+                        <Label className="typo-medium-12 text-gray-600">조기 접근 (일)</Label>
                         <Input
                           type="number"
                           value={brandBenefits.earlyAccess}
@@ -169,7 +169,7 @@ export default function MembershipBenefitsContent() {
                       </div>
                       {BOOLEAN_BENEFIT_FIELDS.map(({ key: field, label: fieldLabel }) => (
                         <div key={field} className="flex items-center justify-between py-2">
-                          <Label className="text-sm text-gray-700">{fieldLabel}</Label>
+                          <Label className="typo-medium-14 text-gray-700">{fieldLabel}</Label>
                           <Switch
                             checked={brandBenefits[field]}
                             onCheckedChange={(checked) => updateBenefit(key, field, checked)}
@@ -180,11 +180,11 @@ export default function MembershipBenefitsContent() {
                   ) : (
                     <>
                       <div className="flex justify-between border-b border-gray-100 py-2">
-                        <span className="text-sm text-gray-600">할인율</span>
+                        <span className="typo-medium-14 text-gray-600">할인율</span>
                         <span className="typo-bold-14 text-gray-900">{brandBenefits.discount}%</span>
                       </div>
                       <div className="flex justify-between border-b border-gray-100 py-2">
-                        <span className="text-sm text-gray-600">조기 접근</span>
+                        <span className="typo-medium-14 text-gray-600">조기 접근</span>
                         <span className="typo-bold-14 text-gray-900">{brandBenefits.earlyAccess}일</span>
                       </div>
                       {BOOLEAN_BENEFIT_FIELDS.map(({ key: field, label: fieldLabel }) => (
@@ -192,7 +192,7 @@ export default function MembershipBenefitsContent() {
                           key={field}
                           className={`flex justify-between py-2 ${field !== "prioritySupport" ? "border-b border-gray-100" : ""}`}
                         >
-                          <span className="text-sm text-gray-600">{fieldLabel}</span>
+                          <span className="typo-medium-14 text-gray-600">{fieldLabel}</span>
                           {brandBenefits[field] ? (
                             <Check className="text-green-600" size={20} />
                           ) : (

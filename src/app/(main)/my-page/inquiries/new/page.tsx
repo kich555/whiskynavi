@@ -20,7 +20,7 @@ export default async function NewInquiryPage() {
         <div className="border border-white/10 bg-white/5 p-5 md:p-8">
           <div className="mb-8">
             <h1 className="text-2xl font-bold text-white md:text-3xl">1:1 문의하기</h1>
-            <p className="mt-2 text-sm text-gray-400">문의 내용을 확인한 후 답변드리겠습니다.</p>
+            <p className="typo-medium-14 mt-2 text-gray-400">문의 내용을 확인한 후 답변드리겠습니다.</p>
           </div>
           <InquiryCreateForm />
         </div>

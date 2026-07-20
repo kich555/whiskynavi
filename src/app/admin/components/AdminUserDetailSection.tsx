@@ -173,7 +173,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-400"
               />
               <span
-                className={`text-sm font-medium ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}
+                className={`typo-medium-14 ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}
               >
                 {userDetails.status === "ACTIVE" ? "활성" : "비활성"}
               </span>
@@ -190,7 +190,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
             <button
               type="button"
               onClick={() => setActiveTab("info")}
-              className={`relative cursor-pointer px-6 py-3 text-sm font-semibold transition-colors ${
+              className={`typo-semibold-14 relative cursor-pointer px-6 py-3 transition-colors ${
                 activeTab === "info"
                   ? "border-b-2 border-amber-600 bg-amber-50/50 text-amber-600"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -201,7 +201,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
             <button
               type="button"
               onClick={() => setActiveTab("reservations")}
-              className={`relative cursor-pointer px-6 py-3 text-sm font-semibold transition-colors ${
+              className={`typo-semibold-14 relative cursor-pointer px-6 py-3 transition-colors ${
                 activeTab === "reservations"
                   ? "border-b-2 border-amber-600 bg-amber-50/50 text-amber-600"
                   : "text-gray-500 hover:bg-gray-50 hover:text-gray-700"
@@ -329,7 +329,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     {isEditingRoles && (
                       <div className="mt-3 flex gap-2">
                         <Select value={newRole} onValueChange={(value) => setNewRole(value)}>
-                          <SelectTrigger className="flex-1 text-sm">
+                          <SelectTrigger className="typo-medium-14 flex-1">
                             <SelectValue placeholder="권한 선택" />
                           </SelectTrigger>
                           <SelectContent>
@@ -366,7 +366,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 </h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm text-gray-700">개인정보 처리방침</span>
+                    <span className="typo-medium-14 text-gray-700">개인정보 처리방침</span>
                     {userDetails.userExt?.privacyAgree ? (
                       <CheckCircle size={20} className="text-green-600" />
                     ) : (
@@ -374,7 +374,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     )}
                   </div>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm text-gray-700">마케팅 수신 동의</span>
+                    <span className="typo-medium-14 text-gray-700">마케팅 수신 동의</span>
                     {userDetails.userExt?.marketingAgree ? (
                       <CheckCircle size={20} className="text-green-600" />
                     ) : (
@@ -382,7 +382,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     )}
                   </div>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm text-gray-700">이메일 수신 동의</span>
+                    <span className="typo-medium-14 text-gray-700">이메일 수신 동의</span>
                     {userDetails.userExt?.emailAgree ? (
                       <CheckCircle size={20} className="text-green-600" />
                     ) : (
@@ -390,7 +390,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                     )}
                   </div>
                   <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3">
-                    <span className="text-sm text-gray-700">SMS 수신 동의</span>
+                    <span className="typo-medium-14 text-gray-700">SMS 수신 동의</span>
                     {userDetails.userExt?.smsAgree ? (
                       <CheckCircle size={20} className="text-green-600" />
                     ) : (
@@ -435,7 +435,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                   {(orderSummary.orders?.content ?? []).length > 0 ? (
                     <>
                       <div className="overflow-x-auto">
-                        <table className="w-full text-sm">
+                        <table className="typo-medium-14 w-full">
                           <thead>
                             <tr className="border-b border-gray-200">
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
@@ -478,7 +478,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 </td>
                                 <td className="px-3 py-3">
                                   <span
-                                    className={`rounded px-2 py-1 text-xs font-medium ${
+                                    className={`typo-medium-12 rounded px-2 py-1 ${
                                       ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
                                     }`}
                                   >

@@ -58,7 +58,7 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
                 할당용 Excel 다운로드
               </a>
             </Button>
-            <label className="flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 text-sm text-gray-700 xl:w-[360px]">
+ <label className="flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 typo-medium-14 text-gray-700 xl:w-[360px]">
               <FileSpreadsheet className="size-4 shrink-0 text-gray-400" />
               <span className="sr-only">예약 할당 Excel 파일</span>
               <Input ref={fileInputRef} type="file" accept=".xlsx" className="h-auto border-0 px-0 shadow-none" />
@@ -69,10 +69,10 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
             Excel 할당 업로드
           </Button>
         </div>
-        <p className="mt-2 text-xs text-gray-500">배정수량 0은 신청 거절로 처리됩니다.</p>
+ <p className="mt-2 typo-medium-12 text-gray-500">배정수량 0은 신청 거절로 처리됩니다.</p>
 
         {result && (
-          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-gray-200 pt-3 text-sm text-gray-700">
+ <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-gray-200 pt-3 typo-medium-14 text-gray-700">
             <span className="font-semibold text-gray-900">총 할당 수량 {result.totalAllocatedQuantity ?? 0}</span>
             <span>할당 신청 {result.allocatedApplicationCount ?? 0}건</span>
             <span>거절 신청 {result.rejectedApplicationCount ?? 0}건</span>
@@ -83,9 +83,9 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
 
         {failures.length > 0 && (
           <div className="mt-3 overflow-x-auto border-t border-gray-200 pt-3">
-            <table className="w-full min-w-[520px] text-sm">
+ <table className="w-full min-w-[520px] typo-medium-14">
               <thead>
-                <tr className="text-left text-xs font-semibold text-gray-500 uppercase">
+ <tr className="text-left typo-semibold-12 text-gray-500 uppercase">
                   <th className="w-20 py-1 pr-3">행</th>
                   <th className="w-28 py-1 pr-3">신청 ID</th>
                   <th className="py-1 pr-3">사유</th>

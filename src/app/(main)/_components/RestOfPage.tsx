@@ -29,14 +29,14 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
               className="group flex aspect-square flex-col items-center justify-center border border-white/10 bg-white/5 p-3 text-center transition-all hover:border-white/30 hover:bg-white/10 md:p-4"
             >
               <div className="typo-bold-14 mb-2 text-white md:mb-3 md:text-xl lg:text-2xl">OUR BRANDS</div>
-              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:text-sm">
+              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:typo-medium-14">
                 <span className="hidden md:inline">
                   위스키내비에서 전개하고 있는
                   <br />
                 </span>
                 <span className="hidden md:inline">다양한 브랜드들을 만나보세요.</span>
               </div>
-              <div className="typo-bold-12 flex items-center gap-1 text-white/60 transition-colors group-hover:text-white md:text-sm">
+              <div className="typo-bold-12 flex items-center gap-1 text-white/60 transition-colors group-hover:text-white md:typo-medium-14">
                 바로가기 <ArrowRight size={12} className="md:size-4" />
               </div>
             </Link>
@@ -47,7 +47,7 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
               className="group flex aspect-square flex-col items-center justify-center border border-white/10 bg-white/5 p-3 text-center transition-all hover:border-white/30 hover:bg-white/10 md:p-4"
             >
               <div className="typo-bold-14 mb-2 text-white md:mb-3 md:text-xl lg:text-2xl">ARCHIVE</div>
-              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:text-sm">
+              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:typo-medium-14">
                 <br className="md:hidden" />
                 <span className="hidden md:inline">
                   위스키내비에서 발매한
@@ -55,7 +55,7 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
                 </span>
                 <span className="hidden md:inline">제품들을 둘러보세요.</span>
               </div>
-              <div className="typo-bold-12 flex items-center gap-1 text-white/60 transition-colors group-hover:text-white md:text-sm">
+              <div className="typo-bold-12 flex items-center gap-1 text-white/60 transition-colors group-hover:text-white md:typo-medium-14">
                 바로가기 <ArrowRight size={12} className="md:size-4" />
               </div>
             </Link>
@@ -92,7 +92,7 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
               className="group flex aspect-square flex-col items-center justify-center border border-white/10 bg-white/5 p-3 text-center transition-all hover:border-white/30 hover:bg-white/10 md:p-4"
             >
               <div className="typo-bold-14 mb-2 text-white md:mb-3 md:text-xl lg:text-2xl">RESERVATION</div>
-              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:text-sm">준비중</div>
+              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:typo-medium-14">준비중</div>
             </div>
             {/* </Link> */}
 
@@ -124,7 +124,7 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
               className="group flex aspect-square flex-col items-center justify-center border border-white/10 bg-white/5 p-3 text-center transition-all hover:border-white/30 hover:bg-white/10 md:p-4"
             >
               <div className="typo-bold-14 mb-2 text-white md:mb-3 md:text-xl lg:text-2xl">COMMUNITY</div>
-              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:text-sm">준비중입니다.</div>
+              <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:typo-medium-14">준비중입니다.</div>
             </div>
           </div>
         </div>
@@ -153,7 +153,7 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
                 href="https://www.youtube.com/@WhiskyNavi"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-xs text-white transition-all hover:gap-3 hover:text-gray-300 md:text-sm lg:text-base"
+                className="typo-medium-12 inline-flex items-center gap-2 text-white transition-all hover:gap-3 hover:text-gray-300 md:typo-medium-14 lg:text-base"
               >
                 더 많은 영상 보러가기
                 <ArrowRight size={14} className="md:size-4 lg:size-5" />
