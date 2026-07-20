@@ -1,7 +1,9 @@
 "use client";
 
 import type { BottleAdminResponse } from "@/apis/generated/api";
+import RichTextContent from "@/components/editor/RichTextContent";
 import { formatCurrency } from "@/lib/formatters";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 import Image from "next/image";
 import { useState } from "react";
 
@@ -139,9 +141,14 @@ export default function AdminProductDetailView({ productDetails }: AdminProductD
         {/* 중간: 설명 */}
         <div className="flex-1 px-6">
           <div className="typo-medium-14 mb-1 text-gray-600">설명</div>
-          <div className="typo-medium-14 whitespace-pre-wrap text-gray-900">
-            {productDetails.description || "설명이 없습니다."}
-          </div>
+          {productDetails.description ? (
+            <RichTextContent
+              html={sanitizeRichTextContent(productDetails.description)}
+              className="typo-medium-14 text-gray-900"
+            />
+          ) : (
+            <div className="typo-medium-14 text-gray-900">설명이 없습니다.</div>
+          )}
         </div>
 
         {/* 오른쪽: 이미지 */}

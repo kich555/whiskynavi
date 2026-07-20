@@ -1,11 +1,15 @@
 "use client";
 
-import type { BottleAdminParameterValues, BottleAdminResponse } from "@/apis/generated/api";
+import { postApiS3Upload, type BottleAdminParameterValues, type BottleAdminResponse } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
+import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Label } from "@/components/ui/label";
+import { buildCloudFrontUrl } from "@/lib/cloudfront";
 import { getImageSizeError } from "@/lib/image-upload";
 import { CalendarDays, Plus, Upload, X } from "lucide-react";
+import { getSession } from "next-auth/react";
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import CurrencyInput from "../_components/CurrencyInput";
 import { MAX_BOTTLE_IMAGE_SIZE_MB } from "../products/image-constraints";
 import ParameterCombobox from "./ParameterCombobox";
@@ -16,6 +20,7 @@ interface AdminProductDetailEditProps {
   parameterValues?: BottleAdminParameterValues;
   selectedFile: File | null;
   onSelectFile: (file: File | null) => void;
+  onDescriptionUploadingChange?: (uploading: boolean) => void;
 }
 
 const FALLBACK_IMAGE = "/default-bottle-v2.png";
@@ -42,6 +47,7 @@ export default function AdminProductDetailEdit({
   parameterValues,
   selectedFile,
   onSelectFile,
+  onDescriptionUploadingChange,
 }: AdminProductDetailEditProps) {
   const initialExtraInfos = (() => {
     if (submittedValues?.extraInfos) {
@@ -60,6 +66,16 @@ export default function AdminProductDetailEdit({
   const newExtraInfoValueRef = useRef<HTMLInputElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [imageError, setImageError] = useState<string | null>(null);
+  const uploadDescriptionImage = useCallback(async (file: File): Promise<string> => {
+    const session = await getSession();
+    if (!session?.accessToken) throw new Error("로그인이 필요합니다.");
+
+    const response = await postApiS3Upload({ file }, withToken(session.accessToken));
+    const key = response.data.key;
+    if (!key) throw new Error("업로드된 이미지 키를 확인할 수 없습니다.");
+
+    return buildCloudFrontUrl(key);
+  }, []);
 
   const selectImage = (file: File) => {
     const sizeError = getImageSizeError(file, MAX_BOTTLE_IMAGE_SIZE_MB);
@@ -409,12 +425,13 @@ export default function AdminProductDetailEdit({
         {/* 중간: 설명 */}
         <div className="flex-1 px-6">
           <div className="typo-medium-14 mb-1 text-gray-600">설명</div>
-          <textarea
+          <RichTextImageEditor
             name="description"
-            defaultValue={pickDefault(submittedValues, "description", defaultValues?.description)}
-            rows={12}
-            placeholder="설명을 입력하세요."
-            className="typo-medium-14 w-full resize-y rounded border border-gray-300 px-2 py-1 text-gray-900"
+            defaultValue={String(pickDefault(submittedValues, "description", defaultValues?.description) ?? "")}
+            placeholder="설명을 입력하세요. 이미지를 붙여넣거나 추가할 수 있습니다."
+            variant="admin"
+            uploadFn={uploadDescriptionImage}
+            onUploadingChange={onDescriptionUploadingChange}
           />
         </div>
 
