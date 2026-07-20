@@ -1685,6 +1685,20 @@ export interface AnnouncementRequest {
 }
 
 /**
+ * 구조화된 API 오류 응답
+ */
+export interface ApiErrorResponse {
+  /** 클라이언트 분기용 안정적인 오류 코드 */
+  code: string;
+  /** 사용자가 문제를 해결하기 위한 추가 안내 */
+  hint: string;
+  /** 사용자에게 표시할 오류 메시지 */
+  message: string;
+  /** 고객 문의와 서버 로그 추적에 사용하는 요청 식별자 */
+  requestId: string;
+}
+
+/**
  * 로그인한 사용자 자기 정보 응답
  */
 export interface UserSelfResponse {
@@ -20490,13 +20504,45 @@ export type postApiUsersBusinessesApplicationsResponse200 = {
   data: UserBusinessApplicationSubmitResponse
   status: 200
 }
+
+export type postApiUsersBusinessesApplicationsResponse400 = {
+  data: ApiErrorResponse
+  status: 400
+}
+
+export type postApiUsersBusinessesApplicationsResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
+
+export type postApiUsersBusinessesApplicationsResponse413 = {
+  data: ApiErrorResponse
+  status: 413
+}
+
+export type postApiUsersBusinessesApplicationsResponse415 = {
+  data: ApiErrorResponse
+  status: 415
+}
+
+export type postApiUsersBusinessesApplicationsResponse502 = {
+  data: ApiErrorResponse
+  status: 502
+}
+
+export type postApiUsersBusinessesApplicationsResponse503 = {
+  data: ApiErrorResponse
+  status: 503
+}
     
 export type postApiUsersBusinessesApplicationsResponseSuccess = (postApiUsersBusinessesApplicationsResponse200) & {
   headers: Headers;
 };
-;
+export type postApiUsersBusinessesApplicationsResponseError = (postApiUsersBusinessesApplicationsResponse400 | postApiUsersBusinessesApplicationsResponse409 | postApiUsersBusinessesApplicationsResponse413 | postApiUsersBusinessesApplicationsResponse415 | postApiUsersBusinessesApplicationsResponse502 | postApiUsersBusinessesApplicationsResponse503) & {
+  headers: Headers;
+};
 
-export type postApiUsersBusinessesApplicationsResponse = (postApiUsersBusinessesApplicationsResponseSuccess)
+export type postApiUsersBusinessesApplicationsResponse = (postApiUsersBusinessesApplicationsResponseSuccess | postApiUsersBusinessesApplicationsResponseError)
 
 export const getPostApiUsersBusinessesApplicationsUrl = (params: PostApiUsersBusinessesApplicationsParams,) => {
   const normalizedParams = new URLSearchParams();
@@ -20656,13 +20702,30 @@ export type postApiUsersBusinessesApplicationsApplicationidCancelResponse200 = {
   data: UserBusinessApplicationResponse
   status: 200
 }
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse400 = {
+  data: ApiErrorResponse
+  status: 400
+}
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse404 = {
+  data: ApiErrorResponse
+  status: 404
+}
+
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
     
 export type postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess = (postApiUsersBusinessesApplicationsApplicationidCancelResponse200) & {
   headers: Headers;
 };
-;
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponseError = (postApiUsersBusinessesApplicationsApplicationidCancelResponse400 | postApiUsersBusinessesApplicationsApplicationidCancelResponse404 | postApiUsersBusinessesApplicationsApplicationidCancelResponse409) & {
+  headers: Headers;
+};
 
-export type postApiUsersBusinessesApplicationsApplicationidCancelResponse = (postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess)
+export type postApiUsersBusinessesApplicationsApplicationidCancelResponse = (postApiUsersBusinessesApplicationsApplicationidCancelResponseSuccess | postApiUsersBusinessesApplicationsApplicationidCancelResponseError)
 
 export const getPostApiUsersBusinessesApplicationsApplicationidCancelUrl = (applicationId: number,) => {
 
