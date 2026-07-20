@@ -1,9 +1,11 @@
 "use client";
 
 import type { BottleResponse } from "@/apis/generated/api";
+import RichTextContent from "@/components/editor/RichTextContent";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useRouter } from "next/navigation";
 
 interface Props {
@@ -75,7 +77,10 @@ export default function BottleDetailModal({ bottle }: Props) {
           <div className="mt-4">
             <h3 className="typo-bold-18 mb-3 text-white">테이스팅 노트</h3>
             <div className="border border-white/10 p-4">
-              <p className="typo-medium-14 leading-relaxed whitespace-pre-wrap text-gray-300">{bottle.description}</p>
+              <RichTextContent
+                html={sanitizeRichTextContent(bottle.description)}
+                className="typo-medium-14 leading-relaxed text-gray-300"
+              />
             </div>
           </div>
         )}

@@ -1,6 +1,8 @@
 import { getApiBottlesId } from "@/apis/generated/api";
+import RichTextContent from "@/components/editor/RichTextContent";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
@@ -82,9 +84,16 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
             <div className="flex flex-col">
               <h3 className="typo-bold-18 mb-4 text-white lg:text-xl">테이스팅 노트</h3>
               <div className="overflow-y-auto border border-white/10 p-4 lg:max-h-[500px] lg:p-6">
-                <p className="typo-medium-14 leading-relaxed whitespace-pre-wrap text-gray-300 lg:text-base">
-                  {bottle.description || "테이스팅 노트가 제공되지 않았습니다."}
-                </p>
+                {bottle.description ? (
+                  <RichTextContent
+                    html={sanitizeRichTextContent(bottle.description)}
+                    className="typo-medium-14 leading-relaxed text-gray-300 lg:text-base"
+                  />
+                ) : (
+                  <p className="typo-medium-14 leading-relaxed text-gray-300 lg:text-base">
+                    테이스팅 노트가 제공되지 않았습니다.
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -11,6 +11,7 @@ import {
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { getImageSizeError } from "@/lib/image-upload";
+import { richTextHasContent, sanitizeRichTextContent } from "@/lib/rich-text";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
@@ -112,7 +113,10 @@ const bottleFormSchema = z.object({
   caskNumber: bounded(50, "캐스크 번호"),
   distillationDate: optionalText,
   bottledDate: optionalText,
-  description: optionalText,
+  description: z.string().transform((value) => {
+    if (!richTextHasContent(value)) return undefined;
+    return sanitizeRichTextContent(value);
+  }),
   extraInfos: optionalText,
   abv: optionalNum,
   capacity: optionalNum,

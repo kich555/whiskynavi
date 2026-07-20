@@ -17,6 +17,7 @@ export default function ProductCreateContent({ parameterValues }: ProductCreateC
   const { toggle } = useSidebar();
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDescriptionUploading, setIsDescriptionUploading] = useState(false);
 
   const [formState, formAction, isPending] = useActionState(createBottleFormAction, { success: false });
 
@@ -46,11 +47,11 @@ export default function ProductCreateContent({ parameterValues }: ProductCreateC
 
           <button
             type="submit"
-            disabled={isPending}
+            disabled={isPending || isDescriptionUploading}
             className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
           >
             <Save size={16} />
-            {isPending ? "저장 중..." : "저장"}
+            {isDescriptionUploading ? "이미지 업로드 중..." : isPending ? "저장 중..." : "저장"}
           </button>
         </div>
 
@@ -65,6 +66,7 @@ export default function ProductCreateContent({ parameterValues }: ProductCreateC
           parameterValues={parameterValues}
           selectedFile={selectedFile}
           onSelectFile={setSelectedFile}
+          onDescriptionUploadingChange={setIsDescriptionUploading}
         />
       </form>
     </>

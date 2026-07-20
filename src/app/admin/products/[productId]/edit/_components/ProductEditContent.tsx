@@ -18,6 +18,7 @@ export default function ProductEditContent({ product, parameterValues }: Product
   const { toggle } = useSidebar();
   const router = useRouter();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isDescriptionUploading, setIsDescriptionUploading] = useState(false);
 
   const updateAction = updateBottleFormAction.bind(null, product.id as number);
   const [formState, formAction, isPending] = useActionState(updateAction, {
@@ -51,11 +52,11 @@ export default function ProductEditContent({ product, parameterValues }: Product
           <div className="flex gap-2">
             <button
               type="submit"
-              disabled={isPending}
+              disabled={isPending || isDescriptionUploading}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700 disabled:opacity-50"
             >
               <Save size={16} />
-              {isPending ? "저장 중..." : "저장"}
+              {isDescriptionUploading ? "이미지 업로드 중..." : isPending ? "저장 중..." : "저장"}
             </button>
             <button
               type="button"
@@ -81,6 +82,7 @@ export default function ProductEditContent({ product, parameterValues }: Product
           parameterValues={parameterValues}
           selectedFile={selectedFile}
           onSelectFile={setSelectedFile}
+          onDescriptionUploadingChange={setIsDescriptionUploading}
         />
       </form>
     </>
