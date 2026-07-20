@@ -1,9 +1,7 @@
 "use client";
 
-import type {
-  UserBottleReservationPickupApplicationResponse,
-  UserReservationBusinessDeliveryResponse,
-} from "@/apis/generated/api";
+import type { UserReservationBusinessDeliveryResponse } from "@/apis/generated/api";
+import type { UserBottleReservationRelatedNoticeResponse } from "@/apis/reservation-related";
 import FilterHeader from "@/app/admin/_components/FilterHeader";
 import Pagination from "@/app/admin/_components/Pagination";
 import { useTableFilter } from "@/app/admin/_components/useTableFilter";
@@ -19,6 +17,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ArrowLeft, CheckCircle2, CreditCard, Eye, PackageCheck } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -26,6 +25,7 @@ import BusinessHeader from "../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL, PICKUP_STATUS_OPTIONS } from "../../constants";
 import { formatCurrency, formatDate } from "../../utils";
 import { bulkWaitingPickupAction, paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../actions";
+import { getReservationNoticeDisplay, type PickupApplicationWithNoticeName } from "../notice-display";
 
 interface PickupNoticeApplicationsContentProps {
   noticeId: number;
@@ -34,9 +34,10 @@ interface PickupNoticeApplicationsContentProps {
     limit?: string;
     status?: string;
   };
-  applications: UserBottleReservationPickupApplicationResponse[];
+  applications: PickupApplicationWithNoticeName[];
   totalElements: number;
   deliveries: UserReservationBusinessDeliveryResponse[];
+  notice?: UserBottleReservationRelatedNoticeResponse;
 }
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
@@ -178,6 +179,7 @@ export default function PickupNoticeApplicationsContent({
   applications,
   totalElements,
   deliveries,
+  notice,
 }: PickupNoticeApplicationsContentProps) {
   const router = useRouter();
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
@@ -186,7 +188,7 @@ export default function PickupNoticeApplicationsContent({
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
-  const bottleName = applications[0]?.bottleName ?? `공고 #${noticeId}`;
+  const noticeDisplay = getReservationNoticeDisplay(notice ?? applications[0] ?? {});
   const bottleId = applications.find((app) => app.bottleId != null)?.bottleId;
   const paymentCompletedApps = applications.filter((app) => app.status === "PAYMENT_COMPLETED" && app.id != null);
   const isAllSelected =
@@ -287,7 +289,7 @@ export default function PickupNoticeApplicationsContent({
             <DialogHeader>
               <DialogTitle>공고별 일괄 픽업대기 처리</DialogTitle>
               <DialogDescription>
-                <strong>{bottleName}</strong>의{" "}
+                <strong>{noticeDisplay.primaryName}</strong>의{" "}
                 {bulkTarget?.type === "selected" ? (
                   <>
                     선택된 신청 <strong>{selectedCount}건</strong>을 픽업대기 상태로 변경합니다.
@@ -314,12 +316,16 @@ export default function PickupNoticeApplicationsContent({
 
         <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
-            <h2 className="text-base font-bold text-gray-900">{bottleName}</h2>
+            <h2 className="text-base font-bold text-gray-900">{noticeDisplay.primaryName}</h2>
+            {noticeDisplay.secondaryName && <p className="mt-1 text-sm text-gray-500">{noticeDisplay.secondaryName}</p>}
             <p className="mt-1 text-sm text-gray-600">
               공고 #{noticeId} 신청 {totalElements}건
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
+            <Button type="button" variant="outline" asChild>
+              <Link href={`/business/pickup-reservations/notices/${noticeId}/detail`}>공고 내용 보기</Link>
+            </Button>
             <Button
               type="button"
               onClick={() => setBulkTarget({ type: "notice" })}

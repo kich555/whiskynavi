@@ -4,9 +4,11 @@ import type { UserOrderResponse } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatOrderClassification } from "@/lib/order-classification";
+import Link from "next/link";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../general-items/delivery-order/_lib/order-utils";
 import { CANCELABLE_STATUSES } from "../_lib/constants";
+import { getOrderDisplayNames } from "../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../_lib/utils";
 import OrderCancelModal from "./OrderCancelModal";
 
@@ -20,6 +22,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
   const orderClassification = formatOrderClassification(order);
+  const displayNames = getOrderDisplayNames(order);
 
   const handleCancelClick = () => {
     overlay.open(({ isOpen: cancelOpen, close: cancelClose }) => (
@@ -27,7 +30,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
         isOpen={cancelOpen}
         close={cancelClose}
         orderId={order.id!}
-        itemName={order.itemName || order.saleTitle}
+        itemName={displayNames.primaryName}
       />
     ));
   };
@@ -54,9 +57,10 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
             <h4 className="mb-3 font-bold text-gray-900">상품 정보</h4>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-500">상품명</span>
-                <span className="font-medium">{order.itemName || order.saleTitle || "상품명 없음"}</span>
+                <span className="text-gray-500">{displayNames.isBottleReservation ? "공고명" : "상품명"}</span>
+                <span className="font-medium">{displayNames.primaryName}</span>
               </div>
+              {displayNames.secondaryName && <DetailRow label="보틀명" value={displayNames.secondaryName} />}
               <DetailRow label="주문 분류" value={orderClassification} />
               <div className="flex justify-between">
                 <span className="text-gray-500">신청 수량</span>
@@ -123,6 +127,13 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
             <div className="border-t pt-4">
               <Button variant="destructive" onClick={handleCancelClick}>
                 주문 취소
+              </Button>
+            </div>
+          )}
+          {displayNames.isBottleReservation && order.id && (
+            <div className="border-t pt-4">
+              <Button variant="outline" asChild>
+                <Link href={`/my-page/reservations/${order.id}`}>공고 내용 보기</Link>
               </Button>
             </div>
           )}

@@ -1,6 +1,5 @@
 "use client";
 
-import type { UserBottleReservationPickupApplicationResponse } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
@@ -20,6 +20,7 @@ import BusinessHeader from "../../../_components/BusinessHeader";
 import { PICKUP_STATUS_COLOR, PICKUP_STATUS_LABEL } from "../../../constants";
 import { formatCurrency, formatDate } from "../../../utils";
 import { paymentCompleteAction, receiveCompleteAction, waitingPickupAction } from "../../actions";
+import { getReservationNoticeDisplay, type PickupApplicationWithNoticeName } from "../../notice-display";
 
 type ActionType = "payment-complete" | "waiting-pickup" | "receive-complete";
 
@@ -126,11 +127,12 @@ function StatusActionButton({ applicationId, status, applicantName }: StatusActi
 }
 
 interface PickupApplicationDetailContentProps {
-  application: UserBottleReservationPickupApplicationResponse;
+  application: PickupApplicationWithNoticeName;
 }
 
 export default function PickupApplicationDetailContent({ application }: PickupApplicationDetailContentProps) {
   const router = useRouter();
+  const noticeDisplay = getReservationNoticeDisplay(application);
 
   return (
     <>
@@ -149,15 +151,24 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
         </div>
 
         <div className="space-y-4">
+          {application.noticeId && (
+            <div className="flex justify-end">
+              <Button variant="outline" asChild>
+                <Link href={`/business/pickup-reservations/notices/${application.noticeId}/detail`}>
+                  공고 내용 보기
+                </Link>
+              </Button>
+            </div>
+          )}
           <StatusActionButton
             applicationId={application.id!}
             status={application.status}
             applicantName={application.applicantUser?.name ?? undefined}
           />
-          {/* 병 정보 */}
+          {/* 공고 및 병 정보 */}
           <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
             <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-              <h3 className="font-bold text-gray-900">병 정보</h3>
+              <h3 className="font-bold text-gray-900">공고 및 병 정보</h3>
             </div>
             <div className="p-6">
               <div className="flex items-start gap-6">
@@ -181,7 +192,11 @@ export default function PickupApplicationDetailContent({ application }: PickupAp
                     <p className="text-sm font-medium text-gray-900">{application.noticeId ?? "-"}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-gray-500">병 이름</p>
+                    <p className="text-xs text-gray-500">공고명</p>
+                    <p className="text-sm font-medium text-gray-900">{noticeDisplay.primaryName}</p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-gray-500">보틀명</p>
                     <p className="text-sm font-medium text-gray-900">{application.bottleName ?? "-"}</p>
                   </div>
                   <div>

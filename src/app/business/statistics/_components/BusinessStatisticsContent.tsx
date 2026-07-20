@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import Link from "next/link";
 import BusinessHeader from "../../_components/BusinessHeader";
+import { getReservationNoticeDisplay } from "../../pickup-reservations/notice-display";
 
 interface BusinessStatisticsContentProps {
   statistics: PagedModelUserBottleReservationPickupNoticeStageStatisticsResponse;
@@ -62,18 +63,25 @@ function StageProgress({
 function NoticeStageCard({ notice }: { notice: UserBottleReservationPickupNoticeStageStatisticsResponse }) {
   const approvedQuantity = notice.approvedQuantity ?? 0;
   const noticeId = notice.noticeId;
+  const display = getReservationNoticeDisplay(notice);
 
   return (
     <article className="border border-gray-200 bg-white p-4">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-gray-100 pb-3">
         <div className="min-w-0">
-          <h3 className="truncate text-base font-bold text-gray-900">{notice.bottleName ?? "이름 없는 공고"}</h3>
+          <h3 className="truncate text-base font-bold text-gray-900">{display.primaryName}</h3>
+          {display.secondaryName && <p className="mt-1 truncate text-xs text-gray-500">{display.secondaryName}</p>}
           <p className="mt-1 text-xs text-gray-500">공고 #{noticeId ?? "-"}</p>
         </div>
         {noticeId ? (
-          <Button variant="outline" size="sm" asChild>
-            <Link href={`/business/pickup-reservations/notices/${noticeId}`}>상세</Link>
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/business/pickup-reservations/notices/${noticeId}/detail`}>공고 내용</Link>
+            </Button>
+            <Button variant="outline" size="sm" asChild>
+              <Link href={`/business/pickup-reservations/notices/${noticeId}`}>신청 관리</Link>
+            </Button>
+          </div>
         ) : (
           <Button variant="outline" size="sm" disabled>
             상세
@@ -190,7 +198,7 @@ export default function BusinessStatisticsContent({ statistics, selectedBusiness
         ) : (
           <div className="space-y-3">
             {notices.map((notice) => (
-              <NoticeStageCard key={notice.noticeId ?? notice.bottleName} notice={notice} />
+              <NoticeStageCard key={notice.noticeId ?? notice.noticeName ?? notice.bottleName} notice={notice} />
             ))}
           </div>
         )}

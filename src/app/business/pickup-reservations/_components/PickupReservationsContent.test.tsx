@@ -19,6 +19,7 @@ const makeNotice = ({
   noticeId,
   bottleId,
   bottleName,
+  noticeName,
   totalApplicationCount = 1,
   totalConfirmedQuantity = 1,
   totalRequestedQuantity = 1,
@@ -27,6 +28,7 @@ const makeNotice = ({
   noticeId: number;
   bottleId: number;
   bottleName: string;
+  noticeName?: string;
   totalApplicationCount?: number;
   totalConfirmedQuantity?: number;
   totalRequestedQuantity?: number;
@@ -35,6 +37,7 @@ const makeNotice = ({
   noticeId,
   bottleId,
   bottleName,
+  noticeName,
   noticeStatus: "OPEN" as const,
   price,
   totalApplicationCount,
@@ -69,20 +72,19 @@ describe("PickupReservationsContent", () => {
     render(
       <PickupReservationsContent
         searchParams={{}}
-        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12" })]}
+        notices={[makeNotice({ noticeId: 10, bottleId: 5, bottleName: "Glen 12", noticeName: "7월 픽업 공고" })]}
         totalElements={42}
         deliveries={[]}
       />,
     );
 
     expect(screen.getByText("공고 42개")).toBeInTheDocument();
+    expect(screen.getByText("7월 픽업 공고")).toBeInTheDocument();
     expect(screen.getByText("Glen 12")).toBeInTheDocument();
     expect(screen.getByText("120,000원")).toBeInTheDocument();
   });
 
-  it("상세조회 버튼을 누르면 공고 상세 페이지로 이동한다", async () => {
-    const user = userEvent.setup();
-
+  it("공고 내용과 신청 관리 경로를 분리해 제공한다", () => {
     render(
       <PickupReservationsContent
         searchParams={{}}
@@ -92,9 +94,14 @@ describe("PickupReservationsContent", () => {
       />,
     );
 
-    await user.click(screen.getByRole("button", { name: /상세조회/ }));
-
-    expect(pushMock).toHaveBeenCalledWith("/business/pickup-reservations/notices/10");
+    expect(screen.getByRole("link", { name: /공고 내용/ })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10/detail",
+    );
+    expect(screen.getByRole("link", { name: "신청 관리" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10",
+    );
   });
 
   it("공고 일괄 픽업대기 확인 후 화면을 새로고침한다", async () => {

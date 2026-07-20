@@ -33,6 +33,7 @@ describe("PickupNoticeApplicationsContent", () => {
             id: 100,
             bottleId: 5,
             bottleName: "Glen 12",
+            noticeName: "7월 픽업 공고",
             noticeId: 10,
             status: "PAYMENT_COMPLETED",
           },
@@ -49,6 +50,8 @@ describe("PickupNoticeApplicationsContent", () => {
       bottleId: 5,
       noticeId: 10,
     });
+    expect(screen.getByText("7월 픽업 공고")).toBeInTheDocument();
+    expect(screen.getByText("Glen 12")).toBeInTheDocument();
     expect(refreshMock).toHaveBeenCalled();
   });
 });

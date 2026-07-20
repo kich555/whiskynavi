@@ -28,6 +28,7 @@ vi.mock("next/image", () => ({
 const mockApplication = {
   id: 42,
   noticeId: 10,
+  noticeName: "야마자키 여름 공고",
   bottleId: 5,
   bottleName: "Yamazaki 12",
   bottleImgUrl: "https://example.com/bottle.jpg",
@@ -53,6 +54,11 @@ describe("PickupApplicationDetailContent", () => {
   it("renders bottle name", () => {
     render(<PickupApplicationDetailContent application={mockApplication} />);
     expect(screen.getAllByText("Yamazaki 12").length).toBeGreaterThan(0);
+  });
+
+  it("renders notice name", () => {
+    render(<PickupApplicationDetailContent application={mockApplication} />);
+    expect(screen.getByText("야마자키 여름 공고")).toBeInTheDocument();
   });
 
   it("renders applicant name", () => {

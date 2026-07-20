@@ -9,6 +9,7 @@ import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../../general-items/delivery-order/_lib/order-utils";
 import OrderCancelModal from "../../_components/OrderCancelModal";
 import { CANCELABLE_STATUSES } from "../../_lib/constants";
+import { getOrderDisplayNames } from "../../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../../_lib/utils";
 
 interface OrderDetailClientProps {
@@ -19,15 +20,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
   const orderClassification = formatOrderClassification(order);
+  const displayNames = getOrderDisplayNames(order);
 
   const handleCancelClick = () => {
     overlay.open(({ isOpen, close }) => (
-      <OrderCancelModal
-        isOpen={isOpen}
-        close={close}
-        orderId={order.id!}
-        itemName={order.itemName || order.saleTitle}
-      />
+      <OrderCancelModal isOpen={isOpen} close={close} orderId={order.id!} itemName={displayNames.primaryName} />
     ));
   };
 
@@ -71,7 +68,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                 상품 정보
               </h3>
               <div className="space-y-3 sm:space-y-4">
-                <InfoRow label="상품명" value={order.itemName || order.saleTitle || "상품명 없음"} />
+                <InfoRow
+                  label={displayNames.isBottleReservation ? "공고명" : "상품명"}
+                  value={displayNames.primaryName}
+                />
+                {displayNames.secondaryName && <InfoRow label="보틀명" value={displayNames.secondaryName} />}
                 <InfoRow label="신청 수량" value={`${order.requestedQuantity ?? 0}병`} />
                 <InfoRow label="배정 수량" value={`${order.approvedQuantity ?? 0}병`} />
                 <InfoRow label="단가" value={formatCurrency(order.unitPrice)} />
@@ -129,6 +130,14 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
               </div>
             )}
           </div>
+
+          {displayNames.isBottleReservation && order.id && (
+            <div className="mt-8 border-t border-white/10 pt-8">
+              <Button variant="outline" asChild>
+                <Link href={`/my-page/reservations/${order.id}`}>공고 내용 보기</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </div>
     </div>

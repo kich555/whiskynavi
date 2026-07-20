@@ -7,6 +7,7 @@ const statistics: PagedModelUserBottleReservationPickupNoticeStageStatisticsResp
   content: [
     {
       noticeId: 10,
+      noticeName: "7월 커뮤니티 공고",
       bottleName: "나비 1st",
       approvedQuantity: 10,
       paymentCompletedQuantity: 8,
@@ -27,6 +28,7 @@ describe("BusinessStatisticsContent", () => {
     render(<BusinessStatisticsContent statistics={statistics} />);
 
     expect(screen.getByText("공고별 예약 통계")).toBeInTheDocument();
+    expect(screen.getByText("7월 커뮤니티 공고")).toBeInTheDocument();
     expect(screen.getByText("나비 1st")).toBeInTheDocument();
     expect(screen.getByText("공고 #10")).toBeInTheDocument();
     expect(screen.getByText("10병")).toBeInTheDocument();
@@ -35,6 +37,10 @@ describe("BusinessStatisticsContent", () => {
     expect(screen.getByText("40%")).toBeInTheDocument();
     expect(screen.getByText("총 6개 공고")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "다음" })).toHaveAttribute("href", "/business/statistics?page=2");
+    expect(screen.getByRole("link", { name: "공고 내용" })).toHaveAttribute(
+      "href",
+      "/business/pickup-reservations/notices/10/detail",
+    );
   });
 
   it("선택한 사업장 ID를 페이지네이션 링크에 유지한다", () => {

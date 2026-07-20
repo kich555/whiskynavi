@@ -16,12 +16,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Eye } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import BusinessHeader from "../../_components/BusinessHeader";
 import { formatCurrency } from "../../utils";
 import { bulkWaitingPickupAction } from "../actions";
+import { getReservationNoticeDisplay } from "../notice-display";
 
 interface PickupReservationsContentProps {
   searchParams: {
@@ -36,6 +38,7 @@ interface PickupReservationsContentProps {
 interface NoticeGroup {
   noticeId: number;
   bottleId?: number;
+  noticeName?: string;
   bottleName: string;
   bottleImgUrl?: string;
   noticeStatus?: string;
@@ -49,6 +52,7 @@ const mapNoticesToGroups = (notices: UserBottleReservationPickupNoticeReservatio
   return notices.map((notice) => ({
     noticeId: notice.noticeId ?? 0,
     bottleId: notice.bottleId,
+    noticeName: notice.noticeName,
     bottleName: notice.bottleName ?? "이름 없는 예약 공고",
     bottleImgUrl: notice.bottleImgUrl,
     noticeStatus: notice.noticeStatus,
@@ -78,6 +82,7 @@ export default function PickupReservationsContent({
   const itemsPerPage = Number(searchParams.limit) || 20;
   const noticeGroups = mapNoticesToGroups(notices);
   const deliveryMap = new Map(deliveries.map((delivery) => [delivery.noticeId, delivery]));
+  const bulkNoticeDisplay = bulkNotice ? getReservationNoticeDisplay(bulkNotice) : null;
 
   const handleBulkWaitingPickup = () => {
     if (!bulkNotice) return;
@@ -115,8 +120,8 @@ export default function PickupReservationsContent({
             <DialogHeader>
               <DialogTitle>공고별 일괄 픽업대기 처리</DialogTitle>
               <DialogDescription>
-                <strong>{bulkNotice?.bottleName ?? "선택한 공고"}</strong>의 결제완료 신청을 일괄로 픽업대기 상태로
-                변경합니다.
+                <strong>{bulkNoticeDisplay?.primaryName ?? "선택한 공고"}</strong>의 결제완료 신청을 일괄로 픽업대기
+                상태로 변경합니다.
               </DialogDescription>
             </DialogHeader>
             <DialogFooter>
@@ -155,6 +160,7 @@ export default function PickupReservationsContent({
                 <tbody className="divide-y divide-gray-100">
                   {noticeGroups.map((group) => {
                     const delivery = deliveryMap.get(group.noticeId);
+                    const display = getReservationNoticeDisplay(group);
 
                     return (
                       <tr key={group.noticeId} className="transition-colors hover:bg-gray-50">
@@ -164,7 +170,10 @@ export default function PickupReservationsContent({
                             onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
                             className="min-w-0 cursor-pointer text-left"
                           >
-                            <div className="text-sm font-bold text-gray-900">{group.bottleName}</div>
+                            <div className="text-sm font-bold text-gray-900">{display.primaryName}</div>
+                            {display.secondaryName && (
+                              <div className="mt-1 text-xs text-gray-500">{display.secondaryName}</div>
+                            )}
                             <div className="mt-1 flex flex-wrap gap-2 text-xs text-gray-500">
                               <span>공고 #{group.noticeId || "-"}</span>
                               {group.bottleId != null && <span>병 #{group.bottleId}</span>}
@@ -193,14 +202,14 @@ export default function PickupReservationsContent({
                         </td>
                         <td className="px-4 py-3">
                           <div className="flex shrink-0 flex-wrap gap-2">
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={() => router.push(`/business/pickup-reservations/notices/${group.noticeId}`)}
-                            >
-                              <Eye size={16} />
-                              상세조회
+                            <Button type="button" variant="outline" size="sm" asChild>
+                              <Link href={`/business/pickup-reservations/notices/${group.noticeId}/detail`}>
+                                <Eye size={16} />
+                                공고 내용
+                              </Link>
+                            </Button>
+                            <Button type="button" variant="outline" size="sm" asChild>
+                              <Link href={`/business/pickup-reservations/notices/${group.noticeId}`}>신청 관리</Link>
                             </Button>
                             <Button
                               type="button"

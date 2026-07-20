@@ -4,6 +4,24 @@ import { describe, expect, it, vi } from "vitest";
 import OrderCard from "./OrderCard";
 
 describe("OrderCard", () => {
+  it("보틀 예약 주문은 공고명을 주 제목으로 표시한다", () => {
+    render(
+      <OrderCard
+        order={{
+          id: 2,
+          saleTiming: "RESERVATION",
+          productType: "BOTTLE",
+          saleTitle: "7월 커뮤니티 공고",
+          itemName: "테스트 보틀",
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByText("7월 커뮤니티 공고")).toBeInTheDocument();
+    expect(screen.getByText("테스트 보틀")).toBeInTheDocument();
+  });
+
   it("주문 분류를 표시한다", () => {
     render(
       <OrderCard

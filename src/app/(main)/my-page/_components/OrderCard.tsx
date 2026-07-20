@@ -3,6 +3,7 @@
 import type { UserOrderResponse } from "@/apis/generated/api";
 import { formatOrderClassification } from "@/lib/order-classification";
 import { ChevronRight } from "lucide-react";
+import { getOrderDisplayNames } from "../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../_lib/utils";
 
 interface OrderCardProps {
@@ -13,6 +14,7 @@ interface OrderCardProps {
 export default function OrderCard({ order, onClick }: OrderCardProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const orderClassification = formatOrderClassification(order);
+  const displayNames = getOrderDisplayNames(order);
 
   return (
     <div
@@ -28,9 +30,10 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
           {status.label}
         </span>
       </div>
-      <h4 className="typo-bold-14 mb-2 text-white md:text-base">
-        {order.itemName || order.saleTitle || "상품명 없음"}
-      </h4>
+      <h4 className="typo-bold-14 mb-2 text-white md:text-base">{displayNames.primaryName}</h4>
+      {displayNames.secondaryName && (
+        <p className="mb-2 text-xs text-gray-400 md:text-sm">{displayNames.secondaryName}</p>
+      )}
       {orderClassification !== "-" && (
         <p className="mb-3 w-fit border border-white/10 px-2 py-0.5 text-xs text-gray-300">{orderClassification}</p>
       )}
