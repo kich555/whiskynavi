@@ -32,7 +32,16 @@ function post(overrides: Partial<PostResponse> = {}): PostResponse {
 
 describe("PostDetailContent", () => {
   it("관리자가 자기 글을 보면 작성자용 수정과 일반 삭제 버튼을 표시한다", () => {
-    render(<PostDetailContent post={post()} boardId="community" currentUserId={20} comments={[]} isLoggedIn isAdmin />);
+    render(
+      <PostDetailContent
+        post={post()}
+        boardId="community"
+        currentUserId={20}
+        commentPage={{ comments: [], nextCursor: null, hasMore: false }}
+        isLoggedIn
+        isAdmin
+      />,
+    );
 
     expect(screen.getByRole("link", { name: "수정" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "삭제" })).toBeInTheDocument();
@@ -41,7 +50,16 @@ describe("PostDetailContent", () => {
   });
 
   it("관리자가 다른 사용자의 글을 보면 관리자 분류 변경과 삭제 버튼을 표시한다", () => {
-    render(<PostDetailContent post={post()} boardId="community" currentUserId={30} comments={[]} isLoggedIn isAdmin />);
+    render(
+      <PostDetailContent
+        post={post()}
+        boardId="community"
+        currentUserId={30}
+        commentPage={{ comments: [], nextCursor: null, hasMore: false }}
+        isLoggedIn
+        isAdmin
+      />,
+    );
 
     expect(screen.getByRole("button", { name: "관리자 삭제" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "관리자 분류 변경" })).toBeInTheDocument();
@@ -55,7 +73,7 @@ describe("PostDetailContent", () => {
         post={post()}
         boardId="community"
         currentUserId={30}
-        comments={[]}
+        commentPage={{ comments: [], nextCursor: null, hasMore: false }}
         isLoggedIn
         isAdmin={false}
       />,
@@ -69,7 +87,7 @@ describe("PostDetailContent", () => {
       <PostDetailContent
         post={post({ authorNickname: "운영자", authorAdmin: true })}
         boardId="community"
-        comments={[]}
+        commentPage={{ comments: [], nextCursor: null, hasMore: false }}
         isLoggedIn={false}
         isAdmin={false}
       />,

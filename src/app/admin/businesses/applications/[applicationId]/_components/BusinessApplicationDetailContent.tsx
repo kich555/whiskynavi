@@ -1,13 +1,14 @@
 "use client";
 
 import type { AdminBusinessApplicationAuditLogResponse, AdminBusinessApplicationResponse } from "@/apis/generated/api";
-import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
+import { formatDate } from "@/lib/formatters";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
 import AdminHeader from "../../../../_components/AdminHeader";
 import { useSidebar } from "../../../../_components/AdminLayoutClient";
+import type { AuditLogPageData } from "../_lib/audit-log-page";
 import ApplicationApproveModal from "./ApplicationApproveModal";
 import ApplicationRejectModal from "./ApplicationRejectModal";
 
@@ -36,20 +37,21 @@ const formatBusinessType = (application: AdminBusinessApplicationResponse & { bu
   return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
 };
 
-
 interface BusinessApplicationDetailContentProps {
   application: AdminBusinessApplicationResponse;
-  auditLogs: AdminBusinessApplicationAuditLogResponse[];
+  auditLogPage: AuditLogPageData;
 }
 
 export default function BusinessApplicationDetailContent({
   application,
-  auditLogs,
+  auditLogPage,
 }: BusinessApplicationDetailContentProps) {
   const router = useRouter();
   const { toggle } = useSidebar();
 
   const isPending = application.status === "PENDING";
+  const auditLogs: AdminBusinessApplicationAuditLogResponse[] = auditLogPage.content;
+  const auditLogCount = auditLogPage.page?.totalElements ?? auditLogs.length;
 
   const handleApprove = () => {
     overlay.open((props) => <ApplicationApproveModal {...props} applicationId={application.id!} />);
@@ -196,7 +198,7 @@ export default function BusinessApplicationDetailContent({
           {auditLogs.length > 0 && (
             <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
-                <h3 className="font-bold text-gray-900">처리 이력</h3>
+                <h3 className="font-bold text-gray-900">처리 이력 ({auditLogCount})</h3>
               </div>
               <div className="divide-y divide-gray-100 p-6">
                 {auditLogs.map((log) => (
@@ -213,8 +215,10 @@ export default function BusinessApplicationDetailContent({
                       </div>
                       <span className="typo-medium-12 text-gray-400">{formatDate(log.createdAt)}</span>
                     </div>
-                    {log.actorUsername && <p className="mt-1 typo-medium-12 text-gray-500">처리자: {log.actorUsername}</p>}
-                    {log.memo && <p className="mt-1 typo-medium-12 text-gray-500">메모: {log.memo}</p>}
+                    {log.actorUsername && (
+                      <p className="typo-medium-12 mt-1 text-gray-500">처리자: {log.actorUsername}</p>
+                    )}
+                    {log.memo && <p className="typo-medium-12 mt-1 text-gray-500">메모: {log.memo}</p>}
                   </div>
                 ))}
               </div>

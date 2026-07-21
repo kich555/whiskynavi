@@ -1,4 +1,4 @@
-import { getApiBoardsBoardidPostsPostidComments, postApiBoardsBoardidPostsPostidViews } from "@/apis/generated/api";
+import { postApiBoardsBoardidPostsPostidViews } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { authOptions, getAuthToken } from "@/lib/auth";
 import { isAdminUser } from "@/lib/role";
@@ -6,6 +6,7 @@ import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import PostDetailContent from "../../../_components/PostDetailContent";
 import { getBoard } from "../../../_lib/board";
+import { getCommentPage } from "../../../_lib/comment-page";
 import { COMMUNITY_BOARD_ID } from "../../../_lib/constants";
 
 interface PostDetailPageProps {
@@ -27,9 +28,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     postApiBoardsBoardidPostsPostidViews(COMMUNITY_BOARD_ID, id, token ? withToken(token) : undefined).catch(
       () => null,
     ),
-    getApiBoardsBoardidPostsPostidComments(COMMUNITY_BOARD_ID, id, token ? withToken(token) : undefined).catch(
-      () => null,
-    ),
+    getCommentPage(COMMUNITY_BOARD_ID, id, undefined, token).catch(() => null),
     isAdmin ? getBoard(COMMUNITY_BOARD_ID, token).catch(() => undefined) : Promise.resolve(undefined),
   ]);
 
@@ -42,7 +41,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
       post={postRes.data}
       boardId={COMMUNITY_BOARD_ID}
       currentUserId={currentUserId}
-      comments={commentsRes?.data ?? []}
+      commentPage={commentsRes ?? { comments: [], nextCursor: null, hasMore: false }}
       isLoggedIn={Boolean(token)}
       isAdmin={isAdmin}
       postTypes={board?.postTypes ?? []}

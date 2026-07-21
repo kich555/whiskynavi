@@ -27,42 +27,22 @@ const mockApplication = {
 
 describe("BusinessApplicationDetailContent", () => {
   it("renders page title", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
     expect(screen.getByText("사업자 신청 상세")).toBeInTheDocument();
   });
 
   it("renders business name", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
     expect(screen.getByText("테스트 주류상사")).toBeInTheDocument();
   });
 
   it("renders status badge as 검토중 for PENDING", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
     expect(screen.getByText("검토중")).toBeInTheDocument();
   });
 
   it("shows approve and reject buttons when status is PENDING", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
     expect(screen.getByRole("button", { name: /승인/ })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /반려/ })).toBeInTheDocument();
   });
@@ -71,7 +51,7 @@ describe("BusinessApplicationDetailContent", () => {
     render(
       <BusinessApplicationDetailContent
         application={{ ...mockApplication, status: "APPROVED" }}
-        auditLogs={[]}
+        auditLogPage={{ content: [] }}
       />,
     );
     expect(screen.queryByRole("button", { name: /승인/ })).not.toBeInTheDocument();
@@ -79,15 +59,8 @@ describe("BusinessApplicationDetailContent", () => {
   });
 
   it("renders back button", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
-    expect(
-      screen.getByText("신청 목록으로 돌아가기"),
-    ).toBeInTheDocument();
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
+    expect(screen.getByText("신청 목록으로 돌아가기")).toBeInTheDocument();
   });
 
   it("renders audit log section when logs exist", () => {
@@ -108,19 +81,14 @@ describe("BusinessApplicationDetailContent", () => {
     render(
       <BusinessApplicationDetailContent
         application={mockApplication}
-        auditLogs={auditLogs}
+        auditLogPage={{ content: auditLogs, page: { totalElements: 42 } }}
       />,
     );
-    expect(screen.getByText("처리 이력")).toBeInTheDocument();
+    expect(screen.getByText("처리 이력 (42)")).toBeInTheDocument();
   });
 
   it("does not render audit log section when logs are empty", () => {
-    render(
-      <BusinessApplicationDetailContent
-        application={mockApplication}
-        auditLogs={[]}
-      />,
-    );
+    render(<BusinessApplicationDetailContent application={mockApplication} auditLogPage={{ content: [] }} />);
     expect(screen.queryByText("처리 이력")).not.toBeInTheDocument();
   });
 });

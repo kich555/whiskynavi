@@ -1,10 +1,11 @@
 "use client";
 
-import type { CommentResponse, PostResponse, PostTypeResponse } from "@/apis/generated/api";
+import type { PostResponse, PostTypeResponse } from "@/apis/generated/api";
 import { FormMessage } from "@/components/ui/form-message";
 import Link from "next/link";
 import { useState, useTransition } from "react";
 import { deletePostAction } from "../_lib/actions";
+import type { CommentPageData } from "../_lib/comment-page";
 import AdminAuthorBadge from "./AdminAuthorBadge";
 import AdminPostDeleteDialog from "./AdminPostDeleteDialog";
 import AdminPostTypeChangeDialog from "./AdminPostTypeChangeDialog";
@@ -15,7 +16,7 @@ interface PostDetailContentProps {
   post: PostResponse;
   boardId: string;
   currentUserId?: number;
-  comments: CommentResponse[];
+  commentPage: CommentPageData;
   isLoggedIn: boolean;
   isAdmin: boolean;
   postTypes?: PostTypeResponse[];
@@ -25,7 +26,7 @@ export default function PostDetailContent({
   post,
   boardId,
   currentUserId,
-  comments,
+  commentPage,
   isLoggedIn,
   isAdmin,
   postTypes = [],
@@ -99,9 +100,18 @@ export default function PostDetailContent({
       />
 
       <CommentsSection
+        key={`${commentPage.nextCursor ?? "end"}:${commentPage.comments
+          .map(
+            (comment) =>
+              `${comment.id}:${comment.updatedAt}:${comment.replies
+                ?.map((reply) => `${reply.id}:${reply.updatedAt}`)
+                .join(",")}`,
+          )
+          .join("|")}`}
         boardId={boardId}
         postId={post.id!}
-        comments={comments}
+        initialPage={commentPage}
+        totalCount={post.commentCount}
         currentUserId={currentUserId}
         isLoggedIn={isLoggedIn}
       />

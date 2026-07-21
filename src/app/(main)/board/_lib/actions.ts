@@ -5,7 +5,6 @@ import {
   deleteApiBoardsBoardidPostsPostid,
   deleteApiBoardsBoardidPostsPostidCommentsCommentid,
   getApiBoardsBoardidPostsPostid,
-  getApiBoardsBoardidPostsPostidComments,
   postApiBoardsBoardidPosts,
   postApiBoardsBoardidPostsPostidComments,
   putApiBoardsBoardidPostsPostid,
@@ -18,6 +17,7 @@ import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { redirect } from "next/navigation";
 import { z } from "zod/v4";
+import { getCommentPage, type CommentPageData } from "./comment-page";
 import { buildPostPayload } from "./post-content";
 
 export type FormState = {
@@ -43,26 +43,28 @@ export type CommentFormState = {
   values?: { content?: string; parentCommentId?: number };
 };
 
-async function verifyCommentOwnership(
+export type LoadMoreCommentsResult = { success: true; page: CommentPageData } | { success: false; error: string };
+
+export async function loadMoreCommentsAction(
   boardId: string,
   postId: number,
-  commentId: number,
-  token: string,
-): Promise<{ ok: true; authorId: number } | { ok: false; error: string }> {
+  cursor: string,
+): Promise<LoadMoreCommentsResult> {
+  if (!cursor) {
+    return { success: false, error: "다음 댓글 페이지 정보가 없습니다." };
+  }
+
   try {
-    const res = await getApiBoardsBoardidPostsPostidComments(boardId, postId, withToken(token));
-    const target = res.data?.find((c) => c.id === commentId || c.replies?.some((r) => r.id === commentId));
-    if (!target) {
-      return { ok: false, error: "댓글을 찾을 수 없습니다." };
-    }
-    const authorId =
-      target.id === commentId ? target.authorId : target.replies?.find((r) => r.id === commentId)?.authorId;
-    if (authorId === undefined) {
-      return { ok: false, error: "댓글 작성자를 확인할 수 없습니다." };
-    }
-    return { ok: true, authorId };
-  } catch {
-    return { ok: false, error: "댓글 정보를 불러올 수 없습니다." };
+    const token = await getAuthToken();
+    return {
+      success: true,
+      page: await getCommentPage(boardId, postId, cursor, token),
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "댓글을 더 불러오지 못했습니다."),
+    };
   }
 }
 
@@ -257,19 +259,6 @@ export async function updateCommentAction(
     return { success: false, error: "로그인이 필요합니다.", values };
   }
 
-  // 작성자 확인 (defense-in-depth)
-  const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
-  if (currentUserId !== undefined) {
-    const owner = await verifyCommentOwnership(boardId, postId, commentId, token);
-    if (!owner.ok) {
-      return { success: false, error: owner.error, values };
-    }
-    if (owner.authorId !== currentUserId) {
-      return { success: false, error: "수정 권한이 없습니다.", values };
-    }
-  }
-
   const parsed = commentSchema.shape.content.safeParse(values.content);
   if (!parsed.success) {
     const firstMessage = parsed.error.issues[0]?.message ?? "입력값이 올바르지 않습니다.";
@@ -305,19 +294,6 @@ export async function deleteCommentAction(
   const token = await getAuthToken();
   if (!token) {
     return { success: false, error: "로그인이 필요합니다." };
-  }
-
-  // 작성자 확인 (defense-in-depth)
-  const session = await getServerSession(authOptions);
-  const currentUserId = session?.user?.id ? Number(session.user.id) : undefined;
-  if (currentUserId !== undefined) {
-    const owner = await verifyCommentOwnership(boardId, postId, commentId, token);
-    if (!owner.ok) {
-      return { success: false, error: owner.error };
-    }
-    if (owner.authorId !== currentUserId) {
-      return { success: false, error: "삭제 권한이 없습니다." };
-    }
   }
 
   try {
