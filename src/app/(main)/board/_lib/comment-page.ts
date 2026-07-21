@@ -1,9 +1,5 @@
 import type { CommentResponse } from "@/apis/generated/api";
-import {
-  getApiBoardsBoardidPostsPostidComments,
-  getGetApiBoardsBoardidPostsPostidCommentsUrl,
-} from "@/apis/generated/api";
-import { withToken } from "@/apis/mutator";
+import customFetch, { withToken } from "@/apis/mutator";
 
 export interface CommentPageData {
   comments: CommentResponse[];
@@ -11,32 +7,16 @@ export interface CommentPageData {
   hasMore: boolean;
 }
 
-interface CommentPageParams {
-  cursor?: string;
-  size?: number;
-}
-
 type CommentPageEnvelope = {
   data: CommentPageData | CommentResponse[];
 };
 
-type CommentPageFetcher = (
-  boardId: string,
-  postId: number,
-  params: CommentPageParams,
-  options?: RequestInit,
-) => Promise<CommentPageEnvelope>;
-
-type LegacyCommentFetcher = (boardId: string, postId: number, options?: RequestInit) => Promise<CommentPageEnvelope>;
-
-type CommentPageUrlBuilder = (boardId: string, postId: number, params?: CommentPageParams) => string;
-
 const DEFAULT_COMMENT_PAGE_SIZE = 20;
 
 /**
- * PR #208 OpenAPI의 cursor params와 RequestInit 위치를 한 곳에서 고정합니다.
- * 구 생성 클라이언트가 남아 있는 개발 브랜치에서는 첫 페이지 배열 응답도
- * 임시로 정규화하며, API 재생성 후에는 cursor 계약을 그대로 사용합니다.
+ * PR #208의 cursor 계약을 생성 클라이언트 버전과 무관하게 호출합니다.
+ * 운영 OpenAPI가 아직 구버전이어도 cursor/size를 실제 URL에 포함하고,
+ * 응답만 신·구 서버 형태 모두 정규화합니다.
  */
 export async function getCommentPage(
   boardId: string,
@@ -44,18 +24,13 @@ export async function getCommentPage(
   cursor?: string,
   token?: string,
 ): Promise<CommentPageData> {
-  const params: CommentPageParams = {
-    cursor,
-    size: DEFAULT_COMMENT_PAGE_SIZE,
-  };
-  const options = token ? withToken(token) : undefined;
-  const urlBuilder = getGetApiBoardsBoardidPostsPostidCommentsUrl as unknown as CommentPageUrlBuilder;
-  const generatedUrl = urlBuilder(boardId, postId, params);
-  const supportsCursorParams = generatedUrl.includes("size=");
-
-  const response = supportsCursorParams
-    ? await (getApiBoardsBoardidPostsPostidComments as unknown as CommentPageFetcher)(boardId, postId, params, options)
-    : await (getApiBoardsBoardidPostsPostidComments as unknown as LegacyCommentFetcher)(boardId, postId, options);
+  const params = new URLSearchParams({ size: String(DEFAULT_COMMENT_PAGE_SIZE) });
+  if (cursor) params.set("cursor", cursor);
+  const url = `/api/boards/${encodeURIComponent(boardId)}/posts/${postId}/comments?${params.toString()}`;
+  const response = await customFetch<CommentPageEnvelope>(url, {
+    ...(withToken(token) ?? {}),
+    method: "GET",
+  });
 
   if (Array.isArray(response.data)) {
     return {

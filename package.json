@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "gen:api": "orval && prettier --write src/apis/generated/api.ts src/apis/mutator.ts",
+    "gen:api:local": "OPENAPI_URL=http://localhost:8080/v3/api-docs pnpm gen:api",
     "gen:icons": "tsx ./src/scripts/gen-icons.ts",
     "postinstall": "pnpm gen:icons"
   },

@@ -1,53 +1,56 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getAuditLogPage } from "./audit-log-page";
 
-const mocks = vi.hoisted(() => ({
-  fetchAuditLogs: vi.fn(),
-  supportsParams: true,
-}));
+const fetchMock = vi.fn();
 
-vi.mock("@/apis/generated/api", () => ({
-  getApiAdminBusinessesApplicationsApplicationidAuditLogs: mocks.fetchAuditLogs,
-  getGetApiAdminBusinessesApplicationsApplicationidAuditLogsUrl: (...args: unknown[]) =>
-    mocks.supportsParams && args.length >= 2 ? "/api/admin/applications/1/audit-logs?size=100" : "/api/audit-logs",
-}));
+function jsonResponse(data: unknown): Response {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
-vi.mock("@/apis/mutator", () => ({
-  withToken: (token?: string) => (token ? { headers: { Authorization: `Bearer ${token}` } } : undefined),
-}));
+function request(): { url: URL; init: RequestInit } {
+  const [url, init] = fetchMock.mock.calls[0] as [string, RequestInit];
+  return { url: new URL(url), init };
+}
 
 describe("getAuditLogPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.supportsParams = true;
+    vi.stubGlobal("fetch", fetchMock);
   });
 
-  it("PR #208 생성 함수에는 pageable params 뒤에 RequestInit을 전달한다", async () => {
-    mocks.fetchAuditLogs.mockResolvedValue({
-      data: { content: [{ id: 1 }], page: { totalElements: 12 } },
-    });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
-    await expect(getAuditLogPage(1, "admin-token")).resolves.toEqual({
-      content: [{ id: 1 }],
-      page: { totalElements: 12 },
-    });
-    expect(mocks.fetchAuditLogs).toHaveBeenCalledWith(
-      1,
-      { page: 0, size: 100, sort: ["id,desc"] },
-      { headers: { Authorization: "Bearer admin-token" } },
+  it("구 generated 상태에서도 20건을 넘는 감사로그를 위해 size=100 Page 요청을 실제 전송한다", async () => {
+    const content = Array.from({ length: 25 }, (_, index) => ({ id: index + 1 }));
+    fetchMock.mockResolvedValue(
+      jsonResponse({ content, page: { number: 0, size: 100, totalElements: 25, totalPages: 1 } }),
     );
+
+    await expect(getAuditLogPage(7, "admin-token")).resolves.toEqual({
+      content,
+      page: { number: 0, size: 100, totalElements: 25, totalPages: 1 },
+    });
+
+    const { url, init } = request();
+    expect(url.pathname).toBe("/api/admin/businesses/applications/7/audit-logs");
+    expect(url.searchParams.get("page")).toBe("0");
+    expect(url.searchParams.get("size")).toBe("100");
+    expect(url.searchParams.getAll("sort")).toEqual(["id,desc"]);
+    expect(init.method).toBe("GET");
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer admin-token");
   });
 
-  it("구 생성 함수의 배열 응답을 Page 형태로 정규화한다", async () => {
-    mocks.supportsParams = false;
-    mocks.fetchAuditLogs.mockResolvedValue({ data: [{ id: 2 }] });
+  it("구 서버의 배열 응답을 Page 형태로 정규화한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse([{ id: 2 }]));
 
     await expect(getAuditLogPage(2, "admin-token")).resolves.toEqual({
       content: [{ id: 2 }],
       page: { number: 0, size: 1, totalElements: 1, totalPages: 1 },
-    });
-    expect(mocks.fetchAuditLogs).toHaveBeenCalledWith(2, {
-      headers: { Authorization: "Bearer admin-token" },
     });
   });
 });

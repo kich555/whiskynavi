@@ -5,6 +5,7 @@
 ## 빌드 & 테스트
 
 - `pnpm gen:api` — OpenAPI에서 API 클라이언트 재생성 (Orval)
+- `pnpm gen:api:local` — 로컬 백엔드(`http://localhost:8080/v3/api-docs`)의 현재 브랜치 계약으로 재생성
 - `pnpm gen:icons` — SVG 아이콘 생성
 
 ## 아키텍처

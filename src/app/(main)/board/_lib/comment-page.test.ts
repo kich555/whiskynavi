@@ -1,64 +1,65 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getCommentPage } from "./comment-page";
 
-const mocks = vi.hoisted(() => ({
-  fetchComments: vi.fn(),
-  supportsParams: true,
-}));
+const fetchMock = vi.fn();
 
-vi.mock("@/apis/generated/api", () => ({
-  getApiBoardsBoardidPostsPostidComments: mocks.fetchComments,
-  getGetApiBoardsBoardidPostsPostidCommentsUrl: (...args: unknown[]) =>
-    mocks.supportsParams && args.length >= 3 ? "/api/boards/community/posts/1/comments?size=20" : "/api/comments",
-}));
+function jsonResponse(data: unknown): Response {
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "Content-Type": "application/json" },
+  });
+}
 
-vi.mock("@/apis/mutator", () => ({
-  withToken: (token?: string) => (token ? { headers: { Authorization: `Bearer ${token}` } } : undefined),
-}));
+function requestAt(index = 0): { url: URL; init: RequestInit } {
+  const [url, init] = fetchMock.mock.calls[index] as [string, RequestInit];
+  return { url: new URL(url), init };
+}
 
 describe("getCommentPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.supportsParams = true;
+    vi.stubGlobal("fetch", fetchMock);
   });
 
-  it("PR #208 생성 함수에는 params와 RequestInit을 분리해 전달한다", async () => {
-    mocks.fetchComments.mockResolvedValue({
-      data: { comments: [{ id: 1 }], nextCursor: "next", hasMore: true },
-    });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
 
-    await expect(getCommentPage("community", 1, "cursor", "access-token")).resolves.toEqual({
-      comments: [{ id: 1 }],
-      nextCursor: "next",
+  it("구 generated가 체크인된 상태에서도 신 서버 cursor와 size를 실제 요청 URL에 전달한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ comments: [{ id: 2 }], nextCursor: "cursor-3", hasMore: true }));
+
+    await expect(getCommentPage("community", 10, "cursor 2/+", "access-token")).resolves.toEqual({
+      comments: [{ id: 2 }],
+      nextCursor: "cursor-3",
       hasMore: true,
     });
-    expect(mocks.fetchComments).toHaveBeenCalledWith(
-      "community",
-      1,
-      { cursor: "cursor", size: 20 },
-      { headers: { Authorization: "Bearer access-token" } },
-    );
+
+    const { url, init } = requestAt();
+    expect(url.pathname).toBe("/api/boards/community/posts/10/comments");
+    expect(url.searchParams.get("cursor")).toBe("cursor 2/+");
+    expect(url.searchParams.get("size")).toBe("20");
+    expect(init.method).toBe("GET");
+    expect(new Headers(init.headers).get("Authorization")).toBe("Bearer access-token");
   });
 
-  it("비로그인 조회에는 Authorization 옵션을 추가하지 않는다", async () => {
-    mocks.fetchComments.mockResolvedValue({ data: { comments: [], nextCursor: null, hasMore: false } });
+  it("비로그인 첫 페이지 요청에는 cursor와 Authorization을 추가하지 않는다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse({ comments: [], nextCursor: null, hasMore: false }));
 
     await getCommentPage("news", 2);
 
-    expect(mocks.fetchComments).toHaveBeenCalledWith("news", 2, { cursor: undefined, size: 20 }, undefined);
+    const { url, init } = requestAt();
+    expect(url.searchParams.has("cursor")).toBe(false);
+    expect(url.searchParams.get("size")).toBe("20");
+    expect(new Headers(init.headers).has("Authorization")).toBe(false);
   });
 
-  it("구 생성 함수의 배열 응답도 첫 페이지로 정규화한다", async () => {
-    mocks.supportsParams = false;
-    mocks.fetchComments.mockResolvedValue({ data: [{ id: 3 }] });
+  it("구 서버의 배열 응답도 첫 페이지로 정규화한다", async () => {
+    fetchMock.mockResolvedValue(jsonResponse([{ id: 3 }]));
 
     await expect(getCommentPage("community", 3, undefined, "token")).resolves.toEqual({
       comments: [{ id: 3 }],
       nextCursor: null,
       hasMore: false,
-    });
-    expect(mocks.fetchComments).toHaveBeenCalledWith("community", 3, {
-      headers: { Authorization: "Bearer token" },
     });
   });
 });
