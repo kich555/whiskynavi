@@ -14,7 +14,6 @@ export interface PickupBusinessOption {
   businessId: number;
   businessName: string;
   pickupAddress?: string;
-  contact?: string;
 }
 
 const ASSIGNMENT_LABEL: Record<string, string> = {

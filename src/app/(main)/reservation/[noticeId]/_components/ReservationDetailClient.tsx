@@ -1,6 +1,7 @@
 "use client";
 
 import type {
+  BusinessBottleReservationApplicationPublicResponse,
   PickupLocationResponse,
   UserBottleReservationApplicationPublicResponse,
   UserBottleReservationNoticePublicResponse,
@@ -31,7 +32,10 @@ import CancelReservationModal from "./CancelReservationModal";
 interface ReservationDetailClientProps {
   notice: UserBottleReservationNoticePublicResponse;
   pickupLocations: PickupLocationResponse[];
-  myApplication: UserBottleReservationApplicationPublicResponse | null;
+  myApplication:
+    | BusinessBottleReservationApplicationPublicResponse
+    | UserBottleReservationApplicationPublicResponse
+    | null;
   businessOptions?: ReservationBusinessOption[];
   selectedBusinessId?: number;
 }
@@ -53,7 +57,7 @@ export default function ReservationDetailClient({
   const isBusinessUser = businessOptions !== undefined;
   const { timeRemaining, status } = useCountdownTimer(notice);
   const isApplied = myApplication !== null;
-  const isEditable = myApplication?.status === "APPLIED";
+  const isEditable = status === "active" && myApplication?.status === "APPLIED";
   const displayStatus = status === "closed" ? status : isApplied ? "applied" : status;
 
   const handleApply = (quantity: number, userBusinessId: number) => {
@@ -210,7 +214,7 @@ export default function ReservationDetailClient({
             >
               예약 대기 중
             </button>
-          ) : displayStatus === "applied" && isEditing ? (
+          ) : isApplied && isEditing && isEditable ? (
             isBusinessUser ? (
               <BusinessApplyForm
                 mode="edit"
@@ -237,15 +241,21 @@ export default function ReservationDetailClient({
                 maxQuantity={notice.maxOrderQuantity}
               />
             )
-          ) : displayStatus === "applied" ? (
+          ) : isApplied ? (
             <div className="flex flex-col gap-3">
-              <button
-                type="button"
-                disabled
-                className="typo-bold-16 w-full cursor-not-allowed bg-green-600 px-4 py-2.5 text-white transition-colors lg:px-6 lg:py-4 lg:text-xl"
-              >
-                예약신청완료
-              </button>
+              {status === "closed" ? (
+                <div className="typo-bold-16 w-full bg-green-600 px-4 py-2.5 text-center text-white lg:px-6 lg:py-4 lg:text-xl">
+                  예약 신청 내역
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  disabled
+                  className="typo-bold-16 w-full cursor-not-allowed bg-green-600 px-4 py-2.5 text-white transition-colors lg:px-6 lg:py-4 lg:text-xl"
+                >
+                  예약신청완료
+                </button>
+              )}
               {isBusinessUser ? (
                 <dl className="grid gap-3 border border-white/10 bg-white/5 p-4 sm:grid-cols-3">
                   <div>

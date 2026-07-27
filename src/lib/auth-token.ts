@@ -9,21 +9,29 @@ function decodeBase64UrlJson(value: string): unknown {
   return JSON.parse(Buffer.from(padded, "base64").toString("utf8"));
 }
 
-function getJwtExpiresAtMs(accessToken: string): number | null {
+function getJwtPayload(accessToken: string): Record<string, unknown> | null {
   const [, payload] = accessToken.split(".");
   if (!payload) return null;
 
   try {
     const decoded = decodeBase64UrlJson(payload);
-    if (typeof decoded === "object" && decoded !== null && "exp" in decoded) {
-      const exp = (decoded as { exp?: unknown }).exp;
-      return typeof exp === "number" ? exp * 1000 : null;
-    }
+    return typeof decoded === "object" && decoded !== null ? (decoded as Record<string, unknown>) : null;
   } catch {
     return null;
   }
+}
 
-  return null;
+function getJwtExpiresAtMs(accessToken: string): number | null {
+  const exp = getJwtPayload(accessToken)?.exp;
+  return typeof exp === "number" ? exp * 1000 : null;
+}
+
+export function getAccessTokenRoles(accessToken: string): string[] | null {
+  const roles = getJwtPayload(accessToken)?.roles;
+  if (!Array.isArray(roles) || !roles.every((role) => typeof role === "string")) {
+    return null;
+  }
+  return roles;
 }
 
 export function shouldRefreshAuthToken({ accessToken, refreshToken }: ShouldRefreshAuthTokenParams): boolean {

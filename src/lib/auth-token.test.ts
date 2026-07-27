@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { shouldRefreshAuthToken } from "./auth-token";
+import { getAccessTokenRoles, shouldRefreshAuthToken } from "./auth-token";
 
-function createJwt(expSeconds: number) {
+function createJwt(expSeconds: number, roles?: string[]) {
   const header = Buffer.from(JSON.stringify({ alg: "none" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ exp: expSeconds })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ exp: expSeconds, roles })).toString("base64url");
   return `${header}.${payload}.`;
 }
 
@@ -37,5 +37,15 @@ describe("shouldRefreshAuthToken", () => {
         refreshToken: "refresh-token",
       }),
     ).toBe(false);
+  });
+
+  it("갱신된 accessToken의 roles claim을 세션 동기화에 사용할 수 있다", () => {
+    const accessToken = createJwt(Math.floor((Date.now() + 30 * 1000) / 1000), [
+      "ROLE_USER",
+      "ROLE_BUSINESS",
+    ]);
+
+    expect(getAccessTokenRoles(accessToken)).toEqual(["ROLE_USER", "ROLE_BUSINESS"]);
+    expect(getAccessTokenRoles("opaque-access-token")).toBeNull();
   });
 });

@@ -8,7 +8,6 @@ import { toast } from "sonner";
 export interface ReservationBusinessOption {
   businessId: number;
   businessName: string;
-  pickupAddress?: string;
 }
 
 interface BusinessApplyFormProps {
@@ -36,10 +35,17 @@ export default function BusinessApplyForm({
   onCancelEdit,
   maxQuantity = 100,
 }: BusinessApplyFormProps) {
-  const [quantity, setQuantity] = useState(initialQuantity ?? 1);
   const [quantityInput, setQuantityInput] = useState(String(initialQuantity ?? 1));
   const selectedBusiness = businesses.find((business) => business.businessId === selectedBusinessId);
-  const canSubmit = selectedBusinessId != null && !isPending;
+  const parsedQuantity = Number(quantityInput);
+  const validQuantity =
+    quantityInput.trim() !== "" &&
+    Number.isInteger(parsedQuantity) &&
+    parsedQuantity >= 1 &&
+    parsedQuantity <= maxQuantity
+      ? parsedQuantity
+      : null;
+  const canSubmit = selectedBusinessId != null && validQuantity !== null && !isPending;
 
   return (
     <div className="space-y-3">
@@ -78,29 +84,31 @@ export default function BusinessApplyForm({
       </div>
 
       <div>
+        <label htmlFor="business-reservation-quantity" className="typo-medium-12 mb-1 block text-gray-400">
+          신청 수량
+        </label>
         <div className="mb-1 flex gap-2 lg:mb-2 lg:gap-3">
           <div className="relative">
             <input
+              id="business-reservation-quantity"
               type="number"
               min="1"
               max={maxQuantity}
+              step="1"
               value={quantityInput}
-              onChange={(event) => {
-                const raw = event.target.value;
-                setQuantityInput(raw);
-                const parsed = Number.parseInt(raw, 10);
-                if (!Number.isNaN(parsed)) {
-                  setQuantity(Math.max(1, Math.min(maxQuantity, parsed)));
-                }
-              }}
+              aria-invalid={quantityInput.trim() !== "" && validQuantity === null}
+              onChange={(event) => setQuantityInput(event.target.value)}
               onBlur={() => {
-                const parsed = Number.parseInt(quantityInput, 10);
-                const original = Number.isNaN(parsed) ? 1 : parsed;
-                const clamped = Math.max(1, Math.min(maxQuantity, original));
-                if (clamped !== original) {
+                if (quantityInput.trim() === "") return;
+                const parsed = Number(quantityInput);
+                if (!Number.isInteger(parsed)) {
+                  toast.warning("신청 수량은 정수로 입력해 주세요.");
+                  return;
+                }
+                const clamped = Math.max(1, Math.min(maxQuantity, parsed));
+                if (clamped !== parsed) {
                   toast.warning(`수량은 1~${maxQuantity}병까지 신청 가능하여 ${clamped}병으로 조정되었습니다.`);
                 }
-                setQuantity(clamped);
                 setQuantityInput(String(clamped));
               }}
               className="w-20 border border-white/20 bg-white/10 py-2.5 pr-8 pl-2 text-center text-base text-white transition-colors focus:border-white/40 focus:outline-none lg:h-full lg:w-40 lg:pr-10 lg:pl-3 lg:text-lg"
@@ -121,7 +129,9 @@ export default function BusinessApplyForm({
           ) : null}
           <button
             type="button"
-            onClick={() => onApply(quantity)}
+            onClick={() => {
+              if (validQuantity !== null) onApply(validQuantity);
+            }}
             disabled={!canSubmit}
             className="typo-bold-16 flex-1 bg-white px-4 py-2.5 text-gray-900 transition-colors hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
           >

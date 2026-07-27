@@ -108,12 +108,25 @@ describe("reservation actions", () => {
     } as Awaited<ReturnType<typeof getApiBottlesReservationsNoticesNoticeid>>);
     mockedApplyBusinessApplication.mockResolvedValue({
       data: {
+        bottleId: 50,
+        bottleImgUrl: null,
+        bottleName: "테스트 보틀",
+        confirmedQuantity: null,
+        createdAt: "2026-07-27T10:00:00",
         id: 30,
+        noticeId: 10,
+        noticeName: "테스트 예약",
         businessId: 20,
         businessName: "신청 사업장",
+        pickupAddress: null,
         pickupUserBusinessId: 40,
         pickupBusinessName: "관리자 픽업 업장",
         pickupAssignmentType: "ADMIN_DESIGNATED",
+        quantity: 2,
+        status: "APPLIED",
+        totalPrice: 20000,
+        unitPrice: 10000,
+        updatedAt: "2026-07-27T10:00:00",
       },
       status: 201,
       headers: new Headers(),
@@ -139,6 +152,21 @@ describe("reservation actions", () => {
 
     await expect(cancelBusinessReservation(10, 20, 30)).resolves.toEqual({ success: true });
     expect(mockedCancelBusinessApplication).toHaveBeenCalledWith(20, 30, { token: "user-token" });
+  });
+
+  it("비즈니스 예약 신청의 소수 수량은 API 호출 전에 거부한다", async () => {
+    mockedGetNotice.mockResolvedValue({
+      data: activeNotice(),
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof getApiBottlesReservationsNoticesNoticeid>>);
+
+    await expect(applyBusinessReservation(10, 20, 1.5)).resolves.toEqual({
+      success: false,
+      error: "수량은 1~2병 사이의 정수로 입력해주세요.",
+    });
+
+    expect(mockedApplyBusinessApplication).not.toHaveBeenCalled();
   });
 });
 

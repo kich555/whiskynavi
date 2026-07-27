@@ -174,4 +174,38 @@ describe("ApplicationsTableSection", () => {
 
     expect(screen.getByRole("button", { name: "미처리 신청 일괄 거절" })).toBeDisabled();
   });
+
+  it("URL 필터 props가 바뀌면 사업장 ID 입력값도 새 값으로 초기화한다", () => {
+    const { rerender } = render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+        currentApplicantBusinessId={10}
+        currentPickupBusinessId={20}
+      />,
+    );
+
+    expect(screen.getByLabelText("신청 사업장 ID")).toHaveValue(10);
+    expect(screen.getByLabelText("픽업 업장 ID")).toHaveValue(20);
+
+    rerender(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+        currentApplicantBusinessId={30}
+        currentPickupBusinessId={40}
+      />,
+    );
+
+    expect(screen.getByLabelText("신청 사업장 ID")).toHaveValue(30);
+    expect(screen.getByLabelText("픽업 업장 ID")).toHaveValue(40);
+  });
 });

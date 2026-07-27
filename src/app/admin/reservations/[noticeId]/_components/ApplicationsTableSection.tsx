@@ -12,7 +12,7 @@ import { formatDateTimeWithMilliseconds } from "@/lib/formatters";
 import { Ban, Check, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import Pagination from "../../../_components/Pagination";
 import { RESERVATION_STATUS_COLOR, RESERVATION_STATUS_LABEL, ROLE_LABEL_MAP } from "../../../constants";
 import ApplicationAutoConfirmModal from "./ApplicationAutoConfirmModal";
@@ -92,6 +92,63 @@ interface ApplicationsTableSectionProps {
   currentApplicantBusinessId?: number;
   currentPickupBusinessId?: number;
   currentPickupAssignmentType?: GetApiAdminBottlesReservationsApplicationsPickupAssignmentType;
+}
+
+interface BusinessFilterFormProps {
+  initialApplicantBusinessId?: number;
+  initialPickupBusinessId?: number;
+  onSubmit: (applicantBusinessId: string, pickupBusinessId: string) => void;
+}
+
+function BusinessFilterForm({
+  initialApplicantBusinessId,
+  initialPickupBusinessId,
+  onSubmit,
+}: BusinessFilterFormProps) {
+  const [applicantBusinessId, setApplicantBusinessId] = useState(
+    initialApplicantBusinessId ? String(initialApplicantBusinessId) : "",
+  );
+  const [pickupBusinessId, setPickupBusinessId] = useState(
+    initialPickupBusinessId ? String(initialPickupBusinessId) : "",
+  );
+
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSubmit(applicantBusinessId.trim(), pickupBusinessId.trim());
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="mt-3 flex flex-wrap items-end gap-2">
+      <label className="typo-medium-12 text-gray-600">
+        신청 사업장 ID
+        <input
+          name="applicantBusinessId"
+          type="number"
+          min={1}
+          value={applicantBusinessId}
+          onChange={(event) => setApplicantBusinessId(event.target.value)}
+          className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+        />
+      </label>
+      <label className="typo-medium-12 text-gray-600">
+        픽업 업장 ID
+        <input
+          name="pickupBusinessId"
+          type="number"
+          min={1}
+          value={pickupBusinessId}
+          onChange={(event) => setPickupBusinessId(event.target.value)}
+          className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+        />
+      </label>
+      <button
+        type="submit"
+        className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 transition-colors hover:bg-gray-100"
+      >
+        사업장 필터 적용
+      </button>
+    </form>
+  );
 }
 
 export default function ApplicationsTableSection({
@@ -194,13 +251,13 @@ export default function ApplicationsTableSection({
     router.push(`/admin/reservations/${noticeId}?${params.toString()}`);
   };
 
-  const handleBusinessFilterSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
+  const handleBusinessFilterSubmit = (applicantBusinessId: string, pickupBusinessId: string) => {
     const params = buildFilterParams();
 
-    for (const key of ["applicantBusinessId", "pickupBusinessId"] as const) {
-      const value = String(formData.get(key) ?? "").trim();
+    for (const [key, value] of [
+      ["applicantBusinessId", applicantBusinessId],
+      ["pickupBusinessId", pickupBusinessId],
+    ] as const) {
       if (value) {
         params.set(key, value);
       } else {
@@ -310,34 +367,12 @@ export default function ApplicationsTableSection({
             </button>
           </div>
         </div>
-        <form onSubmit={handleBusinessFilterSubmit} className="mt-3 flex flex-wrap items-end gap-2">
-          <label className="typo-medium-12 text-gray-600">
-            신청 사업장 ID
-            <input
-              name="applicantBusinessId"
-              type="number"
-              min={1}
-              defaultValue={currentApplicantBusinessId}
-              className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-            />
-          </label>
-          <label className="typo-medium-12 text-gray-600">
-            픽업 업장 ID
-            <input
-              name="pickupBusinessId"
-              type="number"
-              min={1}
-              defaultValue={currentPickupBusinessId}
-              className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
-            />
-          </label>
-          <button
-            type="submit"
-            className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 transition-colors hover:bg-gray-100"
-          >
-            사업장 필터 적용
-          </button>
-        </form>
+        <BusinessFilterForm
+          key={`${currentApplicantBusinessId ?? ""}:${currentPickupBusinessId ?? ""}`}
+          initialApplicantBusinessId={currentApplicantBusinessId}
+          initialPickupBusinessId={currentPickupBusinessId}
+          onSubmit={handleBusinessFilterSubmit}
+        />
       </div>
 
       <ReservationAllocationExcelSection noticeId={noticeId} />

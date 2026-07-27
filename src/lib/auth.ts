@@ -1,7 +1,7 @@
 import { postApiAuthLogin } from "@/apis/generated/api";
 import { callRefreshApiSingleFlight } from "@/apis/refresh-token";
 import { AUTH_SESSION_MAX_AGE_SEC } from "@/lib/auth-constants";
-import { shouldRefreshAuthToken } from "@/lib/auth-token";
+import { getAccessTokenRoles, shouldRefreshAuthToken } from "@/lib/auth-token";
 import type { NextAuthOptions } from "next-auth";
 import { getServerSession } from "next-auth";
 import type { JWT } from "next-auth/jwt";
@@ -28,6 +28,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
         ...token,
         accessToken: result.accessToken,
         refreshToken: result.refreshToken,
+        roles: getAccessTokenRoles(result.accessToken) ?? token.roles,
         tokenIssuedAt: Date.now(),
         error: undefined,
       };

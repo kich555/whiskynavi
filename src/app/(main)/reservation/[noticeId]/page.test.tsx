@@ -2,9 +2,9 @@ import { ApiError } from "@/apis/errors";
 import {
   getApiBottlesReservationsApplicationsMe,
   getApiBusinessesBusinessidBottlesReservationsApplications,
-  getApiUsersBusinessesContext,
+  getApiUsersBusinessesMe,
 } from "@/apis/generated/api";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { getServerSession } from "next-auth";
 import { notFound } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -15,7 +15,7 @@ import ReservationDetailPage from "./page";
 vi.mock("@/apis/generated/api", () => ({
   getApiBottlesReservationsApplicationsMe: vi.fn(),
   getApiBusinessesBusinessidBottlesReservationsApplications: vi.fn(),
-  getApiUsersBusinessesContext: vi.fn(),
+  getApiUsersBusinessesMe: vi.fn(),
 }));
 
 vi.mock("@/apis/mutator", () => ({
@@ -72,8 +72,8 @@ describe("ReservationDetailPage", () => {
       status: 200,
       headers: new Headers(),
     });
-    vi.mocked(getApiUsersBusinessesContext).mockResolvedValue({
-      data: { businesses: [] },
+    vi.mocked(getApiUsersBusinessesMe).mockResolvedValue({
+      data: [],
       status: 200,
       headers: new Headers(),
     });
@@ -119,5 +119,75 @@ describe("ReservationDetailPage", () => {
         searchParams: Promise.resolve({}),
       }),
     ).rejects.toBe(error);
+  });
+
+  it("일반 사용자의 businessId 쿼리는 무시하고 일반 신청 정보를 조회한다", async () => {
+    vi.mocked(fetchNoticeDetail).mockResolvedValue({
+      id: 7,
+      noticeName: "일반 예약",
+    });
+
+    const page = await ReservationDetailPage({
+      params: Promise.resolve({ noticeId: "7" }),
+      searchParams: Promise.resolve({ businessId: "invalid" }),
+    });
+    render(page);
+
+    expect(notFound).not.toHaveBeenCalled();
+    expect(getApiBottlesReservationsApplicationsMe).toHaveBeenCalled();
+    expect(getApiBusinessesBusinessidBottlesReservationsApplications).not.toHaveBeenCalled();
+  });
+
+  it("일반 사용자의 예약 데이터는 사업장 멤버십 응답을 기다리지 않고 조회한다", async () => {
+    vi.mocked(fetchNoticeDetail).mockResolvedValue({
+      id: 7,
+      noticeName: "일반 예약",
+    });
+    let resolveMemberships: ((value: Awaited<ReturnType<typeof getApiUsersBusinessesMe>>) => void) | undefined;
+    vi.mocked(getApiUsersBusinessesMe).mockReturnValue(
+      new Promise((resolve) => {
+        resolveMemberships = resolve;
+      }),
+    );
+
+    const pagePromise = ReservationDetailPage({
+      params: Promise.resolve({ noticeId: "7" }),
+      searchParams: Promise.resolve({}),
+    });
+
+    await waitFor(() => expect(getApiBottlesReservationsApplicationsMe).toHaveBeenCalled());
+    expect(fetchPickupLocations).toHaveBeenCalled();
+
+    resolveMemberships?.({
+      data: [],
+      status: 200,
+      headers: new Headers(),
+    });
+    render(await pagePromise);
+  });
+
+  it("세션 roles가 늦어도 현재 사업장 멤버십이 있으면 비즈니스 신청을 조회한다", async () => {
+    vi.mocked(fetchNoticeDetail).mockResolvedValue({
+      id: 7,
+      noticeName: "비즈니스 예약",
+    });
+    vi.mocked(getApiUsersBusinessesMe).mockResolvedValue({
+      data: [{ businessId: 20, businessName: "신청 사업장", primaryBusiness: true }],
+      status: 200,
+      headers: new Headers(),
+    });
+
+    const page = await ReservationDetailPage({
+      params: Promise.resolve({ noticeId: "7" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page);
+
+    expect(getApiBusinessesBusinessidBottlesReservationsApplications).toHaveBeenCalledWith(
+      20,
+      { noticeId: 7, size: 20, sort: ["createdAt,desc"] },
+      expect.anything(),
+    );
+    expect(getApiBottlesReservationsApplicationsMe).toHaveBeenCalled();
   });
 });

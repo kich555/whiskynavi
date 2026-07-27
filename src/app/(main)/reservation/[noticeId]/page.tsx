@@ -2,7 +2,8 @@ import { ApiError } from "@/apis/errors";
 import {
   getApiBottlesReservationsApplicationsMe,
   getApiBusinessesBusinessidBottlesReservationsApplications,
-  getApiUsersBusinessesContext,
+  getApiUsersBusinessesMe,
+  type BusinessBottleReservationApplicationPublicResponse,
   type PickupLocationResponse,
   type UserBottleReservationApplicationPublicResponse,
 } from "@/apis/generated/api";
@@ -23,7 +24,11 @@ type PageProps = {
   searchParams: Promise<{ businessId?: string }>;
 };
 
-const isAppliedApplication = (application: UserBottleReservationApplicationPublicResponse): boolean => {
+type ReservationApplication =
+  | BusinessBottleReservationApplicationPublicResponse
+  | UserBottleReservationApplicationPublicResponse;
+
+const isAppliedApplication = (application: ReservationApplication): boolean => {
   return application.status !== "CANCELLED" && application.status !== "REJECTED";
 };
 
@@ -61,64 +66,92 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
   const id = parsePositiveInt(noticeId);
   if (!id) notFound();
 
-  const isBusinessUser = hasBusinessRole(session.user.roles);
-  const requestedBusinessId = query.businessId ? parsePositiveInt(query.businessId) : undefined;
-  if (query.businessId && !requestedBusinessId) notFound();
-
   const noticePromise = fetchNoticeDetail(id, session.accessToken);
-  const businessContextPromise = isBusinessUser
-    ? getApiUsersBusinessesContext(withToken(session.accessToken)).then((response) => response.data)
-    : null;
-
-  let notice;
-  let businessOptions: ReservationBusinessOption[] | undefined;
-  let selectedBusinessId: number | undefined;
-  let myApplication: UserBottleReservationApplicationPublicResponse | null = null;
-  let pickupLocations: PickupLocationResponse[] = [];
-
-  try {
-    if (isBusinessUser && businessContextPromise) {
-      const [noticeData, businessContext] = await Promise.all([noticePromise, businessContextPromise]);
-      notice = noticeData;
-      businessOptions = (businessContext.businesses ?? []).flatMap((business) =>
+  const loadGeneralReservationData = async () => {
+    const [pickupLocations, applicationsResponse] = await Promise.all([
+      fetchPickupLocations(),
+      getApiBottlesReservationsApplicationsMe(
+        { noticeId: id, size: 20, sort: ["createdAt,desc"] },
+        withToken(session.accessToken),
+      ),
+    ]);
+    return { pickupLocations, applicationsResponse };
+  };
+  const sessionHasBusinessRole = hasBusinessRole(session.user.roles);
+  const prefetchedGeneralReservationData = sessionHasBusinessRole
+    ? null
+    : loadGeneralReservationData().then(
+        (data) => ({ ok: true as const, data }),
+        (error: unknown) => ({ ok: false as const, error }),
+      );
+  const reservationDataPromise = getApiUsersBusinessesMe(withToken(session.accessToken)).then(
+    async (businessMembershipsResponse) => {
+      const memberships = businessMembershipsResponse.data;
+      const availableBusinessOptions: ReservationBusinessOption[] = memberships.flatMap((business) =>
         business.businessId
           ? [
               {
                 businessId: business.businessId,
                 businessName: business.businessName ?? `사업장 ${business.businessId}`,
-                pickupAddress: business.pickupAddress,
               },
             ]
           : [],
       );
-      selectedBusinessId =
-        requestedBusinessId ?? businessContext.currentBusiness?.businessId ?? businessOptions[0]?.businessId;
+      const isBusinessUser = hasBusinessRole(session.user.roles) || availableBusinessOptions.length > 0;
 
-      if (selectedBusinessId && !businessOptions.some((business) => business.businessId === selectedBusinessId)) {
-        notFound();
-      }
+      if (isBusinessUser) {
+        const requestedBusinessId = query.businessId ? parsePositiveInt(query.businessId) : undefined;
+        if (query.businessId && !requestedBusinessId) notFound();
 
-      if (selectedBusinessId) {
-        const applicationsRes = await getApiBusinessesBusinessidBottlesReservationsApplications(
+        const selectedBusinessId =
+          requestedBusinessId ??
+          memberships.find((business) => business.primaryBusiness)?.businessId ??
+          availableBusinessOptions[0]?.businessId;
+        if (
+          selectedBusinessId &&
+          !availableBusinessOptions.some((business) => business.businessId === selectedBusinessId)
+        ) {
+          notFound();
+        }
+
+        const applicationsRes = selectedBusinessId
+          ? await getApiBusinessesBusinessidBottlesReservationsApplications(
+              selectedBusinessId,
+              { noticeId: id, size: 20, sort: ["createdAt,desc"] },
+              withToken(session.accessToken),
+            )
+          : null;
+
+        return {
+          businessOptions: availableBusinessOptions,
           selectedBusinessId,
-          { noticeId: id, size: 20, sort: ["createdAt,desc"] },
-          withToken(session.accessToken),
-        );
-        myApplication = (applicationsRes.data.content ?? []).find(isAppliedApplication) ?? null;
+          myApplication: (applicationsRes?.data.content ?? []).find(isAppliedApplication) ?? null,
+          pickupLocations: [] as PickupLocationResponse[],
+        };
       }
-    } else {
-      const [noticeData, locations, applicationsRes] = await Promise.all([
-        noticePromise,
-        fetchPickupLocations(),
-        getApiBottlesReservationsApplicationsMe(
-          { noticeId: id, size: 20, sort: ["createdAt,desc"] },
-          withToken(session.accessToken),
-        ),
-      ]);
-      notice = noticeData;
-      pickupLocations = locations;
-      myApplication = (applicationsRes.data.content ?? []).find(isAppliedApplication) ?? null;
-    }
+
+      let generalReservationData;
+      if (prefetchedGeneralReservationData) {
+        const result = await prefetchedGeneralReservationData;
+        if (!result.ok) throw result.error;
+        generalReservationData = result.data;
+      } else {
+        generalReservationData = await loadGeneralReservationData();
+      }
+      return {
+        businessOptions: undefined,
+        selectedBusinessId: undefined,
+        myApplication:
+          (generalReservationData.applicationsResponse.data.content ?? []).find(isAppliedApplication) ?? null,
+        pickupLocations: generalReservationData.pickupLocations,
+      };
+    },
+  );
+
+  let notice: Awaited<typeof noticePromise>;
+  let reservationData: Awaited<typeof reservationDataPromise>;
+  try {
+    [notice, reservationData] = await Promise.all([noticePromise, reservationDataPromise]);
   } catch (error) {
     if (error instanceof ApiError && error.status === 403) {
       return <ReservationAccessDenied />;
@@ -143,11 +176,12 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
         </Link>
 
         <ReservationDetailClient
+          key={reservationData.selectedBusinessId ?? "general"}
           notice={notice}
-          pickupLocations={pickupLocations}
-          myApplication={myApplication}
-          businessOptions={businessOptions}
-          selectedBusinessId={selectedBusinessId}
+          pickupLocations={reservationData.pickupLocations}
+          myApplication={reservationData.myApplication}
+          businessOptions={reservationData.businessOptions}
+          selectedBusinessId={reservationData.selectedBusinessId}
         />
       </div>
     </div>

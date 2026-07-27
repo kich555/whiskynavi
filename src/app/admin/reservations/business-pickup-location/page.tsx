@@ -11,7 +11,7 @@ async function getPickupBusinessOptions(options?: RequestInit): Promise<PickupBu
       {
         page,
         size: BUSINESS_PAGE_SIZE,
-        sort: ["businessName,asc"],
+        sort: ["businessId,asc"],
       },
       options,
     );
@@ -29,12 +29,14 @@ async function getPickupBusinessOptions(options?: RequestInit): Promise<PickupBu
         businessId: business.businessId,
         businessName: business.businessName ?? `사업장 ${business.businessId}`,
         pickupAddress: business.pickupAddress,
-        contact: business.contact,
       });
     }
   }
 
-  return [...businessesById.values()];
+  return [...businessesById.values()].sort(
+    (left, right) =>
+      left.businessName.localeCompare(right.businessName, "ko") || left.businessId - right.businessId,
+  );
 }
 
 export default async function BusinessPickupSettingPage() {

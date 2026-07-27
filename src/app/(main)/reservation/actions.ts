@@ -9,14 +9,28 @@ import {
   postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications,
   putApiBottlesReservationsApplicationsApplicationid,
   putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid,
+  type BusinessBottleReservationApplicationPublicResponse,
   type UserBottleReservationApplicationPublicResponse,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { z } from "zod";
 import { getNoticeStatus, type NoticeStatus } from "./_lib/utils";
 
 const RESERVATION_ENDED_MUTATION_MESSAGE = "예약이 종료된 후에는 수정/취소가 불가능합니다.";
+const positiveIntegerSchema = z.number().int().positive();
+
+function hasInvalidId(...values: number[]): boolean {
+  return values.some((value) => !positiveIntegerSchema.safeParse(value).success);
+}
+
+function getQuantityError(quantity: number, maxOrderQuantity: number): string | null {
+  if (!positiveIntegerSchema.safeParse(quantity).success || quantity > maxOrderQuantity) {
+    return `수량은 1~${maxOrderQuantity}병 사이의 정수로 입력해주세요.`;
+  }
+  return null;
+}
 
 function getReservationMutationWindowError(status: NoticeStatus): string | null {
   if (status === "active") return null;
@@ -29,6 +43,9 @@ export async function applyReservation(
   userBusinessId: number,
 ): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
   try {
+    if (hasInvalidId(noticeId, userBusinessId)) {
+      return { success: false, error: "예약 공고 또는 픽업 업장 정보가 올바르지 않습니다." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
@@ -37,8 +54,9 @@ export async function applyReservation(
     // 클라이언트가 보내는 값은 신뢰하지 않고, 신청 시점의 최대 신청 병수를 서버에서 다시 검증한다.
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
-    if (quantity < 1 || quantity > maxOrderQuantity) {
-      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    const quantityError = getQuantityError(quantity, maxOrderQuantity);
+    if (quantityError) {
+      return { success: false, error: quantityError };
     }
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 신청 시점의 예약 기간을 서버에서 다시 검증한다.
     if (getNoticeStatus(notice) !== "active") {
@@ -68,6 +86,9 @@ export async function updateReservation(
   userBusinessId: number,
 ): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
   try {
+    if (hasInvalidId(noticeId, applicationId, userBusinessId)) {
+      return { success: false, error: "예약 신청 또는 픽업 업장 정보가 올바르지 않습니다." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
@@ -76,8 +97,9 @@ export async function updateReservation(
     // 클라이언트가 보내는 값은 신뢰하지 않고, 수정 시점의 최대 신청 병수를 서버에서 다시 검증한다.
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
-    if (quantity < 1 || quantity > maxOrderQuantity) {
-      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    const quantityError = getQuantityError(quantity, maxOrderQuantity);
+    if (quantityError) {
+      return { success: false, error: quantityError };
     }
 
     // 클라이언트가 보내는 상태는 신뢰하지 않고, 수정 시점의 예약 기간을 서버에서 다시 검증한다.
@@ -107,6 +129,9 @@ export async function cancelReservation(
   applicationId: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (hasInvalidId(noticeId, applicationId)) {
+      return { success: false, error: "예약 신청 정보가 올바르지 않습니다." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
@@ -135,20 +160,20 @@ export async function applyBusinessReservation(
   noticeId: number,
   businessId: number,
   quantity: number,
-): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
+): Promise<{ success: boolean; error?: string; application?: BusinessBottleReservationApplicationPublicResponse }> {
   try {
+    if (hasInvalidId(noticeId, businessId)) {
+      return { success: false, error: "신청할 사업장을 선택해 주세요." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
     }
-    if (!Number.isInteger(businessId) || businessId < 1) {
-      return { success: false, error: "신청할 사업장을 선택해 주세요." };
-    }
-
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
-    if (quantity < 1 || quantity > maxOrderQuantity) {
-      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    const quantityError = getQuantityError(quantity, maxOrderQuantity);
+    if (quantityError) {
+      return { success: false, error: quantityError };
     }
     if (getNoticeStatus(notice) !== "active") {
       return { success: false, error: "지금은 예약 신청 기간이 아닙니다." };
@@ -176,20 +201,20 @@ export async function updateBusinessReservation(
   businessId: number,
   applicationId: number,
   quantity: number,
-): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
+): Promise<{ success: boolean; error?: string; application?: BusinessBottleReservationApplicationPublicResponse }> {
   try {
+    if (hasInvalidId(noticeId, businessId, applicationId)) {
+      return { success: false, error: "예약 신청 또는 신청 사업장 정보가 올바르지 않습니다." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
     }
-    if (!Number.isInteger(businessId) || businessId < 1) {
-      return { success: false, error: "신청 사업장 정보가 올바르지 않습니다." };
-    }
-
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
-    if (quantity < 1 || quantity > maxOrderQuantity) {
-      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    const quantityError = getQuantityError(quantity, maxOrderQuantity);
+    if (quantityError) {
+      return { success: false, error: quantityError };
     }
     const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
     if (windowError) {
@@ -219,14 +244,13 @@ export async function cancelBusinessReservation(
   applicationId: number,
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    if (hasInvalidId(noticeId, businessId, applicationId)) {
+      return { success: false, error: "예약 신청 또는 신청 사업장 정보가 올바르지 않습니다." };
+    }
     const token = await getAuthToken();
     if (!token) {
       return { success: false, error: "로그인이 필요합니다." };
     }
-    if (!Number.isInteger(businessId) || businessId < 1) {
-      return { success: false, error: "신청 사업장 정보가 올바르지 않습니다." };
-    }
-
     const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
     const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
     if (windowError) {

@@ -1,4 +1,5 @@
 import { AUTH_SESSION_COOKIE_NAMES, AUTH_SESSION_MAX_AGE_SEC } from "@/lib/auth-constants";
+import { getAccessTokenRoles } from "@/lib/auth-token";
 import { decode, encode } from "next-auth/jwt";
 import { authLogger } from "./auth-logger";
 
@@ -136,6 +137,7 @@ async function refreshOnServer(): Promise<string | null> {
             ...decoded,
             accessToken: result.accessToken,
             refreshToken: result.refreshToken,
+            roles: getAccessTokenRoles(result.accessToken) ?? decoded.roles,
             tokenIssuedAt: Date.now(),
             error: undefined,
           },

@@ -77,7 +77,7 @@ describe("BusinessPickupSettingPage", () => {
       {
         page: 0,
         size: 200,
-        sort: ["businessName,asc"],
+        sort: ["businessId,asc"],
       },
       { token: "admin-token" },
     );
@@ -86,7 +86,7 @@ describe("BusinessPickupSettingPage", () => {
       {
         page: 1,
         size: 200,
-        sort: ["businessName,asc"],
+        sort: ["businessId,asc"],
       },
       { token: "admin-token" },
     );

@@ -234,19 +234,6 @@ export interface AdminBottleReservationApplicantResponse {
   username?: string;
 }
 
-export type AdminBottleReservationApplicationResponseStatus = typeof AdminBottleReservationApplicationResponseStatus[keyof typeof AdminBottleReservationApplicationResponseStatus];
-
-
-export const AdminBottleReservationApplicationResponseStatus = {
-  APPLIED: 'APPLIED',
-  CANCELLED: 'CANCELLED',
-  CONFIRMED: 'CONFIRMED',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  WAITING_PICKUP: 'WAITING_PICKUP',
-  RECEIVED: 'RECEIVED',
-  REJECTED: 'REJECTED',
-} as const;
-
 export type AdminBottleReservationApplicationResponseApplicantType = typeof AdminBottleReservationApplicationResponseApplicantType[keyof typeof AdminBottleReservationApplicationResponseApplicantType];
 
 
@@ -264,6 +251,19 @@ export const AdminBottleReservationApplicationResponsePickupAssignmentType = {
   APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
 } as const;
 
+export type AdminBottleReservationApplicationResponseStatus = typeof AdminBottleReservationApplicationResponseStatus[keyof typeof AdminBottleReservationApplicationResponseStatus];
+
+
+export const AdminBottleReservationApplicationResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
 export interface AdminBottleReservationPickupBusinessResponse {
   businessId?: number;
   businessName?: string;
@@ -273,6 +273,9 @@ export interface AdminBottleReservationPickupBusinessResponse {
 }
 
 export interface AdminBottleReservationApplicationResponse {
+  applicantBusiness?: AdminBottleReservationPickupBusinessResponse;
+  applicantBusinessId?: number;
+  applicantType?: AdminBottleReservationApplicationResponseApplicantType;
   applicantUser?: AdminBottleReservationApplicantResponse;
   bottleId?: number;
   bottleImgUrl?: string;
@@ -282,6 +285,7 @@ export interface AdminBottleReservationApplicationResponse {
   createdAt?: string;
   id?: number;
   noticeId?: number;
+  pickupAssignmentType?: AdminBottleReservationApplicationResponsePickupAssignmentType;
   pickupBusiness?: AdminBottleReservationPickupBusinessResponse;
   pickupUserBusinessId?: number;
   quantity?: number;
@@ -290,10 +294,6 @@ export interface AdminBottleReservationApplicationResponse {
   totalPrice?: number;
   unitPrice?: number;
   updatedAt?: string;
-  applicantType?: AdminBottleReservationApplicationResponseApplicantType;
-  applicantBusinessId?: number;
-  applicantBusiness?: AdminBottleReservationPickupBusinessResponse;
-  pickupAssignmentType?: AdminBottleReservationApplicationResponsePickupAssignmentType;
 }
 
 export interface AdminBottleReservationAutoConfirmResponse {
@@ -2322,6 +2322,63 @@ export interface BottleSearchParameterValues {
   series?: string[];
 }
 
+export type BusinessBottleReservationApplicationPublicResponsePickupAssignmentType = typeof BusinessBottleReservationApplicationPublicResponsePickupAssignmentType[keyof typeof BusinessBottleReservationApplicationPublicResponsePickupAssignmentType];
+
+
+export const BusinessBottleReservationApplicationPublicResponsePickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
+export type BusinessBottleReservationApplicationPublicResponseStatus = typeof BusinessBottleReservationApplicationPublicResponseStatus[keyof typeof BusinessBottleReservationApplicationPublicResponseStatus];
+
+
+export const BusinessBottleReservationApplicationPublicResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/**
+ * 비즈니스 사업장 예약 신청 응답
+ */
+export interface BusinessBottleReservationApplicationPublicResponse {
+  bottleId: number;
+  /** @nullable */
+  bottleImgUrl: string | null;
+  bottleName: string;
+  businessId: number;
+  businessName: string;
+  /** @nullable */
+  confirmedQuantity: number | null;
+  /** @nullable */
+  createdAt: string | null;
+  id: number;
+  noticeId: number;
+  noticeName: string;
+  /** @nullable */
+  pickupAddress: string | null;
+  pickupAssignmentType: BusinessBottleReservationApplicationPublicResponsePickupAssignmentType;
+  pickupBusinessName: string;
+  pickupUserBusinessId: number;
+  quantity: number;
+  status: BusinessBottleReservationApplicationPublicResponseStatus;
+  totalPrice: number;
+  unitPrice: number;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface BusinessBottleReservationApplicationRequest {
+  /** @minimum 1 */
+  quantity: number;
+}
+
 export interface BusinessMemberCreateRequest {
   email?: string;
   userId?: number;
@@ -2380,6 +2437,41 @@ export interface BusinessMembershipContextResponse {
 
 export interface BusinessOwnershipTransferRequest {
   targetUserId: number;
+}
+
+export interface BusinessReservationPickupSettingClearRequest {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+}
+
+export interface BusinessReservationPickupSettingRequest {
+  businessId: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+}
+
+export type BusinessReservationPickupSettingResponseAssignmentType = typeof BusinessReservationPickupSettingResponseAssignmentType[keyof typeof BusinessReservationPickupSettingResponseAssignmentType];
+
+
+export const BusinessReservationPickupSettingResponseAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
+export interface BusinessReservationPickupSettingResponse {
+  assignmentType?: BusinessReservationPickupSettingResponseAssignmentType;
+  businessId?: number;
+  businessName?: string;
+  contact?: string;
+  pickupAddress?: string;
+  updatedAt?: string;
 }
 
 export interface CartGeneralItemDeliveryOrderRequest {
@@ -3534,6 +3626,11 @@ export interface PagedModelBottleResponse {
   page?: PageMetadata;
 }
 
+export interface PagedModelBusinessBottleReservationApplicationPublicResponse {
+  content?: BusinessBottleReservationApplicationPublicResponse[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelDonationLinkResponse {
   content?: DonationLinkResponse[];
   page?: PageMetadata;
@@ -3774,6 +3871,15 @@ export interface PagedModelUserBoardResponse {
   page?: PageMetadata;
 }
 
+export type UserBottleReservationApplicationPublicResponsePickupAssignmentType = typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType[keyof typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType];
+
+
+export const UserBottleReservationApplicationPublicResponsePickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
 export type UserBottleReservationApplicationPublicResponseStatus = typeof UserBottleReservationApplicationPublicResponseStatus[keyof typeof UserBottleReservationApplicationPublicResponseStatus];
 
 
@@ -3787,25 +3893,19 @@ export const UserBottleReservationApplicationPublicResponseStatus = {
   REJECTED: 'REJECTED',
 } as const;
 
-export type UserBottleReservationApplicationPublicResponsePickupAssignmentType = typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType[keyof typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType];
-
-
-export const UserBottleReservationApplicationPublicResponsePickupAssignmentType = {
-  USER_SELECTED: 'USER_SELECTED',
-  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
-  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
-} as const;
-
 export interface UserBottleReservationApplicationPublicResponse {
   bottleId?: number;
   bottleImgUrl?: string;
   bottleName?: string;
+  businessId?: number;
+  businessName?: string;
   confirmedQuantity?: number;
   createdAt?: string;
   id?: number;
   noticeId?: number;
   noticeName?: string;
   pickupAddress?: string;
+  pickupAssignmentType?: UserBottleReservationApplicationPublicResponsePickupAssignmentType;
   pickupBusinessName?: string;
   pickupUserBusinessId?: number;
   quantity?: number;
@@ -3813,9 +3913,6 @@ export interface UserBottleReservationApplicationPublicResponse {
   totalPrice?: number;
   unitPrice?: number;
   updatedAt?: string;
-  businessId?: number;
-  businessName?: string;
-  pickupAssignmentType?: UserBottleReservationApplicationPublicResponsePickupAssignmentType;
 }
 
 export interface PagedModelUserBottleReservationApplicationPublicResponse {
@@ -5949,46 +6046,6 @@ export interface UsernameRequest {
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
   username: string;
-}
-
-export interface BusinessBottleReservationApplicationRequest {
-  /** @minimum 1 */
-  quantity: number;
-}
-
-export interface BusinessReservationPickupSettingRequest {
-  businessId: number;
-  /**
-   * @minLength 1
-   * @maxLength 500
-   */
-  reason: string;
-}
-
-export interface BusinessReservationPickupSettingClearRequest {
-  /**
-   * @minLength 1
-   * @maxLength 500
-   */
-  reason: string;
-}
-
-export type BusinessReservationPickupSettingResponseAssignmentType = typeof BusinessReservationPickupSettingResponseAssignmentType[keyof typeof BusinessReservationPickupSettingResponseAssignmentType];
-
-
-export const BusinessReservationPickupSettingResponseAssignmentType = {
-  USER_SELECTED: 'USER_SELECTED',
-  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
-  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
-} as const;
-
-export interface BusinessReservationPickupSettingResponse {
-  assignmentType?: BusinessReservationPickupSettingResponseAssignmentType;
-  businessId?: number;
-  businessName?: string;
-  pickupAddress?: string;
-  contact?: string;
-  updatedAt?: string;
 }
 
 export type GetApiAdminBannersParams = {
@@ -8293,6 +8350,23 @@ export type PatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessi
   trackingNumber?: string;
 };
 
+export type PutApiAdminReservationsBusinessPickupLocationBody = {
+  businessId: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+};
+
+export type PostApiAdminReservationsBusinessPickupLocationClearBody = {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+};
+
 export type GetApiAdminSalesParams = {
 /**
  * Zero-based page index (0..N)
@@ -9235,6 +9309,58 @@ export type PostApiBottlesReservationsNoticesNoticeidApplicationsBody = {
   /** @minimum 1 */
   quantity: number;
   userBusinessId: number;
+};
+
+export type GetApiBusinessesBusinessidBottlesReservationsApplicationsParams = {
+/**
+ * 예약 신청 상태 필터
+ */
+status?: GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus;
+/**
+ * 특정 예약 공고의 신청 내역만 조회할 때 사용하는 공고 ID
+ */
+noticeId?: number;
+/**
+ * 특정 병의 신청 내역만 조회할 때 사용하는 병 ID
+ */
+bottleId?: number;
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
+export type GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus[keyof typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus];
+
+
+export const GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export type PutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody = {
+  /** @minimum 1 */
+  quantity: number;
+};
+
+export type PostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody = {
+  /** @minimum 1 */
+  quantity: number;
 };
 
 export type AddItemBody = {
@@ -10606,34 +10732,6 @@ export type PutApiUsersMeNicknameBody = {
   nickname: string;
 };
 
-export type GetApiBusinessesBusinessidBottlesReservationsApplicationsParams = {
-status?: GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus;
-noticeId?: number;
-bottleId?: number;
-/**
- * @minimum 0
- */
-page?: number;
-/**
- * @minimum 1
- */
-size?: number;
-sort?: string[];
-};
-
-export type GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus[keyof typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus];
-
-
-export const GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = {
-  APPLIED: 'APPLIED',
-  CANCELLED: 'CANCELLED',
-  CONFIRMED: 'CONFIRMED',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  WAITING_PICKUP: 'WAITING_PICKUP',
-  RECEIVED: 'RECEIVED',
-  REJECTED: 'REJECTED',
-} as const;
-
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
  * @summary v1 헬스체크
@@ -10642,7 +10740,7 @@ export type getApiV1HealthResponse200 = {
   data: HealthCheckResponse
   status: 200
 }
-
+    
 export type getApiV1HealthResponseSuccess = (getApiV1HealthResponse200) & {
   headers: Headers;
 };
@@ -10653,19 +10751,19 @@ export type getApiV1HealthResponse = (getApiV1HealthResponseSuccess)
 export const getGetApiV1HealthUrl = () => {
 
 
-
+  
 
   return `/api/1.0/health`
 }
 
 export const getApiV1Health = async ( options?: RequestInit): Promise<getApiV1HealthResponse> => {
-
+  
   return customFetch<getApiV1HealthResponse>(getGetApiV1HealthUrl(),
-  {
+  {      
     ...options,
     method: 'GET'
-
-
+    
+    
   }
 );}
 
@@ -10679,7 +10777,7 @@ export type getApiV2HealthResponse200 = {
   data: HealthCheckResponse
   status: 200
 }
-
+    
 export type getApiV2HealthResponseSuccess = (getApiV2HealthResponse200) & {
   headers: Headers;
 };
@@ -10690,19 +10788,19 @@ export type getApiV2HealthResponse = (getApiV2HealthResponseSuccess)
 export const getGetApiV2HealthUrl = () => {
 
 
-
+  
 
   return `/api/2.0/health`
 }
 
 export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2HealthResponse> => {
-
+  
   return customFetch<getApiV2HealthResponse>(getGetApiV2HealthUrl(),
-  {
+  {      
     ...options,
     method: 'GET'
-
-
+    
+    
   }
 );}
 
@@ -15357,6 +15455,119 @@ export const patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusiness
 
 
 /**
+ * 관리자 지정 업장이 없으면 신청 사업장 직접 픽업 정책을 반환합니다.
+ * @summary 비즈니스 예약 픽업 설정 조회
+ */
+export type getApiAdminReservationsBusinessPickupLocationResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type getApiAdminReservationsBusinessPickupLocationResponseSuccess = (getApiAdminReservationsBusinessPickupLocationResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminReservationsBusinessPickupLocationResponse = (getApiAdminReservationsBusinessPickupLocationResponseSuccess)
+
+export const getGetApiAdminReservationsBusinessPickupLocationUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location`
+}
+
+export const getApiAdminReservationsBusinessPickupLocation = async ( options?: RequestInit): Promise<getApiAdminReservationsBusinessPickupLocationResponse> => {
+  
+  return customFetch<getApiAdminReservationsBusinessPickupLocationResponse>(getGetApiAdminReservationsBusinessPickupLocationUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 신규 비즈니스 예약 신청에 우선 적용할 픽업 업장을 지정합니다.
+ * @summary 비즈니스 예약 픽업 업장 지정
+ */
+export type putApiAdminReservationsBusinessPickupLocationResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type putApiAdminReservationsBusinessPickupLocationResponseSuccess = (putApiAdminReservationsBusinessPickupLocationResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminReservationsBusinessPickupLocationResponse = (putApiAdminReservationsBusinessPickupLocationResponseSuccess)
+
+export const getPutApiAdminReservationsBusinessPickupLocationUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location`
+}
+
+export const putApiAdminReservationsBusinessPickupLocation = async (putApiAdminReservationsBusinessPickupLocationBody: PutApiAdminReservationsBusinessPickupLocationBody, options?: RequestInit): Promise<putApiAdminReservationsBusinessPickupLocationResponse> => {
+  
+  return customFetch<putApiAdminReservationsBusinessPickupLocationResponse>(getPutApiAdminReservationsBusinessPickupLocationUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminReservationsBusinessPickupLocationBody,)
+  }
+);}
+
+
+
+/**
+ * 지정 업장을 해제하고 신규 신청부터 신청 사업장을 픽업지로 사용합니다.
+ * @summary 비즈니스 예약 픽업 업장 해제
+ */
+export type postApiAdminReservationsBusinessPickupLocationClearResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type postApiAdminReservationsBusinessPickupLocationClearResponseSuccess = (postApiAdminReservationsBusinessPickupLocationClearResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminReservationsBusinessPickupLocationClearResponse = (postApiAdminReservationsBusinessPickupLocationClearResponseSuccess)
+
+export const getPostApiAdminReservationsBusinessPickupLocationClearUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location/clear`
+}
+
+export const postApiAdminReservationsBusinessPickupLocationClear = async (postApiAdminReservationsBusinessPickupLocationClearBody: PostApiAdminReservationsBusinessPickupLocationClearBody, options?: RequestInit): Promise<postApiAdminReservationsBusinessPickupLocationClearResponse> => {
+  
+  return customFetch<postApiAdminReservationsBusinessPickupLocationClearResponse>(getPostApiAdminReservationsBusinessPickupLocationClearUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminReservationsBusinessPickupLocationClearBody,)
+  }
+);}
+
+
+
+/**
  * @summary 판매 공고 목록 조회(관리자)
  */
 export type getApiAdminSalesResponse200 = {
@@ -17843,7 +18054,7 @@ export const getApiBottlesReservationsApplicationsMe = async (params?: GetApiBot
 
 
 /**
- * 예약 기간 동안 본인의 신청을 취소합니다. 취소 후 재신청은 불가합니다.
+ * 예약 기간 동안 본인의 신청을 취소합니다. 취소 후 재신청할 수 있습니다.
  * @summary 예약 신청 취소
  */
 export type deleteApiBottlesReservationsApplicationsApplicationidResponse200 = {
@@ -18181,6 +18392,172 @@ export const getApiBottlesId = async (id: number, options?: RequestInit): Promis
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * @summary 비즈니스 사업장 보틀 예약 신청 목록
+ */
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200 = {
+  data: PagedModelBusinessBottleReservationApplicationPublicResponse
+  status: 200
+}
+    
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess)
+
+export const getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl = (businessId: number,
+    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/businesses/${businessId}/bottles/reservations/applications?${stringifiedParams}` : `/api/businesses/${businessId}/bottles/reservations/applications`
+}
+
+export const getApiBusinessesBusinessidBottlesReservationsApplications = async (businessId: number,
+    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams, options?: RequestInit): Promise<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse> => {
+  
+  return customFetch<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse>(getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl(businessId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 취소 후 같은 사업장으로 재신청할 수 있습니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청 취소
+ */
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
+
+export const getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
+    applicationId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
+}
+
+export const deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
+    applicationId: number, options?: RequestInit): Promise<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
+  
+  return customFetch<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 수량만 수정하며 신청 사업장과 픽업 업장은 유지합니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청 수정
+ */
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
+  data: BusinessBottleReservationApplicationPublicResponse
+  status: 200
+}
+    
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
+
+export const getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
+    applicationId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
+}
+
+export const putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
+    applicationId: number,
+    putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody: PutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody, options?: RequestInit): Promise<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
+  
+  return customFetch<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자 지정 픽업 업장을 우선 사용하고, 미지정 상태에서는 신청 사업장을 픽업지로 사용합니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청
+ */
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201 = {
+  data: BusinessBottleReservationApplicationPublicResponse
+  status: 201
+}
+    
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201) & {
+  headers: Headers;
+};
+;
+
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess)
+
+export const getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl = (businessId: number,
+    noticeId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/notices/${noticeId}/applications`
+}
+
+export const postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications = async (businessId: number,
+    noticeId: number,
+    postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody: PostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody, options?: RequestInit): Promise<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse> => {
+  
+  return customFetch<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse>(getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl(businessId,noticeId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody,)
   }
 );}
 
@@ -22494,278 +22871,5 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
     method: 'DELETE'
     
     
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 사업장 보틀 예약 신청
- */
-export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201 = {
-  data: UserBottleReservationApplicationPublicResponse
-  status: 201
-}
-
-export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201) & {
-  headers: Headers;
-};
-;
-
-export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess)
-
-export const getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl = (businessId: number,
-    noticeId: number,) => {
-
-
-
-
-  return `/api/businesses/${businessId}/bottles/reservations/notices/${noticeId}/applications`
-}
-
-export const postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications = async (businessId: number,
-    noticeId: number,
-    businessBottleReservationApplicationRequest: BusinessBottleReservationApplicationRequest, options?: RequestInit): Promise<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse> => {
-
-  return customFetch<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse>(getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl(businessId,noticeId),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      businessBottleReservationApplicationRequest,)
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 사업장 보틀 예약 신청 목록
- */
-export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200 = {
-  data: PagedModelUserBottleReservationApplicationPublicResponse
-  status: 200
-}
-
-export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess)
-
-export const getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl = (businessId: number,
-    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/businesses/${businessId}/bottles/reservations/applications?${stringifiedParams}` : `/api/businesses/${businessId}/bottles/reservations/applications`
-}
-
-export const getApiBusinessesBusinessidBottlesReservationsApplications = async (businessId: number,
-    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams, options?: RequestInit): Promise<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse> => {
-
-  return customFetch<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse>(getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl(businessId,params),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 사업장 보틀 예약 신청 수정
- */
-export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
-  data: UserBottleReservationApplicationPublicResponse
-  status: 200
-}
-
-export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
-  headers: Headers;
-};
-;
-
-export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
-
-export const getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
-    applicationId: number,) => {
-
-
-
-
-  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
-}
-
-export const putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
-    applicationId: number,
-    businessBottleReservationApplicationRequest: BusinessBottleReservationApplicationRequest, options?: RequestInit): Promise<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
-
-  return customFetch<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
-  {
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      businessBottleReservationApplicationRequest,)
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 사업장 보틀 예약 신청 취소
- */
-export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
-  data: boolean
-  status: 200
-}
-
-export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
-  headers: Headers;
-};
-;
-
-export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
-
-export const getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
-    applicationId: number,) => {
-
-
-
-
-  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
-}
-
-export const deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
-    applicationId: number, options?: RequestInit): Promise<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
-
-  return customFetch<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
-  {
-    ...options,
-    method: 'DELETE'
-
-
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 예약 픽업 설정 조회
- */
-export type getApiAdminReservationsBusinessPickupLocationResponse200 = {
-  data: BusinessReservationPickupSettingResponse
-  status: 200
-}
-
-export type getApiAdminReservationsBusinessPickupLocationResponseSuccess = (getApiAdminReservationsBusinessPickupLocationResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiAdminReservationsBusinessPickupLocationResponse = (getApiAdminReservationsBusinessPickupLocationResponseSuccess)
-
-export const getGetApiAdminReservationsBusinessPickupLocationUrl = () => {
-
-
-
-
-  return `/api/admin/reservations/business-pickup-location`
-}
-
-export const getApiAdminReservationsBusinessPickupLocation = async ( options?: RequestInit): Promise<getApiAdminReservationsBusinessPickupLocationResponse> => {
-
-  return customFetch<getApiAdminReservationsBusinessPickupLocationResponse>(getGetApiAdminReservationsBusinessPickupLocationUrl(),
-  {
-    ...options,
-    method: 'GET'
-
-
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 예약 픽업 업장 지정
- */
-export type putApiAdminReservationsBusinessPickupLocationResponse200 = {
-  data: BusinessReservationPickupSettingResponse
-  status: 200
-}
-
-export type putApiAdminReservationsBusinessPickupLocationResponseSuccess = (putApiAdminReservationsBusinessPickupLocationResponse200) & {
-  headers: Headers;
-};
-;
-
-export type putApiAdminReservationsBusinessPickupLocationResponse = (putApiAdminReservationsBusinessPickupLocationResponseSuccess)
-
-export const getPutApiAdminReservationsBusinessPickupLocationUrl = () => {
-
-
-
-
-  return `/api/admin/reservations/business-pickup-location`
-}
-
-export const putApiAdminReservationsBusinessPickupLocation = async (businessReservationPickupSettingRequest: BusinessReservationPickupSettingRequest, options?: RequestInit): Promise<putApiAdminReservationsBusinessPickupLocationResponse> => {
-
-  return customFetch<putApiAdminReservationsBusinessPickupLocationResponse>(getPutApiAdminReservationsBusinessPickupLocationUrl(),
-  {
-    ...options,
-    method: 'PUT',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      businessReservationPickupSettingRequest,)
-  }
-);}
-
-
-
-/**
- * @summary 비즈니스 예약 픽업 업장 해제
- */
-export type postApiAdminReservationsBusinessPickupLocationClearResponse200 = {
-  data: BusinessReservationPickupSettingResponse
-  status: 200
-}
-
-export type postApiAdminReservationsBusinessPickupLocationClearResponseSuccess = (postApiAdminReservationsBusinessPickupLocationClearResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminReservationsBusinessPickupLocationClearResponse = (postApiAdminReservationsBusinessPickupLocationClearResponseSuccess)
-
-export const getPostApiAdminReservationsBusinessPickupLocationClearUrl = () => {
-
-
-
-
-  return `/api/admin/reservations/business-pickup-location/clear`
-}
-
-export const postApiAdminReservationsBusinessPickupLocationClear = async (businessReservationPickupSettingClearRequest: BusinessReservationPickupSettingClearRequest, options?: RequestInit): Promise<postApiAdminReservationsBusinessPickupLocationClearResponse> => {
-
-  return customFetch<postApiAdminReservationsBusinessPickupLocationClearResponse>(getPostApiAdminReservationsBusinessPickupLocationClearUrl(),
-  {
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      businessReservationPickupSettingClearRequest,)
   }
 );}
