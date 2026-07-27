@@ -1,4 +1,4 @@
-import { UserOrderResponseOrderStatus } from "@/apis/generated/api";
+import { UserOrderResponseOrderStatus, UserOrderResponseSaleTiming } from "@/apis/generated/api";
 
 export const ORDER_STATUS_MAP: Record<string, { label: string; colorClass: string }> = {
   [UserOrderResponseOrderStatus.ORDER_REQUESTED]: {
@@ -43,11 +43,19 @@ export const ORDER_STATUS_MAP: Record<string, { label: string; colorClass: strin
   },
 };
 
-export const CANCELABLE_STATUSES = [
+const CANCELABLE_STATUSES = new Set<string>([
   UserOrderResponseOrderStatus.ORDER_REQUESTED,
   UserOrderResponseOrderStatus.PAYMENT_PENDING,
   UserOrderResponseOrderStatus.ORDER_PREPARING,
-] as const;
+]);
+
+export function isOrderCancellationAllowed(orderStatus?: string, saleTiming?: string): boolean {
+  return (
+    saleTiming !== UserOrderResponseSaleTiming.RESERVATION &&
+    orderStatus !== undefined &&
+    CANCELABLE_STATUSES.has(orderStatus)
+  );
+}
 
 export const MEMBERSHIP_ROLE = {
   NAVI: "ROLE_WHISKYNAVI_MEMBER",
