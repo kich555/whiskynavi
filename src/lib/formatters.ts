@@ -11,7 +11,7 @@ export function formatDate(dateStr?: string): string {
     .replace(/\.$/, "");
 }
 
-export function formatDateTime(dateStr?: string): string {
+export function formatDateTime(dateStr?: string | null): string {
   if (!dateStr) return "-";
   return new Date(dateStr).toLocaleString("ko-KR", {
     year: "numeric",

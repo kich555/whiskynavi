@@ -44,6 +44,7 @@ describe("ApplicationsTableSection", () => {
         applications={[
           {
             id: 123,
+            applicantType: "BUSINESS",
             applicantUser: {
               name: "홍길동",
               phone: "01012345678",
@@ -52,6 +53,10 @@ describe("ApplicationsTableSection", () => {
             pickupBusiness: {
               businessName: "강남 픽업",
             },
+            applicantBusiness: {
+              businessName: "신청 사업장",
+            },
+            pickupAssignmentType: "ADMIN_DESIGNATED",
             quantity: 2,
             confirmedQuantity: 1,
             status: "APPLIED",
@@ -66,6 +71,10 @@ describe("ApplicationsTableSection", () => {
     );
 
     expect(screen.getByRole("columnheader", { name: "예약신청시각" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "신청 사업장" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "비즈니스" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "신청 사업장" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "관리자 지정" })).toBeInTheDocument();
     expect(screen.getByText("2026.06.08 10:12:33.456")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "할당용 Excel 다운로드" })).toHaveAttribute(
       "href",
@@ -164,5 +173,39 @@ describe("ApplicationsTableSection", () => {
     );
 
     expect(screen.getByRole("button", { name: "미처리 신청 일괄 거절" })).toBeDisabled();
+  });
+
+  it("URL 필터 props가 바뀌면 사업장 ID 입력값도 새 값으로 초기화한다", () => {
+    const { rerender } = render(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+        currentApplicantBusinessId={10}
+        currentPickupBusinessId={20}
+      />,
+    );
+
+    expect(screen.getByLabelText("신청 사업장 ID")).toHaveValue(10);
+    expect(screen.getByLabelText("픽업 업장 ID")).toHaveValue(20);
+
+    rerender(
+      <ApplicationsTableSection
+        noticeId={7}
+        applications={[]}
+        totalElements={0}
+        currentPage={1}
+        itemsPerPage={20}
+        pendingApplicationCount={0}
+        currentApplicantBusinessId={30}
+        currentPickupBusinessId={40}
+      />,
+    );
+
+    expect(screen.getByLabelText("신청 사업장 ID")).toHaveValue(30);
+    expect(screen.getByLabelText("픽업 업장 ID")).toHaveValue(40);
   });
 });

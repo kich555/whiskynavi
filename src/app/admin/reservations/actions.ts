@@ -71,7 +71,7 @@ export interface UpdateNoticeAvailableQuantityInput {
   availableQuantity: number;
   maxOrderQuantity?: number;
   description?: string;
-  gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
+  gradeConditions: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
 }
 
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
