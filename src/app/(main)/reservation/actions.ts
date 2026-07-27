@@ -179,14 +179,18 @@ export async function applyBusinessReservation(
       return { success: false, error: "지금은 예약 신청 기간이 아닙니다." };
     }
 
-    const { data: application } = await postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications(
+    const response = await postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications(
       businessId,
       noticeId,
       { quantity },
       withToken(token),
     );
 
-    return { success: true, application };
+    if (response.status !== 201) {
+      return { success: false, error: response.data.message };
+    }
+
+    return { success: true, application: response.data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
     return {

@@ -138,6 +138,29 @@ describe("reservation actions", () => {
     expect(mockedApplyBusinessApplication).toHaveBeenCalledWith(20, 10, { quantity: 2 }, { token: "user-token" });
   });
 
+  it("비즈니스 예약 중복 신청의 409 메시지를 반환한다", async () => {
+    mockedGetNotice.mockResolvedValue({
+      data: activeNotice(),
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof getApiBottlesReservationsNoticesNoticeid>>);
+    mockedApplyBusinessApplication.mockResolvedValue({
+      data: {
+        code: "RESERVATION_APPLICATION_CONFLICT",
+        message: "해당 사업장의 예약 신청이 이미 존재합니다.",
+        hint: "기존 신청 내역을 확인하거나 취소 후 다시 시도해 주세요.",
+        requestId: "request-id",
+      },
+      status: 409,
+      headers: new Headers(),
+    });
+
+    await expect(applyBusinessReservation(10, 20, 2)).resolves.toEqual({
+      success: false,
+      error: "해당 사업장의 예약 신청이 이미 존재합니다.",
+    });
+  });
+
   it("비즈니스 예약 취소는 신청 사업장 소유권 경로를 사용한다", async () => {
     mockedGetNotice.mockResolvedValue({
       data: activeNotice(),
