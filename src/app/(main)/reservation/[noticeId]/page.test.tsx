@@ -3,6 +3,7 @@ import {
   getApiBottlesReservationsApplicationsMe,
   getApiBusinessesBusinessidBottlesReservationsApplications,
   getApiUsersBusinessesMe,
+  type BusinessBottleReservationApplicationPublicResponse,
 } from "@/apis/generated/api";
 import { render, screen, waitFor } from "@testing-library/react";
 import { getServerSession } from "next-auth";
@@ -11,6 +12,8 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fetchNoticeDetail } from "../_lib/fetchNoticeDetail";
 import { fetchPickupLocations } from "../_lib/fetchPickupLocations";
 import ReservationDetailPage from "./page";
+
+const reservationDetailClient = vi.hoisted(() => vi.fn());
 
 vi.mock("@/apis/generated/api", () => ({
   getApiBottlesReservationsApplicationsMe: vi.fn(),
@@ -56,7 +59,10 @@ vi.mock("../_lib/fetchPickupLocations", () => ({
 }));
 
 vi.mock("./_components/ReservationDetailClient", () => ({
-  default: vi.fn(() => null),
+  default: (props: unknown) => {
+    reservationDetailClient(props);
+    return null;
+  },
 }));
 
 describe("ReservationDetailPage", () => {
@@ -190,4 +196,85 @@ describe("ReservationDetailPage", () => {
     );
     expect(getApiBottlesReservationsApplicationsMe).toHaveBeenCalled();
   });
+
+  it("관리 중인 모든 사업장의 신청을 병렬 조회해 상세 화면에 전달한다", async () => {
+    vi.mocked(fetchNoticeDetail).mockResolvedValue({
+      id: 7,
+      noticeName: "비즈니스 예약",
+    });
+    vi.mocked(getApiUsersBusinessesMe).mockResolvedValue({
+      data: [
+        { businessId: 20, businessName: "A 사업장", primaryBusiness: true },
+        { businessId: 30, businessName: "B 사업장", primaryBusiness: false },
+      ],
+      status: 200,
+      headers: new Headers(),
+    });
+    vi.mocked(getApiBusinessesBusinessidBottlesReservationsApplications).mockImplementation(async (businessId) => ({
+      data: {
+        content: [
+          businessApplication({
+            id: businessId === 20 ? 100 : 200,
+            businessId,
+            businessName: businessId === 20 ? "A 사업장" : "B 사업장",
+          }),
+        ],
+      },
+      status: 200,
+      headers: new Headers(),
+    }));
+
+    const page = await ReservationDetailPage({
+      params: Promise.resolve({ noticeId: "7" }),
+      searchParams: Promise.resolve({}),
+    });
+    render(page);
+
+    expect(getApiBusinessesBusinessidBottlesReservationsApplications).toHaveBeenCalledTimes(2);
+    expect(getApiBusinessesBusinessidBottlesReservationsApplications).toHaveBeenCalledWith(
+      20,
+      { noticeId: 7, size: 20, sort: ["createdAt,desc"] },
+      expect.anything(),
+    );
+    expect(getApiBusinessesBusinessidBottlesReservationsApplications).toHaveBeenCalledWith(
+      30,
+      { noticeId: 7, size: 20, sort: ["createdAt,desc"] },
+      expect.anything(),
+    );
+    expect(reservationDetailClient).toHaveBeenCalledWith(
+      expect.objectContaining({
+        businessApplications: [
+          expect.objectContaining({ id: 100, businessId: 20, businessName: "A 사업장" }),
+          expect.objectContaining({ id: 200, businessId: 30, businessName: "B 사업장" }),
+        ],
+      }),
+    );
+  });
 });
+
+function businessApplication(
+  overrides: Partial<BusinessBottleReservationApplicationPublicResponse> = {},
+): BusinessBottleReservationApplicationPublicResponse {
+  return {
+    id: 100,
+    noticeId: 7,
+    noticeName: "비즈니스 예약",
+    bottleId: 1,
+    bottleName: "테스트 보틀",
+    bottleImgUrl: null,
+    businessId: 20,
+    businessName: "A 사업장",
+    quantity: 1,
+    confirmedQuantity: null,
+    pickupUserBusinessId: 20,
+    pickupBusinessName: "A 사업장",
+    pickupAddress: null,
+    pickupAssignmentType: "APPLICANT_BUSINESS_FALLBACK",
+    status: "APPLIED",
+    unitPrice: 10_000,
+    totalPrice: 10_000,
+    createdAt: "2026-07-07T10:00:00.000Z",
+    updatedAt: null,
+    ...overrides,
+  };
+}

@@ -1,28 +1,29 @@
 import type {
+  BusinessBottleReservationApplicationPublicResponse,
   PickupLocationResponse,
   UserBottleReservationApplicationPublicResponse,
   UserBottleReservationNoticePublicResponse,
 } from "@/apis/generated/api";
-import { act, fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import type { ReactNode } from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { cancelBusinessReservation, updateBusinessReservation } from "../../actions";
 import ReservationDetailClient from "./ReservationDetailClient";
 
 const serverClock = vi.hoisted(() => ({
   now: new Date("2026-07-07T12:00:00.000Z").getTime(),
 }));
-const navigation = vi.hoisted(() => ({
-  push: vi.fn(),
+const overlayController = vi.hoisted(() => ({
+  open: vi.fn(),
 }));
 
 vi.mock("@/components/ui/ImageWithFallback", () => ({
   ImageWithFallback: ({ alt }: { alt: string }) => <span aria-label={alt} role="img" />,
 }));
 
-vi.mock("next/navigation", () => ({
-  usePathname: () => "/reservation/1",
-  useRouter: () => ({ push: navigation.push }),
-  useSearchParams: () => new URLSearchParams(),
+vi.mock("overlay-kit", () => ({
+  overlay: overlayController,
 }));
 
 vi.mock("../../actions", () => ({
@@ -106,6 +107,7 @@ describe("ReservationDetailClient", () => {
         })}
         pickupLocations={[]}
         myApplication={null}
+        businessApplications={[]}
         businessOptions={[
           {
             businessId: 20,
@@ -129,12 +131,15 @@ describe("ReservationDetailClient", () => {
           reservationEndAt: "2026-07-07T13:00:00.000Z",
         })}
         pickupLocations={[]}
-        myApplication={application({
-          status: "CONFIRMED",
-          businessName: "신청 사업장",
-          pickupBusinessName: "관리자 지정 픽업 업장",
-          pickupAddress: "서울특별시 중구 테스트로 10",
-        })}
+        myApplication={null}
+        businessApplications={[
+          businessApplication({
+            status: "CONFIRMED",
+            businessName: "신청 사업장",
+            pickupBusinessName: "관리자 지정 픽업 업장",
+            pickupAddress: "서울특별시 중구 테스트로 10",
+          }),
+        ]}
         businessOptions={[
           {
             businessId: 20,
@@ -145,51 +150,56 @@ describe("ReservationDetailClient", () => {
       />,
     );
 
-    expect(screen.getAllByText("신청 사업장").length).toBeGreaterThanOrEqual(2);
+    expect(screen.getByRole("heading", { name: "사업장별 신청 내역" })).toBeInTheDocument();
     expect(screen.getByText("관리자 지정 픽업 업장")).toBeInTheDocument();
     expect(screen.getByText("서울특별시 중구 테스트로 10")).toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "수정하기" })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: "취소하기" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "신청 사업장 신청 수정" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "신청 사업장 신청 취소" })).not.toBeInTheDocument();
   });
 
-  it("선택 사업장 key가 바뀌면 이전 사업장의 로컬 신청 상태를 초기화한다", () => {
-    const activeNotice = notice({
-      reservationStartAt: "2026-07-07T10:00:00.000Z",
-      reservationEndAt: "2026-07-07T13:00:00.000Z",
-    });
-    const businessOptions = [
-      { businessId: 20, businessName: "A 사업장" },
-      { businessId: 30, businessName: "B 사업장" },
-    ];
-    const { rerender } = render(
+  it("여러 사업장의 신청 내역과 수정·취소 버튼을 사업장별로 표시한다", () => {
+    render(
       <ReservationDetailClient
-        key={20}
-        notice={activeNotice}
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
         pickupLocations={[]}
-        myApplication={application({ businessName: "A 사업장" })}
-        businessOptions={businessOptions}
+        myApplication={null}
+        businessApplications={[
+          businessApplication({
+            id: 100,
+            businessId: 20,
+            businessName: "A 사업장",
+            pickupBusinessName: "A 픽업 장소",
+          }),
+          businessApplication({
+            id: 200,
+            businessId: 30,
+            businessName: "B 사업장",
+            pickupBusinessName: "B 픽업 장소",
+          }),
+        ]}
+        businessOptions={[
+          { businessId: 20, businessName: "A 사업장" },
+          { businessId: 30, businessName: "B 사업장" },
+        ]}
         selectedBusinessId={20}
       />,
     );
 
-    expect(screen.getAllByText("A 사업장").length).toBeGreaterThan(0);
-
-    rerender(
-      <ReservationDetailClient
-        key={30}
-        notice={activeNotice}
-        pickupLocations={[]}
-        myApplication={null}
-        businessOptions={businessOptions}
-        selectedBusinessId={30}
-      />,
-    );
-
-    expect(screen.queryByText("예약신청완료")).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "예약하기" })).toBeInTheDocument();
+    expect(screen.getByText("2건")).toBeInTheDocument();
+    expect(screen.getByText("A 사업장")).toBeInTheDocument();
+    expect(screen.getByText("B 사업장")).toBeInTheDocument();
+    expect(screen.getByText("A 픽업 장소")).toBeInTheDocument();
+    expect(screen.getByText("B 픽업 장소")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "A 사업장 신청 수정" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "A 사업장 신청 취소" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "B 사업장 신청 수정" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "B 사업장 신청 취소" })).toBeInTheDocument();
   });
 
-  it("한 사업장의 신청이 완료되어도 다른 사업장으로 전환할 수 있다", async () => {
+  it("신청하지 않은 사업장만 추가 신청 선택지로 표시한다", async () => {
     const user = userEvent.setup();
 
     render(
@@ -199,22 +209,87 @@ describe("ReservationDetailClient", () => {
           reservationEndAt: "2026-07-07T13:00:00.000Z",
         })}
         pickupLocations={[]}
-        myApplication={application({ businessName: "A 사업장" })}
+        myApplication={null}
+        businessApplications={[
+          businessApplication({
+            businessId: 20,
+            businessName: "신청 사업장",
+          }),
+        ]}
         businessOptions={[
-          { businessId: 20, businessName: "A 사업장" },
-          { businessId: 30, businessName: "B 사업장" },
+          { businessId: 20, businessName: "신청 사업장" },
+          { businessId: 30, businessName: "추가 사업장" },
         ]}
         selectedBusinessId={20}
       />,
     );
 
     const businessSelector = screen.getByRole("combobox", { name: "신청 사업장" });
-    expect(businessSelector).toHaveTextContent("A 사업장");
+    expect(businessSelector).toHaveTextContent("추가 사업장");
 
     await user.click(businessSelector);
-    await user.click(screen.getByRole("option", { name: "B 사업장" }));
+    expect(screen.queryByRole("option", { name: "신청 사업장" })).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "추가 사업장" })).toBeInTheDocument();
+  });
 
-    expect(navigation.push).toHaveBeenCalledWith("/reservation/1?businessId=30");
+  it("신청 목록의 수정 버튼은 해당 사업장과 신청 ID로 수정한다", async () => {
+    const user = userEvent.setup();
+    vi.mocked(updateBusinessReservation).mockResolvedValue({
+      success: true,
+      application: businessApplication({ quantity: 2 }),
+    });
+
+    render(
+      <ReservationDetailClient
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
+        pickupLocations={[]}
+        myApplication={null}
+        businessApplications={[businessApplication()]}
+        businessOptions={[{ businessId: 20, businessName: "신청 사업장" }]}
+        selectedBusinessId={20}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "신청 사업장 신청 수정" }));
+    fireEvent.change(screen.getByLabelText("신청 수량"), { target: { value: "2" } });
+    await user.click(screen.getByRole("button", { name: "수정하기" }));
+
+    expect(updateBusinessReservation).toHaveBeenCalledWith(1, 20, 100, 2);
+    await waitFor(() => expect(screen.getByText("2병")).toBeInTheDocument());
+  });
+
+  it("신청 목록의 취소 버튼은 해당 사업장과 신청 ID로 취소한다", async () => {
+    const user = userEvent.setup();
+    vi.mocked(cancelBusinessReservation).mockResolvedValue({ success: true });
+
+    render(
+      <ReservationDetailClient
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
+        pickupLocations={[]}
+        myApplication={null}
+        businessApplications={[businessApplication()]}
+        businessOptions={[{ businessId: 20, businessName: "신청 사업장" }]}
+        selectedBusinessId={20}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: "신청 사업장 신청 취소" }));
+    const renderOverlay = overlayController.open.mock.calls[0]?.[0] as (props: {
+      isOpen: boolean;
+      close: () => void;
+    }) => ReactNode;
+    render(renderOverlay({ isOpen: true, close: vi.fn() }));
+    const dialog = await screen.findByRole("dialog");
+    await user.click(within(dialog).getByRole("button", { name: "취소하기" }));
+
+    expect(cancelBusinessReservation).toHaveBeenCalledWith(1, 20, 100);
+    await waitFor(() => expect(screen.getByText("신청한 사업장이 없습니다.")).toBeInTheDocument());
   });
 });
 
@@ -250,6 +325,33 @@ function application(
     pickupUserBusinessId: 10,
     pickupBusinessName: "테스트 업장",
     status: "APPLIED",
+    ...overrides,
+  };
+}
+
+function businessApplication(
+  overrides: Partial<BusinessBottleReservationApplicationPublicResponse> = {},
+): BusinessBottleReservationApplicationPublicResponse {
+  return {
+    id: 100,
+    noticeId: 1,
+    noticeName: "테스트 공고명",
+    bottleId: 1,
+    bottleName: "테스트 보틀",
+    bottleImgUrl: null,
+    businessId: 20,
+    businessName: "신청 사업장",
+    quantity: 1,
+    confirmedQuantity: null,
+    pickupUserBusinessId: 20,
+    pickupBusinessName: "신청 사업장",
+    pickupAddress: null,
+    pickupAssignmentType: "APPLICANT_BUSINESS_FALLBACK",
+    status: "APPLIED",
+    unitPrice: 10_000,
+    totalPrice: 10_000,
+    createdAt: "2026-07-07T10:00:00.000Z",
+    updatedAt: null,
     ...overrides,
   };
 }
