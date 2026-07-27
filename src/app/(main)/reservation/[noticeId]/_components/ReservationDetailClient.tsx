@@ -1,7 +1,6 @@
 "use client";
 
 import type {
-  BusinessBottleReservationApplicationPublicResponse,
   PickupLocationResponse,
   UserBottleReservationApplicationPublicResponse,
   UserBottleReservationNoticePublicResponse,
@@ -9,37 +8,27 @@ import type {
 import RichTextContent from "@/components/editor/RichTextContent";
 import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { overlay } from "overlay-kit";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import ApplyForm from "../../_components/ApplyForm";
-import BusinessApplyForm, {
-  BusinessSelector,
-  type ReservationBusinessOption,
-} from "../../_components/BusinessApplyForm";
+import type { ReservationBusinessOption } from "../../_components/BusinessApplyForm";
 import InfoList from "../../_components/InfoList";
 import StatusBadge from "../../_components/StatusBadge";
 import TimerDisplay from "../../_components/TimerDisplay";
 import { useCountdownTimer } from "../../_lib/useCountdownTimer";
-import {
-  applyBusinessReservation,
-  applyReservation,
-  cancelBusinessReservation,
-  cancelReservation,
-  updateBusinessReservation,
-  updateReservation,
-} from "../../actions";
+import { applyReservation, cancelReservation, updateReservation } from "../../actions";
+import BusinessReservationApplications, {
+  type ReservationBusinessApplication,
+} from "./BusinessReservationApplications";
 import CancelReservationModal from "./CancelReservationModal";
 
 interface ReservationDetailClientProps {
   notice: UserBottleReservationNoticePublicResponse;
   pickupLocations: PickupLocationResponse[];
-  myApplication:
-    | BusinessBottleReservationApplicationPublicResponse
-    | UserBottleReservationApplicationPublicResponse
-    | null;
+  myApplication: UserBottleReservationApplicationPublicResponse | null;
   businessOptions?: ReservationBusinessOption[];
+  businessApplications?: ReservationBusinessApplication[];
   selectedBusinessId?: number;
 }
 
@@ -48,18 +37,17 @@ export default function ReservationDetailClient({
   pickupLocations,
   myApplication: initialMyApplication,
   businessOptions,
+  businessApplications,
   selectedBusinessId,
 }: ReservationDetailClientProps) {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
   const [myApplication, setMyApplication] = useState(initialMyApplication);
+  const [currentBusinessApplications, setCurrentBusinessApplications] = useState(businessApplications ?? []);
   const [isEditing, setIsEditing] = useState(false);
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
   const isBusinessUser = businessOptions !== undefined;
   const { timeRemaining, status } = useCountdownTimer(notice);
-  const isApplied = myApplication !== null;
+  const isApplied = isBusinessUser ? currentBusinessApplications.length > 0 : myApplication !== null;
   const isEditable = status === "active" && myApplication?.status === "APPLIED";
   const displayStatus = status === "closed" ? status : isApplied ? "applied" : status;
 
@@ -72,19 +60,6 @@ export default function ReservationDetailClient({
         setMyApplication(result.application ?? null);
       } else {
         setError(result.error ?? "예약 신청에 실패했습니다.");
-      }
-    });
-  };
-
-  const handleBusinessApply = (quantity: number) => {
-    if (!selectedBusinessId) return;
-    setError(null);
-    startTransition(async () => {
-      const result = await applyBusinessReservation(notice.id!, selectedBusinessId, quantity);
-      if (result.success) {
-        setMyApplication(result.application ?? null);
-      } else {
-        setError(result.error ?? "비즈니스 예약 신청에 실패했습니다.");
       }
     });
   };
@@ -104,27 +79,9 @@ export default function ReservationDetailClient({
     });
   };
 
-  const handleBusinessUpdate = (quantity: number) => {
-    if (!selectedBusinessId || !myApplication?.id) return;
-    setError(null);
-    startTransition(async () => {
-      const result = await updateBusinessReservation(notice.id!, selectedBusinessId, myApplication.id!, quantity);
-      if (result.success) {
-        setMyApplication(result.application ?? myApplication);
-        setIsEditing(false);
-        toast.success("수정되었습니다");
-      } else {
-        setError(result.error ?? "비즈니스 예약 신청 수정에 실패했습니다.");
-      }
-    });
-  };
-
   const handleCancel = async () => {
     if (!myApplication?.id) return;
-    const result =
-      isBusinessUser && selectedBusinessId
-        ? await cancelBusinessReservation(notice.id!, selectedBusinessId, myApplication.id!)
-        : await cancelReservation(notice.id!, myApplication.id!);
+    const result = await cancelReservation(notice.id!, myApplication.id!);
     if (result.success) {
       setMyApplication(null);
       setIsEditing(false);
@@ -132,14 +89,6 @@ export default function ReservationDetailClient({
     } else {
       toast.error(result.error ?? "예약 신청 취소에 실패했습니다.");
     }
-  };
-
-  const handleBusinessChange = (businessId: number) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("businessId", String(businessId));
-    startTransition(() => {
-      router.push(`${pathname}?${params.toString()}`);
-    });
   };
 
   const openCancelModal = () => {
@@ -190,37 +139,23 @@ export default function ReservationDetailClient({
 
         <div className="flex flex-col">
           {isBusinessUser ? (
-            <div className="mb-4">
-              <BusinessSelector
-                businesses={businessOptions}
-                selectedBusinessId={selectedBusinessId}
-                onBusinessChange={handleBusinessChange}
-                disabled={isPending || isEditing}
-              />
-            </div>
-          ) : null}
-
-          {displayStatus === "active" ? (
-            isBusinessUser ? (
-              <BusinessApplyForm
-                businesses={businessOptions}
-                selectedBusinessId={selectedBusinessId}
-                onBusinessChange={handleBusinessChange}
-                onApply={handleBusinessApply}
-                isPending={isPending}
-                error={error}
-                maxQuantity={notice.maxOrderQuantity}
-                showBusinessSelector={false}
-              />
-            ) : (
-              <ApplyForm
-                onApply={handleApply}
-                isPending={isPending}
-                error={error}
-                pickupLocations={pickupLocations}
-                maxQuantity={notice.maxOrderQuantity}
-              />
-            )
+            <BusinessReservationApplications
+              noticeId={notice.id!}
+              status={status}
+              businessOptions={businessOptions}
+              applications={currentBusinessApplications}
+              onApplicationsChange={setCurrentBusinessApplications}
+              initialSelectedBusinessId={selectedBusinessId}
+              maxQuantity={notice.maxOrderQuantity}
+            />
+          ) : displayStatus === "active" ? (
+            <ApplyForm
+              onApply={handleApply}
+              isPending={isPending}
+              error={error}
+              pickupLocations={pickupLocations}
+              maxQuantity={notice.maxOrderQuantity}
+            />
           ) : displayStatus === "pending" ? (
             <button
               type="button"
@@ -230,33 +165,17 @@ export default function ReservationDetailClient({
               예약 대기 중
             </button>
           ) : isApplied && isEditing && isEditable ? (
-            isBusinessUser ? (
-              <BusinessApplyForm
-                mode="edit"
-                businesses={businessOptions}
-                selectedBusinessId={selectedBusinessId}
-                onBusinessChange={handleBusinessChange}
-                onApply={handleBusinessUpdate}
-                onCancelEdit={() => setIsEditing(false)}
-                isPending={isPending}
-                error={error}
-                initialQuantity={myApplication?.quantity}
-                maxQuantity={notice.maxOrderQuantity}
-                showBusinessSelector={false}
-              />
-            ) : (
-              <ApplyForm
-                mode="edit"
-                onApply={handleUpdate}
-                onCancelEdit={() => setIsEditing(false)}
-                isPending={isPending}
-                error={error}
-                pickupLocations={pickupLocations}
-                initialQuantity={myApplication?.quantity}
-                initialLocationId={myApplication?.pickupUserBusinessId}
-                maxQuantity={notice.maxOrderQuantity}
-              />
-            )
+            <ApplyForm
+              mode="edit"
+              onApply={handleUpdate}
+              onCancelEdit={() => setIsEditing(false)}
+              isPending={isPending}
+              error={error}
+              pickupLocations={pickupLocations}
+              initialQuantity={myApplication?.quantity}
+              initialLocationId={myApplication?.pickupUserBusinessId}
+              maxQuantity={notice.maxOrderQuantity}
+            />
           ) : isApplied ? (
             <div className="flex flex-col gap-3">
               {status === "closed" ? (
@@ -272,34 +191,12 @@ export default function ReservationDetailClient({
                   예약신청완료
                 </button>
               )}
-              {isBusinessUser ? (
-                <dl className="grid gap-3 border border-white/10 bg-white/5 p-4 sm:grid-cols-3">
-                  <div>
-                    <dt className="typo-medium-12 text-gray-400">신청 사업장</dt>
-                    <dd className="typo-medium-14 mt-1 text-white">{myApplication?.businessName ?? "-"}</dd>
-                  </div>
-                  <div>
-                    <dt className="typo-medium-12 text-gray-400">신청 수량</dt>
-                    <dd className="typo-medium-14 mt-1 text-white">{myApplication?.quantity ?? 0}병</dd>
-                  </div>
-                  <div>
-                    <dt className="typo-medium-12 text-gray-400">픽업 장소</dt>
-                    <dd className="typo-medium-14 mt-1 text-white">
-                      <span className="block">{myApplication?.pickupBusinessName ?? "-"}</span>
-                      {myApplication?.pickupAddress ? (
-                        <span className="typo-medium-12 mt-1 block text-gray-400">{myApplication.pickupAddress}</span>
-                      ) : null}
-                    </dd>
-                  </div>
-                </dl>
-              ) : (
-                <p className="typo-medium-14 text-gray-300">
-                  {myApplication?.quantity}병 ·{" "}
-                  {myApplication?.pickupBusinessName ??
-                    pickupLocations.find((loc) => loc.id === myApplication?.pickupUserBusinessId)?.businessName ??
-                    "-"}
-                </p>
-              )}
+              <p className="typo-medium-14 text-gray-300">
+                {myApplication?.quantity}병 ·{" "}
+                {myApplication?.pickupBusinessName ??
+                  pickupLocations.find((loc) => loc.id === myApplication?.pickupUserBusinessId)?.businessName ??
+                  "-"}
+              </p>
               {isEditable ? (
                 <div className="flex gap-3">
                   <button

@@ -17,6 +17,7 @@ import { notFound, redirect } from "next/navigation";
 import type { ReservationBusinessOption } from "../_components/BusinessApplyForm";
 import { fetchNoticeDetail } from "../_lib/fetchNoticeDetail";
 import { fetchPickupLocations } from "../_lib/fetchPickupLocations";
+import type { ReservationBusinessApplication } from "./_components/BusinessReservationApplications";
 import ReservationDetailClient from "./_components/ReservationDetailClient";
 
 type PageProps = {
@@ -31,6 +32,19 @@ type ReservationApplication =
 const isAppliedApplication = (application: ReservationApplication): boolean => {
   return application.status !== "CANCELLED" && application.status !== "REJECTED";
 };
+
+const toReservationBusinessApplication = (
+  application: BusinessBottleReservationApplicationPublicResponse,
+): ReservationBusinessApplication => ({
+  id: application.id,
+  businessId: application.businessId,
+  businessName: application.businessName,
+  quantity: application.quantity,
+  confirmedQuantity: application.confirmedQuantity,
+  pickupBusinessName: application.pickupBusinessName,
+  pickupAddress: application.pickupAddress,
+  status: application.status,
+});
 
 function ReservationAccessDenied() {
   return (
@@ -114,18 +128,24 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
           notFound();
         }
 
-        const applicationsRes = selectedBusinessId
-          ? await getApiBusinessesBusinessidBottlesReservationsApplications(
-              selectedBusinessId,
+        const applicationResponses = await Promise.all(
+          availableBusinessOptions.map((business) =>
+            getApiBusinessesBusinessidBottlesReservationsApplications(
+              business.businessId,
               { noticeId: id, size: 20, sort: ["createdAt,desc"] },
               withToken(session.accessToken),
-            )
-          : null;
+            ),
+          ),
+        );
+        const businessApplications = applicationResponses.flatMap((response) =>
+          (response.data.content ?? []).filter(isAppliedApplication).map(toReservationBusinessApplication),
+        );
 
         return {
           businessOptions: availableBusinessOptions,
+          businessApplications,
           selectedBusinessId,
-          myApplication: (applicationsRes?.data.content ?? []).find(isAppliedApplication) ?? null,
+          myApplication: null,
           pickupLocations: [] as PickupLocationResponse[],
         };
       }
@@ -140,6 +160,7 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
       }
       return {
         businessOptions: undefined,
+        businessApplications: undefined,
         selectedBusinessId: undefined,
         myApplication:
           (generalReservationData.applicationsResponse.data.content ?? []).find(isAppliedApplication) ?? null,
@@ -176,11 +197,11 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
         </Link>
 
         <ReservationDetailClient
-          key={reservationData.selectedBusinessId ?? "general"}
           notice={notice}
           pickupLocations={reservationData.pickupLocations}
           myApplication={reservationData.myApplication}
           businessOptions={reservationData.businessOptions}
+          businessApplications={reservationData.businessApplications}
           selectedBusinessId={reservationData.selectedBusinessId}
         />
       </div>
