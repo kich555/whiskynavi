@@ -8,7 +8,7 @@ import Link from "next/link";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../../general-items/delivery-order/_lib/order-utils";
 import OrderCancelModal from "../../_components/OrderCancelModal";
-import { CANCELABLE_STATUSES } from "../../_lib/constants";
+import { isOrderCancellationAllowed } from "../../_lib/constants";
 import { getOrderDisplayNames } from "../../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../../_lib/utils";
 
@@ -18,7 +18,7 @@ interface OrderDetailClientProps {
 
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = getOrderStatusConfig(order.orderStatus);
-  const canCancel = CANCELABLE_STATUSES.includes(order.orderStatus as never);
+  const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
   const orderClassification = formatOrderClassification(order);
   const displayNames = getOrderDisplayNames(order);
 
