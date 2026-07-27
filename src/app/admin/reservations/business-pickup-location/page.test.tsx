@@ -25,7 +25,14 @@ describe("BusinessPickupSettingPage", () => {
     vi.clearAllMocks();
     vi.mocked(getAuthToken).mockResolvedValue("admin-token");
     vi.mocked(getApiAdminReservationsBusinessPickupLocation).mockResolvedValue({
-      data: { assignmentType: "APPLICANT_BUSINESS_FALLBACK" },
+      data: {
+        assignmentType: "APPLICANT_BUSINESS_FALLBACK",
+        businessId: null,
+        businessName: null,
+        pickupAddress: null,
+        contact: null,
+        updatedAt: null,
+      },
       status: 200,
       headers: new Headers(),
     });

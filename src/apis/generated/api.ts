@@ -2466,12 +2466,17 @@ export const BusinessReservationPickupSettingResponseAssignmentType = {
 } as const;
 
 export interface BusinessReservationPickupSettingResponse {
-  assignmentType?: BusinessReservationPickupSettingResponseAssignmentType;
-  businessId?: number;
-  businessName?: string;
-  contact?: string;
-  pickupAddress?: string;
-  updatedAt?: string;
+  assignmentType: BusinessReservationPickupSettingResponseAssignmentType;
+  /** @nullable */
+  businessId: number | null;
+  /** @nullable */
+  businessName: string | null;
+  /** @nullable */
+  contact: string | null;
+  /** @nullable */
+  pickupAddress: string | null;
+  /** @nullable */
+  updatedAt: string | null;
 }
 
 export interface CartGeneralItemDeliveryOrderRequest {
@@ -18530,13 +18535,20 @@ export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplica
   data: BusinessBottleReservationApplicationPublicResponse
   status: 201
 }
+
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
     
 export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201) & {
   headers: Headers;
 };
-;
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseError = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse409) & {
+  headers: Headers;
+};
 
-export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess)
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess | postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseError)
 
 export const getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl = (businessId: number,
     noticeId: number,) => {
