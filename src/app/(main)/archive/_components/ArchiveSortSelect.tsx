@@ -1,6 +1,6 @@
 "use client";
 
-import { GetApiV2BottlesSort } from "@/apis/generated/api";
+import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 import { useFilterContext } from "../_context/FilterContext";
 
 const SORT_OPTIONS = [
@@ -10,20 +10,39 @@ const SORT_OPTIONS = [
   { value: GetApiV2BottlesSort.MATURATION_AGE, label: "숙성년수순" },
 ] as const;
 
+const DIRECTION_OPTIONS = [
+  { value: GetApiV2BottlesDirection.DESC, label: "내림차순" },
+  { value: GetApiV2BottlesDirection.ASC, label: "오름차순" },
+] as const;
+
 export default function ArchiveSortSelect() {
-  const { filters, updateSort } = useFilterContext();
+  const { filters, updateSort, updateDirection } = useFilterContext();
 
   return (
-    <div className="mb-4 flex justify-end">
-      <label className="flex items-center gap-2 text-white/60">
-        <span className="typo-medium-12">정렬</span>
+    <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
+      <span className="typo-medium-12 text-white/60">정렬</span>
+      <label>
         <select
-          aria-label="아카이브 정렬"
+          aria-label="아카이브 정렬 기준"
           value={filters.sort}
           onChange={(event) => updateSort(event.target.value as GetApiV2BottlesSort)}
           className="typo-medium-14 min-w-32 rounded-md border border-white/15 bg-[#252d33] px-3 py-2 text-white outline-none focus:border-white/40"
         >
           {SORT_OPTIONS.map((option) => (
+            <option key={option.value} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        <select
+          aria-label="아카이브 정렬 방향"
+          value={filters.direction}
+          onChange={(event) => updateDirection(event.target.value as GetApiV2BottlesDirection)}
+          className="typo-medium-14 min-w-28 rounded-md border border-white/15 bg-[#252d33] px-3 py-2 text-white outline-none focus:border-white/40"
+        >
+          {DIRECTION_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
             </option>

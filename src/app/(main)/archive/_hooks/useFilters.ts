@@ -1,6 +1,6 @@
 "use client";
 
-import type { GetApiV2BottlesSort } from "@/apis/generated/api";
+import type { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { FILTER_DEFAULTS, type FilterState } from "../_types";
@@ -20,6 +20,7 @@ export interface UseFiltersReturn {
   updateAbv: (value: [number, number]) => void;
   updateVintage: (value: [number, number]) => void;
   updateSort: (sort: GetApiV2BottlesSort) => void;
+  updateDirection: (direction: GetApiV2BottlesDirection) => void;
 }
 
 /**
@@ -128,6 +129,10 @@ export function useFilters(): UseFiltersReturn {
     setFilters((prev) => ({ ...prev, sort }));
   }, []);
 
+  const updateDirection = useCallback((direction: GetApiV2BottlesDirection) => {
+    setFilters((prev) => ({ ...prev, direction }));
+  }, []);
+
   return {
     filters,
     isPending,
@@ -142,5 +147,6 @@ export function useFilters(): UseFiltersReturn {
     updateAbv,
     updateVintage,
     updateSort,
+    updateDirection,
   };
 }

@@ -1,5 +1,5 @@
 import type { BottleSearchParameterValues } from "@/apis/generated/api";
-import { GetApiV2BottlesSort } from "@/apis/generated/api";
+import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 import { describe, expect, it } from "vitest";
 import { INITIAL_FILTER_STATE, type FilterState } from "../_types";
 import {
@@ -16,9 +16,17 @@ import {
 const emptyFilter: FilterState = { ...INITIAL_FILTER_STATE };
 
 describe("buildPageUrl", () => {
-  it("정렬은 유지하면서 page를 갱신한다", () => {
-    const url = buildPageUrl({ keyword: "yummy", page: "1", sort: GetApiV2BottlesSort.REGISTERED }, 3);
-    expect(url).toBe("/archive?keyword=yummy&sort=REGISTERED&page=3");
+  it("정렬 기준과 방향은 유지하면서 page를 갱신한다", () => {
+    const url = buildPageUrl(
+      {
+        keyword: "yummy",
+        page: "1",
+        sort: GetApiV2BottlesSort.REGISTERED,
+        direction: GetApiV2BottlesDirection.ASC,
+      },
+      3,
+    );
+    expect(url).toBe("/archive?keyword=yummy&sort=REGISTERED&direction=ASC&page=3");
   });
 
   it("빈 값은 제외하고 직렬화한다", () => {
@@ -34,6 +42,7 @@ describe("buildBottleSearchApiParams", () => {
     expect(params.page).toBe(1); // displayPage 2 → API page 1 (1-indexed → 0-indexed 보정)
     expect(params.size).toBe(12);
     expect(params.sort).toBe(GetApiV2BottlesSort.BOTTLED_DATE);
+    expect(params.direction).toBe(GetApiV2BottlesDirection.DESC);
   });
 
   it("숫자 범위 파라미터를 숫자로 변환한다", () => {
@@ -131,6 +140,14 @@ describe("convertFiltersToQueries ↔ parseFiltersFromSearchParams", () => {
     expect(convertFiltersToQueries(filter)).toEqual({ sort: "MATURATION_AGE" });
   });
 
+  it("오름차순을 정렬 방향 쿼리로 전달한다", () => {
+    const filter: FilterState = {
+      ...emptyFilter,
+      direction: GetApiV2BottlesDirection.ASC,
+    };
+    expect(convertFiltersToQueries(filter)).toEqual({ direction: "ASC" });
+  });
+
   it("직렬화한 쿼리를 다시 파싱하면 원래 상태로 복원된다", () => {
     const original: FilterState = {
       ...emptyFilter,
@@ -139,6 +156,7 @@ describe("convertFiltersToQueries ↔ parseFiltersFromSearchParams", () => {
       abv: [45, 60],
       vintage: [1990, 2000],
       sort: GetApiV2BottlesSort.DISTILLATION_DATE,
+      direction: GetApiV2BottlesDirection.ASC,
     };
     const queries = convertFiltersToQueries(original);
     const search = new URLSearchParams();

@@ -40,6 +40,7 @@ export function ArchiveSidebar({ params }: ArchiveSidebarProps) {
     setFilters((current) => ({
       ...INITIAL_FILTER_STATE,
       sort: current.sort,
+      direction: current.direction,
     }));
   }, [setFilters]);
 

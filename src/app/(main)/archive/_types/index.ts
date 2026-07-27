@@ -1,4 +1,4 @@
-import { GetApiV2BottlesSort } from "@/apis/generated/api";
+import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 
 /**
  * 필터 상태 인터페이스
@@ -15,6 +15,7 @@ export interface FilterState {
   abv: [number, number];
   vintage: [number, number];
   sort: GetApiV2BottlesSort;
+  direction: GetApiV2BottlesDirection;
 }
 
 /**
@@ -28,6 +29,7 @@ export const FILTER_DEFAULTS = {
   DEBOUNCE_MS: 300,
   KEYWORD_DEBOUNCE_MS: 800,
   SORT: GetApiV2BottlesSort.BOTTLED_DATE,
+  DIRECTION: GetApiV2BottlesDirection.DESC,
 } as const;
 
 /**
@@ -45,4 +47,5 @@ export const INITIAL_FILTER_STATE: FilterState = {
   abv: [FILTER_DEFAULTS.ABV_MIN, FILTER_DEFAULTS.ABV_MAX],
   vintage: [FILTER_DEFAULTS.VINTAGE_MIN, FILTER_DEFAULTS.VINTAGE_MAX],
   sort: FILTER_DEFAULTS.SORT,
+  direction: FILTER_DEFAULTS.DIRECTION,
 };

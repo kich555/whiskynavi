@@ -10754,6 +10754,10 @@ size?: number;
  */
 sort?: GetApiV2BottlesSort;
 /**
+ * 정렬 방향
+ */
+direction?: GetApiV2BottlesDirection;
+/**
  * 병 이름 필터
  */
 name?: string;
@@ -10803,6 +10807,14 @@ export const GetApiV2BottlesSort = {
   BOTTLED_DATE: 'BOTTLED_DATE',
   DISTILLATION_DATE: 'DISTILLATION_DATE',
   MATURATION_AGE: 'MATURATION_AGE',
+} as const;
+
+export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typeof GetApiV2BottlesDirection];
+
+
+export const GetApiV2BottlesDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
 } as const;
 
 /**
