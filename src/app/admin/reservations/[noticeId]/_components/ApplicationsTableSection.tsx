@@ -2,6 +2,8 @@
 
 import type {
   AdminBottleReservationApplicationResponse,
+  GetApiAdminBottlesReservationsApplicationsApplicantType,
+  GetApiAdminBottlesReservationsApplicationsPickupAssignmentType,
   GetApiAdminBottlesReservationsApplicationsRole,
   GetApiAdminBottlesReservationsApplicationsStatus,
 } from "@/apis/generated/api";
@@ -10,6 +12,7 @@ import { formatDateTimeWithMilliseconds } from "@/lib/formatters";
 import { Ban, Check, Sparkles, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
+import type { FormEvent } from "react";
 import Pagination from "../../../_components/Pagination";
 import { RESERVATION_STATUS_COLOR, RESERVATION_STATUS_LABEL, ROLE_LABEL_MAP } from "../../../constants";
 import ApplicationAutoConfirmModal from "./ApplicationAutoConfirmModal";
@@ -44,6 +47,28 @@ const APPLICATION_ROLE_OPTIONS: GetApiAdminBottlesReservationsApplicationsRole[]
   "ROLE_PICK_UP_BUSINESS",
 ];
 
+const APPLICATION_APPLICANT_TYPE_OPTIONS: GetApiAdminBottlesReservationsApplicationsApplicantType[] = [
+  "USER",
+  "BUSINESS",
+];
+
+const APPLICATION_PICKUP_ASSIGNMENT_TYPE_OPTIONS: GetApiAdminBottlesReservationsApplicationsPickupAssignmentType[] = [
+  "USER_SELECTED",
+  "ADMIN_DESIGNATED",
+  "APPLICANT_BUSINESS_FALLBACK",
+];
+
+const APPLICANT_TYPE_LABEL: Record<string, string> = {
+  USER: "일반 사용자",
+  BUSINESS: "비즈니스",
+};
+
+const PICKUP_ASSIGNMENT_TYPE_LABEL: Record<string, string> = {
+  USER_SELECTED: "사용자 선택",
+  ADMIN_DESIGNATED: "관리자 지정",
+  APPLICANT_BUSINESS_FALLBACK: "신청 사업장",
+};
+
 const hasRole = (roles: string[] | undefined, role: string): boolean => roles?.includes(role) ?? false;
 
 function CommunityRoleBadge({ active, className, label }: { active: boolean; className: string; label: string }) {
@@ -63,6 +88,10 @@ interface ApplicationsTableSectionProps {
   pendingApplicationCount: number;
   currentRole?: GetApiAdminBottlesReservationsApplicationsRole;
   currentStatus?: GetApiAdminBottlesReservationsApplicationsStatus;
+  currentApplicantType?: GetApiAdminBottlesReservationsApplicationsApplicantType;
+  currentApplicantBusinessId?: number;
+  currentPickupBusinessId?: number;
+  currentPickupAssignmentType?: GetApiAdminBottlesReservationsApplicationsPickupAssignmentType;
 }
 
 export default function ApplicationsTableSection({
@@ -74,6 +103,10 @@ export default function ApplicationsTableSection({
   pendingApplicationCount,
   currentRole,
   currentStatus,
+  currentApplicantType,
+  currentApplicantBusinessId,
+  currentPickupBusinessId,
+  currentPickupAssignmentType,
 }: ApplicationsTableSectionProps) {
   const router = useRouter();
 
@@ -120,7 +153,7 @@ export default function ApplicationsTableSection({
     ));
   };
 
-  const handleFilterChange = (key: "role" | "status", value: string) => {
+  const buildFilterParams = () => {
     const params = new URLSearchParams();
 
     params.set("page", "1");
@@ -133,11 +166,46 @@ export default function ApplicationsTableSection({
     if (currentStatus) {
       params.set("status", currentStatus);
     }
+    if (currentApplicantType) {
+      params.set("applicantType", currentApplicantType);
+    }
+    if (currentApplicantBusinessId) {
+      params.set("applicantBusinessId", String(currentApplicantBusinessId));
+    }
+    if (currentPickupBusinessId) {
+      params.set("pickupBusinessId", String(currentPickupBusinessId));
+    }
+    if (currentPickupAssignmentType) {
+      params.set("pickupAssignmentType", currentPickupAssignmentType);
+    }
+
+    return params;
+  };
+
+  const handleFilterChange = (key: "role" | "status" | "applicantType" | "pickupAssignmentType", value: string) => {
+    const params = buildFilterParams();
 
     if (value === "all") {
       params.delete(key);
     } else {
       params.set(key, value);
+    }
+
+    router.push(`/admin/reservations/${noticeId}?${params.toString()}`);
+  };
+
+  const handleBusinessFilterSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+    const params = buildFilterParams();
+
+    for (const key of ["applicantBusinessId", "pickupBusinessId"] as const) {
+      const value = String(formData.get(key) ?? "").trim();
+      if (value) {
+        params.set(key, value);
+      } else {
+        params.delete(key);
+      }
     }
 
     router.push(`/admin/reservations/${noticeId}?${params.toString()}`);
@@ -151,6 +219,10 @@ export default function ApplicationsTableSection({
     limit: String(itemsPerPage),
     role: currentRole,
     status: currentStatus,
+    applicantType: currentApplicantType,
+    applicantBusinessId: currentApplicantBusinessId ? String(currentApplicantBusinessId) : undefined,
+    pickupBusinessId: currentPickupBusinessId ? String(currentPickupBusinessId) : undefined,
+    pickupAssignmentType: currentPickupAssignmentType,
   };
 
   return (
@@ -174,6 +246,32 @@ export default function ApplicationsTableSection({
               {APPLICATION_STATUS_OPTIONS.map((status) => (
                 <option key={status} value={status}>
                   {RESERVATION_STATUS_LABEL[status] ?? status}
+                </option>
+              ))}
+            </select>
+            <select
+              value={currentApplicantType ?? "all"}
+              onChange={(event) => handleFilterChange("applicantType", event.target.value)}
+              className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              aria-label="신청 유형 필터"
+            >
+              <option value="all">신청 유형 전체</option>
+              {APPLICATION_APPLICANT_TYPE_OPTIONS.map((applicantType) => (
+                <option key={applicantType} value={applicantType}>
+                  {APPLICANT_TYPE_LABEL[applicantType]}
+                </option>
+              ))}
+            </select>
+            <select
+              value={currentPickupAssignmentType ?? "all"}
+              onChange={(event) => handleFilterChange("pickupAssignmentType", event.target.value)}
+              className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+              aria-label="픽업 배정 방식 필터"
+            >
+              <option value="all">픽업 배정 전체</option>
+              {APPLICATION_PICKUP_ASSIGNMENT_TYPE_OPTIONS.map((assignmentType) => (
+                <option key={assignmentType} value={assignmentType}>
+                  {PICKUP_ASSIGNMENT_TYPE_LABEL[assignmentType]}
                 </option>
               ))}
             </select>
@@ -212,6 +310,34 @@ export default function ApplicationsTableSection({
             </button>
           </div>
         </div>
+        <form onSubmit={handleBusinessFilterSubmit} className="mt-3 flex flex-wrap items-end gap-2">
+          <label className="typo-medium-12 text-gray-600">
+            신청 사업장 ID
+            <input
+              name="applicantBusinessId"
+              type="number"
+              min={1}
+              defaultValue={currentApplicantBusinessId}
+              className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            />
+          </label>
+          <label className="typo-medium-12 text-gray-600">
+            픽업 업장 ID
+            <input
+              name="pickupBusinessId"
+              type="number"
+              min={1}
+              defaultValue={currentPickupBusinessId}
+              className="typo-medium-14 mt-1 block w-36 rounded-md border border-gray-300 bg-white px-3 py-1.5 focus:ring-2 focus:ring-amber-500 focus:outline-none"
+            />
+          </label>
+          <button
+            type="submit"
+            className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-1.5 text-gray-700 transition-colors hover:bg-gray-100"
+          >
+            사업장 필터 적용
+          </button>
+        </form>
       </div>
 
       <ReservationAllocationExcelSection noticeId={noticeId} />
@@ -221,11 +347,14 @@ export default function ApplicationsTableSection({
           <thead className="border-b border-gray-200 bg-gray-50">
             <tr>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청 유형</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청자</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">내비 커뮤</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">테일즈 커뮤</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">연락처</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청 사업장</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">픽업 업장</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">배정 방식</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청수량</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">확정수량</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
@@ -236,23 +365,26 @@ export default function ApplicationsTableSection({
           <tbody className="divide-y divide-gray-100">
             {applications.length === 0 ? (
               <tr>
-                <td colSpan={11} className="px-4 py-8 text-center text-gray-500">
+                <td colSpan={14} className="px-4 py-8 text-center text-gray-500">
                   신청 내역이 없습니다.
                 </td>
               </tr>
             ) : (
               applications.map((app) => (
                 <tr key={app.id} className="transition-colors hover:bg-gray-50">
-                  <td className="px-4 py-3 typo-medium-14 text-gray-900">{app.id}</td>
+                  <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.id}</td>
+                  <td className="typo-medium-14 px-4 py-3 text-gray-600">
+                    {APPLICANT_TYPE_LABEL[app.applicantType ?? ""] ?? "일반 사용자"}
+                  </td>
                   <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.applicantUser?.name ?? "-"}</td>
-                  <td className="px-4 py-3 text-center typo-medium-14">
+                  <td className="typo-medium-14 px-4 py-3 text-center">
                     <CommunityRoleBadge
                       active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYNAVI_MEMBER")}
                       className="bg-amber-100 text-amber-700"
                       label="내비"
                     />
                   </td>
-                  <td className="px-4 py-3 text-center typo-medium-14">
+                  <td className="typo-medium-14 px-4 py-3 text-center">
                     <CommunityRoleBadge
                       active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYTALES_MEMBER")}
                       className="bg-blue-100 text-blue-700"
@@ -260,10 +392,19 @@ export default function ApplicationsTableSection({
                     />
                   </td>
                   <td className="typo-medium-14 px-4 py-3 text-gray-600">{app.applicantUser?.phone ?? "-"}</td>
+                  <td
+                    className="typo-medium-14 max-w-[180px] truncate px-4 py-3 text-gray-600"
+                    title={app.applicantBusiness?.businessName}
+                  >
+                    {app.applicantBusiness?.businessName ?? "-"}
+                  </td>
                   <td className="typo-medium-14 max-w-[160px] truncate px-4 py-3 text-gray-600">
                     {app.pickupBusiness?.businessName ?? "-"}
                   </td>
-                  <td className="px-4 py-3 text-center typo-medium-14 text-gray-900">{app.quantity}</td>
+                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
+                    {PICKUP_ASSIGNMENT_TYPE_LABEL[app.pickupAssignmentType ?? ""] ?? "-"}
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">{app.quantity}</td>
                   <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                     {app.confirmedQuantity ?? "-"}
                   </td>

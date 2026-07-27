@@ -1,16 +1,21 @@
 import {
   deleteApiBottlesReservationsApplicationsApplicationid,
+  deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid,
   getApiBottlesReservationsNoticesNoticeid,
+  postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications,
   putApiBottlesReservationsApplicationsApplicationid,
 } from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { cancelReservation, updateReservation } from "./actions";
+import { applyBusinessReservation, cancelBusinessReservation, cancelReservation, updateReservation } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
+  deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid: vi.fn(),
   deleteApiBottlesReservationsApplicationsApplicationid: vi.fn(),
   getApiBottlesReservationsNoticesNoticeid: vi.fn(),
+  postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications: vi.fn(),
   postApiBottlesReservationsNoticesNoticeidApplications: vi.fn(),
+  putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid: vi.fn(),
   putApiBottlesReservationsApplicationsApplicationid: vi.fn(),
 }));
 
@@ -24,6 +29,12 @@ vi.mock("@/lib/auth", () => ({
 
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedGetNotice = vi.mocked(getApiBottlesReservationsNoticesNoticeid);
+const mockedApplyBusinessApplication = vi.mocked(
+  postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications,
+);
+const mockedCancelBusinessApplication = vi.mocked(
+  deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid,
+);
 const mockedUpdateApplication = vi.mocked(putApiBottlesReservationsApplicationsApplicationid);
 const mockedCancelApplication = vi.mocked(deleteApiBottlesReservationsApplicationsApplicationid);
 
@@ -88,6 +99,47 @@ describe("reservation actions", () => {
     });
     expect(mockedCancelApplication).not.toHaveBeenCalled();
   });
+
+  it("비즈니스 예약 신청은 신청 사업장 경로와 수량만 전송한다", async () => {
+    mockedGetNotice.mockResolvedValue({
+      data: activeNotice(),
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof getApiBottlesReservationsNoticesNoticeid>>);
+    mockedApplyBusinessApplication.mockResolvedValue({
+      data: {
+        id: 30,
+        businessId: 20,
+        businessName: "신청 사업장",
+        pickupUserBusinessId: 40,
+        pickupBusinessName: "관리자 픽업 업장",
+        pickupAssignmentType: "ADMIN_DESIGNATED",
+      },
+      status: 201,
+      headers: new Headers(),
+    });
+
+    const result = await applyBusinessReservation(10, 20, 2);
+
+    expect(result.success).toBe(true);
+    expect(mockedApplyBusinessApplication).toHaveBeenCalledWith(20, 10, { quantity: 2 }, { token: "user-token" });
+  });
+
+  it("비즈니스 예약 취소는 신청 사업장 소유권 경로를 사용한다", async () => {
+    mockedGetNotice.mockResolvedValue({
+      data: activeNotice(),
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof getApiBottlesReservationsNoticesNoticeid>>);
+    mockedCancelBusinessApplication.mockResolvedValue({
+      data: true,
+      status: 200,
+      headers: new Headers(),
+    });
+
+    await expect(cancelBusinessReservation(10, 20, 30)).resolves.toEqual({ success: true });
+    expect(mockedCancelBusinessApplication).toHaveBeenCalledWith(20, 30, { token: "user-token" });
+  });
 });
 
 function closedNotice() {
@@ -104,6 +156,15 @@ function pendingNotice() {
     id: 1,
     maxOrderQuantity: 2,
     reservationStartAt: "2999-01-01T00:00:00.000Z",
+    reservationEndAt: "2999-01-02T00:00:00.000Z",
+  };
+}
+
+function activeNotice() {
+  return {
+    id: 1,
+    maxOrderQuantity: 2,
+    reservationStartAt: "2000-01-01T00:00:00.000Z",
     reservationEndAt: "2999-01-02T00:00:00.000Z",
   };
 }

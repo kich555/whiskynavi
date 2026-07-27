@@ -3,6 +3,12 @@ import { describe, expect, it, vi } from "vitest";
 import NoticeDetailPage from "./page";
 
 vi.mock("@/apis/generated/api", () => ({
+  GetApiAdminBottlesReservationsApplicationsApplicantType: {
+    BUSINESS: "BUSINESS",
+  },
+  GetApiAdminBottlesReservationsApplicationsPickupAssignmentType: {
+    ADMIN_DESIGNATED: "ADMIN_DESIGNATED",
+  },
   GetApiAdminBottlesReservationsApplicationsRole: {
     ROLE_USER: "ROLE_USER",
   },
@@ -33,6 +39,10 @@ vi.mock("@/lib/auth", () => ({
 
 vi.mock("@/lib/page-response", () => ({
   parseApiPage: vi.fn((page?: string) => (page ? Number(page) - 1 : 0)),
+  parsePositiveInt: vi.fn((value?: string) => {
+    const parsed = Number(value);
+    return Number.isInteger(parsed) && parsed > 0 ? parsed : undefined;
+  }),
 }));
 
 vi.mock("next/navigation", () => ({

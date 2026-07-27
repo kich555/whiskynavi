@@ -3,8 +3,10 @@ import {
   type AdminBottleReservationNoticeResponse,
   type AdminReservationBusinessDeliveryResponse,
   type DeliveryCompanyResponse,
+  GetApiAdminBottlesReservationsApplicationsApplicantType as AdminBottleReservationApplicantTypeOptions,
   GetApiAdminBottlesReservationsApplicationsRole as AdminBottleReservationApplicationRoleOptions,
   GetApiAdminBottlesReservationsApplicationsStatus as AdminBottleReservationApplicationStatusOptions,
+  GetApiAdminBottlesReservationsApplicationsPickupAssignmentType as AdminBottleReservationPickupAssignmentTypeOptions,
   getApiAdminBottlesReservationsApplications,
   getApiAdminBottlesReservationsNoticesNoticeid,
   getApiAdminReservationDeliveriesCompanies,
@@ -12,13 +14,22 @@ import {
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
-import { parseApiPage } from "@/lib/page-response";
+import { parseApiPage, parsePositiveInt } from "@/lib/page-response";
 import { notFound } from "next/navigation";
 import NoticeDetailContent from "./_components/NoticeDetailContent";
 
 interface NoticeDetailPageProps {
   params: Promise<{ noticeId: string }>;
-  searchParams: Promise<{ page?: string; limit?: string; role?: string; status?: string }>;
+  searchParams: Promise<{
+    page?: string;
+    limit?: string;
+    role?: string;
+    status?: string;
+    applicantType?: string;
+    applicantBusinessId?: string;
+    pickupBusinessId?: string;
+    pickupAssignmentType?: string;
+  }>;
 }
 
 async function getOptionalData<T>(request: Promise<{ data: T }>): Promise<T | undefined> {
@@ -42,6 +53,10 @@ export default async function NoticeDetailPage({ params, searchParams }: NoticeD
   const token = await getAuthToken();
   const role = getEnumValue(AdminBottleReservationApplicationRoleOptions, sp.role);
   const status = getEnumValue(AdminBottleReservationApplicationStatusOptions, sp.status);
+  const applicantType = getEnumValue(AdminBottleReservationApplicantTypeOptions, sp.applicantType);
+  const pickupAssignmentType = getEnumValue(AdminBottleReservationPickupAssignmentTypeOptions, sp.pickupAssignmentType);
+  const applicantBusinessId = parsePositiveInt(sp.applicantBusinessId);
+  const pickupBusinessId = parsePositiveInt(sp.pickupBusinessId);
 
   let notice: AdminBottleReservationNoticeResponse | undefined;
   let applications: AdminBottleReservationApplicationResponse[] = [];
@@ -57,6 +72,10 @@ export default async function NoticeDetailPage({ params, searchParams }: NoticeD
           noticeId: Number(noticeId),
           role,
           status,
+          applicantType,
+          applicantBusinessId,
+          pickupBusinessId,
+          pickupAssignmentType,
           page: parseApiPage(sp.page),
           size: sp.limit ? Number(sp.limit) : 20,
           sort: ["createdAt,asc"],
@@ -88,6 +107,10 @@ export default async function NoticeDetailPage({ params, searchParams }: NoticeD
       applicationsLimit={Number(sp.limit) || 20}
       applicationsRole={role}
       applicationsStatus={status}
+      applicationsApplicantType={applicantType}
+      applicationsApplicantBusinessId={applicantBusinessId}
+      applicationsPickupBusinessId={pickupBusinessId}
+      applicationsPickupAssignmentType={pickupAssignmentType}
       deliveries={deliveries}
       deliveryCompanies={deliveryCompanies}
     />

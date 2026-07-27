@@ -3,9 +3,12 @@
 import { getUserErrorMessage } from "@/apis/errors";
 import {
   deleteApiBottlesReservationsApplicationsApplicationid,
+  deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid,
   getApiBottlesReservationsNoticesNoticeid,
   postApiBottlesReservationsNoticesNoticeidApplications,
+  postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications,
   putApiBottlesReservationsApplicationsApplicationid,
+  putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid,
   type UserBottleReservationApplicationPublicResponse,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -124,6 +127,124 @@ export async function cancelReservation(
     return {
       success: false,
       error: getUserErrorMessage(error, "예약 신청 취소에 실패했습니다."),
+    };
+  }
+}
+
+export async function applyBusinessReservation(
+  noticeId: number,
+  businessId: number,
+  quantity: number,
+): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { success: false, error: "로그인이 필요합니다." };
+    }
+    if (!Number.isInteger(businessId) || businessId < 1) {
+      return { success: false, error: "신청할 사업장을 선택해 주세요." };
+    }
+
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
+    const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
+    if (quantity < 1 || quantity > maxOrderQuantity) {
+      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    }
+    if (getNoticeStatus(notice) !== "active") {
+      return { success: false, error: "지금은 예약 신청 기간이 아닙니다." };
+    }
+
+    const { data: application } = await postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications(
+      businessId,
+      noticeId,
+      { quantity },
+      withToken(token),
+    );
+
+    return { success: true, application };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "비즈니스 예약 신청에 실패했습니다."),
+    };
+  }
+}
+
+export async function updateBusinessReservation(
+  noticeId: number,
+  businessId: number,
+  applicationId: number,
+  quantity: number,
+): Promise<{ success: boolean; error?: string; application?: UserBottleReservationApplicationPublicResponse }> {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { success: false, error: "로그인이 필요합니다." };
+    }
+    if (!Number.isInteger(businessId) || businessId < 1) {
+      return { success: false, error: "신청 사업장 정보가 올바르지 않습니다." };
+    }
+
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
+    const maxOrderQuantity = notice.maxOrderQuantity ?? 100;
+    if (quantity < 1 || quantity > maxOrderQuantity) {
+      return { success: false, error: `수량은 1~${maxOrderQuantity}병 사이로 입력해주세요.` };
+    }
+    const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
+    if (windowError) {
+      return { success: false, error: windowError };
+    }
+
+    const { data: application } = await putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid(
+      businessId,
+      applicationId,
+      { quantity },
+      withToken(token),
+    );
+
+    return { success: true, application };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "비즈니스 예약 신청 수정에 실패했습니다."),
+    };
+  }
+}
+
+export async function cancelBusinessReservation(
+  noticeId: number,
+  businessId: number,
+  applicationId: number,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { success: false, error: "로그인이 필요합니다." };
+    }
+    if (!Number.isInteger(businessId) || businessId < 1) {
+      return { success: false, error: "신청 사업장 정보가 올바르지 않습니다." };
+    }
+
+    const { data: notice } = await getApiBottlesReservationsNoticesNoticeid(noticeId, withToken(token));
+    const windowError = getReservationMutationWindowError(getNoticeStatus(notice));
+    if (windowError) {
+      return { success: false, error: windowError };
+    }
+
+    await deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid(
+      businessId,
+      applicationId,
+      withToken(token),
+    );
+
+    return { success: true };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "비즈니스 예약 신청 취소에 실패했습니다."),
     };
   }
 }

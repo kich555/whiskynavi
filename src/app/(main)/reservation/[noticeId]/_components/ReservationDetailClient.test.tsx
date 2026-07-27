@@ -1,23 +1,28 @@
-import { render, screen } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
 import type {
   PickupLocationResponse,
   UserBottleReservationApplicationPublicResponse,
   UserBottleReservationNoticePublicResponse,
 } from "@/apis/generated/api";
+import { render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import ReservationDetailClient from "./ReservationDetailClient";
 
 vi.mock("@/components/ui/ImageWithFallback", () => ({
   ImageWithFallback: ({ alt }: { alt: string }) => <span aria-label={alt} role="img" />,
 }));
 
-vi.mock("next-auth/react", () => ({
-  useSession: vi.fn(() => ({ data: null, status: "unauthenticated" })),
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/reservation/1",
+  useRouter: () => ({ push: vi.fn() }),
+  useSearchParams: () => new URLSearchParams(),
 }));
 
 vi.mock("../../actions", () => ({
+  applyBusinessReservation: vi.fn(),
   applyReservation: vi.fn(),
+  cancelBusinessReservation: vi.fn(),
   cancelReservation: vi.fn(),
+  updateBusinessReservation: vi.fn(),
   updateReservation: vi.fn(),
 }));
 
@@ -52,6 +57,30 @@ describe("ReservationDetailClient", () => {
     expect(screen.queryByRole("button", { name: "예약신청완료" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "수정하기" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "취소하기" })).not.toBeInTheDocument();
+  });
+
+  it("비즈니스 사용자는 픽업 업장 대신 신청 사업장을 선택한다", () => {
+    render(
+      <ReservationDetailClient
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
+        pickupLocations={[]}
+        myApplication={null}
+        businessOptions={[
+          {
+            businessId: 20,
+            businessName: "신청 사업장",
+          },
+        ]}
+        selectedBusinessId={20}
+      />,
+    );
+
+    expect(screen.getAllByText("신청 사업장").length).toBeGreaterThan(0);
+    expect(screen.queryByText("수령 업장")).not.toBeInTheDocument();
+    expect(screen.getByText(/픽업 장소는 관리자 설정에 따라 서버에서 확정/)).toBeInTheDocument();
   });
 });
 

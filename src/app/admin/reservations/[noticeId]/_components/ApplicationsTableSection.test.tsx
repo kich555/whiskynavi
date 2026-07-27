@@ -44,6 +44,7 @@ describe("ApplicationsTableSection", () => {
         applications={[
           {
             id: 123,
+            applicantType: "BUSINESS",
             applicantUser: {
               name: "홍길동",
               phone: "01012345678",
@@ -52,6 +53,10 @@ describe("ApplicationsTableSection", () => {
             pickupBusiness: {
               businessName: "강남 픽업",
             },
+            applicantBusiness: {
+              businessName: "신청 사업장",
+            },
+            pickupAssignmentType: "ADMIN_DESIGNATED",
             quantity: 2,
             confirmedQuantity: 1,
             status: "APPLIED",
@@ -66,6 +71,10 @@ describe("ApplicationsTableSection", () => {
     );
 
     expect(screen.getByRole("columnheader", { name: "예약신청시각" })).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "신청 사업장" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "비즈니스" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "신청 사업장" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "관리자 지정" })).toBeInTheDocument();
     expect(screen.getByText("2026.06.08 10:12:33.456")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "할당용 Excel 다운로드" })).toHaveAttribute(
       "href",

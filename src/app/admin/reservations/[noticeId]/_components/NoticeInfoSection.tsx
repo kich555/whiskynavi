@@ -23,7 +23,7 @@ interface NoticeInfoSectionProps {
 
 function buildGradeConditions(
   notice: AdminBottleReservationNoticeResponse,
-): PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[] | undefined {
+): PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[] {
   const conditions = notice.gradeConditions
     ?.filter((condition) => condition.applicableFrom && condition.requiredRole)
     .map(
@@ -34,7 +34,7 @@ function buildGradeConditions(
       }),
     );
 
-  return conditions && conditions.length > 0 ? conditions : undefined;
+  return conditions ?? [];
 }
 
 export default function NoticeInfoSection({ notice }: NoticeInfoSectionProps) {

@@ -107,8 +107,8 @@ const saleStatusSchema = z.enum(["DRAFT", "OPEN", "CLOSED", "SOLD_OUT"]);
 
 const saleFormSchema = z.object({
   productId: requiredPositiveNumber("상품"),
-  title: optionalText,
-  itemName: optionalText,
+  title: z.string().trim().min(1, "제목은 필수입니다.").max(200, "제목은 최대 200자까지 입력 가능합니다."),
+  itemName: z.string().trim().min(1, "상품명은 필수입니다.").max(200, "상품명은 최대 200자까지 입력 가능합니다."),
   salePrice: requiredPositiveNumber("판매가"),
   totalQuantity: requiredPositiveNumber("총 판매 수량"),
   availableQuantity: optionalNonNegativeNumber("판매 가능 수량"),

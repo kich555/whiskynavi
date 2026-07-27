@@ -5,6 +5,8 @@ import type {
   AdminBottleReservationNoticeResponse,
   AdminReservationBusinessDeliveryResponse,
   DeliveryCompanyResponse,
+  GetApiAdminBottlesReservationsApplicationsApplicantType,
+  GetApiAdminBottlesReservationsApplicationsPickupAssignmentType,
   GetApiAdminBottlesReservationsApplicationsRole,
   GetApiAdminBottlesReservationsApplicationsStatus,
 } from "@/apis/generated/api";
@@ -30,6 +32,10 @@ interface NoticeDetailContentProps {
   applicationsLimit: number;
   applicationsRole?: GetApiAdminBottlesReservationsApplicationsRole;
   applicationsStatus?: GetApiAdminBottlesReservationsApplicationsStatus;
+  applicationsApplicantType?: GetApiAdminBottlesReservationsApplicationsApplicantType;
+  applicationsApplicantBusinessId?: number;
+  applicationsPickupBusinessId?: number;
+  applicationsPickupAssignmentType?: GetApiAdminBottlesReservationsApplicationsPickupAssignmentType;
   deliveries: AdminReservationBusinessDeliveryResponse[];
   deliveryCompanies: DeliveryCompanyResponse[];
 }
@@ -42,6 +48,10 @@ export default function NoticeDetailContent({
   applicationsLimit,
   applicationsRole,
   applicationsStatus,
+  applicationsApplicantType,
+  applicationsApplicantBusinessId,
+  applicationsPickupBusinessId,
+  applicationsPickupAssignmentType,
   deliveries,
   deliveryCompanies,
 }: NoticeDetailContentProps) {
@@ -125,6 +135,10 @@ export default function NoticeDetailContent({
           pendingApplicationCount={notice.pendingApplicationCount ?? 0}
           currentRole={applicationsRole}
           currentStatus={applicationsStatus}
+          currentApplicantType={applicationsApplicantType}
+          currentApplicantBusinessId={applicationsApplicantBusinessId}
+          currentPickupBusinessId={applicationsPickupBusinessId}
+          currentPickupAssignmentType={applicationsPickupAssignmentType}
         />
       </div>
     </>
