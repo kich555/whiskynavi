@@ -30,6 +30,26 @@ describe("OrderDetailModal", () => {
     expect(screen.getByText("아이템 · 직배송 · 바로배송")).toBeInTheDocument();
     expect(screen.getByText("TOSS")).toBeInTheDocument();
     expect(screen.getAllByText("₩10,000")).not.toHaveLength(0);
+    expect(screen.getByRole("button", { name: "주문 취소" })).toBeInTheDocument();
+  });
+
+  it("예약 주문은 일반 주문 취소 버튼을 표시하지 않는다", () => {
+    const order = {
+      id: 3,
+      orderNumber: "ODR-RESERVATION-1",
+      orderStatus: "ORDER_REQUESTED",
+      itemName: "예약 보틀",
+      requestedQuantity: 1,
+      totalPrice: 10000,
+      productType: "BOTTLE",
+      fulfillmentMethod: "PICKUP",
+      saleTiming: "RESERVATION",
+    } satisfies UserOrderResponse;
+
+    render(<OrderDetailModal isOpen close={() => {}} order={order} />);
+
+    expect(screen.queryByRole("button", { name: "주문 취소" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "공고 내용 보기" })).toBeInTheDocument();
   });
 
   it("내용이 길어져도 모달을 화면 안에 두고 상세 영역을 스크롤한다", () => {
