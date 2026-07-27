@@ -1,4 +1,4 @@
-import { getApiBottlesParameters } from "@/apis/generated/api";
+import { getApiV2BottlesParameters } from "@/apis/generated/api";
 import { Suspense } from "react";
 import Hero from "../_components/Hero";
 import ArchiveClientShell from "./_components/ArchiveClientShell";
@@ -12,7 +12,7 @@ type PageProps = {
 
 const Page = async ({ searchParams }: PageProps) => {
   const params = await searchParams;
-  const bottleParams = await getApiBottlesParameters();
+  const bottleParams = await getApiV2BottlesParameters();
   const suspenseKey = JSON.stringify(params);
 
   return (
