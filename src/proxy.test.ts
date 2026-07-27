@@ -4,9 +4,9 @@ const callRefreshApiSingleFlightMock = vi.fn();
 const decodeMock = vi.fn();
 const encodeMock = vi.fn();
 
-function createJwt(expSeconds: number) {
+function createJwt(expSeconds: number, roles?: string[]) {
   const header = Buffer.from(JSON.stringify({ alg: "none" })).toString("base64url");
-  const payload = Buffer.from(JSON.stringify({ exp: expSeconds })).toString("base64url");
+  const payload = Buffer.from(JSON.stringify({ exp: expSeconds, roles })).toString("base64url");
   return `${header}.${payload}.`;
 }
 
@@ -38,6 +38,16 @@ describe("proxy", () => {
   });
 
   it("페이지 요청 전에 refresh가 필요하면 요청 쿠키와 응답 쿠키를 새 JWT로 갱신한다", async () => {
+    const refreshedAccessToken = createJwt(
+      Math.floor((Date.now() + 60_000) / 1000),
+      ["ROLE_USER", "ROLE_BUSINESS"],
+    );
+    callRefreshApiSingleFlightMock.mockResolvedValueOnce({
+      status: "success",
+      accessToken: refreshedAccessToken,
+      refreshToken: "new-refresh-token",
+    });
+
     const { proxy } = await import("./proxy");
     const requestCookieStore = new Map([["next-auth.session-token", "old-session-token"]]);
     const request = {
@@ -62,8 +72,9 @@ describe("proxy", () => {
     expect(callRefreshApiSingleFlightMock).toHaveBeenCalledWith("old-refresh-token");
     expect(encodeMock).toHaveBeenCalledWith({
       token: expect.objectContaining({
-        accessToken: "new-access-token",
+        accessToken: refreshedAccessToken,
         refreshToken: "new-refresh-token",
+        roles: ["ROLE_USER", "ROLE_BUSINESS"],
         tokenIssuedAt: expect.any(Number),
         error: undefined,
       }),

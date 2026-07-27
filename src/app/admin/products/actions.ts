@@ -259,8 +259,8 @@ export async function createBottleFormAction(_prev: FormState, formData: FormDat
     await postApiAdminBottles(
       {
         ...rest,
-        name: parsed.data.name,
-        labelImgKey,
+        name: parsed.data.name!,
+        labelImgKey: labelImgKey!,
         extraInfos: parseExtraInfos(rawExtraInfos),
       },
       withToken(token),

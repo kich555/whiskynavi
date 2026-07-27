@@ -1,6 +1,6 @@
 import { callRefreshApiSingleFlight } from "@/apis/refresh-token";
 import { AUTH_SESSION_COOKIE_NAMES, AUTH_SESSION_MAX_AGE_SEC } from "@/lib/auth-constants";
-import { shouldRefreshAuthToken } from "@/lib/auth-token";
+import { getAccessTokenRoles, shouldRefreshAuthToken } from "@/lib/auth-token";
 import { decode, encode } from "next-auth/jwt";
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
@@ -50,6 +50,7 @@ export async function proxy(request: NextRequest) {
       ...decoded,
       accessToken: result.accessToken,
       refreshToken: result.refreshToken,
+      roles: getAccessTokenRoles(result.accessToken) ?? decoded.roles,
       tokenIssuedAt: Date.now(),
       error: undefined,
     },

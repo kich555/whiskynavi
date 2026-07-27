@@ -10,6 +10,7 @@ import {
   History,
   Home,
   ImageIcon,
+  MapPin,
   MessageCircleQuestion,
   MessageSquare,
   Package,
@@ -78,6 +79,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         label: "보틀예약관리",
         icon: Calendar,
         href: "/admin/reservations",
+      },
+      {
+        id: "business-reservation-pickup",
+        label: "비즈니스 픽업 설정",
+        icon: MapPin,
+        href: "/admin/reservations/business-pickup-location",
       },
       {
         id: "bottle-orders",

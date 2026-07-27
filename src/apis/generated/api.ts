@@ -130,7 +130,7 @@ export interface AdminBannerOrderRequest {
    * 변경할 배너 순서 목록입니다.
    * @minItems 1
    */
-  items?: AdminBannerOrderRequestItemsItem[];
+  items: AdminBannerOrderRequestItemsItem[];
 }
 
 /**
@@ -234,6 +234,23 @@ export interface AdminBottleReservationApplicantResponse {
   username?: string;
 }
 
+export type AdminBottleReservationApplicationResponseApplicantType = typeof AdminBottleReservationApplicationResponseApplicantType[keyof typeof AdminBottleReservationApplicationResponseApplicantType];
+
+
+export const AdminBottleReservationApplicationResponseApplicantType = {
+  USER: 'USER',
+  BUSINESS: 'BUSINESS',
+} as const;
+
+export type AdminBottleReservationApplicationResponsePickupAssignmentType = typeof AdminBottleReservationApplicationResponsePickupAssignmentType[keyof typeof AdminBottleReservationApplicationResponsePickupAssignmentType];
+
+
+export const AdminBottleReservationApplicationResponsePickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
 export type AdminBottleReservationApplicationResponseStatus = typeof AdminBottleReservationApplicationResponseStatus[keyof typeof AdminBottleReservationApplicationResponseStatus];
 
 
@@ -256,6 +273,9 @@ export interface AdminBottleReservationPickupBusinessResponse {
 }
 
 export interface AdminBottleReservationApplicationResponse {
+  applicantBusiness?: AdminBottleReservationPickupBusinessResponse;
+  applicantBusinessId?: number;
+  applicantType?: AdminBottleReservationApplicationResponseApplicantType;
   applicantUser?: AdminBottleReservationApplicantResponse;
   bottleId?: number;
   bottleImgUrl?: string;
@@ -265,6 +285,7 @@ export interface AdminBottleReservationApplicationResponse {
   createdAt?: string;
   id?: number;
   noticeId?: number;
+  pickupAssignmentType?: AdminBottleReservationApplicationResponsePickupAssignmentType;
   pickupBusiness?: AdminBottleReservationPickupBusinessResponse;
   pickupUserBusinessId?: number;
   quantity?: number;
@@ -408,7 +429,7 @@ export interface AdminBusinessApplicationDecisionRequest {
    * 사용자에게 노출되는 반려 사유
    * @minLength 1
    */
-  rejectReason?: string;
+  rejectReason: string;
 }
 
 export type AdminBusinessApplicationResponseBusinessType = typeof AdminBusinessApplicationResponseBusinessType[keyof typeof AdminBusinessApplicationResponseBusinessType];
@@ -624,7 +645,7 @@ export interface AdminDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -636,7 +657,7 @@ export interface AdminDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -656,13 +677,13 @@ export interface AdminDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 }
 
 /**
@@ -805,7 +826,7 @@ export interface AdminInquiryDetailResponse {
 
 export interface AdminInquiryMessageRequest {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
 }
 
@@ -1310,7 +1331,7 @@ export interface AdminPostCreationRestrictionRequest {
    * @minLength 0
    * @maxLength 1000
    */
-  reason?: string;
+  reason: string;
   /** 게시글 작성 제한 시작 시각 */
   startAt: string;
 }
@@ -1324,7 +1345,7 @@ export interface AdminPostDeleteRequest {
    * @minLength 0
    * @maxLength 500
    */
-  deleteReason?: string;
+  deleteReason: string;
 }
 
 /**
@@ -1511,7 +1532,7 @@ export interface AdminUserBanRequest {
    * 밴 사유
    * @minLength 1
    */
-  reason?: string;
+  reason: string;
   /** 밴 시작 시각 */
   startAt?: string;
 }
@@ -1612,7 +1633,7 @@ export interface AdminUserRolesAddRequest {
    * 추가할 역할 이름 목록입니다. 예: ROLE_USER, ROLE_ADMIN
    * @minItems 1
    */
-  roles?: string[];
+  roles: string[];
 }
 
 /**
@@ -1623,7 +1644,7 @@ export interface AdminUserRolesRemoveRequest {
    * 제거할 역할 이름 목록입니다. 예: ROLE_USER, ROLE_ADMIN
    * @minItems 1
    */
-  roles?: string[];
+  roles: string[];
 }
 
 /**
@@ -1634,7 +1655,7 @@ export interface AdminUserStatusUpdateRequest {
    * 적용할 새 상태 값입니다.
    * @minLength 1
    */
-  status?: string;
+  status: string;
 }
 
 /**
@@ -1658,7 +1679,7 @@ export interface AnnouncementRequest {
    * 공지 상세 내용입니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -1679,7 +1700,7 @@ export interface AnnouncementRequest {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
   /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
   visible?: boolean;
 }
@@ -1785,14 +1806,14 @@ export interface BoardPostTypeRequest {
    * @minLength 0
    * @maxLength 50
    */
-  code?: string;
+  code: string;
   default?: boolean;
   displayOrder?: number;
   /**
    * @minLength 0
    * @maxLength 50
    */
-  name?: string;
+  name: string;
   /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
   usage?: BoardPostTypeRequestUsage;
 }
@@ -1858,7 +1879,7 @@ export interface BoardRequest {
    * @minLength 0
    * @maxLength 150
    */
-  name?: string;
+  name: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -2032,7 +2053,7 @@ export interface BottleCreateRequest {
    * @minLength 0
    * @maxLength 500
    */
-  labelImgKey?: string;
+  labelImgKey: string;
   /**
    * 몰트 타입입니다.
    * @minLength 0
@@ -2044,7 +2065,7 @@ export interface BottleCreateRequest {
    * @minLength 0
    * @maxLength 200
    */
-  name?: string;
+  name: string;
   /**
    * 해당되는 경우 시리즈명을 입력합니다.
    * @minLength 0
@@ -2218,7 +2239,7 @@ export interface BottleReservationNoticeRequest {
   bottleId: number;
   description?: string;
   /** @minItems 1 */
-  gradeConditions?: BottleReservationNoticeRequestGradeConditionsItem[];
+  gradeConditions: BottleReservationNoticeRequestGradeConditionsItem[];
   maxOrderQuantity?: number;
   /**
    * @minLength 0
@@ -2301,6 +2322,63 @@ export interface BottleSearchParameterValues {
   series?: string[];
 }
 
+export type BusinessBottleReservationApplicationPublicResponsePickupAssignmentType = typeof BusinessBottleReservationApplicationPublicResponsePickupAssignmentType[keyof typeof BusinessBottleReservationApplicationPublicResponsePickupAssignmentType];
+
+
+export const BusinessBottleReservationApplicationPublicResponsePickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
+export type BusinessBottleReservationApplicationPublicResponseStatus = typeof BusinessBottleReservationApplicationPublicResponseStatus[keyof typeof BusinessBottleReservationApplicationPublicResponseStatus];
+
+
+export const BusinessBottleReservationApplicationPublicResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/**
+ * 비즈니스 사업장 예약 신청 응답
+ */
+export interface BusinessBottleReservationApplicationPublicResponse {
+  bottleId: number;
+  /** @nullable */
+  bottleImgUrl: string | null;
+  bottleName: string;
+  businessId: number;
+  businessName: string;
+  /** @nullable */
+  confirmedQuantity: number | null;
+  /** @nullable */
+  createdAt: string | null;
+  id: number;
+  noticeId: number;
+  noticeName: string;
+  /** @nullable */
+  pickupAddress: string | null;
+  pickupAssignmentType: BusinessBottleReservationApplicationPublicResponsePickupAssignmentType;
+  pickupBusinessName: string;
+  pickupUserBusinessId: number;
+  quantity: number;
+  status: BusinessBottleReservationApplicationPublicResponseStatus;
+  totalPrice: number;
+  unitPrice: number;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
+export interface BusinessBottleReservationApplicationRequest {
+  /** @minimum 1 */
+  quantity: number;
+}
+
 export interface BusinessMemberCreateRequest {
   email?: string;
   userId?: number;
@@ -2361,13 +2439,53 @@ export interface BusinessOwnershipTransferRequest {
   targetUserId: number;
 }
 
+export interface BusinessReservationPickupSettingClearRequest {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+}
+
+export interface BusinessReservationPickupSettingRequest {
+  businessId: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+}
+
+export type BusinessReservationPickupSettingResponseAssignmentType = typeof BusinessReservationPickupSettingResponseAssignmentType[keyof typeof BusinessReservationPickupSettingResponseAssignmentType];
+
+
+export const BusinessReservationPickupSettingResponseAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
+export interface BusinessReservationPickupSettingResponse {
+  assignmentType: BusinessReservationPickupSettingResponseAssignmentType;
+  /** @nullable */
+  businessId: number | null;
+  /** @nullable */
+  businessName: string | null;
+  /** @nullable */
+  contact: string | null;
+  /** @nullable */
+  pickupAddress: string | null;
+  /** @nullable */
+  updatedAt: string | null;
+}
+
 export interface CartGeneralItemDeliveryOrderRequest {
   /**
    * 배송 주소
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -2379,7 +2497,7 @@ export interface CartGeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 100
    */
-  guestEmail?: string;
+  guestEmail: string;
   /**
    * 주문 메모
    * @minLength 0
@@ -2391,13 +2509,13 @@ export interface CartGeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 휴대폰 번호
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 }
 
 export interface CartItemQuantityRequest {
@@ -2442,12 +2560,12 @@ export interface CartResponse {
 
 export interface ChangePasswordRequest {
   /** @minLength 1 */
-  currentPassword?: string;
+  currentPassword: string;
   /**
    * @minLength 6
    * @maxLength 100
    */
-  newPassword?: string;
+  newPassword: string;
 }
 
 /**
@@ -2516,7 +2634,7 @@ export interface CreateCommentRequest {
    * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
   parentCommentId?: number;
 }
@@ -2529,7 +2647,7 @@ export interface CreatePostRequest {
    * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
@@ -2543,7 +2661,7 @@ export interface CreatePostRequest {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
 }
 
 /**
@@ -2609,7 +2727,7 @@ export interface EmailRequest {
    * 사용자의 계정용 이메일 주소입니다.
    * @minLength 1
    */
-  email?: string;
+  email: string;
 }
 
 /**
@@ -2620,7 +2738,7 @@ export interface EmailVerificationSendRequest {
    * 인증 코드를 받을 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 }
 
 /**
@@ -2631,12 +2749,12 @@ export interface EmailVerificationVerifyRequest {
    * 인증 코드
    * @minLength 1
    */
-  code?: string;
+  code: string;
   /**
    * 인증 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 }
 
 /**
@@ -2659,7 +2777,7 @@ export interface GeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -2671,7 +2789,7 @@ export interface GeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 100
    */
-  guestEmail?: string;
+  guestEmail: string;
   /**
    * 주문 메모
    * @minLength 0
@@ -2683,13 +2801,13 @@ export interface GeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 휴대폰 번호
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
   /** 요청 수량 */
   requestedQuantity: number;
   /** 판매 공고 ID */
@@ -2748,12 +2866,12 @@ export interface GeneralItemDeliveryTossConfirmRequest {
    * 토스페이먼츠 paymentKey
    * @minLength 1
    */
-  paymentKey?: string;
+  paymentKey: string;
   /**
    * 토스페이먼츠 주문 ID
    * @minLength 1
    */
-  pgOrderId?: string;
+  pgOrderId: string;
 }
 
 export interface GuestOrderCancelRequest {
@@ -2761,7 +2879,7 @@ export interface GuestOrderCancelRequest {
    * 비회원 주문 조회 코드
    * @minLength 1
    */
-  guestOrderToken?: string;
+  guestOrderToken: string;
   /**
    * 취소 사유
    * @minLength 0
@@ -2784,13 +2902,13 @@ export interface HealthCheckResponse {
  */
 export interface InquiryCreateRequest {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
   /**
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
 }
 
 export type InquirySummaryResponseStatus = typeof InquirySummaryResponseStatus[keyof typeof InquirySummaryResponseStatus];
@@ -2841,7 +2959,7 @@ export interface InquiryDetailResponse {
  */
 export interface InquiryMessageCreateRequest {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
 }
 
@@ -2916,7 +3034,7 @@ export interface ItemCreateRequest {
    * @minLength 0
    * @maxLength 200
    */
-  name?: string;
+  name: string;
   /** 재고 수량 */
   stockQuantity?: number;
   /** 공급가 */
@@ -2965,7 +3083,7 @@ export interface ItemReservationApplicationRequest {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /** @minimum 1 */
   quantity: number;
 }
@@ -3024,7 +3142,7 @@ export type ItemReservationNoticeRequestGradeConditionsItem = {
 export interface ItemReservationNoticeRequest {
   availableQuantity?: number;
   /** @minItems 1 */
-  gradeConditions?: ItemReservationNoticeRequestGradeConditionsItem[];
+  gradeConditions: ItemReservationNoticeRequestGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
   /**
@@ -3083,7 +3201,7 @@ export interface KvStoreCreateRequest {
    * @minLength 0
    * @maxLength 32
    */
-  key?: string;
+  key: string;
   value?: string;
 }
 
@@ -3099,7 +3217,7 @@ export interface KvStoreUpdateRequest {
    * @minLength 0
    * @maxLength 32
    */
-  key?: string;
+  key: string;
   value?: string;
 }
 
@@ -3116,12 +3234,12 @@ export interface LoginRequest {
    * 이메일
    * @minLength 1
    */
-  email?: string;
+  email: string;
   /**
    * 비밀번호
    * @minLength 1
    */
-  password?: string;
+  password: string;
 }
 
 export interface NiceIdAdminSessionStatusResponse {
@@ -3132,9 +3250,9 @@ export interface NiceIdAdminSessionStatusResponse {
 
 export interface NiceIdVerificationResultRequest {
   /** @minLength 1 */
-  requestNo?: string;
+  requestNo: string;
   /** @minLength 1 */
-  webTransactionId?: string;
+  webTransactionId: string;
 }
 
 export interface NiceIdVerificationResultResponse {
@@ -3166,7 +3284,7 @@ export interface OAuthCompleteRequest {
    * 소셜 OAuth 콜백 이후 프론트로 전달된 1회용 ticket
    * @minLength 1
    */
-  ticket?: string;
+  ticket: string;
 }
 
 /**
@@ -3334,12 +3452,12 @@ export interface OrderPaymentConfirmRequest {
    * 토스페이먼츠 paymentKey
    * @minLength 1
    */
-  paymentKey?: string;
+  paymentKey: string;
   /**
    * 토스페이먼츠 주문 ID
    * @minLength 1
    */
-  pgOrderId?: string;
+  pgOrderId: string;
 }
 
 export interface OrderQueueJoinRequest {
@@ -3510,6 +3628,11 @@ export interface PagedModelBottleAdminResponse {
 
 export interface PagedModelBottleResponse {
   content?: BottleResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelBusinessBottleReservationApplicationPublicResponse {
+  content?: BusinessBottleReservationApplicationPublicResponse[];
   page?: PageMetadata;
 }
 
@@ -3753,6 +3876,15 @@ export interface PagedModelUserBoardResponse {
   page?: PageMetadata;
 }
 
+export type UserBottleReservationApplicationPublicResponsePickupAssignmentType = typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType[keyof typeof UserBottleReservationApplicationPublicResponsePickupAssignmentType];
+
+
+export const UserBottleReservationApplicationPublicResponsePickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
+} as const;
+
 export type UserBottleReservationApplicationPublicResponseStatus = typeof UserBottleReservationApplicationPublicResponseStatus[keyof typeof UserBottleReservationApplicationPublicResponseStatus];
 
 
@@ -3770,12 +3902,15 @@ export interface UserBottleReservationApplicationPublicResponse {
   bottleId?: number;
   bottleImgUrl?: string;
   bottleName?: string;
+  businessId?: number;
+  businessName?: string;
   confirmedQuantity?: number;
   createdAt?: string;
   id?: number;
   noticeId?: number;
   noticeName?: string;
   pickupAddress?: string;
+  pickupAssignmentType?: UserBottleReservationApplicationPublicResponsePickupAssignmentType;
   pickupBusinessName?: string;
   pickupUserBusinessId?: number;
   quantity?: number;
@@ -4518,12 +4653,12 @@ export interface PpurioCancelRequest {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 취소할 메시지 키
    * @minLength 1
    */
-  messageKey?: string;
+  messageKey: string;
 }
 
 /**
@@ -4548,12 +4683,12 @@ export interface PpurioFile {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 }
@@ -4566,12 +4701,12 @@ export type PpurioKakaoRequestResendFilesItem = {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 };
@@ -4584,19 +4719,19 @@ export type PpurioKakaoRequestResend = {
    * 메시지 내용
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 첨부 파일 목록 (MMS) */
   files?: PpurioKakaoRequestResendFilesItem[];
   /**
    * 발신 번호
    * @minLength 1
    */
-  from?: string;
+  from: string;
   /**
    * 메시지 타입 (SMS/LMS/MMS)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /** 제목 */
   subject?: string;
 };
@@ -4627,7 +4762,7 @@ export type PpurioKakaoRequestTargetsItem = {
    * 수신 번호
    * @minLength 1
    */
-  to?: string;
+  to: string;
 };
 
 /**
@@ -4638,27 +4773,27 @@ export interface PpurioKakaoRequest {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 수신 번호 중복 허용 여부 (Y/N)
    * @minLength 1
    */
-  duplicateFlag?: string;
+  duplicateFlag: string;
   /**
    * 대체 발송 허용 여부 (Y/N)
    * @minLength 1
    */
-  isResend?: string;
+  isResend: string;
   /**
    * 메시지 타입 (ALT/ALL/ALH/ALI)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /**
    * 고객사 참조 키
    * @minLength 1
    */
-  refKey?: string;
+  refKey: string;
   /** 대체 문자 발송 정보 */
   resend?: PpurioKakaoRequestResend;
   /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
@@ -4667,19 +4802,19 @@ export interface PpurioKakaoRequest {
    * 발신프로필
    * @minLength 1
    */
-  senderProfile?: string;
+  senderProfile: string;
   /** 수신자 목록 수 */
   targetCount?: number;
   /**
    * 수신자 목록
    * @minItems 1
    */
-  targets?: PpurioKakaoRequestTargetsItem[];
+  targets: PpurioKakaoRequestTargetsItem[];
   /**
    * 템플릿 코드
    * @minLength 1
    */
-  templateCode?: string;
+  templateCode: string;
 }
 
 /**
@@ -4690,12 +4825,12 @@ export type PpurioMessageRequestFilesItem = {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 };
@@ -4726,7 +4861,7 @@ export type PpurioMessageRequestTargetsItem = {
    * 수신 번호
    * @minLength 1
    */
-  to?: string;
+  to: string;
 };
 
 /**
@@ -4737,34 +4872,34 @@ export interface PpurioMessageRequest {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 메시지 내용
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /**
    * 수신 번호 중복 허용 여부 (Y/N)
    * @minLength 1
    */
-  duplicateFlag?: string;
+  duplicateFlag: string;
   /** 첨부 파일 목록 (MMS) */
   files?: PpurioMessageRequestFilesItem[];
   /**
    * 발신 번호
    * @minLength 1
    */
-  from?: string;
+  from: string;
   /**
    * 메시지 타입 (SMS/LMS/MMS)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /**
    * 고객사 참조 키
    * @minLength 1
    */
-  refKey?: string;
+  refKey: string;
   /** 수신거부 설정 유형 (예: AD) */
   rejectType?: string;
   /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
@@ -4777,7 +4912,7 @@ export interface PpurioMessageRequest {
    * 수신자 목록
    * @minItems 1
    */
-  targets?: PpurioMessageRequestTargetsItem[];
+  targets: PpurioMessageRequestTargetsItem[];
 }
 
 /**
@@ -4820,7 +4955,7 @@ export interface PpurioTarget {
    * 수신 번호
    * @minLength 1
    */
-  to?: string;
+  to: string;
 }
 
 /**
@@ -4846,7 +4981,7 @@ export interface PreRegisterRequest {
    * @minLength 0
    * @maxLength 100
    */
-  email?: string;
+  email: string;
   /**
    * 성별
    * @minLength 0
@@ -4858,7 +4993,7 @@ export interface PreRegisterRequest {
    * @minLength 0
    * @maxLength 100
    */
-  name?: string;
+  name: string;
   /**
    * 전화번호
    * @minLength 0
@@ -4903,7 +5038,7 @@ export interface RefreshTokenRequest {
    * 액세스 토큰과 함께 발급된 리프레시 토큰 값입니다.
    * @minLength 1
    */
-  refreshToken?: string;
+  refreshToken: string;
 }
 
 /**
@@ -4914,12 +5049,12 @@ export type ResendFilesItem = {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 };
@@ -4932,19 +5067,19 @@ export interface Resend {
    * 메시지 내용
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 첨부 파일 목록 (MMS) */
   files?: ResendFilesItem[];
   /**
    * 발신 번호
    * @minLength 1
    */
-  from?: string;
+  from: string;
   /**
    * 메시지 타입 (SMS/LMS/MMS)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /** 제목 */
   subject?: string;
 }
@@ -5127,7 +5262,7 @@ export interface ReservationOpenSmsCorrectionRequest {
    * @minLength 0
    * @maxLength 1000
    */
-  message?: string;
+  message: string;
 }
 
 /**
@@ -5237,7 +5372,7 @@ export interface SaleAnnouncementCreateRequest {
    * @minLength 0
    * @maxLength 200
    */
-  itemName?: string;
+  itemName: string;
   /** 1회 최대 주문 가능 수량 */
   maxOrderQuantity?: number;
   /** 주문 가능 역할 코드 목록 */
@@ -5261,7 +5396,7 @@ export interface SaleAnnouncementCreateRequest {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
   /** 총 판매 가능 수량 */
   totalQuantity: number;
 }
@@ -5347,7 +5482,7 @@ export interface SignupRequest {
    * @minLength 0
    * @maxLength 100
    */
-  email?: string;
+  email: string;
   /** 이메일 동의 여부 */
   emailAgree?: boolean;
   /**
@@ -5363,29 +5498,29 @@ export interface SignupRequest {
    * @minLength 0
    * @maxLength 100
    */
-  name?: string;
+  name: string;
   /**
    * NICE 인증 요청 번호
    * @minLength 1
    */
-  niceRequestNo?: string;
+  niceRequestNo: string;
   /**
    * NICE 웹 트랜잭션 아이디
    * @minLength 1
    */
-  niceWebTransactionId?: string;
+  niceWebTransactionId: string;
   /**
    * 비밀번호
    * @minLength 6
    * @maxLength 100
    */
-  password?: string;
+  password: string;
   /**
    * 전화번호
    * @minLength 0
    * @maxLength 20
    */
-  phone?: string;
+  phone: string;
   /** 개인정보 동의 여부 */
   privacyAgree?: boolean;
   /** SMS 동의 여부 */
@@ -5398,7 +5533,7 @@ export interface SignupRequest {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  username?: string;
+  username: string;
 }
 
 /**
@@ -5485,7 +5620,7 @@ export interface UpdateCommentRequest {
    * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
 }
 
 /**
@@ -5497,7 +5632,7 @@ export interface UpdateEmailRequest {
    * @minLength 0
    * @maxLength 100
    */
-  newEmail?: string;
+  newEmail: string;
 }
 
 /**
@@ -5510,7 +5645,7 @@ export interface UpdateNicknameRequest {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  nickname?: string;
+  nickname: string;
 }
 
 /**
@@ -5648,7 +5783,7 @@ export interface UserBusinessApplicationCancelRequest {
    * 신청 취소 사유
    * @minLength 1
    */
-  cancelReason?: string;
+  cancelReason: string;
 }
 
 export interface UserBusinessApplicationOverviewResponse {
@@ -5705,7 +5840,7 @@ export interface UserDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -5717,7 +5852,7 @@ export interface UserDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -5737,13 +5872,13 @@ export interface UserDeliveryAddressRequest {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 }
 
 /**
@@ -5915,7 +6050,7 @@ export interface UsernameRequest {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  username?: string;
+  username: string;
 }
 
 export type GetApiAdminBannersParams = {
@@ -5967,7 +6102,7 @@ export type PatchApiAdminBannersOrdersBody = {
    * 변경할 배너 순서 목록입니다.
    * @minItems 1
    */
-  items?: PatchApiAdminBannersOrdersBodyItemsItem[];
+  items: PatchApiAdminBannersOrdersBodyItemsItem[];
 };
 
 export type PatchApiAdminBannersIdParams = {
@@ -6059,7 +6194,7 @@ export type PostApiAdminBoardsBody = {
    * @minLength 0
    * @maxLength 150
    */
-  name?: string;
+  name: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -6124,7 +6259,7 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * 공지 상세 내용입니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -6145,7 +6280,7 @@ export type PostApiAdminBoardsAnnouncementsBody = {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
   /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
   visible?: boolean;
 };
@@ -6171,7 +6306,7 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
    * 공지 상세 내용입니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 공지 만료 일시입니다. 이 시각 이후 사용자 API에서 제외됩니다. null이면 만료되지 않으며, 수정 시 null을 보내면 기존 만료 일시를 제거합니다. */
   expiredAt?: string;
   /** 공지 목록 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -6192,7 +6327,7 @@ export type PutApiAdminBoardsAnnouncementsAnnouncementidBody = {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
   /** 사용자에게 노출할지 여부입니다. false이면 사용자 공지 API에서 제외됩니다. 생성 시 생략하면 true, 수정 시 생략하면 기존 값을 유지합니다. */
   visible?: boolean;
 };
@@ -6290,7 +6425,7 @@ export type PutApiAdminBoardsBoardidBody = {
    * @minLength 0
    * @maxLength 150
    */
-  name?: string;
+  name: string;
   /** 읽기 전용 여부입니다. true이면 사용자 게시글 작성/수정/삭제가 차단됩니다. 생성 시 생략하면 false, 수정 시 생략하면 기존 값을 유지합니다. */
   readOnly?: boolean;
   /** 게시판 조회에 필요한 최소 역할입니다. 생성 시 생략하면 ROLE_GUEST, 수정 시 생략하면 기존 값을 유지합니다. */
@@ -6339,14 +6474,14 @@ export type PostApiAdminBoardsBoardidPostTypesBody = {
    * @minLength 0
    * @maxLength 50
    */
-  code?: string;
+  code: string;
   default?: boolean;
   displayOrder?: number;
   /**
    * @minLength 0
    * @maxLength 50
    */
-  name?: string;
+  name: string;
   /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
   usage?: PostApiAdminBoardsBoardidPostTypesBodyUsage;
 };
@@ -6371,14 +6506,14 @@ export type PutApiAdminBoardsBoardidPostTypesPosttypeidBody = {
    * @minLength 0
    * @maxLength 50
    */
-  code?: string;
+  code: string;
   default?: boolean;
   displayOrder?: number;
   /**
    * @minLength 0
    * @maxLength 50
    */
-  name?: string;
+  name: string;
   /** 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다. */
   usage?: PutApiAdminBoardsBoardidPostTypesPosttypeidBodyUsage;
 };
@@ -6392,7 +6527,7 @@ export type PostApiAdminBoardsBoardidPostsPostidDeleteBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deleteReason?: string;
+  deleteReason: string;
 };
 
 /**
@@ -6537,7 +6672,7 @@ export type PostApiAdminBottlesBody = {
    * @minLength 0
    * @maxLength 500
    */
-  labelImgKey?: string;
+  labelImgKey: string;
   /**
    * 몰트 타입입니다.
    * @minLength 0
@@ -6549,7 +6684,7 @@ export type PostApiAdminBottlesBody = {
    * @minLength 0
    * @maxLength 200
    */
-  name?: string;
+  name: string;
   /**
    * 해당되는 경우 시리즈명을 입력합니다.
    * @minLength 0
@@ -6569,6 +6704,10 @@ userId?: number;
 noticeId?: number;
 role?: GetApiAdminBottlesReservationsApplicationsRole;
 status?: GetApiAdminBottlesReservationsApplicationsStatus;
+applicantType?: GetApiAdminBottlesReservationsApplicationsApplicantType;
+applicantBusinessId?: number;
+pickupBusinessId?: number;
+pickupAssignmentType?: GetApiAdminBottlesReservationsApplicationsPickupAssignmentType;
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -6614,6 +6753,23 @@ export const GetApiAdminBottlesReservationsApplicationsStatus = {
   WAITING_PICKUP: 'WAITING_PICKUP',
   RECEIVED: 'RECEIVED',
   REJECTED: 'REJECTED',
+} as const;
+
+export type GetApiAdminBottlesReservationsApplicationsApplicantType = typeof GetApiAdminBottlesReservationsApplicationsApplicantType[keyof typeof GetApiAdminBottlesReservationsApplicationsApplicantType];
+
+
+export const GetApiAdminBottlesReservationsApplicationsApplicantType = {
+  USER: 'USER',
+  BUSINESS: 'BUSINESS',
+} as const;
+
+export type GetApiAdminBottlesReservationsApplicationsPickupAssignmentType = typeof GetApiAdminBottlesReservationsApplicationsPickupAssignmentType[keyof typeof GetApiAdminBottlesReservationsApplicationsPickupAssignmentType];
+
+
+export const GetApiAdminBottlesReservationsApplicationsPickupAssignmentType = {
+  USER_SELECTED: 'USER_SELECTED',
+  ADMIN_DESIGNATED: 'ADMIN_DESIGNATED',
+  APPLICANT_BUSINESS_FALLBACK: 'APPLICANT_BUSINESS_FALLBACK',
 } as const;
 
 /**
@@ -6696,7 +6852,7 @@ export type PostApiAdminBottlesReservationsNoticesBody = {
   bottleId: number;
   description?: string;
   /** @minItems 1 */
-  gradeConditions?: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
+  gradeConditions: PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
   /**
    * @minLength 0
@@ -6743,7 +6899,7 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   bottleId: number;
   description?: string;
   /** @minItems 1 */
-  gradeConditions?: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
+  gradeConditions: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
   maxOrderQuantity?: number;
   /**
    * @minLength 0
@@ -6797,7 +6953,7 @@ export type PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody 
    * @minLength 0
    * @maxLength 1000
    */
-  message?: string;
+  message: string;
 };
 
 /**
@@ -6929,7 +7085,7 @@ export type PostApiAdminBusinessesApplicationsApplicationidRejectBody = {
    * 사용자에게 노출되는 반려 사유
    * @minLength 1
    */
-  rejectReason?: string;
+  rejectReason: string;
 };
 
 /**
@@ -7148,7 +7304,7 @@ export const List1Status = {
 
 export type ReplyBody = {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
 };
 
@@ -7196,7 +7352,7 @@ export type PostApiAdminItemsBody = {
    * @minLength 0
    * @maxLength 200
    */
-  name?: string;
+  name: string;
   /** 재고 수량 */
   stockQuantity?: number;
   /** 공급가 */
@@ -7331,7 +7487,7 @@ export type PostApiAdminItemsReservationsNoticesBodyGradeConditionsItem = {
 export type PostApiAdminItemsReservationsNoticesBody = {
   availableQuantity?: number;
   /** @minItems 1 */
-  gradeConditions?: PostApiAdminItemsReservationsNoticesBodyGradeConditionsItem[];
+  gradeConditions: PostApiAdminItemsReservationsNoticesBodyGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
   /**
@@ -7371,7 +7527,7 @@ export type PutApiAdminItemsReservationsNoticesNoticeidBodyGradeConditionsItem =
 export type PutApiAdminItemsReservationsNoticesNoticeidBody = {
   availableQuantity?: number;
   /** @minItems 1 */
-  gradeConditions?: PutApiAdminItemsReservationsNoticesNoticeidBodyGradeConditionsItem[];
+  gradeConditions: PutApiAdminItemsReservationsNoticesNoticeidBodyGradeConditionsItem[];
   itemId: number;
   maxOrderQuantity?: number;
   /**
@@ -7422,7 +7578,7 @@ export type PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody = 
    * @minLength 0
    * @maxLength 1000
    */
-  message?: string;
+  message: string;
 };
 
 /**
@@ -7465,7 +7621,7 @@ export type PostApiAdminKvStoreBody = {
    * @minLength 0
    * @maxLength 32
    */
-  key?: string;
+  key: string;
   value?: string;
 };
 
@@ -7474,7 +7630,7 @@ export type PutApiAdminKvStoreBody = {
    * @minLength 0
    * @maxLength 32
    */
-  key?: string;
+  key: string;
   value?: string;
 };
 
@@ -8199,6 +8355,23 @@ export type PatchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessi
   trackingNumber?: string;
 };
 
+export type PutApiAdminReservationsBusinessPickupLocationBody = {
+  businessId: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+};
+
+export type PostApiAdminReservationsBusinessPickupLocationClearBody = {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+};
+
 export type GetApiAdminSalesParams = {
 /**
  * Zero-based page index (0..N)
@@ -8274,7 +8447,7 @@ export type PostApiAdminSalesBody = {
    * @minLength 0
    * @maxLength 200
    */
-  itemName?: string;
+  itemName: string;
   /** 1회 최대 주문 가능 수량 */
   maxOrderQuantity?: number;
   /** 주문 가능 역할 코드 목록 */
@@ -8298,7 +8471,7 @@ export type PostApiAdminSalesBody = {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
   /** 총 판매 가능 수량 */
   totalQuantity: number;
 };
@@ -8417,7 +8590,7 @@ export type PatchApiAdminUsersIdBanBody = {
    * 밴 사유
    * @minLength 1
    */
-  reason?: string;
+  reason: string;
   /** 밴 시작 시각 */
   startAt?: string;
 };
@@ -8432,7 +8605,7 @@ export type PatchApiAdminUsersIdBanUpdateBody = {
    * 밴 사유
    * @minLength 1
    */
-  reason?: string;
+  reason: string;
   /** 밴 시작 시각 */
   startAt?: string;
 };
@@ -8448,7 +8621,7 @@ export type PutApiAdminUsersIdPostCreationRestrictionBody = {
    * @minLength 0
    * @maxLength 1000
    */
-  reason?: string;
+  reason: string;
   /** 게시글 작성 제한 시작 시각 */
   startAt: string;
 };
@@ -8461,7 +8634,7 @@ export type PatchApiAdminUsersIdRolesAddBody = {
    * 추가할 역할 이름 목록입니다. 예: ROLE_USER, ROLE_ADMIN
    * @minItems 1
    */
-  roles?: string[];
+  roles: string[];
 };
 
 /**
@@ -8472,7 +8645,7 @@ export type PatchApiAdminUsersIdRolesRemoveBody = {
    * 제거할 역할 이름 목록입니다. 예: ROLE_USER, ROLE_ADMIN
    * @minItems 1
    */
-  roles?: string[];
+  roles: string[];
 };
 
 /**
@@ -8483,7 +8656,7 @@ export type PatchApiAdminUsersIdStatusBody = {
    * 적용할 새 상태 값입니다.
    * @minLength 1
    */
-  status?: string;
+  status: string;
 };
 
 /**
@@ -8495,7 +8668,7 @@ export type PostApiAdminUsersUseridDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -8507,7 +8680,7 @@ export type PostApiAdminUsersUseridDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -8527,13 +8700,13 @@ export type PostApiAdminUsersUseridDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 };
 
 /**
@@ -8545,7 +8718,7 @@ export type PutApiAdminUsersUseridDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -8557,7 +8730,7 @@ export type PutApiAdminUsersUseridDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -8577,23 +8750,23 @@ export type PutApiAdminUsersUseridDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 };
 
 export type PutApiAuthChangePasswordBody = {
   /** @minLength 1 */
-  currentPassword?: string;
+  currentPassword: string;
   /**
    * @minLength 6
    * @maxLength 100
    */
-  newPassword?: string;
+  newPassword: string;
 };
 
 /**
@@ -8604,7 +8777,7 @@ export type PostApiAuthCheckEmailBody = {
    * 사용자의 계정용 이메일 주소입니다.
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 /**
@@ -8617,7 +8790,7 @@ export type PostApiAuthCheckUsernameBody = {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  username?: string;
+  username: string;
 };
 
 /**
@@ -8628,7 +8801,7 @@ export type PostApiAuthEmailVerificationResetSendBody = {
    * 인증 코드를 받을 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiAuthEmailVerificationResetSend200 = {[key: string]: string};
@@ -8641,12 +8814,12 @@ export type PostApiAuthEmailVerificationResetVerifyBody = {
    * 인증 코드
    * @minLength 1
    */
-  code?: string;
+  code: string;
   /**
    * 인증 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiAuthEmailVerificationResetVerify200 = {[key: string]: string};
@@ -8659,7 +8832,7 @@ export type PostApiAuthEmailVerificationSendBody = {
    * 인증 코드를 받을 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiAuthEmailVerificationSend200 = {[key: string]: string};
@@ -8672,12 +8845,12 @@ export type PostApiAuthEmailVerificationVerifyBody = {
    * 인증 코드
    * @minLength 1
    */
-  code?: string;
+  code: string;
   /**
    * 인증 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiAuthEmailVerificationVerify200 = {[key: string]: string};
@@ -8690,12 +8863,12 @@ export type PostApiAuthLoginBody = {
    * 이메일
    * @minLength 1
    */
-  email?: string;
+  email: string;
   /**
    * 비밀번호
    * @minLength 1
    */
-  password?: string;
+  password: string;
 };
 
 /**
@@ -8706,7 +8879,7 @@ export type PostApiAuthOauthCompleteBody = {
    * 소셜 OAuth 콜백 이후 프론트로 전달된 1회용 ticket
    * @minLength 1
    */
-  ticket?: string;
+  ticket: string;
 };
 
 export type GetApiAuthOauthProviderCallbackParams = {
@@ -8724,7 +8897,7 @@ export type PostApiAuthRefreshBody = {
    * 액세스 토큰과 함께 발급된 리프레시 토큰 값입니다.
    * @minLength 1
    */
-  refreshToken?: string;
+  refreshToken: string;
 };
 
 /**
@@ -8735,7 +8908,7 @@ export type PostApiAuthResetPasswordBody = {
    * 사용자의 계정용 이메일 주소입니다.
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 /**
@@ -8749,7 +8922,7 @@ export type PostApiAuthSignupBody = {
    * @minLength 0
    * @maxLength 100
    */
-  email?: string;
+  email: string;
   /** 이메일 동의 여부 */
   emailAgree?: boolean;
   /**
@@ -8765,29 +8938,29 @@ export type PostApiAuthSignupBody = {
    * @minLength 0
    * @maxLength 100
    */
-  name?: string;
+  name: string;
   /**
    * NICE 인증 요청 번호
    * @minLength 1
    */
-  niceRequestNo?: string;
+  niceRequestNo: string;
   /**
    * NICE 웹 트랜잭션 아이디
    * @minLength 1
    */
-  niceWebTransactionId?: string;
+  niceWebTransactionId: string;
   /**
    * 비밀번호
    * @minLength 6
    * @maxLength 100
    */
-  password?: string;
+  password: string;
   /**
    * 전화번호
    * @minLength 0
    * @maxLength 20
    */
-  phone?: string;
+  phone: string;
   /** 개인정보 동의 여부 */
   privacyAgree?: boolean;
   /** SMS 동의 여부 */
@@ -8800,7 +8973,7 @@ export type PostApiAuthSignupBody = {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  username?: string;
+  username: string;
 };
 
 export type GetApiBannersParams = {
@@ -8934,7 +9107,7 @@ export type PostApiBoardsBoardidPostsBody = {
    * 게시글 본문 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 게시글 본문에 이미지가 포함되어 있는지 여부입니다. 생략하면 false로 처리됩니다. */
   hasImage?: boolean;
   /**
@@ -8948,7 +9121,7 @@ export type PostApiBoardsBoardidPostsBody = {
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
 };
 
 /**
@@ -8981,7 +9154,7 @@ export type PostApiBoardsBoardidPostsPostidCommentsBody = {
    * 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 답글을 작성할 대상 댓글 ID입니다. 최상위 댓글이면 null입니다. */
   parentCommentId?: number;
 };
@@ -8994,7 +9167,7 @@ export type PutApiBoardsBoardidPostsPostidCommentsCommentidBody = {
    * 수정할 댓글 내용입니다. 앞뒤 공백은 제거되어 저장됩니다.
    * @minLength 1
    */
-  content?: string;
+  content: string;
 };
 
 export type GetApiBottlesParams = {
@@ -9143,6 +9316,58 @@ export type PostApiBottlesReservationsNoticesNoticeidApplicationsBody = {
   userBusinessId: number;
 };
 
+export type GetApiBusinessesBusinessidBottlesReservationsApplicationsParams = {
+/**
+ * 예약 신청 상태 필터
+ */
+status?: GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus;
+/**
+ * 특정 예약 공고의 신청 내역만 조회할 때 사용하는 공고 ID
+ */
+noticeId?: number;
+/**
+ * 특정 병의 신청 내역만 조회할 때 사용하는 병 ID
+ */
+bottleId?: number;
+/**
+ * Zero-based page index (0..N)
+ * @minimum 0
+ */
+page?: number;
+/**
+ * The size of the page to be returned
+ * @minimum 1
+ */
+size?: number;
+/**
+ * Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.
+ */
+sort?: string[];
+};
+
+export type GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus[keyof typeof GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus];
+
+
+export const GetApiBusinessesBusinessidBottlesReservationsApplicationsStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export type PutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody = {
+  /** @minimum 1 */
+  quantity: number;
+};
+
+export type PostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody = {
+  /** @minimum 1 */
+  quantity: number;
+};
+
 export type AddItemBody = {
   quantity: number;
   saleAnnouncementId: number;
@@ -9225,13 +9450,13 @@ sort?: string[];
  */
 export type CreateBody = {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
   /**
    * @minLength 0
    * @maxLength 200
    */
-  title?: string;
+  title: string;
 };
 
 /**
@@ -9239,7 +9464,7 @@ export type CreateBody = {
  */
 export type AddMessageBody = {
   /** @minLength 1 */
-  content?: string;
+  content: string;
   hasImage?: boolean;
 };
 
@@ -9310,7 +9535,7 @@ export type PutApiItemsReservationsApplicationsApplicationidBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /** @minimum 1 */
   quantity: number;
 };
@@ -9355,7 +9580,7 @@ export type PostApiItemsReservationsNoticesNoticeidApplicationsBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /** @minimum 1 */
   quantity: number;
 };
@@ -9452,12 +9677,12 @@ export type PostApiOrdersGeneralItemsDeliveryCartTossConfirmBody = {
    * 토스페이먼츠 paymentKey
    * @minLength 1
    */
-  paymentKey?: string;
+  paymentKey: string;
   /**
    * 토스페이먼츠 주문 ID
    * @minLength 1
    */
-  pgOrderId?: string;
+  pgOrderId: string;
 };
 
 export type PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody = {
@@ -9466,7 +9691,7 @@ export type PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -9478,7 +9703,7 @@ export type PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody = {
    * @minLength 0
    * @maxLength 100
    */
-  guestEmail?: string;
+  guestEmail: string;
   /**
    * 주문 메모
    * @minLength 0
@@ -9490,13 +9715,13 @@ export type PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 휴대폰 번호
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 };
 
 export type PostApiOrdersGeneralItemsDeliveryTossConfirmBody = {
@@ -9506,12 +9731,12 @@ export type PostApiOrdersGeneralItemsDeliveryTossConfirmBody = {
    * 토스페이먼츠 paymentKey
    * @minLength 1
    */
-  paymentKey?: string;
+  paymentKey: string;
   /**
    * 토스페이먼츠 주문 ID
    * @minLength 1
    */
-  pgOrderId?: string;
+  pgOrderId: string;
 };
 
 export type PostApiOrdersGeneralItemsDeliveryTossTicketsBody = {
@@ -9520,7 +9745,7 @@ export type PostApiOrdersGeneralItemsDeliveryTossTicketsBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress?: string;
+  deliveryAddress: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -9532,7 +9757,7 @@ export type PostApiOrdersGeneralItemsDeliveryTossTicketsBody = {
    * @minLength 0
    * @maxLength 100
    */
-  guestEmail?: string;
+  guestEmail: string;
   /**
    * 주문 메모
    * @minLength 0
@@ -9544,13 +9769,13 @@ export type PostApiOrdersGeneralItemsDeliveryTossTicketsBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 휴대폰 번호
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
   /** 요청 수량 */
   requestedQuantity: number;
   /** 판매 공고 ID */
@@ -9567,7 +9792,7 @@ export type PatchApiOrdersGuestOrdernumberCancelBody = {
    * 비회원 주문 조회 코드
    * @minLength 1
    */
-  guestOrderToken?: string;
+  guestOrderToken: string;
   /**
    * 취소 사유
    * @minLength 0
@@ -9603,12 +9828,12 @@ export type PostApiOrdersPaymentsConfirmBody = {
    * 토스페이먼츠 paymentKey
    * @minLength 1
    */
-  paymentKey?: string;
+  paymentKey: string;
   /**
    * 토스페이먼츠 주문 ID
    * @minLength 1
    */
-  pgOrderId?: string;
+  pgOrderId: string;
 };
 
 export type PostApiOrdersQueueJoinBody = {
@@ -9665,12 +9890,12 @@ export type PostApiPpurioCancelBody = {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 취소할 메시지 키
    * @minLength 1
    */
-  messageKey?: string;
+  messageKey: string;
 };
 
 /**
@@ -9681,12 +9906,12 @@ export type PostApiPpurioCancelKakaoBody = {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 취소할 메시지 키
    * @minLength 1
    */
-  messageKey?: string;
+  messageKey: string;
 };
 
 /**
@@ -9697,12 +9922,12 @@ export type PostApiPpurioKakaoBodyResendFilesItem = {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 };
@@ -9715,19 +9940,19 @@ export type PostApiPpurioKakaoBodyResend = {
    * 메시지 내용
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /** 첨부 파일 목록 (MMS) */
   files?: PostApiPpurioKakaoBodyResendFilesItem[];
   /**
    * 발신 번호
    * @minLength 1
    */
-  from?: string;
+  from: string;
   /**
    * 메시지 타입 (SMS/LMS/MMS)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /** 제목 */
   subject?: string;
 };
@@ -9758,7 +9983,7 @@ export type PostApiPpurioKakaoBodyTargetsItem = {
    * 수신 번호
    * @minLength 1
    */
-  to?: string;
+  to: string;
 };
 
 /**
@@ -9769,27 +9994,27 @@ export type PostApiPpurioKakaoBody = {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 수신 번호 중복 허용 여부 (Y/N)
    * @minLength 1
    */
-  duplicateFlag?: string;
+  duplicateFlag: string;
   /**
    * 대체 발송 허용 여부 (Y/N)
    * @minLength 1
    */
-  isResend?: string;
+  isResend: string;
   /**
    * 메시지 타입 (ALT/ALL/ALH/ALI)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /**
    * 고객사 참조 키
    * @minLength 1
    */
-  refKey?: string;
+  refKey: string;
   /** 대체 문자 발송 정보 */
   resend?: PostApiPpurioKakaoBodyResend;
   /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
@@ -9798,19 +10023,19 @@ export type PostApiPpurioKakaoBody = {
    * 발신프로필
    * @minLength 1
    */
-  senderProfile?: string;
+  senderProfile: string;
   /** 수신자 목록 수 */
   targetCount?: number;
   /**
    * 수신자 목록
    * @minItems 1
    */
-  targets?: PostApiPpurioKakaoBodyTargetsItem[];
+  targets: PostApiPpurioKakaoBodyTargetsItem[];
   /**
    * 템플릿 코드
    * @minLength 1
    */
-  templateCode?: string;
+  templateCode: string;
 };
 
 /**
@@ -9821,12 +10046,12 @@ export type PostApiPpurioMessageBodyFilesItem = {
    * Base64 인코딩된 파일 데이터
    * @minLength 1
    */
-  data?: string;
+  data: string;
   /**
    * 파일 이름
    * @minLength 1
    */
-  name?: string;
+  name: string;
   /** 파일 크기 (byte) */
   size?: number;
 };
@@ -9857,7 +10082,7 @@ export type PostApiPpurioMessageBodyTargetsItem = {
    * 수신 번호
    * @minLength 1
    */
-  to?: string;
+  to: string;
 };
 
 /**
@@ -9868,34 +10093,34 @@ export type PostApiPpurioMessageBody = {
    * 뿌리오 계정
    * @minLength 1
    */
-  account?: string;
+  account: string;
   /**
    * 메시지 내용
    * @minLength 1
    */
-  content?: string;
+  content: string;
   /**
    * 수신 번호 중복 허용 여부 (Y/N)
    * @minLength 1
    */
-  duplicateFlag?: string;
+  duplicateFlag: string;
   /** 첨부 파일 목록 (MMS) */
   files?: PostApiPpurioMessageBodyFilesItem[];
   /**
    * 발신 번호
    * @minLength 1
    */
-  from?: string;
+  from: string;
   /**
    * 메시지 타입 (SMS/LMS/MMS)
    * @minLength 1
    */
-  messageType?: string;
+  messageType: string;
   /**
    * 고객사 참조 키
    * @minLength 1
    */
-  refKey?: string;
+  refKey: string;
   /** 수신거부 설정 유형 (예: AD) */
   rejectType?: string;
   /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
@@ -9908,7 +10133,7 @@ export type PostApiPpurioMessageBody = {
    * 수신자 목록
    * @minItems 1
    */
-  targets?: PostApiPpurioMessageBodyTargetsItem[];
+  targets: PostApiPpurioMessageBodyTargetsItem[];
 };
 
 /**
@@ -9922,7 +10147,7 @@ export type PostApiPreRegisterBody = {
    * @minLength 0
    * @maxLength 100
    */
-  email?: string;
+  email: string;
   /**
    * 성별
    * @minLength 0
@@ -9934,7 +10159,7 @@ export type PostApiPreRegisterBody = {
    * @minLength 0
    * @maxLength 100
    */
-  name?: string;
+  name: string;
   /**
    * 전화번호
    * @minLength 0
@@ -10039,9 +10264,9 @@ params: {[key: string]: string};
 
 export type PostApiUserNiceidResultBody = {
   /** @minLength 1 */
-  requestNo?: string;
+  requestNo: string;
   /** @minLength 1 */
-  webTransactionId?: string;
+  webTransactionId: string;
 };
 
 export type GetApiUserNiceidSessionParams = {
@@ -10097,7 +10322,7 @@ export type PostApiUsersBusinessesApplicationsApplicationidCancelBody = {
    * 신청 취소 사유
    * @minLength 1
    */
-  cancelReason?: string;
+  cancelReason: string;
 };
 
 export type GetApiUsersBusinessesItemsReservationsApplicationsParams = {
@@ -10365,7 +10590,7 @@ export type PostApiUsersMeDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -10377,7 +10602,7 @@ export type PostApiUsersMeDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -10397,13 +10622,13 @@ export type PostApiUsersMeDeliveryAddressesBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 };
 
 /**
@@ -10415,7 +10640,7 @@ export type PutApiUsersMeDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 500
    */
-  address?: string;
+  address: string;
   /**
    * 상세 주소
    * @minLength 0
@@ -10427,7 +10652,7 @@ export type PutApiUsersMeDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 100
    */
-  addressName?: string;
+  addressName: string;
   /** 기본 배송지 여부 */
   defaultAddress?: boolean;
   /**
@@ -10447,13 +10672,13 @@ export type PutApiUsersMeDeliveryAddressesAddressidBody = {
    * @minLength 0
    * @maxLength 100
    */
-  receiverName?: string;
+  receiverName: string;
   /**
    * 수령인 연락처
    * @minLength 0
    * @maxLength 20
    */
-  receiverPhone?: string;
+  receiverPhone: string;
 };
 
 /**
@@ -10465,7 +10690,7 @@ export type PutApiUsersMeEmailBody = {
    * @minLength 0
    * @maxLength 100
    */
-  newEmail?: string;
+  newEmail: string;
 };
 
 /**
@@ -10476,7 +10701,7 @@ export type PostApiUsersMeEmailVerificationSendBody = {
    * 인증 코드를 받을 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiUsersMeEmailVerificationSend200 = {[key: string]: string};
@@ -10489,12 +10714,12 @@ export type PostApiUsersMeEmailVerificationVerifyBody = {
    * 인증 코드
    * @minLength 1
    */
-  code?: string;
+  code: string;
   /**
    * 인증 이메일 주소
    * @minLength 1
    */
-  email?: string;
+  email: string;
 };
 
 export type PostApiUsersMeEmailVerificationVerify200 = {[key: string]: string};
@@ -10509,8 +10734,82 @@ export type PutApiUsersMeNicknameBody = {
    * @maxLength 16
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  nickname?: string;
+  nickname: string;
 };
+
+/**
+ * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
+ * @summary v1 헬스체크
+ */
+export type getApiV1HealthResponse200 = {
+  data: HealthCheckResponse
+  status: 200
+}
+    
+export type getApiV1HealthResponseSuccess = (getApiV1HealthResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV1HealthResponse = (getApiV1HealthResponseSuccess)
+
+export const getGetApiV1HealthUrl = () => {
+
+
+  
+
+  return `/api/1.0/health`
+}
+
+export const getApiV1Health = async ( options?: RequestInit): Promise<getApiV1HealthResponse> => {
+  
+  return customFetch<getApiV1HealthResponse>(getGetApiV1HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
+ * @summary v2 헬스체크
+ */
+export type getApiV2HealthResponse200 = {
+  data: HealthCheckResponse
+  status: 200
+}
+    
+export type getApiV2HealthResponseSuccess = (getApiV2HealthResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2HealthResponse = (getApiV2HealthResponseSuccess)
+
+export const getGetApiV2HealthUrl = () => {
+
+
+  
+
+  return `/api/2.0/health`
+}
+
+export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2HealthResponse> => {
+  
+  return customFetch<getApiV2HealthResponse>(getGetApiV2HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
 
 /**
  * 관리자가 배너 목록을 조회합니다.
@@ -11847,7 +12146,7 @@ export const getApiAdminBottlesReferenceValues = async ( options?: RequestInit):
 
 
 /**
- * 모든 신청 목록을 조회하고 사용자와 공고 ID로 필터링할 수 있습니다.
+ * 일반·비즈니스 신청을 신청 수행자, 신청 사업장, 픽업 업장 및 배정 방식으로 구분해 조회합니다.
  * @summary 예약 신청 목록(관리자)
  */
 export type getApiAdminBottlesReservationsApplicationsResponse200 = {
@@ -15161,6 +15460,119 @@ export const patchApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusiness
 
 
 /**
+ * 관리자 지정 업장이 없으면 신청 사업장 직접 픽업 정책을 반환합니다.
+ * @summary 비즈니스 예약 픽업 설정 조회
+ */
+export type getApiAdminReservationsBusinessPickupLocationResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type getApiAdminReservationsBusinessPickupLocationResponseSuccess = (getApiAdminReservationsBusinessPickupLocationResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiAdminReservationsBusinessPickupLocationResponse = (getApiAdminReservationsBusinessPickupLocationResponseSuccess)
+
+export const getGetApiAdminReservationsBusinessPickupLocationUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location`
+}
+
+export const getApiAdminReservationsBusinessPickupLocation = async ( options?: RequestInit): Promise<getApiAdminReservationsBusinessPickupLocationResponse> => {
+  
+  return customFetch<getApiAdminReservationsBusinessPickupLocationResponse>(getGetApiAdminReservationsBusinessPickupLocationUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 신규 비즈니스 예약 신청에 우선 적용할 픽업 업장을 지정합니다.
+ * @summary 비즈니스 예약 픽업 업장 지정
+ */
+export type putApiAdminReservationsBusinessPickupLocationResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type putApiAdminReservationsBusinessPickupLocationResponseSuccess = (putApiAdminReservationsBusinessPickupLocationResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiAdminReservationsBusinessPickupLocationResponse = (putApiAdminReservationsBusinessPickupLocationResponseSuccess)
+
+export const getPutApiAdminReservationsBusinessPickupLocationUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location`
+}
+
+export const putApiAdminReservationsBusinessPickupLocation = async (putApiAdminReservationsBusinessPickupLocationBody: PutApiAdminReservationsBusinessPickupLocationBody, options?: RequestInit): Promise<putApiAdminReservationsBusinessPickupLocationResponse> => {
+  
+  return customFetch<putApiAdminReservationsBusinessPickupLocationResponse>(getPutApiAdminReservationsBusinessPickupLocationUrl(),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiAdminReservationsBusinessPickupLocationBody,)
+  }
+);}
+
+
+
+/**
+ * 지정 업장을 해제하고 신규 신청부터 신청 사업장을 픽업지로 사용합니다.
+ * @summary 비즈니스 예약 픽업 업장 해제
+ */
+export type postApiAdminReservationsBusinessPickupLocationClearResponse200 = {
+  data: BusinessReservationPickupSettingResponse
+  status: 200
+}
+    
+export type postApiAdminReservationsBusinessPickupLocationClearResponseSuccess = (postApiAdminReservationsBusinessPickupLocationClearResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminReservationsBusinessPickupLocationClearResponse = (postApiAdminReservationsBusinessPickupLocationClearResponseSuccess)
+
+export const getPostApiAdminReservationsBusinessPickupLocationClearUrl = () => {
+
+
+  
+
+  return `/api/admin/reservations/business-pickup-location/clear`
+}
+
+export const postApiAdminReservationsBusinessPickupLocationClear = async (postApiAdminReservationsBusinessPickupLocationClearBody: PostApiAdminReservationsBusinessPickupLocationClearBody, options?: RequestInit): Promise<postApiAdminReservationsBusinessPickupLocationClearResponse> => {
+  
+  return customFetch<postApiAdminReservationsBusinessPickupLocationClearResponse>(getPostApiAdminReservationsBusinessPickupLocationClearUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminReservationsBusinessPickupLocationClearBody,)
+  }
+);}
+
+
+
+/**
  * @summary 판매 공고 목록 조회(관리자)
  */
 export type getApiAdminSalesResponse200 = {
@@ -17647,7 +18059,7 @@ export const getApiBottlesReservationsApplicationsMe = async (params?: GetApiBot
 
 
 /**
- * 예약 기간 동안 본인의 신청을 취소합니다. 취소 후 재신청은 불가합니다.
+ * 예약 기간 동안 본인의 신청을 취소합니다. 취소 후 재신청할 수 있습니다.
  * @summary 예약 신청 취소
  */
 export type deleteApiBottlesReservationsApplicationsApplicationidResponse200 = {
@@ -17985,6 +18397,179 @@ export const getApiBottlesId = async (id: number, options?: RequestInit): Promis
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * @summary 비즈니스 사업장 보틀 예약 신청 목록
+ */
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200 = {
+  data: PagedModelBusinessBottleReservationApplicationPublicResponse
+  status: 200
+}
+    
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBusinessesBusinessidBottlesReservationsApplicationsResponse = (getApiBusinessesBusinessidBottlesReservationsApplicationsResponseSuccess)
+
+export const getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl = (businessId: number,
+    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/businesses/${businessId}/bottles/reservations/applications?${stringifiedParams}` : `/api/businesses/${businessId}/bottles/reservations/applications`
+}
+
+export const getApiBusinessesBusinessidBottlesReservationsApplications = async (businessId: number,
+    params?: GetApiBusinessesBusinessidBottlesReservationsApplicationsParams, options?: RequestInit): Promise<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse> => {
+  
+  return customFetch<getApiBusinessesBusinessidBottlesReservationsApplicationsResponse>(getGetApiBusinessesBusinessidBottlesReservationsApplicationsUrl(businessId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 취소 후 같은 사업장으로 재신청할 수 있습니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청 취소
+ */
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
+  data: boolean
+  status: 200
+}
+    
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
+
+export const getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
+    applicationId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
+}
+
+export const deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
+    applicationId: number, options?: RequestInit): Promise<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
+  
+  return customFetch<deleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getDeleteApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 수량만 수정하며 신청 사업장과 픽업 업장은 유지합니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청 수정
+ */
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200 = {
+  data: BusinessBottleReservationApplicationPublicResponse
+  status: 200
+}
+    
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse = (putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponseSuccess)
+
+export const getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl = (businessId: number,
+    applicationId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/applications/${applicationId}`
+}
+
+export const putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationid = async (businessId: number,
+    applicationId: number,
+    putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody: PutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody, options?: RequestInit): Promise<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse> => {
+  
+  return customFetch<putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidResponse>(getPutApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidUrl(businessId,applicationId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiBusinessesBusinessidBottlesReservationsApplicationsApplicationidBody,)
+  }
+);}
+
+
+
+/**
+ * 관리자 지정 픽업 업장을 우선 사용하고, 미지정 상태에서는 신청 사업장을 픽업지로 사용합니다.
+ * @summary 비즈니스 사업장 보틀 예약 신청
+ */
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201 = {
+  data: BusinessBottleReservationApplicationPublicResponse
+  status: 201
+}
+
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse409 = {
+  data: ApiErrorResponse
+  status: 409
+}
+    
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse201) & {
+  headers: Headers;
+};
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseError = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse409) & {
+  headers: Headers;
+};
+
+export type postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse = (postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseSuccess | postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponseError)
+
+export const getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl = (businessId: number,
+    noticeId: number,) => {
+
+
+  
+
+  return `/api/businesses/${businessId}/bottles/reservations/notices/${noticeId}/applications`
+}
+
+export const postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplications = async (businessId: number,
+    noticeId: number,
+    postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody: PostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody, options?: RequestInit): Promise<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse> => {
+  
+  return customFetch<postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsResponse>(getPostApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsUrl(businessId,noticeId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiBusinessesBusinessidBottlesReservationsNoticesNoticeidApplicationsBody,)
   }
 );}
 
@@ -18509,7 +19094,7 @@ export const getApiFundraisingDonationsCount = async ( options?: RequestInit): P
 
 
 /**
- * 서비스가 요청을 처리할 수 있는 상태인지 확인합니다.
+ * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
  * @summary 헬스체크
  */
 export type getApiHealthResponse200 = {
