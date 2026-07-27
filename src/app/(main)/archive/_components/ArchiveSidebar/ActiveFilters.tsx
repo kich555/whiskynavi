@@ -6,13 +6,14 @@ import { FILTER_DEFAULTS, FilterState } from "../../_types";
 
 interface CurrentFiltersProps {
   filters: FilterState;
-  onRemove: (type: "brands" | "maltTypes" | "distilleries" | "caskTypes", value: string) => void;
+  onRemove: (type: "brands" | "series" | "maltTypes" | "distilleries" | "caskTypes", value: string) => void;
   onClearAll: () => void;
 }
 
 const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) => {
   const filterConfigs = [
     { key: "brands" as const, items: filters.brands },
+    { key: "series" as const, items: filters.series },
     { key: "maltTypes" as const, items: filters.maltTypes },
     { key: "distilleries" as const, items: filters.distilleries },
     { key: "caskTypes" as const, items: filters.caskTypes },
@@ -21,6 +22,7 @@ const CurrentFilters = ({ filters, onRemove, onClearAll }: CurrentFiltersProps) 
   const activeFiltersCount = useMemo(() => {
     let count = 0;
     count += filters.brands.length;
+    count += filters.series.length;
     count += filters.maltTypes.length;
     count += filters.distilleries.length;
     count += filters.caskTypes.length;

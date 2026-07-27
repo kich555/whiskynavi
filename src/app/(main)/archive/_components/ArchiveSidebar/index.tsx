@@ -12,19 +12,21 @@ import { CaskTypeFilter } from "./CaskTypeFilter";
 import { DistilleryFilter } from "./DistilleryFilter";
 import { FilterGroup } from "./FilterGroup";
 import { MaltTypeFilter } from "./MaltTypeFilter";
+import { SeriesFilter } from "./SeriesFilter";
 import { VintageFilter } from "./VintageFilter";
 
 interface ArchiveSidebarProps {
   params: BottleSearchParameterValues;
 }
 
-const DEFAULT_EXPANDED = ["brand", "malt", "distillery", "cask", "abv", "vintage"];
+const DEFAULT_EXPANDED = ["brand", "series", "malt", "distillery", "cask", "abv", "vintage"];
 
 export function ArchiveSidebar({ params }: ArchiveSidebarProps) {
   const {
     filters,
     setFilters,
     toggleBrand,
+    toggleSeries,
     toggleMaltType,
     removeActiveFilter,
     updateKeyword,
@@ -35,7 +37,10 @@ export function ArchiveSidebar({ params }: ArchiveSidebarProps) {
   } = useFilterContext();
 
   const clearAllFilters = useCallback(() => {
-    setFilters(INITIAL_FILTER_STATE);
+    setFilters((current) => ({
+      ...INITIAL_FILTER_STATE,
+      sort: current.sort,
+    }));
   }, [setFilters]);
 
   return (
@@ -58,6 +63,8 @@ export function ArchiveSidebar({ params }: ArchiveSidebarProps) {
 
         <FilterGroup defaultExpanded={DEFAULT_EXPANDED}>
           <BrandFilter brands={params.brands ?? []} selectedBrands={filters.brands} onToggle={toggleBrand} />
+
+          <SeriesFilter series={params.series ?? []} selectedSeries={filters.series} onToggle={toggleSeries} />
 
           <MaltTypeFilter
             maltTypes={params.maltTypes ?? []}
