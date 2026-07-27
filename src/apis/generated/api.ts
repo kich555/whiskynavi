@@ -10737,6 +10737,86 @@ export type PutApiUsersMeNicknameBody = {
   nickname: string;
 };
 
+export type GetApiV2BottlesParams = {
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 보틀 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+/**
+ * 정렬 기준
+ */
+sort?: GetApiV2BottlesSort;
+/**
+ * 정렬 방향
+ */
+direction?: GetApiV2BottlesDirection;
+/**
+ * 병 이름 필터
+ */
+name?: string;
+/**
+ * 통합검색어. 이름, 회사, 브랜드, 시리즈, 몰트 타입, 증류소, 캐스크 정보, 설명, 빈티지를 함께 검색합니다.
+ */
+keyword?: string;
+/**
+ * 회사명 목록 필터
+ */
+company?: string[];
+/**
+ * 브랜드명 목록 필터
+ */
+brand?: string[];
+/**
+ * 시리즈명 목록 필터
+ */
+series?: string[];
+/**
+ * 몰트 타입 목록 필터
+ */
+maltType?: string[];
+/**
+ * 증류소 목록 필터
+ */
+distillery?: string[];
+/**
+ * 캐스크 타입 목록 필터
+ */
+caskType?: string[];
+bottledDateFrom?: string;
+bottledDateTo?: string;
+distillationDateFrom?: string;
+distillationDateTo?: string;
+vintageFrom?: number;
+vintageTo?: number;
+abvFrom?: number;
+abvTo?: number;
+};
+
+export type GetApiV2BottlesSort = typeof GetApiV2BottlesSort[keyof typeof GetApiV2BottlesSort];
+
+
+export const GetApiV2BottlesSort = {
+  REGISTERED: 'REGISTERED',
+  BOTTLED_DATE: 'BOTTLED_DATE',
+  DISTILLATION_DATE: 'DISTILLATION_DATE',
+  MATURATION_AGE: 'MATURATION_AGE',
+} as const;
+
+export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typeof GetApiV2BottlesDirection];
+
+
+export const GetApiV2BottlesDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
  * @summary v1 헬스체크
@@ -22881,6 +22961,87 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
+ * @summary 아카이브 보틀 목록 조회 2.0
+ */
+export type getApiV2BottlesResponse200 = {
+  data: PagedModelBottleResponse
+  status: 200
+}
+    
+export type getApiV2BottlesResponseSuccess = (getApiV2BottlesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2BottlesResponse = (getApiV2BottlesResponseSuccess)
+
+export const getGetApiV2BottlesUrl = (params?: GetApiV2BottlesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/bottles?${stringifiedParams}` : `/api/2.0/bottles`
+}
+
+export const getApiV2Bottles = async (params?: GetApiV2BottlesParams, options?: RequestInit): Promise<getApiV2BottlesResponse> => {
+  
+  return customFetch<getApiV2BottlesResponse>(getGetApiV2BottlesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 사용자에게 노출 가능한 보틀의 필터 항목을 조회합니다.
+ * @summary 아카이브 검색 파라미터 조회 2.0
+ */
+export type getApiV2BottlesParametersResponse200 = {
+  data: BottleSearchParameterValues
+  status: 200
+}
+    
+export type getApiV2BottlesParametersResponseSuccess = (getApiV2BottlesParametersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2BottlesParametersResponse = (getApiV2BottlesParametersResponseSuccess)
+
+export const getGetApiV2BottlesParametersUrl = () => {
+
+
+  
+
+  return `/api/2.0/bottles/parameters`
+}
+
+export const getApiV2BottlesParameters = async ( options?: RequestInit): Promise<getApiV2BottlesParametersResponse> => {
+  
+  return customFetch<getApiV2BottlesParametersResponse>(getGetApiV2BottlesParametersUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }

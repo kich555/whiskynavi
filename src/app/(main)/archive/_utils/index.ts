@@ -1,8 +1,13 @@
-import type { BottleSearchParameterValues, GetApiBottlesParams } from "@/apis/generated/api";
+import {
+  GetApiV2BottlesDirection,
+  GetApiV2BottlesSort,
+  type BottleSearchParameterValues,
+  type GetApiV2BottlesParams,
+} from "@/apis/generated/api";
 import { toApiPage } from "@/lib/page-response";
 import { FILTER_DEFAULTS, type FilterState } from "../_types";
 
-type BottleSearchUrlParams = Partial<Record<keyof GetApiBottlesParams, string | number>>;
+type BottleSearchUrlParams = Partial<Record<keyof GetApiV2BottlesParams, string | number>>;
 
 export type SearchParams = BottleSearchUrlParams & { page?: string };
 
@@ -32,7 +37,7 @@ function getCsvArrayParam(value: string | number | undefined): string[] | undefi
 export const buildPageUrl = (params: SearchParams, page: number): string => {
   const sp = new URLSearchParams();
   for (const [key, value] of Object.entries(params)) {
-    if (key === "page" || key === "sort") continue;
+    if (key === "page") continue;
     if (value !== undefined && value !== null && value !== "") {
       sp.set(key, String(value));
     }
@@ -41,7 +46,21 @@ export const buildPageUrl = (params: SearchParams, page: number): string => {
   return `/archive?${sp.toString()}`;
 };
 
-export function buildBottleSearchApiParams(params: SearchParams, displayPage: number): GetApiBottlesParams {
+function getSortParam(value: string | number | undefined): GetApiV2BottlesSort {
+  const normalized = getStringParam(value);
+  return Object.values(GetApiV2BottlesSort).includes(normalized as GetApiV2BottlesSort)
+    ? (normalized as GetApiV2BottlesSort)
+    : FILTER_DEFAULTS.SORT;
+}
+
+function getDirectionParam(value: string | number | undefined): GetApiV2BottlesDirection {
+  const normalized = getStringParam(value);
+  return Object.values(GetApiV2BottlesDirection).includes(normalized as GetApiV2BottlesDirection)
+    ? (normalized as GetApiV2BottlesDirection)
+    : FILTER_DEFAULTS.DIRECTION;
+}
+
+export function buildBottleSearchApiParams(params: SearchParams, displayPage: number): GetApiV2BottlesParams {
   return {
     name: getStringParam(params.name),
     keyword: getStringParam(params.keyword),
@@ -61,7 +80,8 @@ export function buildBottleSearchApiParams(params: SearchParams, displayPage: nu
     abvTo: getNumberParam(params.abvTo),
     page: toApiPage(displayPage),
     size: 12,
-    sort: ["bottledDate,desc"],
+    sort: getSortParam(params.sort),
+    direction: getDirectionParam(params.direction),
   };
 }
 
@@ -102,6 +122,14 @@ export function convertFiltersToQueries(filterState: FilterState): BottleSearchU
   // 통합검색어
   if (filterState.keyword) {
     queries.keyword = filterState.keyword;
+  }
+
+  if (filterState.sort !== FILTER_DEFAULTS.SORT) {
+    queries.sort = filterState.sort;
+  }
+
+  if (filterState.direction !== FILTER_DEFAULTS.DIRECTION) {
+    queries.direction = filterState.direction;
   }
 
   // 배열 필터를 쉼표로 구분된 문자열로 변환
@@ -171,6 +199,8 @@ export function parseFiltersFromSearchParams(searchParams: URLSearchParams): Fil
       parseNumber("vintageFrom", FILTER_DEFAULTS.VINTAGE_MIN),
       parseNumber("vintageTo", FILTER_DEFAULTS.VINTAGE_MAX),
     ],
+    sort: getSortParam(searchParams.get("sort") ?? undefined),
+    direction: getDirectionParam(searchParams.get("direction") ?? undefined),
   };
 }
 

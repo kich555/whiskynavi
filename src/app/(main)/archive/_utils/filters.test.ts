@@ -1,5 +1,6 @@
-import { describe, expect, it } from "vitest";
 import type { BottleSearchParameterValues } from "@/apis/generated/api";
+import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
+import { describe, expect, it } from "vitest";
 import { INITIAL_FILTER_STATE, type FilterState } from "../_types";
 import {
   buildBottleSearchApiParams,
@@ -15,9 +16,17 @@ import {
 const emptyFilter: FilterState = { ...INITIAL_FILTER_STATE };
 
 describe("buildPageUrl", () => {
-  it("page와 sort는 유지하면서 page를 갱신한다", () => {
-    const url = buildPageUrl({ keyword: "yummy", page: "1", sort: "name,asc" }, 3);
-    expect(url).toBe("/archive?keyword=yummy&page=3");
+  it("정렬 기준과 방향은 유지하면서 page를 갱신한다", () => {
+    const url = buildPageUrl(
+      {
+        keyword: "yummy",
+        page: "1",
+        sort: GetApiV2BottlesSort.REGISTERED,
+        direction: GetApiV2BottlesDirection.ASC,
+      },
+      3,
+    );
+    expect(url).toBe("/archive?keyword=yummy&sort=REGISTERED&direction=ASC&page=3");
   });
 
   it("빈 값은 제외하고 직렬화한다", () => {
@@ -32,11 +41,15 @@ describe("buildBottleSearchApiParams", () => {
     expect(params.brand).toEqual(["a", "b", "c"]);
     expect(params.page).toBe(1); // displayPage 2 → API page 1 (1-indexed → 0-indexed 보정)
     expect(params.size).toBe(12);
-    expect(params.sort).toEqual(["bottledDate,desc"]);
+    expect(params.sort).toBe(GetApiV2BottlesSort.BOTTLED_DATE);
+    expect(params.direction).toBe(GetApiV2BottlesDirection.DESC);
   });
 
   it("숫자 범위 파라미터를 숫자로 변환한다", () => {
-    const params = buildBottleSearchApiParams({ vintageFrom: "1990", vintageTo: "2000", abvFrom: "45", abvTo: "55" }, 1);
+    const params = buildBottleSearchApiParams(
+      { vintageFrom: "1990", vintageTo: "2000", abvFrom: "45", abvTo: "55" },
+      1,
+    );
     expect(params.vintageFrom).toBe(1990);
     expect(params.vintageTo).toBe(2000);
     expect(params.abvFrom).toBe(45);
@@ -119,6 +132,22 @@ describe("convertFiltersToQueries ↔ parseFiltersFromSearchParams", () => {
     expect(convertFiltersToQueries(filter)).toEqual({ keyword: "sherry" });
   });
 
+  it("기본값이 아닌 정렬을 전달한다", () => {
+    const filter: FilterState = {
+      ...emptyFilter,
+      sort: GetApiV2BottlesSort.MATURATION_AGE,
+    };
+    expect(convertFiltersToQueries(filter)).toEqual({ sort: "MATURATION_AGE" });
+  });
+
+  it("오름차순을 정렬 방향 쿼리로 전달한다", () => {
+    const filter: FilterState = {
+      ...emptyFilter,
+      direction: GetApiV2BottlesDirection.ASC,
+    };
+    expect(convertFiltersToQueries(filter)).toEqual({ direction: "ASC" });
+  });
+
   it("직렬화한 쿼리를 다시 파싱하면 원래 상태로 복원된다", () => {
     const original: FilterState = {
       ...emptyFilter,
@@ -126,6 +155,8 @@ describe("convertFiltersToQueries ↔ parseFiltersFromSearchParams", () => {
       brands: ["a", "b"],
       abv: [45, 60],
       vintage: [1990, 2000],
+      sort: GetApiV2BottlesSort.DISTILLATION_DATE,
+      direction: GetApiV2BottlesDirection.ASC,
     };
     const queries = convertFiltersToQueries(original);
     const search = new URLSearchParams();

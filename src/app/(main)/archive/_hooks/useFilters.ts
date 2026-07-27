@@ -1,5 +1,6 @@
 "use client";
 
+import type { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { FILTER_DEFAULTS, type FilterState } from "../_types";
@@ -10,6 +11,7 @@ export interface UseFiltersReturn {
   isPending: boolean;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
   toggleBrand: (brandId: string) => void;
+  toggleSeries: (seriesId: string) => void;
   toggleMaltType: (maltId: string) => void;
   removeActiveFilter: (type: keyof FilterState, value: string) => void;
   updateKeyword: (keyword: string) => void;
@@ -17,6 +19,8 @@ export interface UseFiltersReturn {
   updateCaskTypes: (values: string[]) => void;
   updateAbv: (value: [number, number]) => void;
   updateVintage: (value: [number, number]) => void;
+  updateSort: (sort: GetApiV2BottlesSort) => void;
+  updateDirection: (direction: GetApiV2BottlesDirection) => void;
 }
 
 /**
@@ -68,6 +72,13 @@ export function useFilters(): UseFiltersReturn {
     }));
   }, []);
 
+  const toggleSeries = useCallback((seriesId: string) => {
+    setFilters((prev) => ({
+      ...prev,
+      series: prev.series.includes(seriesId) ? prev.series.filter((id) => id !== seriesId) : [...prev.series, seriesId],
+    }));
+  }, []);
+
   // 몰트 타입 토글
   const toggleMaltType = useCallback((maltId: string) => {
     setFilters((prev) => ({
@@ -114,11 +125,20 @@ export function useFilters(): UseFiltersReturn {
     setFilters((prev) => ({ ...prev, vintage: value }));
   }, []);
 
+  const updateSort = useCallback((sort: GetApiV2BottlesSort) => {
+    setFilters((prev) => ({ ...prev, sort }));
+  }, []);
+
+  const updateDirection = useCallback((direction: GetApiV2BottlesDirection) => {
+    setFilters((prev) => ({ ...prev, direction }));
+  }, []);
+
   return {
     filters,
     isPending,
     setFilters,
     toggleBrand,
+    toggleSeries,
     toggleMaltType,
     removeActiveFilter,
     updateKeyword,
@@ -126,5 +146,7 @@ export function useFilters(): UseFiltersReturn {
     updateCaskTypes,
     updateAbv,
     updateVintage,
+    updateSort,
+    updateDirection,
   };
 }
