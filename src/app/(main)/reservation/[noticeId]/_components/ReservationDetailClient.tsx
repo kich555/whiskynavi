@@ -246,35 +246,54 @@ export default function ReservationDetailClient({
               >
                 예약신청완료
               </button>
-              {isEditable && (
-                <>
-                  <p className="typo-medium-14 text-gray-300">
-                    {isBusinessUser && myApplication?.businessName ? `${myApplication.businessName} 신청 · ` : null}
-                    {myApplication?.quantity}병 ·{" "}
-                    {myApplication?.pickupBusinessName ??
-                      pickupLocations.find((loc) => loc.id === myApplication?.pickupUserBusinessId)?.businessName ??
-                      "-"}
-                  </p>
-                  <div className="flex gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setIsEditing(true)}
-                      disabled={isPending}
-                      className="typo-bold-16 flex-1 border border-white/20 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
-                    >
-                      수정하기
-                    </button>
-                    <button
-                      type="button"
-                      onClick={openCancelModal}
-                      disabled={isPending}
-                      className="typo-bold-16 flex-1 border border-red-500/40 px-4 py-2.5 text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
-                    >
-                      취소하기
-                    </button>
+              {isBusinessUser ? (
+                <dl className="grid gap-3 border border-white/10 bg-white/5 p-4 sm:grid-cols-3">
+                  <div>
+                    <dt className="typo-medium-12 text-gray-400">신청 사업장</dt>
+                    <dd className="typo-medium-14 mt-1 text-white">{myApplication?.businessName ?? "-"}</dd>
                   </div>
-                </>
+                  <div>
+                    <dt className="typo-medium-12 text-gray-400">신청 수량</dt>
+                    <dd className="typo-medium-14 mt-1 text-white">{myApplication?.quantity ?? 0}병</dd>
+                  </div>
+                  <div>
+                    <dt className="typo-medium-12 text-gray-400">픽업 장소</dt>
+                    <dd className="typo-medium-14 mt-1 text-white">
+                      <span className="block">{myApplication?.pickupBusinessName ?? "-"}</span>
+                      {myApplication?.pickupAddress ? (
+                        <span className="typo-medium-12 mt-1 block text-gray-400">{myApplication.pickupAddress}</span>
+                      ) : null}
+                    </dd>
+                  </div>
+                </dl>
+              ) : (
+                <p className="typo-medium-14 text-gray-300">
+                  {myApplication?.quantity}병 ·{" "}
+                  {myApplication?.pickupBusinessName ??
+                    pickupLocations.find((loc) => loc.id === myApplication?.pickupUserBusinessId)?.businessName ??
+                    "-"}
+                </p>
               )}
+              {isEditable ? (
+                <div className="flex gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsEditing(true)}
+                    disabled={isPending}
+                    className="typo-bold-16 flex-1 border border-white/20 px-4 py-2.5 text-white transition-colors hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+                  >
+                    수정하기
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openCancelModal}
+                    disabled={isPending}
+                    className="typo-bold-16 flex-1 border border-red-500/40 px-4 py-2.5 text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-50 lg:px-6 lg:text-xl"
+                  >
+                    취소하기
+                  </button>
+                </div>
+              ) : null}
             </div>
           ) : null}
         </div>

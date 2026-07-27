@@ -82,6 +82,37 @@ describe("ReservationDetailClient", () => {
     expect(screen.queryByText("수령 업장")).not.toBeInTheDocument();
     expect(screen.getByText(/픽업 장소는 관리자 설정에 따라 서버에서 확정/)).toBeInTheDocument();
   });
+
+  it("확정된 비즈니스 신청에도 서버가 반환한 신청 사업장과 픽업 장소를 표시한다", () => {
+    render(
+      <ReservationDetailClient
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
+        pickupLocations={[]}
+        myApplication={application({
+          status: "CONFIRMED",
+          businessName: "신청 사업장",
+          pickupBusinessName: "관리자 지정 픽업 업장",
+          pickupAddress: "서울특별시 중구 테스트로 10",
+        })}
+        businessOptions={[
+          {
+            businessId: 20,
+            businessName: "신청 사업장",
+          },
+        ]}
+        selectedBusinessId={20}
+      />,
+    );
+
+    expect(screen.getAllByText("신청 사업장")).toHaveLength(2);
+    expect(screen.getByText("관리자 지정 픽업 업장")).toBeInTheDocument();
+    expect(screen.getByText("서울특별시 중구 테스트로 10")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "수정하기" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "취소하기" })).not.toBeInTheDocument();
+  });
 });
 
 function notice(
@@ -107,12 +138,15 @@ function pickupLocation(): PickupLocationResponse {
   };
 }
 
-function application(): UserBottleReservationApplicationPublicResponse {
+function application(
+  overrides: Partial<UserBottleReservationApplicationPublicResponse> = {},
+): UserBottleReservationApplicationPublicResponse {
   return {
     id: 100,
     quantity: 1,
     pickupUserBusinessId: 10,
     pickupBusinessName: "테스트 업장",
     status: "APPLIED",
+    ...overrides,
   };
 }

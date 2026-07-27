@@ -1,3 +1,4 @@
+import { ApiError } from "@/apis/errors";
 import {
   getApiBottlesReservationsApplicationsMe,
   getApiBusinessesBusinessidBottlesReservationsApplications,
@@ -8,7 +9,7 @@ import {
 import { withToken } from "@/apis/mutator";
 import { authOptions, hasBusinessRole } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ShieldAlert } from "lucide-react";
 import { getServerSession } from "next-auth";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -25,6 +26,29 @@ type PageProps = {
 const isAppliedApplication = (application: UserBottleReservationApplicationPublicResponse): boolean => {
   return application.status !== "CANCELLED" && application.status !== "REJECTED";
 };
+
+function ReservationAccessDenied() {
+  return (
+    <div className="mt-20 min-h-screen bg-[#1d2429]">
+      <div className="mx-auto flex max-w-[720px] flex-col items-center px-4 py-24 text-center">
+        <div className="mb-6 rounded-full bg-amber-500/10 p-4 text-amber-300">
+          <ShieldAlert size={32} aria-hidden />
+        </div>
+        <h1 className="typo-bold-24 text-white">접근할 수 없는 예약 공고입니다</h1>
+        <p className="typo-medium-14 mt-4 text-gray-300">
+          현재 계정의 권한 또는 사업장 조건으로는 이 예약 공고를 확인할 수 없습니다.
+        </p>
+        <Link
+          href="/reservation"
+          className="typo-bold-14 mt-8 inline-flex items-center gap-2 border border-white/20 px-5 py-3 text-white transition-colors hover:bg-white/10"
+        >
+          <ArrowLeft size={18} aria-hidden />
+          예약 공고 목록으로 돌아가기
+        </Link>
+      </div>
+    </div>
+  );
+}
 
 export default async function ReservationDetailPage({ params, searchParams }: PageProps) {
   const session = await getServerSession(authOptions);
@@ -95,8 +119,14 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
       pickupLocations = locations;
       myApplication = (applicationsRes.data.content ?? []).find(isAppliedApplication) ?? null;
     }
-  } catch {
-    notFound();
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) {
+      return <ReservationAccessDenied />;
+    }
+    if (error instanceof ApiError && error.status === 404) {
+      notFound();
+    }
+    throw error;
   }
 
   return (
