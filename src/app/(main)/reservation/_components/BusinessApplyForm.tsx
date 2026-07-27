@@ -21,6 +21,64 @@ interface BusinessApplyFormProps {
   initialQuantity?: number;
   onCancelEdit?: () => void;
   maxQuantity?: number;
+  showBusinessSelector?: boolean;
+}
+
+interface BusinessSelectorProps {
+  businesses: ReservationBusinessOption[];
+  selectedBusinessId?: number;
+  onBusinessChange: (businessId: number) => void;
+  disabled?: boolean;
+  readOnly?: boolean;
+}
+
+export function BusinessSelector({
+  businesses,
+  selectedBusinessId,
+  onBusinessChange,
+  disabled = false,
+  readOnly = false,
+}: BusinessSelectorProps) {
+  const selectedBusiness = businesses.find((business) => business.businessId === selectedBusinessId);
+
+  return (
+    <div>
+      <label className="typo-medium-12 lg:typo-medium-14 mb-1 block text-gray-400">신청 사업장</label>
+      {readOnly ? (
+        <div className="typo-medium-14 border border-white/20 bg-white/10 px-3 py-2.5 text-white">
+          {selectedBusiness?.businessName ?? "-"}
+        </div>
+      ) : (
+        <Select
+          value={selectedBusinessId ? String(selectedBusinessId) : ""}
+          onValueChange={(value) => onBusinessChange(Number(value))}
+          disabled={disabled}
+        >
+          <SelectTrigger
+            aria-label="신청 사업장"
+            className="typo-medium-14 w-full border-white/20 bg-white/10 text-white lg:text-base [&>svg]:text-white/60"
+          >
+            <SelectValue placeholder="신청할 사업장을 선택해 주세요" />
+          </SelectTrigger>
+          <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
+            {businesses.map((business) => (
+              <SelectItem key={business.businessId} value={String(business.businessId)}>
+                {business.businessName}
+              </SelectItem>
+            ))}
+            {businesses.length === 0 ? (
+              <div className="text-muted-foreground typo-medium-14 px-2 py-4 text-center">
+                관리 가능한 사업장이 없습니다
+              </div>
+            ) : null}
+          </SelectContent>
+        </Select>
+      )}
+      <p className="typo-medium-12 mt-2 text-gray-400">
+        픽업 장소는 관리자 설정에 따라 서버에서 확정되며, 신청 완료 후 표시됩니다.
+      </p>
+    </div>
+  );
 }
 
 export default function BusinessApplyForm({
@@ -34,9 +92,9 @@ export default function BusinessApplyForm({
   initialQuantity,
   onCancelEdit,
   maxQuantity = 100,
+  showBusinessSelector = true,
 }: BusinessApplyFormProps) {
   const [quantityInput, setQuantityInput] = useState(String(initialQuantity ?? 1));
-  const selectedBusiness = businesses.find((business) => business.businessId === selectedBusinessId);
   const parsedQuantity = Number(quantityInput);
   const validQuantity =
     quantityInput.trim() !== "" &&
@@ -49,39 +107,15 @@ export default function BusinessApplyForm({
 
   return (
     <div className="space-y-3">
-      <div>
-        <label className="typo-medium-12 lg:typo-medium-14 mb-1 block text-gray-400">신청 사업장</label>
-        {mode === "edit" ? (
-          <div className="typo-medium-14 border border-white/20 bg-white/10 px-3 py-2.5 text-white">
-            {selectedBusiness?.businessName ?? "-"}
-          </div>
-        ) : (
-          <Select
-            value={selectedBusinessId ? String(selectedBusinessId) : ""}
-            onValueChange={(value) => onBusinessChange(Number(value))}
-            disabled={isPending}
-          >
-            <SelectTrigger className="typo-medium-14 w-full border-white/20 bg-white/10 text-white lg:text-base [&>svg]:text-white/60">
-              <SelectValue placeholder="신청할 사업장을 선택해 주세요" />
-            </SelectTrigger>
-            <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
-              {businesses.map((business) => (
-                <SelectItem key={business.businessId} value={String(business.businessId)}>
-                  {business.businessName}
-                </SelectItem>
-              ))}
-              {businesses.length === 0 ? (
-                <div className="text-muted-foreground typo-medium-14 px-2 py-4 text-center">
-                  관리 가능한 사업장이 없습니다
-                </div>
-              ) : null}
-            </SelectContent>
-          </Select>
-        )}
-        <p className="typo-medium-12 mt-2 text-gray-400">
-          픽업 장소는 관리자 설정에 따라 서버에서 확정되며, 신청 완료 후 표시됩니다.
-        </p>
-      </div>
+      {showBusinessSelector ? (
+        <BusinessSelector
+          businesses={businesses}
+          selectedBusinessId={selectedBusinessId}
+          onBusinessChange={onBusinessChange}
+          disabled={isPending}
+          readOnly={mode === "edit"}
+        />
+      ) : null}
 
       <div>
         <label htmlFor="business-reservation-quantity" className="typo-medium-12 mb-1 block text-gray-400">

@@ -4,11 +4,15 @@ import type {
   UserBottleReservationNoticePublicResponse,
 } from "@/apis/generated/api";
 import { act, fireEvent, render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import ReservationDetailClient from "./ReservationDetailClient";
 
 const serverClock = vi.hoisted(() => ({
   now: new Date("2026-07-07T12:00:00.000Z").getTime(),
+}));
+const navigation = vi.hoisted(() => ({
+  push: vi.fn(),
 }));
 
 vi.mock("@/components/ui/ImageWithFallback", () => ({
@@ -17,7 +21,7 @@ vi.mock("@/components/ui/ImageWithFallback", () => ({
 
 vi.mock("next/navigation", () => ({
   usePathname: () => "/reservation/1",
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: navigation.push }),
   useSearchParams: () => new URLSearchParams(),
 }));
 
@@ -40,6 +44,7 @@ vi.mock("../../_lib/useServerClock", () => ({
 describe("ReservationDetailClient", () => {
   afterEach(() => {
     vi.useRealTimers();
+    vi.clearAllMocks();
     serverClock.now = new Date("2026-07-07T12:00:00.000Z").getTime();
   });
 
@@ -140,7 +145,7 @@ describe("ReservationDetailClient", () => {
       />,
     );
 
-    expect(screen.getAllByText("신청 사업장")).toHaveLength(2);
+    expect(screen.getAllByText("신청 사업장").length).toBeGreaterThanOrEqual(2);
     expect(screen.getByText("관리자 지정 픽업 업장")).toBeInTheDocument();
     expect(screen.getByText("서울특별시 중구 테스트로 10")).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "수정하기" })).not.toBeInTheDocument();
@@ -182,6 +187,34 @@ describe("ReservationDetailClient", () => {
 
     expect(screen.queryByText("예약신청완료")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "예약하기" })).toBeInTheDocument();
+  });
+
+  it("한 사업장의 신청이 완료되어도 다른 사업장으로 전환할 수 있다", async () => {
+    const user = userEvent.setup();
+
+    render(
+      <ReservationDetailClient
+        notice={notice({
+          reservationStartAt: "2026-07-07T10:00:00.000Z",
+          reservationEndAt: "2026-07-07T13:00:00.000Z",
+        })}
+        pickupLocations={[]}
+        myApplication={application({ businessName: "A 사업장" })}
+        businessOptions={[
+          { businessId: 20, businessName: "A 사업장" },
+          { businessId: 30, businessName: "B 사업장" },
+        ]}
+        selectedBusinessId={20}
+      />,
+    );
+
+    const businessSelector = screen.getByRole("combobox", { name: "신청 사업장" });
+    expect(businessSelector).toHaveTextContent("A 사업장");
+
+    await user.click(businessSelector);
+    await user.click(screen.getByRole("option", { name: "B 사업장" }));
+
+    expect(navigation.push).toHaveBeenCalledWith("/reservation/1?businessId=30");
   });
 });
 

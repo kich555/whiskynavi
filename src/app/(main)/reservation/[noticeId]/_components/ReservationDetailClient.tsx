@@ -14,7 +14,10 @@ import { overlay } from "overlay-kit";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import ApplyForm from "../../_components/ApplyForm";
-import BusinessApplyForm, { type ReservationBusinessOption } from "../../_components/BusinessApplyForm";
+import BusinessApplyForm, {
+  BusinessSelector,
+  type ReservationBusinessOption,
+} from "../../_components/BusinessApplyForm";
 import InfoList from "../../_components/InfoList";
 import StatusBadge from "../../_components/StatusBadge";
 import TimerDisplay from "../../_components/TimerDisplay";
@@ -186,6 +189,17 @@ export default function ReservationDetailClient({
         />
 
         <div className="flex flex-col">
+          {isBusinessUser ? (
+            <div className="mb-4">
+              <BusinessSelector
+                businesses={businessOptions}
+                selectedBusinessId={selectedBusinessId}
+                onBusinessChange={handleBusinessChange}
+                disabled={isPending || isEditing}
+              />
+            </div>
+          ) : null}
+
           {displayStatus === "active" ? (
             isBusinessUser ? (
               <BusinessApplyForm
@@ -196,6 +210,7 @@ export default function ReservationDetailClient({
                 isPending={isPending}
                 error={error}
                 maxQuantity={notice.maxOrderQuantity}
+                showBusinessSelector={false}
               />
             ) : (
               <ApplyForm
@@ -227,6 +242,7 @@ export default function ReservationDetailClient({
                 error={error}
                 initialQuantity={myApplication?.quantity}
                 maxQuantity={notice.maxOrderQuantity}
+                showBusinessSelector={false}
               />
             ) : (
               <ApplyForm
