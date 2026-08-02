@@ -107,6 +107,7 @@ export default async function ReservationDetailPage({ params, searchParams }: Pa
               {
                 businessId: business.businessId,
                 businessName: business.businessName ?? `사업장 ${business.businessId}`,
+                pickupAddress: business.pickupAddress,
               },
             ]
           : [],

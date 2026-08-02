@@ -204,8 +204,18 @@ describe("ReservationDetailPage", () => {
     });
     vi.mocked(getApiUsersBusinessesMe).mockResolvedValue({
       data: [
-        { businessId: 20, businessName: "A 사업장", primaryBusiness: true },
-        { businessId: 30, businessName: "B 사업장", primaryBusiness: false },
+        {
+          businessId: 20,
+          businessName: "A 사업장",
+          pickupAddress: "서울특별시 중구 세종대로 110",
+          primaryBusiness: true,
+        },
+        {
+          businessId: 30,
+          businessName: "B 사업장",
+          pickupAddress: "서울특별시 종로구 종로 1",
+          primaryBusiness: false,
+        },
       ],
       status: 200,
       headers: new Headers(),
@@ -243,6 +253,18 @@ describe("ReservationDetailPage", () => {
     );
     expect(reservationDetailClient).toHaveBeenCalledWith(
       expect.objectContaining({
+        businessOptions: [
+          {
+            businessId: 20,
+            businessName: "A 사업장",
+            pickupAddress: "서울특별시 중구 세종대로 110",
+          },
+          {
+            businessId: 30,
+            businessName: "B 사업장",
+            pickupAddress: "서울특별시 종로구 종로 1",
+          },
+        ],
         businessApplications: [
           expect.objectContaining({ id: 100, businessId: 20, businessName: "A 사업장" }),
           expect.objectContaining({ id: 200, businessId: 30, businessName: "B 사업장" }),
