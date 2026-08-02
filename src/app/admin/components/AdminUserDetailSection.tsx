@@ -172,9 +172,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 disabled={!onStatusToggle || isSaving}
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-400"
               />
-              <span
-                className={`typo-medium-14 ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}
-              >
+              <span className={`typo-medium-14 ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}>
                 {userDetails.status === "ACTIVE" ? "활성" : "비활성"}
               </span>
             </div>
@@ -439,13 +437,13 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                           <thead>
                             <tr className="border-b border-gray-200">
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
-                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
-                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
                               <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
                               <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
                               <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
-                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문일</th>
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">상태</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문일</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
+                              <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -455,8 +453,6 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 className="border-b border-gray-100 transition-colors hover:bg-gray-50"
                               >
                                 <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
-                                <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
-                                <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
                                 <td className="px-3 py-3 text-right font-medium text-gray-900">
                                   {order.requestedQuantity}병
                                 </td>
@@ -465,6 +461,15 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 </td>
                                 <td className="px-3 py-3 text-right font-medium text-gray-900">
                                   {formatCurrency(order.totalPrice ?? 0)}
+                                </td>
+                                <td className="px-3 py-3">
+                                  <span
+                                    className={`typo-medium-12 rounded px-2 py-1 ${
+                                      ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
+                                    }`}
+                                  >
+                                    {ORDER_STATUS_LABEL[order.orderStatus ?? ""] ?? order.orderStatus}
+                                  </span>
                                 </td>
                                 <td className="px-3 py-3 text-gray-600">
                                   {new Date(order.createdAt ?? "")
@@ -476,15 +481,8 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                     .replace(/\. /g, ".")
                                     .replace(/\.$/, "")}
                                 </td>
-                                <td className="px-3 py-3">
-                                  <span
-                                    className={`typo-medium-12 rounded px-2 py-1 ${
-                                      ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
-                                    }`}
-                                  >
-                                    {ORDER_STATUS_LABEL[order.orderStatus ?? ""] ?? order.orderStatus}
-                                  </span>
-                                </td>
+                                <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
+                                <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
                               </tr>
                             ))}
                           </tbody>
