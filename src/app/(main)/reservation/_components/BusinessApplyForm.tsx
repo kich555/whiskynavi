@@ -8,6 +8,7 @@ import { toast } from "sonner";
 export interface ReservationBusinessOption {
   businessId: number;
   businessName: string;
+  pickupAddress?: string;
 }
 
 interface BusinessApplyFormProps {
@@ -40,13 +41,19 @@ export function BusinessSelector({
   readOnly = false,
 }: BusinessSelectorProps) {
   const selectedBusiness = businesses.find((business) => business.businessId === selectedBusinessId);
+  const selectedBusinessLabel = selectedBusiness
+    ? [selectedBusiness.businessName, selectedBusiness.pickupAddress].filter(Boolean).join(" · ")
+    : undefined;
 
   return (
     <div>
       <label className="typo-medium-12 lg:typo-medium-14 mb-1 block text-gray-400">신청 사업장</label>
       {readOnly ? (
-        <div className="typo-medium-14 border border-white/20 bg-white/10 px-3 py-2.5 text-white">
-          {selectedBusiness?.businessName ?? "-"}
+        <div className="border border-white/20 bg-white/10 px-3 py-2.5 text-white">
+          <span className="typo-medium-14 block">{selectedBusiness?.businessName ?? "-"}</span>
+          {selectedBusiness?.pickupAddress ? (
+            <span className="typo-medium-12 mt-1 block text-gray-400">{selectedBusiness.pickupAddress}</span>
+          ) : null}
         </div>
       ) : (
         <Select
@@ -58,12 +65,24 @@ export function BusinessSelector({
             aria-label="신청 사업장"
             className="typo-medium-14 w-full border-white/20 bg-white/10 text-white lg:text-base [&>svg]:text-white/60"
           >
-            <SelectValue placeholder="신청할 사업장을 선택해 주세요" />
+            <SelectValue placeholder="신청할 사업장을 선택해 주세요">{selectedBusinessLabel}</SelectValue>
           </SelectTrigger>
           <SelectContent position="popper" className="max-h-60 w-[var(--radix-select-trigger-width)]">
             {businesses.map((business) => (
-              <SelectItem key={business.businessId} value={String(business.businessId)}>
-                {business.businessName}
+              <SelectItem
+                key={business.businessId}
+                value={String(business.businessId)}
+                textValue={[business.businessName, business.pickupAddress].filter(Boolean).join(" ")}
+                className="py-2"
+              >
+                <span className="min-w-0 text-left">
+                  <span className="block">{business.businessName}</span>
+                  {business.pickupAddress ? (
+                    <span className="typo-medium-12 text-muted-foreground mt-1 block whitespace-normal">
+                      {business.pickupAddress}
+                    </span>
+                  ) : null}
+                </span>
               </SelectItem>
             ))}
             {businesses.length === 0 ? (
