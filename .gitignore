@@ -27,6 +27,7 @@
 
 # graphify (local knowledge graph cache)
 graphify-out/
+graphify-out.bak.*/
 
 # codegraph (local symbol index)
 .codegraph/
@@ -49,6 +50,12 @@ next-env.d.ts
 
 # jetbrain-tools
 .idea
-.claude/
 
-.claude/
+# 개인 로컬 에이전트/스킬 (팀 공유 아님)
+.agents/
+skills-lock.json
+
+# .claude/ 전체 무시 + 팀 공유 파일만 예외 (하네스 인프라)
+.claude/*
+!.claude/settings.json
+!.claude/scripts/

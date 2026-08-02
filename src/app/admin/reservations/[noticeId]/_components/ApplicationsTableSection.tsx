@@ -384,17 +384,17 @@ export default function ApplicationsTableSection({
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청 유형</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청자</th>
-              <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">내비 커뮤</th>
-              <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">테일즈 커뮤</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">연락처</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청 사업장</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">픽업 업장</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">배정 방식</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청수량</th>
               <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">확정수량</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
-              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">예약신청시각</th>
               <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">관리</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">픽업 업장</th>
+              <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">내비 커뮤</th>
+              <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">테일즈 커뮤</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">예약신청시각</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">신청 사업장</th>
+              <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">배정 방식</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -412,44 +412,10 @@ export default function ApplicationsTableSection({
                     {APPLICANT_TYPE_LABEL[app.applicantType ?? ""] ?? "일반 사용자"}
                   </td>
                   <td className="typo-medium-14 px-4 py-3 text-gray-900">{app.applicantUser?.name ?? "-"}</td>
-                  <td className="typo-medium-14 px-4 py-3 text-center">
-                    <CommunityRoleBadge
-                      active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYNAVI_MEMBER")}
-                      className="bg-amber-100 text-amber-700"
-                      label="내비"
-                    />
-                  </td>
-                  <td className="typo-medium-14 px-4 py-3 text-center">
-                    <CommunityRoleBadge
-                      active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYTALES_MEMBER")}
-                      className="bg-blue-100 text-blue-700"
-                      label="테일즈"
-                    />
-                  </td>
                   <td className="typo-medium-14 px-4 py-3 text-gray-600">{app.applicantUser?.phone ?? "-"}</td>
-                  <td
-                    className="typo-medium-14 max-w-[180px] truncate px-4 py-3 text-gray-600"
-                    title={app.applicantBusiness?.businessName}
-                  >
-                    {app.applicantBusiness?.businessName ?? "-"}
-                  </td>
-                  <td className="typo-medium-14 max-w-[160px] truncate px-4 py-3 text-gray-600">
-                    {app.pickupBusiness?.businessName ?? "-"}
-                  </td>
-                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
-                    {PICKUP_ASSIGNMENT_TYPE_LABEL[app.pickupAssignmentType ?? ""] ?? "-"}
-                  </td>
                   <td className="typo-medium-14 px-4 py-3 text-center text-gray-900">{app.quantity}</td>
                   <td className="typo-medium-14 px-4 py-3 text-center text-amber-600">
                     {app.confirmedQuantity ?? "-"}
-                  </td>
-                  <td className="typo-medium-14 px-4 py-3">
-                    <Badge className={RESERVATION_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
-                      {RESERVATION_STATUS_LABEL[app.status ?? ""] ?? app.status}
-                    </Badge>
-                  </td>
-                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
-                    {formatDateTimeWithMilliseconds(app.createdAt)}
                   </td>
                   <td className="typo-medium-14 px-4 py-3">
                     <div className="flex items-center gap-1">
@@ -484,6 +450,40 @@ export default function ApplicationsTableSection({
                         </button>
                       )}
                     </div>
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3">
+                    <Badge className={RESERVATION_STATUS_COLOR[app.status ?? ""] ?? "bg-gray-100 text-gray-700"}>
+                      {RESERVATION_STATUS_LABEL[app.status ?? ""] ?? app.status}
+                    </Badge>
+                  </td>
+                  <td className="typo-medium-14 max-w-[160px] truncate px-4 py-3 text-gray-600">
+                    {app.pickupBusiness?.businessName ?? "-"}
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3 text-center">
+                    <CommunityRoleBadge
+                      active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYNAVI_MEMBER")}
+                      className="bg-amber-100 text-amber-700"
+                      label="내비"
+                    />
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3 text-center">
+                    <CommunityRoleBadge
+                      active={hasRole(app.applicantUser?.roles, "ROLE_WHISKYTALES_MEMBER")}
+                      className="bg-blue-100 text-blue-700"
+                      label="테일즈"
+                    />
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
+                    {formatDateTimeWithMilliseconds(app.createdAt)}
+                  </td>
+                  <td
+                    className="typo-medium-14 max-w-[180px] truncate px-4 py-3 text-gray-600"
+                    title={app.applicantBusiness?.businessName}
+                  >
+                    {app.applicantBusiness?.businessName ?? "-"}
+                  </td>
+                  <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-600">
+                    {PICKUP_ASSIGNMENT_TYPE_LABEL[app.pickupAssignmentType ?? ""] ?? "-"}
                   </td>
                 </tr>
               ))
