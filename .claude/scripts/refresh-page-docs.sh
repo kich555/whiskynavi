@@ -104,7 +104,7 @@ fi
 # Claude CLI 서브에이전트로 문서 재생성
 for doc in "${!targets[@]}"; do
   doc_path="docs/pages/${doc}.md"
-  route_path="/$(echo "$doc" | sed 's|^main/|(main)/; s|_index||')"
+  route_path="/$(echo "$doc" | sed -e 's|^main/|(main)/|' -e 's|_index||')"
   echo "[page-docs] 재생성: $doc_path (route: $route_path)"
 
   claude -p --permission-mode acceptEdits \
