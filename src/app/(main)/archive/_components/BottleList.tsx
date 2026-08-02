@@ -1,4 +1,5 @@
 import { getApiV2Bottles } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import { parseDisplayPage } from "@/lib/page-response";
 import BottleCard from "../../_components/BottleCard";
 import type { SearchParams } from "../_utils";
@@ -7,11 +8,15 @@ import Pagination from "./Pagination";
 
 interface BottleListProps {
   params: SearchParams;
+  token?: string;
 }
 
-export default async function BottleList({ params }: BottleListProps) {
+export default async function BottleList({ params, token }: BottleListProps) {
   const currentPage = parseDisplayPage(params.page);
-  const { data: bottlesResponse } = await getApiV2Bottles(buildBottleSearchApiParams(params, currentPage));
+  const { data: bottlesResponse } = await getApiV2Bottles(
+    buildBottleSearchApiParams(params, currentPage),
+    withToken(token),
+  );
 
   const totalPages = bottlesResponse.page?.totalPages ?? 0;
 

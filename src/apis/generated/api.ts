@@ -2286,6 +2286,8 @@ export interface BottleResponse {
   caskType?: string;
   /** 제조사 또는 회사명입니다. */
   company?: string;
+  /** 사업자에게만 제공되는 권장소매가입니다. */
+  consumerPrice?: number;
   /** 생성 일시입니다. */
   createdAt?: string;
   /** 보틀 설명입니다. */
@@ -2308,6 +2310,8 @@ export interface BottleResponse {
   name?: string;
   /** 시리즈명입니다. */
   series?: string;
+  /** 사업자에게만 제공되는 공급가입니다. */
+  supplyPrice?: number;
   /** 수정 일시입니다. */
   updatedAt?: string;
 }
