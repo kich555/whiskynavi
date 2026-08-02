@@ -18,6 +18,7 @@ interface ProductsContentProps {
     q?: string;
     brand?: string;
     distillery?: string;
+    sort?: string;
   };
   products: BottleAdminResponse[];
   totalElements: number;
@@ -47,6 +48,16 @@ export default function ProductsContent({
   const brandOptions = [{ value: "all", label: "전체" }, ...brands.map((b) => ({ value: b, label: b }))];
 
   const distilleryOptions = [{ value: "all", label: "전체" }, ...distilleries.map((d) => ({ value: d, label: d }))];
+
+  const idSortOptions = [
+    { value: "id,desc", label: "ID 내림차순" },
+    { value: "id,asc", label: "ID 오름차순" },
+  ];
+
+  const bottledDateSortOptions = [
+    { value: "bottledDate,desc", label: "병입일 최신순" },
+    { value: "bottledDate,asc", label: "병입일 오래된순" },
+  ];
 
   const handleProductClick = useCallback(
     (productId: number) => {
@@ -89,7 +100,16 @@ export default function ProductsContent({
             <table className="w-full">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
-                  <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">ID</th>
+                  <FilterHeader
+                    label="ID"
+                    filterKey="sort"
+                    options={idSortOptions}
+                    currentValue={getFilterValue("sort")}
+                    isActive={idSortOptions.some((option) => option.value === searchParams.sort)}
+                    onSelect={updateFilter}
+                    dropdownWidth="w-32"
+                    className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase"
+                  />
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">제품명</th>
                   <FilterHeader
                     label="브랜드"
@@ -115,6 +135,16 @@ export default function ProductsContent({
                   </th>
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">도수</th>
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">용량</th>
+                  <FilterHeader
+                    label="병입일"
+                    filterKey="sort"
+                    options={bottledDateSortOptions}
+                    currentValue={getFilterValue("sort")}
+                    isActive={bottledDateSortOptions.some((option) => option.value === searchParams.sort)}
+                    onSelect={updateFilter}
+                    dropdownWidth="w-36"
+                    className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase"
+                  />
                   <th className="typo-bold-10 px-2 py-2 text-left whitespace-nowrap text-gray-700 uppercase">관리</th>
                 </tr>
               </thead>
