@@ -62,3 +62,9 @@ skills-lock.json
 .claude/scripts/.pending-doc-groups
 .claude/scripts/.last-doc-commit
 .claude/scripts/.logs/
+
+# Sentry Config File
+.env.sentry-build-plugin
+
+/src/app/sentry-example-page/*
+/src/app/api/sentry-example-api/*
