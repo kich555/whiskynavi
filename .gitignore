@@ -59,3 +59,6 @@ skills-lock.json
 .claude/*
 !.claude/settings.json
 !.claude/scripts/
+.claude/scripts/.pending-doc-groups
+.claude/scripts/.last-doc-commit
+.claude/scripts/.logs/
