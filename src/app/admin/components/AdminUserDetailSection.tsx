@@ -435,7 +435,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                       <div className="overflow-x-auto">
                         <table className="typo-medium-14 w-full">
                           <thead>
-                            <tr className="border-b border-gray-200">
+                            <tr className="border-b border-gray-200 whitespace-nowrap">
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
                               <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
                               <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
@@ -459,10 +459,10 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 <td className="px-3 py-3 text-right font-medium text-amber-700">
                                   {order.approvedQuantity != null ? `${order.approvedQuantity}병` : "-"}
                                 </td>
-                                <td className="px-3 py-3 text-right font-medium text-gray-900">
+                                <td className="px-3 py-3 text-right font-medium whitespace-nowrap text-gray-900">
                                   {formatCurrency(order.totalPrice ?? 0)}
                                 </td>
-                                <td className="px-3 py-3">
+                                <td className="px-3 py-3 whitespace-nowrap">
                                   <span
                                     className={`typo-medium-12 rounded px-2 py-1 ${
                                       ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
@@ -481,7 +481,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                     .replace(/\. /g, ".")
                                     .replace(/\.$/, "")}
                                 </td>
-                                <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
+                                <td className="px-3 py-3 whitespace-nowrap text-gray-600">{order.orderNumber}</td>
                                 <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
                               </tr>
                             ))}
