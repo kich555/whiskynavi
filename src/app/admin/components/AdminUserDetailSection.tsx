@@ -30,6 +30,11 @@ import { ASSIGNABLE_ROLES, ORDER_STATUS_COLOR, ORDER_STATUS_LABEL, ROLE_COLOR_MA
 import AdminConfirmModal from "./modals/AdminConfirmModal";
 
 // ─── 유틸 ─────────────────────────────────────────────────────
+// 주문분류 구분자(·)와 뒤 항목을 non-breaking space로 묶어, 줄바꿈이 항목 경계에서만 일어나게 한다.
+// 폭이 부족할 때 "보틀 · 픽업 · 바로배송"은 "보틀 · 픽업" + "· 바로배송" 두 줄로 끊긴다.
+const NBSP = "\u00A0";
+const keepClassificationSeparator = (value: string) => value.replace(/ · /g, ` ·${NBSP}`);
+
 // ─── Props ─────────────────────────────────────────────────────
 interface UserDetailViewProps {
   isEditMode: false;
@@ -172,9 +177,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                 disabled={!onStatusToggle || isSaving}
                 className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-400"
               />
-              <span
-                className={`typo-medium-14 ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}
-              >
+              <span className={`typo-medium-14 ${userDetails.status === "ACTIVE" ? "text-green-700" : "text-red-700"}`}>
                 {userDetails.status === "ACTIVE" ? "활성" : "비활성"}
               </span>
             </div>
@@ -441,11 +444,19 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">제품명</th>
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">주문번호</th>
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">주문분류</th>
-                              <th className="px-3 py-3 text-right font-semibold text-gray-700">신청수량</th>
-                              <th className="px-3 py-3 text-right font-semibold text-gray-700">배정수량</th>
-                              <th className="px-3 py-3 text-right font-semibold text-gray-700">금액</th>
+                              <th className="px-3 py-3 text-left font-semibold whitespace-nowrap text-gray-700">
+                                신청수량
+                              </th>
+                              <th className="px-3 py-3 text-left font-semibold whitespace-nowrap text-gray-700">
+                                배정수량
+                              </th>
+                              <th className="px-3 py-3 text-left font-semibold whitespace-nowrap text-gray-700">
+                                금액
+                              </th>
                               <th className="px-3 py-3 text-left font-semibold text-gray-700">주문일</th>
-                              <th className="px-3 py-3 text-left font-semibold text-gray-700">상태</th>
+                              <th className="px-3 py-3 text-left font-semibold whitespace-nowrap text-gray-700">
+                                상태
+                              </th>
                             </tr>
                           </thead>
                           <tbody>
@@ -455,18 +466,20 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                 className="border-b border-gray-100 transition-colors hover:bg-gray-50"
                               >
                                 <td className="px-3 py-3 font-medium text-gray-900">{order.itemName}</td>
-                                <td className="px-3 py-3 text-gray-600">{order.orderNumber}</td>
-                                <td className="px-3 py-3 text-gray-600">{formatOrderClassification(order)}</td>
-                                <td className="px-3 py-3 text-right font-medium text-gray-900">
+                                <td className="px-3 py-3 whitespace-nowrap text-gray-600">{order.orderNumber}</td>
+                                <td className="px-3 py-3 break-keep text-gray-600">
+                                  {keepClassificationSeparator(formatOrderClassification(order))}
+                                </td>
+                                <td className="px-3 py-3 text-right font-medium whitespace-nowrap text-gray-900">
                                   {order.requestedQuantity}병
                                 </td>
-                                <td className="px-3 py-3 text-right font-medium text-amber-700">
+                                <td className="px-3 py-3 text-right font-medium whitespace-nowrap text-amber-700">
                                   {order.approvedQuantity != null ? `${order.approvedQuantity}병` : "-"}
                                 </td>
-                                <td className="px-3 py-3 text-right font-medium text-gray-900">
+                                <td className="px-3 py-3 text-right font-medium whitespace-nowrap text-gray-900">
                                   {formatCurrency(order.totalPrice ?? 0)}
                                 </td>
-                                <td className="px-3 py-3 text-gray-600">
+                                <td className="px-3 py-3 text-right whitespace-nowrap text-gray-600">
                                   {new Date(order.createdAt ?? "")
                                     .toLocaleDateString("ko-KR", {
                                       year: "numeric",
@@ -476,7 +489,7 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                                     .replace(/\. /g, ".")
                                     .replace(/\.$/, "")}
                                 </td>
-                                <td className="px-3 py-3">
+                                <td className="px-3 py-3 whitespace-nowrap">
                                   <span
                                     className={`typo-medium-12 rounded px-2 py-1 ${
                                       ORDER_STATUS_COLOR[order.orderStatus ?? ""] ?? "bg-gray-100 text-gray-700"
