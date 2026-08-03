@@ -1,0 +1,10 @@
+# Orval 자동생성 API 클라이언트 — 거대 단일 파일이 커뮤니티 독식
+src/apis/generated/
+
+# package.json — react/dependencies 노드가 시맨틱 브릿지로 오인되어 노이즈
+package.json
+**/package.json
+
+# graphify 출력/백업 디렉토리
+graphify-out/
+graphify-out.bak.*/

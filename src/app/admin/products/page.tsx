@@ -11,6 +11,7 @@ interface ProductsPageProps {
     q?: string;
     brand?: string;
     distillery?: string;
+    sort?: string;
   }>;
 }
 
@@ -26,6 +27,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
         name: params.q || undefined,
         brand: params.brand ? [params.brand] : undefined,
         distillery: params.distillery ? [params.distillery] : undefined,
+        sort: params.sort ? [params.sort] : undefined,
       },
       withToken(token),
     ),

@@ -21,6 +21,8 @@ interface FilterHeaderProps {
   dropdownWidth?: string;
   /** th에 적용할 추가 className */
   className?: string;
+  /** 활성 상태 직접 지정 (기본: currentValue !== "all") */
+  isActive?: boolean;
 }
 
 interface DropdownProps {
@@ -93,8 +95,9 @@ export default function FilterHeader({
   iconSize = 12,
   dropdownWidth = "w-36",
   className = "typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase",
+  isActive: isActiveProp,
 }: FilterHeaderProps) {
-  const isActive = currentValue !== "all";
+  const isActive = isActiveProp ?? currentValue !== "all";
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleToggle = () => {

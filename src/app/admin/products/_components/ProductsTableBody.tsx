@@ -21,6 +21,7 @@ function ProductsTableBody({ products, onProductClick }: ProductsTableBodyProps)
           <td className="px-2 py-1.5 typo-medium-12 whitespace-nowrap text-gray-600">{product.caskType}</td>
           <td className="px-2 py-1.5 typo-medium-12 whitespace-nowrap text-gray-600">{product.abv}%</td>
           <td className="px-2 py-1.5 typo-medium-12 whitespace-nowrap text-gray-600">{product.capacity}ml</td>
+          <td className="px-2 py-1.5 typo-medium-12 whitespace-nowrap text-gray-600">{product.bottledDate || "-"}</td>
           <td className="px-2 py-1.5 typo-medium-12 whitespace-nowrap">
             <button
               type="button"
