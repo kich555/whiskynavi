@@ -183,7 +183,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                 <tr>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
                   <th
-                    className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase"
+                    className="typo-bold-12 px-4 py-3 text-left whitespace-nowrap text-gray-700 uppercase"
                     aria-sort={getSortAriaSort("name")}
                   >
                     <button
@@ -275,7 +275,7 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                     return (
                       <tr key={user.id} className="transition-colors hover:bg-gray-50">
                         <td className="typo-medium-14 px-4 py-3 text-gray-900">{user.id}</td>
-                        <td className="typo-medium-14 px-4 py-3 text-gray-900">{user.name}</td>
+                        <td className="typo-medium-14 px-4 py-3 whitespace-nowrap text-gray-900">{user.name}</td>
                         <td className="typo-medium-14 px-4 py-3 text-gray-600">@{user.username}</td>
                         <td className="typo-medium-14 px-4 py-3 text-gray-600">{user.email}</td>
                         <td className="typo-medium-14 px-4 py-3">
@@ -321,7 +321,9 @@ export default function UsersContent({ searchParams, users, totalElements }: Use
                             {user.status === "ACTIVE" ? "활성" : "비활성"}
                           </Badge>
                         </td>
-                        <td className="typo-medium-14 px-4 py-3 text-gray-600">{formatJoinDate(user.createdAt ?? "")}</td>
+                        <td className="typo-medium-14 px-4 py-3 text-gray-600">
+                          {formatJoinDate(user.createdAt ?? "")}
+                        </td>
                         <td className="typo-medium-14 px-4 py-3">
                           <div className="flex items-center gap-1">
                             <button
