@@ -2,7 +2,7 @@
 
 import type { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { FILTER_DEFAULTS, type FilterState } from "../_types";
 import { buildQueryString, convertFiltersToQueries, parseFiltersFromSearchParams } from "../_utils";
 
@@ -36,22 +36,34 @@ export function useFilters(): UseFiltersReturn {
     parseFiltersFromSearchParams(new URLSearchParams(searchParams.toString())),
   );
 
-  // 이전 필터를 추적하여 실제 변경 시에만 URL push
-  const prevFiltersRef = useRef(filters);
-  const prevKeywordRef = useRef(filters.keyword);
+  // 마지막으로 URL에 반영된 필터. 실제 변경이 있을 때만 push하기 위해 추적한다.
+  const [appliedFilters, setAppliedFilters] = useState(filters);
+
+  // 외부에서 URL이 바뀌면(예: 헤더의 아카이브 링크 클릭) 그 값을 따라간다.
+  // 우리가 push한 주소라면 appliedFilters와 같아 아무 일도 하지 않는다.
+  const searchString = searchParams.toString();
+  const [syncedSearch, setSyncedSearch] = useState(searchString);
+
+  if (searchString !== syncedSearch) {
+    setSyncedSearch(searchString);
+    const fromUrl = parseFiltersFromSearchParams(new URLSearchParams(searchString));
+    if (JSON.stringify(fromUrl) !== JSON.stringify(appliedFilters)) {
+      setAppliedFilters(fromUrl);
+      setFilters(fromUrl);
+    }
+  }
 
   // 필터 변경 시 URL 업데이트 (디바운스 적용)
   useEffect(() => {
-    if (JSON.stringify(prevFiltersRef.current) === JSON.stringify(filters)) {
+    if (JSON.stringify(appliedFilters) === JSON.stringify(filters)) {
       return;
     }
 
-    const keywordChanged = filters.keyword !== prevKeywordRef.current;
+    const keywordChanged = filters.keyword !== appliedFilters.keyword;
     const debounceMs = keywordChanged ? FILTER_DEFAULTS.KEYWORD_DEBOUNCE_MS : FILTER_DEFAULTS.DEBOUNCE_MS;
 
     const timeoutId = setTimeout(() => {
-      prevFiltersRef.current = filters;
-      prevKeywordRef.current = filters.keyword;
+      setAppliedFilters(filters);
       const queries = convertFiltersToQueries(filters);
       const queryString = buildQueryString(queries);
       startTransition(() => {
@@ -62,7 +74,7 @@ export function useFilters(): UseFiltersReturn {
     }, debounceMs);
 
     return () => clearTimeout(timeoutId);
-  }, [filters, router]);
+  }, [filters, appliedFilters, router]);
 
   // 브랜드 토글
   const toggleBrand = useCallback((brandId: string) => {
