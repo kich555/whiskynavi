@@ -10,11 +10,13 @@ import { FILTER_DEFAULTS } from "../_types";
 import { NumericRangeInput } from "./ArchiveSidebar/NumericRangeInput";
 
 /**
- * 사이드바의 FilterGroup.Section 제목과 sectionKey를 그대로 따름 (시리즈는 카테고리 작업 시 추가).
+ * 사이드바의 FilterGroup.Section 제목·sectionKey·순서를 그대로 따름.
  * kind가 range면 고를 목록 없이 입력칸 두 개뿐이라 화면을 넘길 이유가 없다. 항상 제자리에서 펼친다.
+ * 선택지가 아직 없는 항목은 목록에만 보이고 열면 비어 있다.
  */
 const FILTER_SECTIONS = [
   { key: "brand", title: "브랜드", kind: "list" },
+  { key: "series", title: "시리즈", kind: "list" },
   { key: "malt", title: "몰트", kind: "list" },
   { key: "distillery", title: "증류소", kind: "list" },
   { key: "cask", title: "캐스크 종류", kind: "list" },
