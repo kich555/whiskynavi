@@ -6,18 +6,24 @@ import { ArrowLeftRight, ChevronDown, ChevronLeft, ChevronRight } from "lucide-r
 import { AnimatePresence, motion } from "motion/react";
 import { Fragment, useState } from "react";
 import { useFilterContext } from "../_context/FilterContext";
+import { FILTER_DEFAULTS } from "../_types";
+import { NumericRangeInput } from "./ArchiveSidebar/NumericRangeInput";
 
-/** 사이드바의 FilterGroup.Section 제목과 sectionKey를 그대로 따름 (시리즈는 카테고리 작업 시 추가) */
+/**
+ * 사이드바의 FilterGroup.Section 제목과 sectionKey를 그대로 따름 (시리즈는 카테고리 작업 시 추가).
+ * kind가 range면 고를 목록 없이 입력칸 두 개뿐이라 화면을 넘길 이유가 없다. 항상 제자리에서 펼친다.
+ */
 const FILTER_SECTIONS = [
-  { key: "brand", title: "브랜드" },
-  { key: "malt", title: "몰트" },
-  { key: "distillery", title: "증류소" },
-  { key: "cask", title: "캐스크 종류" },
-  { key: "abv", title: "도수" },
-  { key: "vintage", title: "빈티지" },
+  { key: "brand", title: "브랜드", kind: "list" },
+  { key: "malt", title: "몰트", kind: "list" },
+  { key: "distillery", title: "증류소", kind: "list" },
+  { key: "cask", title: "캐스크 종류", kind: "list" },
+  { key: "abv", title: "도수", kind: "range" },
+  { key: "vintage", title: "빈티지", kind: "range" },
 ] as const;
 
 type SectionKey = (typeof FILTER_SECTIONS)[number]["key"];
+type SectionKind = (typeof FILTER_SECTIONS)[number]["kind"];
 
 /** panel: 항목을 누르면 화면을 넘김 / inline: 제자리에서 펼침. 어느 쪽이 나은지 비교하기 위한 임시 전환 */
 type PanelMode = "panel" | "inline";
@@ -54,6 +60,46 @@ function SectionOptions({ values, selected, onToggle, indented = false }: Sectio
   });
 }
 
+/** 사이드바 AbvFilter·VintageFilter와 같은 입력칸 모양 */
+const rangeInputClassName =
+  "typo-medium-12 h-8 w-full border-white/10 bg-white/5 text-center text-white focus-visible:border-white/20 focus-visible:ring-0";
+
+interface SectionRangeProps {
+  value: [number, number];
+  min: number;
+  max: number;
+  unit?: string;
+  onChange: (value: [number, number]) => void;
+  indented?: boolean;
+}
+
+/** 범위 입력형 필터. 고를 목록이 없어 입력칸 두 개만 쓴다. */
+function SectionRange({ value, min, max, unit, onChange, indented = false }: SectionRangeProps) {
+  return (
+    <div
+      className={`flex shrink-0 items-center gap-2 border-b border-white/10 py-4 pr-4 ${indented ? "pl-8" : "pl-4"}`}
+    >
+      <NumericRangeInput
+        value={value[0]}
+        min={min}
+        max={value[1]}
+        onChange={(next) => onChange([next, value[1]])}
+        className={rangeInputClassName}
+      />
+      {unit ? <span className="typo-medium-12 shrink-0 text-white/40">{unit}</span> : null}
+      <span className="typo-medium-12 shrink-0 text-white/40">~</span>
+      <NumericRangeInput
+        value={value[1]}
+        min={value[0]}
+        max={max}
+        onChange={(next) => onChange([value[0], next])}
+        className={rangeInputClassName}
+      />
+      {unit ? <span className="typo-medium-12 shrink-0 text-white/40">{unit}</span> : null}
+    </div>
+  );
+}
+
 interface ArchiveFilterDrawerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -61,9 +107,12 @@ interface ArchiveFilterDrawerProps {
 }
 
 export default function ArchiveFilterDrawer({ open, onOpenChange, params }: ArchiveFilterDrawerProps) {
-  const { filters, toggleBrand } = useFilterContext();
+  const { filters, toggleBrand, updateAbv, updateVintage } = useFilterContext();
   const [activeSection, setActiveSection] = useState<SectionKey | null>(null);
   const [mode, setMode] = useState<PanelMode>("panel");
+
+  // range형은 전환 버튼과 무관하게 항상 제자리에서 펼친다
+  const isInlineSection = (kind: SectionKind) => kind === "range" || mode === "inline";
 
   // 방식을 바꾸면 열려 있던 항목을 닫아 최상위 상태에서 비교하도록 한다
   const toggleMode = () => {
@@ -72,8 +121,8 @@ export default function ArchiveFilterDrawer({ open, onOpenChange, params }: Arch
   };
 
   // 패널 방식은 들어가면 그 항목만 남고, 제자리 펼침은 같은 항목을 다시 누르면 접힌다
-  const handleSectionClick = (key: SectionKey) => {
-    setActiveSection((current) => (mode === "inline" && current === key ? null : key));
+  const handleSectionClick = (key: SectionKey, kind: SectionKind) => {
+    setActiveSection((current) => (isInlineSection(kind) && current === key ? null : key));
   };
 
   // 닫으면 최상위로 되돌려 다음에 열 때 처음부터 보이게 한다.
@@ -83,22 +132,46 @@ export default function ArchiveFilterDrawer({ open, onOpenChange, params }: Arch
     onOpenChange(next);
   };
 
-  // 패널 방식으로 들어가 있을 때만 헤더가 해당 항목 이름과 뒤로가기를 보여준다
-  const openedPanel = mode === "panel" ? activeSection : null;
-  const activeTitle = FILTER_SECTIONS.find((section) => section.key === openedPanel)?.title;
+  // 화면을 넘긴 상태일 때만 헤더가 해당 항목 이름과 뒤로가기를 보여준다
+  const activeMeta = FILTER_SECTIONS.find((section) => section.key === activeSection);
+  const openedPanel = activeMeta && !isInlineSection(activeMeta.kind) ? activeMeta.key : null;
+  const activeTitle = openedPanel ? activeMeta?.title : undefined;
 
   const renderOptions = (key: SectionKey, indented: boolean) => {
-    if (key === "brand") {
-      return (
-        <SectionOptions
-          values={params.brands ?? []}
-          selected={filters.brands}
-          onToggle={toggleBrand}
-          indented={indented}
-        />
-      );
+    switch (key) {
+      case "brand":
+        return (
+          <SectionOptions
+            values={params.brands ?? []}
+            selected={filters.brands}
+            onToggle={toggleBrand}
+            indented={indented}
+          />
+        );
+      case "abv":
+        return (
+          <SectionRange
+            value={filters.abv}
+            min={FILTER_DEFAULTS.ABV_MIN}
+            max={FILTER_DEFAULTS.ABV_MAX}
+            unit="%"
+            onChange={updateAbv}
+            indented={indented}
+          />
+        );
+      case "vintage":
+        return (
+          <SectionRange
+            value={filters.vintage}
+            min={FILTER_DEFAULTS.VINTAGE_MIN}
+            max={FILTER_DEFAULTS.VINTAGE_MAX}
+            onChange={updateVintage}
+            indented={indented}
+          />
+        );
+      default:
+        return null;
     }
-    return null;
   };
 
   return (
@@ -139,25 +212,26 @@ export default function ArchiveFilterDrawer({ open, onOpenChange, params }: Arch
                 transition={PANEL_TRANSITION}
                 className="absolute inset-0 flex flex-col overflow-y-auto"
               >
-                {FILTER_SECTIONS.map(({ key, title }) => {
-                  const isExpanded = mode === "inline" && activeSection === key;
+                {FILTER_SECTIONS.map(({ key, title, kind }) => {
+                  const inline = isInlineSection(kind);
+                  const isExpanded = inline && activeSection === key;
                   return (
                     <Fragment key={key}>
                       <button
                         type="button"
-                        aria-expanded={mode === "inline" ? isExpanded : undefined}
-                        onClick={() => handleSectionClick(key)}
+                        aria-expanded={inline ? isExpanded : undefined}
+                        onClick={() => handleSectionClick(key, kind)}
                         className="typo-medium-14 flex shrink-0 cursor-pointer items-center justify-between border-b border-white/10 px-4 py-4 text-white transition-colors hover:bg-white/5"
                       >
                         {title}
-                        {mode === "panel" ? (
-                          <ChevronRight className="size-4 text-white/50" />
-                        ) : (
+                        {inline ? (
                           <ChevronDown
                             className={`size-4 text-white/50 transition-transform duration-200 ${
                               isExpanded ? "rotate-180" : ""
                             }`}
                           />
+                        ) : (
+                          <ChevronRight className="size-4 text-white/50" />
                         )}
                       </button>
 
