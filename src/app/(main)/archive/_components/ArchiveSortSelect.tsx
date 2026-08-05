@@ -1,7 +1,9 @@
 "use client";
 
 import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Funnel } from "lucide-react";
+import { overlay } from "overlay-kit";
 import { useFilterContext } from "../_context/FilterContext";
 
 const SORT_OPTIONS = [
@@ -24,7 +26,23 @@ export default function ArchiveSortSelect() {
       <button
         type="button"
         aria-label="필터 열기"
-        className="mr-auto rounded-md border border-white/15 bg-[#252d33] px-3 py-2 text-white transition-colors outline-none hover:border-white/40 focus:border-white/40 lg:hidden"
+        onClick={() =>
+          overlay.open(({ isOpen, close }) => (
+            <Sheet
+              open={isOpen}
+              onOpenChange={(open) => {
+                if (!open) close();
+              }}
+            >
+              <SheetContent side="left" className="w-4/5 border-white/10 bg-[#1d2429] sm:max-w-sm">
+                <SheetHeader>
+                  <SheetTitle className="text-white">필터</SheetTitle>
+                </SheetHeader>
+              </SheetContent>
+            </Sheet>
+          ))
+        }
+        className="mr-auto cursor-pointer rounded-md border border-white/15 bg-[#252d33] px-3 py-2 text-white transition-colors outline-none hover:border-white/40 focus:border-white/40 lg:hidden"
       >
         <Funnel className="size-4" />
       </button>
