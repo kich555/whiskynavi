@@ -23,7 +23,7 @@ export default function ArchiveClientShell({ bottleParams, children }: ArchiveCl
       <div className="mx-auto flex max-w-[1440px] px-4 pt-4 pb-12 lg:px-10 lg:pt-2">
         <ArchiveSidebar params={bottleParams} />
         <main className="flex min-h-[calc(100vh-14rem)] flex-1 flex-col">
-          <ArchiveSortSelect />
+          <ArchiveSortSelect params={bottleParams} />
           {filterState.isPending ? <BottleListSkeleton /> : children}
         </main>
       </div>

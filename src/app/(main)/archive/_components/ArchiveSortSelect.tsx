@@ -1,10 +1,10 @@
 "use client";
 
-import { GetApiV2BottlesDirection, GetApiV2BottlesSort } from "@/apis/generated/api";
-import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { GetApiV2BottlesDirection, GetApiV2BottlesSort, type BottleSearchParameterValues } from "@/apis/generated/api";
 import { Funnel } from "lucide-react";
-import { overlay } from "overlay-kit";
+import { useState } from "react";
 import { useFilterContext } from "../_context/FilterContext";
+import ArchiveFilterDrawer from "./ArchiveFilterDrawer";
 
 const SORT_OPTIONS = [
   { value: GetApiV2BottlesSort.REGISTERED, label: "등록순" },
@@ -18,34 +18,25 @@ const DIRECTION_OPTIONS = [
   { value: GetApiV2BottlesDirection.ASC, label: "오름차순" },
 ] as const;
 
-export default function ArchiveSortSelect() {
+interface ArchiveSortSelectProps {
+  params: BottleSearchParameterValues;
+}
+
+export default function ArchiveSortSelect({ params }: ArchiveSortSelectProps) {
   const { filters, updateSort, updateDirection } = useFilterContext();
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   return (
     <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
       <button
         type="button"
         aria-label="필터 열기"
-        onClick={() =>
-          overlay.open(({ isOpen, close }) => (
-            <Sheet
-              open={isOpen}
-              onOpenChange={(open) => {
-                if (!open) close();
-              }}
-            >
-              <SheetContent side="left" className="w-4/5 border-white/10 bg-[#1d2429] sm:max-w-sm">
-                <SheetHeader>
-                  <SheetTitle className="text-white">필터</SheetTitle>
-                </SheetHeader>
-              </SheetContent>
-            </Sheet>
-          ))
-        }
+        onClick={() => setIsFilterOpen(true)}
         className="mr-auto cursor-pointer rounded-md border border-white/15 bg-[#252d33] px-3 py-2 text-white transition-colors outline-none hover:border-white/40 focus:border-white/40 lg:hidden"
       >
         <Funnel className="size-4" />
       </button>
+      <ArchiveFilterDrawer open={isFilterOpen} onOpenChange={setIsFilterOpen} params={params} />
       <span className="typo-medium-12 text-white/60">정렬</span>
       <label>
         <select
