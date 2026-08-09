@@ -20,20 +20,26 @@ export function useTableFilter({ searchParams, basePath }: UseTableFilterOptions
     [searchParams],
   );
 
-  const updateFilter = useCallback(
-    (key: string, value: string) => {
+  const updateFilters = useCallback(
+    (updates: Record<string, string | undefined>) => {
       const params = createSearchParams(searchParams);
-      const currentValue = params.get(key);
-      if (value === "all" || value === currentValue) {
-        params.delete(key);
-      } else {
-        params.set(key, value);
-      }
+      Object.entries(updates).forEach(([key, value]) => {
+        if (!value || value === "all") params.delete(key);
+        else params.set(key, value);
+      });
       params.set("page", "1");
       router.push(`${basePath}?${params.toString()}`);
     },
     [searchParams, basePath, router],
   );
 
-  return { getFilterValue, updateFilter };
+  const updateFilter = useCallback(
+    (key: string, value: string) => {
+      const currentValue = getFilterValue(key);
+      updateFilters({ [key]: value === currentValue ? undefined : value });
+    },
+    [getFilterValue, updateFilters],
+  );
+
+  return { getFilterValue, updateFilter, updateFilters };
 }
