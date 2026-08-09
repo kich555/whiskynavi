@@ -5,5 +5,20 @@
   "[typescript]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[javascriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
   "[typescriptreact]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
-  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" }
+  "[json]": { "editor.defaultFormatter": "esbenp.prettier-vscode" },
+
+  "typescript.preferences.autoImportFileExcludePatterns": ["repos/**"],
+  "javascript.preferences.autoImportFileExcludePatterns": ["repos/**"],
+
+  "files.exclude": {
+    "repos/**": true
+  },
+
+  "files.watcherExclude": {
+    "repos/**": true
+  },
+
+  "search.exclude": {
+    "repos/**": true
+  }
 }
