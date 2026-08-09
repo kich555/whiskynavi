@@ -86,14 +86,12 @@ export default async function ProductDetailPage({ params, searchParams }: Produc
 
   const productRequest = getApiAdminBottlesId(bottleId, authOptions);
   const reservationNoticesRequest = getApiV2AdminBottlesBottleidReservationNotices(
-    "2.0",
     bottleId,
     noticeParams,
     authOptions,
   );
-  const reservationsRequest = getApiV2AdminBottlesBottleidReservations("2.0", bottleId, reservationParams, authOptions);
+  const reservationsRequest = getApiV2AdminBottlesBottleidReservations(bottleId, reservationParams, authOptions);
   const manualPurchasesRequest = getApiV2AdminBottlesBottleidManualPurchases(
-    "2.0",
     bottleId,
     manualParams,
     authOptions,

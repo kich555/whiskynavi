@@ -385,7 +385,6 @@ export async function updateManualPurchaseStatusesAction(
 
   try {
     const response = await patchApiV2AdminBottlesBottleidManualPurchasesStatus(
-      "2.0",
       bottleId,
       { orderStatus },
       withToken(token),
