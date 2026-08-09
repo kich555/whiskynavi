@@ -175,7 +175,6 @@ describe("bottle admin actions", () => {
     const result = await updateManualPurchaseStatusesAction(10, "RECEIPT_COMPLETED");
 
     expect(mockedUpdateManualPurchaseStatuses).toHaveBeenCalledWith(
-      "2.0",
       10,
       {
         orderStatus: "RECEIPT_COMPLETED",

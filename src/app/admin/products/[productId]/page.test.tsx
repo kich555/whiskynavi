@@ -76,7 +76,6 @@ describe("ProductDetailPage", () => {
 
     const authOptions = { token: "admin-token" };
     expect(mocks.getNotices).toHaveBeenCalledWith(
-      "2.0",
       10,
       {
         page: 1,
@@ -91,7 +90,6 @@ describe("ProductDetailPage", () => {
       authOptions,
     );
     expect(mocks.getReservations).toHaveBeenCalledWith(
-      "2.0",
       10,
       expect.objectContaining({
         page: 2,
@@ -105,7 +103,6 @@ describe("ProductDetailPage", () => {
       authOptions,
     );
     expect(mocks.getManualPurchases).toHaveBeenCalledWith(
-      "2.0",
       10,
       expect.objectContaining({
         page: 3,

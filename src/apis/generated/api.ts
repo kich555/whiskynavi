@@ -225,6 +225,40 @@ export interface AdminBoardResponse {
   writeRole?: AdminBoardResponseWriteRole;
 }
 
+export type AdminBottleManualPurchaseV2ResponseOrderStatus = typeof AdminBottleManualPurchaseV2ResponseOrderStatus[keyof typeof AdminBottleManualPurchaseV2ResponseOrderStatus];
+
+
+export const AdminBottleManualPurchaseV2ResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관리자 수동 구매내역 2.0 응답
+ */
+export interface AdminBottleManualPurchaseV2Response {
+  createdAt?: string;
+  id?: number;
+  memberName?: string;
+  orderNote?: string;
+  orderNumber?: string;
+  orderStatus?: AdminBottleManualPurchaseV2ResponseOrderStatus;
+  quantity?: number;
+  totalPrice?: number;
+  unitPrice?: number;
+  userId?: number;
+  userPhone?: string;
+}
+
 export interface AdminBottleReservationApplicantResponse {
   email?: string;
   name?: string;
@@ -384,6 +418,65 @@ export interface AdminBottleReservationNoticeResponse {
   reservationStartAt?: string;
   saleStatus?: AdminBottleReservationNoticeResponseSaleStatus;
   updatedAt?: string;
+}
+
+export type AdminBottleReservationNoticeV2ResponseSaleStatus = typeof AdminBottleReservationNoticeV2ResponseSaleStatus[keyof typeof AdminBottleReservationNoticeV2ResponseSaleStatus];
+
+
+export const AdminBottleReservationNoticeV2ResponseSaleStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SOLD_OUT: 'SOLD_OUT',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관련 예약 공고 2.0 응답
+ */
+export interface AdminBottleReservationNoticeV2Response {
+  appliedQuantity?: number;
+  approvedQuantity?: number;
+  availableQuantity?: number;
+  createdAt?: string;
+  id?: number;
+  noticeName?: string;
+  price?: number;
+  reservationEndAt?: string;
+  reservationStartAt?: string;
+  saleStatus?: AdminBottleReservationNoticeV2ResponseSaleStatus;
+  totalQuantity?: number;
+}
+
+export type AdminBottleReservationV2ResponseStatus = typeof AdminBottleReservationV2ResponseStatus[keyof typeof AdminBottleReservationV2ResponseStatus];
+
+
+export const AdminBottleReservationV2ResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관련 예약 신청 2.0 응답
+ */
+export interface AdminBottleReservationV2Response {
+  applicantBusinessName?: string;
+  applicantName?: string;
+  applicantPhone?: string;
+  confirmedQuantity?: number;
+  createdAt?: string;
+  id?: number;
+  noticeId?: number;
+  noticeName?: string;
+  pickupBusinessName?: string;
+  quantity?: number;
+  status?: AdminBottleReservationV2ResponseStatus;
+  totalPrice?: number;
+  userId?: number;
 }
 
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
@@ -949,6 +1042,60 @@ export interface AdminItemReservationNoticeResponse {
   reservationStartAt?: string;
   saleStatus?: AdminItemReservationNoticeResponseSaleStatus;
   updatedAt?: string;
+}
+
+/**
+ * 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다.
+ */
+export type AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus];
+
+
+export const AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 요청
+ */
+export interface AdminManualPurchaseBulkStatusUpdateRequest {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: AdminManualPurchaseBulkStatusUpdateRequestOrderStatus;
+}
+
+export type AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus];
+
+
+export const AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 2.0 응답
+ */
+export interface AdminManualPurchaseBulkStatusUpdateResponse {
+  bottleId?: number;
+  orderStatus?: AdminManualPurchaseBulkStatusUpdateResponseOrderStatus;
+  updatedCount?: number;
 }
 
 /**
@@ -3607,6 +3754,11 @@ export interface PagedModelAdminBoardResponse {
   page?: PageMetadata;
 }
 
+export interface PagedModelAdminBottleManualPurchaseV2Response {
+  content?: AdminBottleManualPurchaseV2Response[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminBottleReservationApplicationResponse {
   content?: AdminBottleReservationApplicationResponse[];
   page?: PageMetadata;
@@ -3614,6 +3766,16 @@ export interface PagedModelAdminBottleReservationApplicationResponse {
 
 export interface PagedModelAdminBottleReservationNoticeResponse {
   content?: AdminBottleReservationNoticeResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBottleReservationNoticeV2Response {
+  content?: AdminBottleReservationNoticeV2Response[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBottleReservationV2Response {
+  content?: AdminBottleReservationV2Response[];
   page?: PageMetadata;
 }
 
@@ -6089,155 +6251,189 @@ export interface UsernameRequest {
   username: string;
 }
 
-export type AdminBottleReservationNoticeV2ResponseSaleStatus = typeof AdminBottleReservationNoticeV2ResponseSaleStatus[keyof typeof AdminBottleReservationNoticeV2ResponseSaleStatus];
+export type GetApiV2AdminBannersPublishedParams = {
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2AdminBannersUnpublishedParams = {
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidManualPurchasesStatus;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidManualPurchasesSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidManualPurchasesSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesStatus = typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus];
 
 
-export const AdminBottleReservationNoticeV2ResponseSaleStatus = {
+export const GetApiV2AdminBottlesBottleidManualPurchasesStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesSortBy = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy];
+
+
+export const GetApiV2AdminBottlesBottleidManualPurchasesSortBy = {
+  CREATED_AT: 'CREATED_AT',
+  TOTAL_PRICE: 'TOTAL_PRICE',
+  QUANTITY: 'QUANTITY',
+  MEMBER_NAME: 'MEMBER_NAME',
+  ORDER_NUMBER: 'ORDER_NUMBER',
+  ORDER_STATUS: 'ORDER_STATUS',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection];
+
+
+export const GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+/**
+ * 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다.
+ */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus = typeof PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus[keyof typeof PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus];
+
+
+export const PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 요청
+ */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidReservationNoticesStatus;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidReservationNoticesSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidReservationNoticesSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesStatus = typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus];
+
+
+export const GetApiV2AdminBottlesBottleidReservationNoticesStatus = {
   DRAFT: 'DRAFT',
   OPEN: 'OPEN',
   CLOSED: 'CLOSED',
   SOLD_OUT: 'SOLD_OUT',
 } as const;
 
-/**
- * 보틀 관리 상세의 관련 예약 공고 2.0 응답
- */
-export interface AdminBottleReservationNoticeV2Response {
-  id?: number;
-  noticeName?: string;
-  saleStatus?: AdminBottleReservationNoticeV2ResponseSaleStatus;
-  price?: number;
-  totalQuantity?: number;
-  availableQuantity?: number;
-  appliedQuantity?: number;
-  approvedQuantity?: number;
-  reservationStartAt?: string;
-  reservationEndAt?: string;
-  createdAt?: string;
-}
-
-export type AdminBottleReservationV2ResponseStatus = typeof AdminBottleReservationV2ResponseStatus[keyof typeof AdminBottleReservationV2ResponseStatus];
+export type GetApiV2AdminBottlesBottleidReservationNoticesSortBy = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy];
 
 
-export const AdminBottleReservationV2ResponseStatus = {
+export const GetApiV2AdminBottlesBottleidReservationNoticesSortBy = {
+  RESERVATION_START_AT: 'RESERVATION_START_AT',
+  CREATED_AT: 'CREATED_AT',
+  PRICE: 'PRICE',
+  TOTAL_QUANTITY: 'TOTAL_QUANTITY',
+  NOTICE_NAME: 'NOTICE_NAME',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection];
+
+
+export const GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationsParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidReservationsStatus;
+noticeId?: number;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidReservationsSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidReservationsSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationsStatus = typeof GetApiV2AdminBottlesBottleidReservationsStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationsStatus];
+
+
+export const GetApiV2AdminBottlesBottleidReservationsStatus = {
   APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
   CONFIRMED: 'CONFIRMED',
   PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  CANCELLED: 'CANCELLED',
-  REJECTED: 'REJECTED',
   WAITING_PICKUP: 'WAITING_PICKUP',
   RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
 } as const;
 
-/**
- * 보틀 관리 상세의 관련 예약 신청 2.0 응답
- */
-export interface AdminBottleReservationV2Response {
-  id?: number;
-  noticeId?: number;
-  noticeName?: string;
-  userId?: number;
-  applicantName?: string;
-  applicantPhone?: string;
-  applicantBusinessName?: string;
-  pickupBusinessName?: string;
-  quantity?: number;
-  confirmedQuantity?: number;
-  totalPrice?: number;
-  status?: AdminBottleReservationV2ResponseStatus;
-  createdAt?: string;
-}
-
-export type AdminBottleManualPurchaseV2ResponseOrderStatus = typeof AdminBottleManualPurchaseV2ResponseOrderStatus[keyof typeof AdminBottleManualPurchaseV2ResponseOrderStatus];
+export type GetApiV2AdminBottlesBottleidReservationsSortBy = typeof GetApiV2AdminBottlesBottleidReservationsSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortBy];
 
 
-export const AdminBottleManualPurchaseV2ResponseOrderStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
-  RECEIPT_PENDING: 'RECEIPT_PENDING',
-  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
+export const GetApiV2AdminBottlesBottleidReservationsSortBy = {
+  CREATED_AT: 'CREATED_AT',
+  TOTAL_PRICE: 'TOTAL_PRICE',
+  QUANTITY: 'QUANTITY',
+  CONFIRMED_QUANTITY: 'CONFIRMED_QUANTITY',
+  APPLICANT_NAME: 'APPLICANT_NAME',
 } as const;
 
-/**
- * 보틀 관리 상세의 관리자 수동 구매내역 2.0 응답
- */
-export interface AdminBottleManualPurchaseV2Response {
-  id?: number;
-  orderNumber?: string;
-  userId?: number;
-  memberName?: string;
-  userPhone?: string;
-  orderStatus?: AdminBottleManualPurchaseV2ResponseOrderStatus;
-  quantity?: number;
-  unitPrice?: number;
-  totalPrice?: number;
-  orderNote?: string;
-  createdAt?: string;
-}
-
-export type AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus];
+export type GetApiV2AdminBottlesBottleidReservationsSortDirection = typeof GetApiV2AdminBottlesBottleidReservationsSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortDirection];
 
 
-export const AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = {
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  RECEIPT_PENDING: 'RECEIPT_PENDING',
-  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+export const GetApiV2AdminBottlesBottleidReservationsSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
 } as const;
-
-/**
- * 관리자 수동 구매내역 일괄 상태 변경 요청
- */
-export interface AdminManualPurchaseBulkStatusUpdateRequest {
-  orderStatus: AdminManualPurchaseBulkStatusUpdateRequestOrderStatus;
-}
-
-export type AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus];
-
-
-export const AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
-  RECEIPT_PENDING: 'RECEIPT_PENDING',
-  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-/**
- * 관리자 수동 구매내역 일괄 상태 변경 2.0 응답
- */
-export interface AdminManualPurchaseBulkStatusUpdateResponse {
-  orderStatus?: AdminManualPurchaseBulkStatusUpdateResponseOrderStatus;
-  updatedCount?: number;
-  bottleId?: number;
-}
-
-export interface PagedModelAdminBottleReservationNoticeV2Response {
-  content?: AdminBottleReservationNoticeV2Response[];
-  page?: PageMetadata;
-}
-
-export interface PagedModelAdminBottleReservationV2Response {
-  content?: AdminBottleReservationV2Response[];
-  page?: PageMetadata;
-}
-
-export interface PagedModelAdminBottleManualPurchaseV2Response {
-  content?: AdminBottleManualPurchaseV2Response[];
-  page?: PageMetadata;
-}
 
 export type GetApiV2BottlesParams = {
 /**
@@ -11020,138 +11216,6 @@ export type PutApiUsersMeNicknameBody = {
   nickname: string;
 };
 
-export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
-page?: number;
-size?: number;
-keyword?: string;
-status?: GetApiV2AdminBottlesBottleidReservationNoticesStatus;
-createdAtFrom?: string;
-createdAtTo?: string;
-sortBy?: GetApiV2AdminBottlesBottleidReservationNoticesSortBy;
-sortDirection?: GetApiV2AdminBottlesBottleidReservationNoticesSortDirection;
-};
-
-export type GetApiV2AdminBottlesBottleidReservationNoticesStatus = typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus];
-
-
-export const GetApiV2AdminBottlesBottleidReservationNoticesStatus = {
-  DRAFT: 'DRAFT',
-  OPEN: 'OPEN',
-  CLOSED: 'CLOSED',
-  SOLD_OUT: 'SOLD_OUT',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidReservationNoticesSortBy = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy];
-
-
-export const GetApiV2AdminBottlesBottleidReservationNoticesSortBy = {
-  RESERVATION_START_AT: 'RESERVATION_START_AT',
-  CREATED_AT: 'CREATED_AT',
-  PRICE: 'PRICE',
-  TOTAL_QUANTITY: 'TOTAL_QUANTITY',
-  NOTICE_NAME: 'NOTICE_NAME',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection];
-
-
-export const GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = {
-  ASC: 'ASC',
-  DESC: 'DESC',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidReservationsParams = {
-page?: number;
-size?: number;
-keyword?: string;
-status?: GetApiV2AdminBottlesBottleidReservationsStatus;
-noticeId?: number;
-createdAtFrom?: string;
-createdAtTo?: string;
-sortBy?: GetApiV2AdminBottlesBottleidReservationsSortBy;
-sortDirection?: GetApiV2AdminBottlesBottleidReservationsSortDirection;
-};
-
-export type GetApiV2AdminBottlesBottleidReservationsStatus = typeof GetApiV2AdminBottlesBottleidReservationsStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationsStatus];
-
-
-export const GetApiV2AdminBottlesBottleidReservationsStatus = {
-  APPLIED: 'APPLIED',
-  CANCELLED: 'CANCELLED',
-  CONFIRMED: 'CONFIRMED',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  WAITING_PICKUP: 'WAITING_PICKUP',
-  RECEIVED: 'RECEIVED',
-  REJECTED: 'REJECTED',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidReservationsSortBy = typeof GetApiV2AdminBottlesBottleidReservationsSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortBy];
-
-
-export const GetApiV2AdminBottlesBottleidReservationsSortBy = {
-  CREATED_AT: 'CREATED_AT',
-  TOTAL_PRICE: 'TOTAL_PRICE',
-  QUANTITY: 'QUANTITY',
-  CONFIRMED_QUANTITY: 'CONFIRMED_QUANTITY',
-  APPLICANT_NAME: 'APPLICANT_NAME',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidReservationsSortDirection = typeof GetApiV2AdminBottlesBottleidReservationsSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortDirection];
-
-
-export const GetApiV2AdminBottlesBottleidReservationsSortDirection = {
-  ASC: 'ASC',
-  DESC: 'DESC',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
-page?: number;
-size?: number;
-keyword?: string;
-status?: GetApiV2AdminBottlesBottleidManualPurchasesStatus;
-createdAtFrom?: string;
-createdAtTo?: string;
-sortBy?: GetApiV2AdminBottlesBottleidManualPurchasesSortBy;
-sortDirection?: GetApiV2AdminBottlesBottleidManualPurchasesSortDirection;
-};
-
-export type GetApiV2AdminBottlesBottleidManualPurchasesStatus = typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus];
-
-
-export const GetApiV2AdminBottlesBottleidManualPurchasesStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
-  RECEIPT_PENDING: 'RECEIPT_PENDING',
-  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidManualPurchasesSortBy = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy];
-
-
-export const GetApiV2AdminBottlesBottleidManualPurchasesSortBy = {
-  CREATED_AT: 'CREATED_AT',
-  TOTAL_PRICE: 'TOTAL_PRICE',
-  QUANTITY: 'QUANTITY',
-  MEMBER_NAME: 'MEMBER_NAME',
-  ORDER_NUMBER: 'ORDER_NUMBER',
-  ORDER_STATUS: 'ORDER_STATUS',
-} as const;
-
-export type GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection];
-
-
-export const GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = {
-  ASC: 'ASC',
-  DESC: 'DESC',
-} as const;
-
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
  * @summary v1 헬스체크
@@ -11179,6 +11243,271 @@ export const getGetApiV1HealthUrl = () => {
 export const getApiV1Health = async ( options?: RequestInit): Promise<getApiV1HealthResponse> => {
   
   return customFetch<getApiV1HealthResponse>(getGetApiV1HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 게시 중이고 제거되지 않은 배너를 노출 순서대로 페이지 조회합니다.
+ * @summary 게시 중인 관리자 배너 목록 조회 2.0
+ */
+export type getApiV2AdminBannersPublishedResponse200 = {
+  data: PagedModelAdminBannerResponse
+  status: 200
+}
+    
+export type getApiV2AdminBannersPublishedResponseSuccess = (getApiV2AdminBannersPublishedResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBannersPublishedResponse = (getApiV2AdminBannersPublishedResponseSuccess)
+
+export const getGetApiV2AdminBannersPublishedUrl = (params?: GetApiV2AdminBannersPublishedParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/banners/published?${stringifiedParams}` : `/api/2.0/admin/banners/published`
+}
+
+export const getApiV2AdminBannersPublished = async (params?: GetApiV2AdminBannersPublishedParams, options?: RequestInit): Promise<getApiV2AdminBannersPublishedResponse> => {
+  
+  return customFetch<getApiV2AdminBannersPublishedResponse>(getGetApiV2AdminBannersPublishedUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 게시 중단되었고 제거되지 않은 배너를 최근 변경 순서대로 페이지 조회합니다.
+ * @summary 게시 중단된 관리자 배너 목록 조회 2.0
+ */
+export type getApiV2AdminBannersUnpublishedResponse200 = {
+  data: PagedModelAdminBannerResponse
+  status: 200
+}
+    
+export type getApiV2AdminBannersUnpublishedResponseSuccess = (getApiV2AdminBannersUnpublishedResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBannersUnpublishedResponse = (getApiV2AdminBannersUnpublishedResponseSuccess)
+
+export const getGetApiV2AdminBannersUnpublishedUrl = (params?: GetApiV2AdminBannersUnpublishedParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/banners/unpublished?${stringifiedParams}` : `/api/2.0/admin/banners/unpublished`
+}
+
+export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBannersUnpublishedParams, options?: RequestInit): Promise<getApiV2AdminBannersUnpublishedResponse> => {
+  
+  return customFetch<getApiV2AdminBannersUnpublishedResponse>(getGetApiV2AdminBannersUnpublishedUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 판매공고 없이 관리자가 등록한 보틀 구매내역을 조회합니다.
+ * @summary 보틀 관련 관리자 수동 구매내역 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidManualPurchasesResponse200 = {
+  data: PagedModelAdminBottleManualPurchaseV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess = (getApiV2AdminBottlesBottleidManualPurchasesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidManualPurchasesResponse = (getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidManualPurchasesUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/manual-purchases?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/manual-purchases`
+}
+
+export const getApiV2AdminBottlesBottleidManualPurchases = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidManualPurchasesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidManualPurchasesResponse>(getGetApiV2AdminBottlesBottleidManualPurchasesUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 해당 보틀의 관리자 수동 구매내역 전체를 MyBatis 쓰기 잠금 후 결제 완료, 수령 대기, 수령 완료 상태 중 하나로 변경합니다.
+ * @summary 보틀 관련 관리자 수동 구매내역 상태 일괄 변경 2.0
+ */
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200 = {
+  data: AdminManualPurchaseBulkStatusUpdateResponse
+  status: 200
+}
+    
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess)
+
+export const getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/manual-purchases/status`
+}
+
+export const patchApiV2AdminBottlesBottleidManualPurchasesStatus = async (bottleId: number,
+    patchApiV2AdminBottlesBottleidManualPurchasesStatusBody: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody, options?: RequestInit): Promise<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse> => {
+  
+  return customFetch<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse>(getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl(bottleId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiV2AdminBottlesBottleidManualPurchasesStatusBody,)
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 보틀 관리 상세에 표시할 관련 예약 공고를 조회합니다.
+ * @summary 보틀 관련 예약 공고 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidReservationNoticesResponse200 = {
+  data: PagedModelAdminBottleReservationNoticeV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess = (getApiV2AdminBottlesBottleidReservationNoticesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidReservationNoticesResponse = (getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidReservationNoticesUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/reservation-notices?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/reservation-notices`
+}
+
+export const getApiV2AdminBottlesBottleidReservationNotices = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationNoticesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidReservationNoticesResponse>(getGetApiV2AdminBottlesBottleidReservationNoticesUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 보틀 관리 상세에 표시할 관련 예약 신청을 조회합니다.
+ * @summary 보틀 관련 예약 신청 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidReservationsResponse200 = {
+  data: PagedModelAdminBottleReservationV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidReservationsResponseSuccess = (getApiV2AdminBottlesBottleidReservationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidReservationsResponse = (getApiV2AdminBottlesBottleidReservationsResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidReservationsUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/reservations?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/reservations`
+}
+
+export const getApiV2AdminBottlesBottleidReservations = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationsParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationsResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidReservationsResponse>(getGetApiV2AdminBottlesBottleidReservationsUrl(bottleId,params),
   {      
     ...options,
     method: 'GET'
@@ -23454,186 +23783,5 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
     method: 'DELETE'
     
     
-  }
-);}
-
-
-
-/**
- * @summary 보틀 관련 예약 공고 목록 조회 2.0
- */
-export type getApiV2AdminBottlesBottleidReservationNoticesResponse200 = {
-  data: PagedModelAdminBottleReservationNoticeV2Response
-  status: 200
-}
-    
-export type getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess = (getApiV2AdminBottlesBottleidReservationNoticesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminBottlesBottleidReservationNoticesResponse = (getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess)
-
-export const getGetApiV2AdminBottlesBottleidReservationNoticesUrl = (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/${version}/admin/bottles/${bottleId}/reservation-notices?${stringifiedParams}` : `/api/${version}/admin/bottles/${bottleId}/reservation-notices`
-}
-
-export const getApiV2AdminBottlesBottleidReservationNotices = async (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationNoticesResponse> => {
-  
-  return customFetch<getApiV2AdminBottlesBottleidReservationNoticesResponse>(getGetApiV2AdminBottlesBottleidReservationNoticesUrl(version,bottleId,params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 보틀 관련 예약 신청 목록 조회 2.0
- */
-export type getApiV2AdminBottlesBottleidReservationsResponse200 = {
-  data: PagedModelAdminBottleReservationV2Response
-  status: 200
-}
-    
-export type getApiV2AdminBottlesBottleidReservationsResponseSuccess = (getApiV2AdminBottlesBottleidReservationsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminBottlesBottleidReservationsResponse = (getApiV2AdminBottlesBottleidReservationsResponseSuccess)
-
-export const getGetApiV2AdminBottlesBottleidReservationsUrl = (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidReservationsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/${version}/admin/bottles/${bottleId}/reservations?${stringifiedParams}` : `/api/${version}/admin/bottles/${bottleId}/reservations`
-}
-
-export const getApiV2AdminBottlesBottleidReservations = async (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidReservationsParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationsResponse> => {
-  
-  return customFetch<getApiV2AdminBottlesBottleidReservationsResponse>(getGetApiV2AdminBottlesBottleidReservationsUrl(version,bottleId,params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 보틀 관련 관리자 수동 구매내역 조회 2.0
- */
-export type getApiV2AdminBottlesBottleidManualPurchasesResponse200 = {
-  data: PagedModelAdminBottleManualPurchaseV2Response
-  status: 200
-}
-    
-export type getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess = (getApiV2AdminBottlesBottleidManualPurchasesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminBottlesBottleidManualPurchasesResponse = (getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess)
-
-export const getGetApiV2AdminBottlesBottleidManualPurchasesUrl = (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/${version}/admin/bottles/${bottleId}/manual-purchases?${stringifiedParams}` : `/api/${version}/admin/bottles/${bottleId}/manual-purchases`
-}
-
-export const getApiV2AdminBottlesBottleidManualPurchases = async (version: '2.0',
-    bottleId: number,
-    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidManualPurchasesResponse> => {
-  
-  return customFetch<getApiV2AdminBottlesBottleidManualPurchasesResponse>(getGetApiV2AdminBottlesBottleidManualPurchasesUrl(version,bottleId,params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 보틀 관련 관리자 수동 구매내역 상태 일괄 변경 2.0
- */
-export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200 = {
-  data: AdminManualPurchaseBulkStatusUpdateResponse
-  status: 200
-}
-    
-export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200) & {
-  headers: Headers;
-};
-;
-
-export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess)
-
-export const getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl = (version: '2.0',
-    bottleId: number,) => {
-
-
-  
-
-  return `/api/${version}/admin/bottles/${bottleId}/manual-purchases/status`
-}
-
-export const patchApiV2AdminBottlesBottleidManualPurchasesStatus = async (version: '2.0',
-    bottleId: number,
-    adminManualPurchaseBulkStatusUpdateRequest: AdminManualPurchaseBulkStatusUpdateRequest, options?: RequestInit): Promise<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse> => {
-  
-  return customFetch<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse>(getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl(version,bottleId),
-  {      
-    ...options,
-    method: 'PATCH',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      adminManualPurchaseBulkStatusUpdateRequest,)
   }
 );}
