@@ -13,6 +13,9 @@ interface PaginationProps {
   searchParams: AdminSearchParams;
   basePath: string;
   alwaysVisible?: boolean;
+  pageParam?: string;
+  limitParam?: string;
+  hash?: string;
 }
 
 export default function Pagination({
@@ -22,6 +25,9 @@ export default function Pagination({
   searchParams,
   basePath,
   alwaysVisible = false,
+  pageParam = "page",
+  limitParam = "limit",
+  hash,
 }: PaginationProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -38,13 +44,15 @@ export default function Pagination({
 
   const handlePageChange = (page: number) => {
     startTransition(() => {
-      router.push(`${basePath}?${createQueryString({ page: String(page) })}`);
+      const query = createQueryString({ [pageParam]: String(page) });
+      router.push(`${basePath}?${query}${hash ? `#${hash}` : ""}`);
     });
   };
 
   const handleItemsPerPageChange = (value: number) => {
     startTransition(() => {
-      router.push(`${basePath}?${createQueryString({ limit: String(value), page: "1" })}`);
+      const query = createQueryString({ [limitParam]: String(value), [pageParam]: "1" });
+      router.push(`${basePath}?${query}${hash ? `#${hash}` : ""}`);
     });
   };
 
