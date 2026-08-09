@@ -35,6 +35,7 @@ export const ORDER_STATUS_LABEL: Record<string, string> = {
   ORDER_REQUESTED: "주문 요청",
   PAYMENT_PENDING: "결제 대기",
   ORDER_PREPARING: "준비 중",
+  PAYMENT_COMPLETED: "결제 완료",
   SHIPPING: "배송 중",
   DELIVERY_COMPLETED: "배송 완료",
   RECEIPT_PENDING: "수령 대기",
@@ -48,6 +49,7 @@ export const ORDER_STATUS_COLOR: Record<string, string> = {
   ORDER_REQUESTED: "bg-blue-100 text-blue-700",
   PAYMENT_PENDING: "bg-yellow-100 text-yellow-700",
   ORDER_PREPARING: "bg-indigo-100 text-indigo-700",
+  PAYMENT_COMPLETED: "bg-cyan-100 text-cyan-700",
   SHIPPING: "bg-orange-100 text-orange-700",
   DELIVERY_COMPLETED: "bg-green-100 text-green-700",
   RECEIPT_PENDING: "bg-amber-100 text-amber-700",
@@ -61,6 +63,7 @@ export const ORDER_STATUS_COLOR: Record<string, string> = {
 export const RESERVATION_STATUS_LABEL: Record<string, string> = {
   APPLIED: "신청완료",
   CONFIRMED: "확정",
+  PAYMENT_COMPLETED: "결제 완료",
   CANCELLED: "취소",
   REJECTED: "거절",
   WAITING_PICKUP: "픽업대기",
@@ -70,6 +73,7 @@ export const RESERVATION_STATUS_LABEL: Record<string, string> = {
 export const RESERVATION_STATUS_COLOR: Record<string, string> = {
   APPLIED: "bg-blue-100 text-blue-700",
   CONFIRMED: "bg-green-100 text-green-700",
+  PAYMENT_COMPLETED: "bg-cyan-100 text-cyan-700",
   CANCELLED: "bg-gray-200 text-gray-700",
   REJECTED: "bg-red-100 text-red-700",
   WAITING_PICKUP: "bg-amber-100 text-amber-700",

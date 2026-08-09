@@ -4,6 +4,7 @@ import type { BottleAdminResponse } from "@/apis/generated/api";
 import { ArrowLeft, Edit2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
+import type { ReactNode } from "react";
 import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
 import AdminProductDetailView from "../../../components/AdminProductDetailView";
@@ -11,9 +12,10 @@ import ProductDeleteModal from "./ProductDeleteModal";
 
 interface ProductDetailContentProps {
   product: BottleAdminResponse;
+  children?: ReactNode;
 }
 
-export default function ProductDetailContent({ product }: ProductDetailContentProps) {
+export default function ProductDetailContent({ product, children }: ProductDetailContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
 
@@ -52,6 +54,7 @@ export default function ProductDetailContent({ product }: ProductDetailContentPr
         </div>
 
         <AdminProductDetailView productDetails={product} />
+        {children}
       </div>
     </>
   );
