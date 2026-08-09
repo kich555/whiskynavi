@@ -1,4 +1,9 @@
-import { getApiAdminBottles, getApiAdminBottlesParameters } from "@/apis/generated/api";
+import {
+  GetApiV2AdminBottlesSortBy,
+  GetApiV2AdminBottlesSortDirection,
+  getApiV2AdminBottles,
+  getApiV2AdminBottlesParameters,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
@@ -11,8 +16,22 @@ interface ProductsPageProps {
     q?: string;
     brand?: string;
     distillery?: string;
-    sort?: string;
+    series?: string;
+    caskType?: string;
+    visible?: string;
+    sortBy?: string;
+    sortDirection?: string;
   }>;
+}
+
+function enumValue<T extends string>(value: string | undefined, values: Record<string, T>): T | undefined {
+  return value && Object.values(values).includes(value as T) ? (value as T) : undefined;
+}
+
+function booleanValue(value: string | undefined) {
+  if (value === "true") return true;
+  if (value === "false") return false;
+  return undefined;
 }
 
 export default async function ProductsPage({ searchParams }: ProductsPageProps) {
@@ -20,18 +39,22 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const token = await getAuthToken();
 
   const [bottlesRes, bottleParamsRes] = await Promise.all([
-    getApiAdminBottles(
+    getApiV2AdminBottles(
       {
         page: parseApiPage(params.page),
         size: params.limit ? Number(params.limit) : 20,
-        name: params.q || undefined,
+        keyword: params.q || undefined,
         brand: params.brand ? [params.brand] : undefined,
         distillery: params.distillery ? [params.distillery] : undefined,
-        sort: params.sort ? [params.sort] : undefined,
+        series: params.series ? [params.series] : undefined,
+        caskType: params.caskType ? [params.caskType] : undefined,
+        visible: booleanValue(params.visible),
+        sortBy: enumValue(params.sortBy, GetApiV2AdminBottlesSortBy),
+        sortDirection: enumValue(params.sortDirection, GetApiV2AdminBottlesSortDirection),
       },
       withToken(token),
     ),
-    getApiAdminBottlesParameters(withToken(token)),
+    getApiV2AdminBottlesParameters(withToken(token)),
   ]);
 
   return (
@@ -41,6 +64,8 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
       totalElements={bottlesRes.data.page?.totalElements ?? 0}
       brands={bottleParamsRes.data.brands ?? []}
       distilleries={bottleParamsRes.data.distilleries ?? []}
+      series={bottleParamsRes.data.series ?? []}
+      caskTypes={bottleParamsRes.data.caskTypes ?? []}
     />
   );
 }

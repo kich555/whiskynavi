@@ -2137,11 +2137,34 @@ export interface BottleAdminResponse {
   visible?: boolean;
 }
 
+/**
+ * 브랜드에 속하며 API 노출이 허용된 시리즈 목록입니다.
+ */
+export interface BottleSeriesResponse {
+  /**
+   * 시리즈 설명입니다.
+   * @nullable
+   */
+  description?: string | null;
+  /**
+   * 시리즈 대표 이미지의 공개 URL입니다.
+   * @nullable
+   */
+  imgUrl?: string | null;
+  /** 시리즈명입니다. */
+  name?: string;
+  /**
+   * 시리즈를 대표하는 보틀 ID입니다.
+   * @nullable
+   */
+  representativeBottleId?: number | null;
+}
+
 export interface BottleBrandSeriesResponse {
   /** 브랜드명입니다. */
   brand?: string;
-  /** 브랜드에 속한 시리즈명 목록입니다. */
-  series?: string[];
+  /** 브랜드에 속하며 API 노출이 허용된 시리즈 목록입니다. */
+  series?: BottleSeriesResponse[];
 }
 
 /**
@@ -6274,6 +6297,77 @@ page?: number;
  */
 size?: number;
 };
+
+export type GetApiV2AdminBottlesParams = {
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 보틀 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+/**
+ * 이름, 회사, 브랜드, 시리즈, 몰트 타입, 증류소, 캐스크 정보, 설명 통합검색어
+ */
+keyword?: string;
+/**
+ * 브랜드 필터
+ */
+brand?: string[];
+/**
+ * 시리즈 필터
+ */
+series?: string[];
+/**
+ * 증류소 필터
+ */
+distillery?: string[];
+/**
+ * 캐스크 타입 필터
+ */
+caskType?: string[];
+/**
+ * 아카이브 노출 여부 필터
+ */
+visible?: boolean;
+/**
+ * 정렬 기준
+ */
+sortBy?: GetApiV2AdminBottlesSortBy;
+/**
+ * 정렬 방향
+ */
+sortDirection?: GetApiV2AdminBottlesSortDirection;
+};
+
+export type GetApiV2AdminBottlesSortBy = typeof GetApiV2AdminBottlesSortBy[keyof typeof GetApiV2AdminBottlesSortBy];
+
+
+export const GetApiV2AdminBottlesSortBy = {
+  ID: 'ID',
+  NAME: 'NAME',
+  BRAND: 'BRAND',
+  DISTILLERY: 'DISTILLERY',
+  SERIES: 'SERIES',
+  CASK_TYPE: 'CASK_TYPE',
+  ABV: 'ABV',
+  CAPACITY: 'CAPACITY',
+  BOTTLED_DATE: 'BOTTLED_DATE',
+  CREATED_AT: 'CREATED_AT',
+  UPDATED_AT: 'UPDATED_AT',
+} as const;
+
+export type GetApiV2AdminBottlesSortDirection = typeof GetApiV2AdminBottlesSortDirection[keyof typeof GetApiV2AdminBottlesSortDirection];
+
+
+export const GetApiV2AdminBottlesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
 
 export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
 page?: number;
@@ -11331,6 +11425,87 @@ export const getGetApiV2AdminBannersUnpublishedUrl = (params?: GetApiV2AdminBann
 export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBannersUnpublishedParams, options?: RequestInit): Promise<getApiV2AdminBannersUnpublishedResponse> => {
   
   return customFetch<getApiV2AdminBannersUnpublishedResponse>(getGetApiV2AdminBannersUnpublishedUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 관리자 보틀 목록을 검색, 필터링, 정렬하여 조회합니다.
+ * @summary 관리자 보틀 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesResponse200 = {
+  data: PagedModelBottleAdminResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottlesResponseSuccess = (getApiV2AdminBottlesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesResponse = (getApiV2AdminBottlesResponseSuccess)
+
+export const getGetApiV2AdminBottlesUrl = (params?: GetApiV2AdminBottlesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles?${stringifiedParams}` : `/api/2.0/admin/bottles`
+}
+
+export const getApiV2AdminBottles = async (params?: GetApiV2AdminBottlesParams, options?: RequestInit): Promise<getApiV2AdminBottlesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesResponse>(getGetApiV2AdminBottlesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 관리자 보틀 목록의 필터 선택값을 조회합니다.
+ * @summary 관리자 보틀 필터 파라미터 조회 2.0
+ */
+export type getApiV2AdminBottlesParametersResponse200 = {
+  data: BottleAdminParameterValues
+  status: 200
+}
+    
+export type getApiV2AdminBottlesParametersResponseSuccess = (getApiV2AdminBottlesParametersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesParametersResponse = (getApiV2AdminBottlesParametersResponseSuccess)
+
+export const getGetApiV2AdminBottlesParametersUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/parameters`
+}
+
+export const getApiV2AdminBottlesParameters = async ( options?: RequestInit): Promise<getApiV2AdminBottlesParametersResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesParametersResponse>(getGetApiV2AdminBottlesParametersUrl(),
   {      
     ...options,
     method: 'GET'
@@ -18841,7 +19016,7 @@ export const getApiBottles = async (params?: GetApiBottlesParams, options?: Requ
 
 
 /**
- * 노출 가능한 보틀의 브랜드와 해당 브랜드에 속한 시리즈 목록을 반환합니다.
+ * 시리즈 설정에서 노출이 허용된 브랜드별 시리즈와 설명, 대표 이미지, 대표 보틀 ID를 반환합니다.
  * @summary 브랜드별 시리즈 조회
  */
 export type getApiBottlesBrandSeriesResponse200 = {
