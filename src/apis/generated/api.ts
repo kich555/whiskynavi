@@ -225,6 +225,40 @@ export interface AdminBoardResponse {
   writeRole?: AdminBoardResponseWriteRole;
 }
 
+export type AdminBottleManualPurchaseV2ResponseOrderStatus = typeof AdminBottleManualPurchaseV2ResponseOrderStatus[keyof typeof AdminBottleManualPurchaseV2ResponseOrderStatus];
+
+
+export const AdminBottleManualPurchaseV2ResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관리자 수동 구매내역 2.0 응답
+ */
+export interface AdminBottleManualPurchaseV2Response {
+  createdAt?: string;
+  id?: number;
+  memberName?: string;
+  orderNote?: string;
+  orderNumber?: string;
+  orderStatus?: AdminBottleManualPurchaseV2ResponseOrderStatus;
+  quantity?: number;
+  totalPrice?: number;
+  unitPrice?: number;
+  userId?: number;
+  userPhone?: string;
+}
+
 export interface AdminBottleReservationApplicantResponse {
   email?: string;
   name?: string;
@@ -384,6 +418,65 @@ export interface AdminBottleReservationNoticeResponse {
   reservationStartAt?: string;
   saleStatus?: AdminBottleReservationNoticeResponseSaleStatus;
   updatedAt?: string;
+}
+
+export type AdminBottleReservationNoticeV2ResponseSaleStatus = typeof AdminBottleReservationNoticeV2ResponseSaleStatus[keyof typeof AdminBottleReservationNoticeV2ResponseSaleStatus];
+
+
+export const AdminBottleReservationNoticeV2ResponseSaleStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SOLD_OUT: 'SOLD_OUT',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관련 예약 공고 2.0 응답
+ */
+export interface AdminBottleReservationNoticeV2Response {
+  appliedQuantity?: number;
+  approvedQuantity?: number;
+  availableQuantity?: number;
+  createdAt?: string;
+  id?: number;
+  noticeName?: string;
+  price?: number;
+  reservationEndAt?: string;
+  reservationStartAt?: string;
+  saleStatus?: AdminBottleReservationNoticeV2ResponseSaleStatus;
+  totalQuantity?: number;
+}
+
+export type AdminBottleReservationV2ResponseStatus = typeof AdminBottleReservationV2ResponseStatus[keyof typeof AdminBottleReservationV2ResponseStatus];
+
+
+export const AdminBottleReservationV2ResponseStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+/**
+ * 보틀 관리 상세의 관련 예약 신청 2.0 응답
+ */
+export interface AdminBottleReservationV2Response {
+  applicantBusinessName?: string;
+  applicantName?: string;
+  applicantPhone?: string;
+  confirmedQuantity?: number;
+  createdAt?: string;
+  id?: number;
+  noticeId?: number;
+  noticeName?: string;
+  pickupBusinessName?: string;
+  quantity?: number;
+  status?: AdminBottleReservationV2ResponseStatus;
+  totalPrice?: number;
+  userId?: number;
 }
 
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
@@ -810,6 +903,7 @@ export const AdminInquiryMessageResponseAuthorType = {
 
 export interface AdminInquiryMessageResponse {
   authorId?: number;
+  authorName?: string;
   authorNickname?: string;
   authorType?: AdminInquiryMessageResponseAuthorType;
   content?: string;
@@ -948,6 +1042,60 @@ export interface AdminItemReservationNoticeResponse {
   reservationStartAt?: string;
   saleStatus?: AdminItemReservationNoticeResponseSaleStatus;
   updatedAt?: string;
+}
+
+/**
+ * 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다.
+ */
+export type AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateRequestOrderStatus];
+
+
+export const AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 요청
+ */
+export interface AdminManualPurchaseBulkStatusUpdateRequest {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: AdminManualPurchaseBulkStatusUpdateRequestOrderStatus;
+}
+
+export type AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus[keyof typeof AdminManualPurchaseBulkStatusUpdateResponseOrderStatus];
+
+
+export const AdminManualPurchaseBulkStatusUpdateResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 2.0 응답
+ */
+export interface AdminManualPurchaseBulkStatusUpdateResponse {
+  bottleId?: number;
+  orderStatus?: AdminManualPurchaseBulkStatusUpdateResponseOrderStatus;
+  updatedCount?: number;
 }
 
 /**
@@ -1990,6 +2138,36 @@ export interface BottleAdminResponse {
 }
 
 /**
+ * 브랜드에 속하며 API 노출이 허용된 시리즈 목록입니다.
+ */
+export interface BottleSeriesResponse {
+  /**
+   * 시리즈 설명입니다.
+   * @nullable
+   */
+  description?: string | null;
+  /**
+   * 시리즈 대표 이미지의 공개 URL입니다.
+   * @nullable
+   */
+  imgUrl?: string | null;
+  /** 시리즈명입니다. */
+  name?: string;
+  /**
+   * 시리즈를 대표하는 보틀 ID입니다.
+   * @nullable
+   */
+  representativeBottleId?: number | null;
+}
+
+export interface BottleBrandSeriesResponse {
+  /** 브랜드명입니다. */
+  brand?: string;
+  /** 브랜드에 속하며 API 노출이 허용된 시리즈 목록입니다. */
+  series?: BottleSeriesResponse[];
+}
+
+/**
  * 추가 메타데이터(key/value)입니다.
  */
 export type BottleCreateRequestExtraInfos = {[key: string]: string};
@@ -2286,6 +2464,8 @@ export interface BottleResponse {
   caskType?: string;
   /** 제조사 또는 회사명입니다. */
   company?: string;
+  /** 사업자에게만 제공되는 권장소매가입니다. */
+  consumerPrice?: number;
   /** 생성 일시입니다. */
   createdAt?: string;
   /** 보틀 설명입니다. */
@@ -2308,6 +2488,8 @@ export interface BottleResponse {
   name?: string;
   /** 시리즈명입니다. */
   series?: string;
+  /** 사업자에게만 제공되는 공급가입니다. */
+  supplyPrice?: number;
   /** 수정 일시입니다. */
   updatedAt?: string;
 }
@@ -2678,6 +2860,30 @@ export interface DependencyHealth {
   down?: boolean;
   message?: string;
   status?: string;
+}
+
+export type DevBizmTestMessageRequestMessageType = typeof DevBizmTestMessageRequestMessageType[keyof typeof DevBizmTestMessageRequestMessageType];
+
+
+export const DevBizmTestMessageRequestMessageType = {
+  RESERVATION_OPEN: 'RESERVATION_OPEN',
+  PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+} as const;
+
+export interface DevBizmTestMessageRequest {
+  messageType: DevBizmTestMessageRequestMessageType;
+  /**
+   * @minLength 1
+   * @pattern ^[0-9+\- ]{10,20}$
+   */
+  recipientPhone: string;
+}
+
+export interface DevBizmTestMessageResponse {
+  messageId?: string;
+  messageType?: string;
+  providerMessageType?: string;
+  recipientPhone?: string;
 }
 
 /**
@@ -3571,6 +3777,11 @@ export interface PagedModelAdminBoardResponse {
   page?: PageMetadata;
 }
 
+export interface PagedModelAdminBottleManualPurchaseV2Response {
+  content?: AdminBottleManualPurchaseV2Response[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminBottleReservationApplicationResponse {
   content?: AdminBottleReservationApplicationResponse[];
   page?: PageMetadata;
@@ -3578,6 +3789,16 @@ export interface PagedModelAdminBottleReservationApplicationResponse {
 
 export interface PagedModelAdminBottleReservationNoticeResponse {
   content?: AdminBottleReservationNoticeResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBottleReservationNoticeV2Response {
+  content?: AdminBottleReservationNoticeV2Response[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBottleReservationV2Response {
+  content?: AdminBottleReservationV2Response[];
   page?: PageMetadata;
 }
 
@@ -6053,6 +6274,270 @@ export interface UsernameRequest {
   username: string;
 }
 
+export type GetApiV2AdminBannersPublishedParams = {
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2AdminBannersUnpublishedParams = {
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidManualPurchasesStatus;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidManualPurchasesSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidManualPurchasesSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesStatus = typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesStatus];
+
+
+export const GetApiV2AdminBottlesBottleidManualPurchasesStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesSortBy = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortBy];
+
+
+export const GetApiV2AdminBottlesBottleidManualPurchasesSortBy = {
+  CREATED_AT: 'CREATED_AT',
+  TOTAL_PRICE: 'TOTAL_PRICE',
+  QUANTITY: 'QUANTITY',
+  MEMBER_NAME: 'MEMBER_NAME',
+  ORDER_NUMBER: 'ORDER_NUMBER',
+  ORDER_STATUS: 'ORDER_STATUS',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidManualPurchasesSortDirection];
+
+
+export const GetApiV2AdminBottlesBottleidManualPurchasesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+/**
+ * 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다.
+ */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus = typeof PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus[keyof typeof PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus];
+
+
+export const PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 관리자 수동 구매내역 일괄 상태 변경 요청
+ */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidReservationNoticesStatus;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidReservationNoticesSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidReservationNoticesSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesStatus = typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesStatus];
+
+
+export const GetApiV2AdminBottlesBottleidReservationNoticesStatus = {
+  DRAFT: 'DRAFT',
+  OPEN: 'OPEN',
+  CLOSED: 'CLOSED',
+  SOLD_OUT: 'SOLD_OUT',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesSortBy = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortBy];
+
+
+export const GetApiV2AdminBottlesBottleidReservationNoticesSortBy = {
+  RESERVATION_START_AT: 'RESERVATION_START_AT',
+  CREATED_AT: 'CREATED_AT',
+  PRICE: 'PRICE',
+  TOTAL_QUANTITY: 'TOTAL_QUANTITY',
+  NOTICE_NAME: 'NOTICE_NAME',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationNoticesSortDirection];
+
+
+export const GetApiV2AdminBottlesBottleidReservationNoticesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationsParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: GetApiV2AdminBottlesBottleidReservationsStatus;
+noticeId?: number;
+createdAtFrom?: string;
+createdAtTo?: string;
+sortBy?: GetApiV2AdminBottlesBottleidReservationsSortBy;
+sortDirection?: GetApiV2AdminBottlesBottleidReservationsSortDirection;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationsStatus = typeof GetApiV2AdminBottlesBottleidReservationsStatus[keyof typeof GetApiV2AdminBottlesBottleidReservationsStatus];
+
+
+export const GetApiV2AdminBottlesBottleidReservationsStatus = {
+  APPLIED: 'APPLIED',
+  CANCELLED: 'CANCELLED',
+  CONFIRMED: 'CONFIRMED',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  WAITING_PICKUP: 'WAITING_PICKUP',
+  RECEIVED: 'RECEIVED',
+  REJECTED: 'REJECTED',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationsSortBy = typeof GetApiV2AdminBottlesBottleidReservationsSortBy[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortBy];
+
+
+export const GetApiV2AdminBottlesBottleidReservationsSortBy = {
+  CREATED_AT: 'CREATED_AT',
+  TOTAL_PRICE: 'TOTAL_PRICE',
+  QUANTITY: 'QUANTITY',
+  CONFIRMED_QUANTITY: 'CONFIRMED_QUANTITY',
+  APPLICANT_NAME: 'APPLICANT_NAME',
+} as const;
+
+export type GetApiV2AdminBottlesBottleidReservationsSortDirection = typeof GetApiV2AdminBottlesBottleidReservationsSortDirection[keyof typeof GetApiV2AdminBottlesBottleidReservationsSortDirection];
+
+
+export const GetApiV2AdminBottlesBottleidReservationsSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+export type GetApiV2BottlesParams = {
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 보틀 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+/**
+ * 정렬 기준
+ */
+sort?: GetApiV2BottlesSort;
+/**
+ * 정렬 방향
+ */
+direction?: GetApiV2BottlesDirection;
+/**
+ * 병 이름 필터
+ */
+name?: string;
+/**
+ * 통합검색어. 이름, 회사, 브랜드, 시리즈, 몰트 타입, 증류소, 캐스크 정보, 설명, 빈티지를 함께 검색합니다.
+ */
+keyword?: string;
+/**
+ * 회사명 목록 필터
+ */
+company?: string[];
+/**
+ * 브랜드명 목록 필터
+ */
+brand?: string[];
+/**
+ * 시리즈명 목록 필터
+ */
+series?: string[];
+/**
+ * 몰트 타입 목록 필터
+ */
+maltType?: string[];
+/**
+ * 증류소 목록 필터
+ */
+distillery?: string[];
+/**
+ * 캐스크 타입 목록 필터
+ */
+caskType?: string[];
+bottledDateFrom?: string;
+bottledDateTo?: string;
+distillationDateFrom?: string;
+distillationDateTo?: string;
+vintageFrom?: number;
+vintageTo?: number;
+abvFrom?: number;
+abvTo?: number;
+};
+
+export type GetApiV2BottlesSort = typeof GetApiV2BottlesSort[keyof typeof GetApiV2BottlesSort];
+
+
+export const GetApiV2BottlesSort = {
+  REGISTERED: 'REGISTERED',
+  BOTTLED_DATE: 'BOTTLED_DATE',
+  DISTILLATION_DATE: 'DISTILLATION_DATE',
+  MATURATION_AGE: 'MATURATION_AGE',
+} as const;
+
+export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typeof GetApiV2BottlesDirection];
+
+
+export const GetApiV2BottlesDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
 export type GetApiAdminBannersParams = {
 /**
  * Zero-based page index (0..N)
@@ -7269,6 +7754,23 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
    * @maxLength 20
    */
   storeManagerPhone?: string;
+};
+
+export type PostApiAdminDevBizmTestMessagesBodyMessageType = typeof PostApiAdminDevBizmTestMessagesBodyMessageType[keyof typeof PostApiAdminDevBizmTestMessagesBodyMessageType];
+
+
+export const PostApiAdminDevBizmTestMessagesBodyMessageType = {
+  RESERVATION_OPEN: 'RESERVATION_OPEN',
+  PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+} as const;
+
+export type PostApiAdminDevBizmTestMessagesBody = {
+  messageType: PostApiAdminDevBizmTestMessagesBodyMessageType;
+  /**
+   * @minLength 1
+   * @pattern ^[0-9+\- ]{10,20}$
+   */
+  recipientPhone: string;
 };
 
 export type PostApiAdminImagesPurposeBody = {
@@ -10737,86 +11239,6 @@ export type PutApiUsersMeNicknameBody = {
   nickname: string;
 };
 
-export type GetApiV2BottlesParams = {
-/**
- * 0부터 시작하는 페이지 번호
- * @minimum 0
- */
-page?: number;
-/**
- * 페이지당 보틀 수
- * @minimum 1
- * @maximum 100
- */
-size?: number;
-/**
- * 정렬 기준
- */
-sort?: GetApiV2BottlesSort;
-/**
- * 정렬 방향
- */
-direction?: GetApiV2BottlesDirection;
-/**
- * 병 이름 필터
- */
-name?: string;
-/**
- * 통합검색어. 이름, 회사, 브랜드, 시리즈, 몰트 타입, 증류소, 캐스크 정보, 설명, 빈티지를 함께 검색합니다.
- */
-keyword?: string;
-/**
- * 회사명 목록 필터
- */
-company?: string[];
-/**
- * 브랜드명 목록 필터
- */
-brand?: string[];
-/**
- * 시리즈명 목록 필터
- */
-series?: string[];
-/**
- * 몰트 타입 목록 필터
- */
-maltType?: string[];
-/**
- * 증류소 목록 필터
- */
-distillery?: string[];
-/**
- * 캐스크 타입 목록 필터
- */
-caskType?: string[];
-bottledDateFrom?: string;
-bottledDateTo?: string;
-distillationDateFrom?: string;
-distillationDateTo?: string;
-vintageFrom?: number;
-vintageTo?: number;
-abvFrom?: number;
-abvTo?: number;
-};
-
-export type GetApiV2BottlesSort = typeof GetApiV2BottlesSort[keyof typeof GetApiV2BottlesSort];
-
-
-export const GetApiV2BottlesSort = {
-  REGISTERED: 'REGISTERED',
-  BOTTLED_DATE: 'BOTTLED_DATE',
-  DISTILLATION_DATE: 'DISTILLATION_DATE',
-  MATURATION_AGE: 'MATURATION_AGE',
-} as const;
-
-export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typeof GetApiV2BottlesDirection];
-
-
-export const GetApiV2BottlesDirection = {
-  ASC: 'ASC',
-  DESC: 'DESC',
-} as const;
-
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
  * @summary v1 헬스체크
@@ -10844,6 +11266,352 @@ export const getGetApiV1HealthUrl = () => {
 export const getApiV1Health = async ( options?: RequestInit): Promise<getApiV1HealthResponse> => {
   
   return customFetch<getApiV1HealthResponse>(getGetApiV1HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 게시 중이고 제거되지 않은 배너를 노출 순서대로 페이지 조회합니다.
+ * @summary 게시 중인 관리자 배너 목록 조회 2.0
+ */
+export type getApiV2AdminBannersPublishedResponse200 = {
+  data: PagedModelAdminBannerResponse
+  status: 200
+}
+    
+export type getApiV2AdminBannersPublishedResponseSuccess = (getApiV2AdminBannersPublishedResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBannersPublishedResponse = (getApiV2AdminBannersPublishedResponseSuccess)
+
+export const getGetApiV2AdminBannersPublishedUrl = (params?: GetApiV2AdminBannersPublishedParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/banners/published?${stringifiedParams}` : `/api/2.0/admin/banners/published`
+}
+
+export const getApiV2AdminBannersPublished = async (params?: GetApiV2AdminBannersPublishedParams, options?: RequestInit): Promise<getApiV2AdminBannersPublishedResponse> => {
+  
+  return customFetch<getApiV2AdminBannersPublishedResponse>(getGetApiV2AdminBannersPublishedUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 게시 중단되었고 제거되지 않은 배너를 최근 변경 순서대로 페이지 조회합니다.
+ * @summary 게시 중단된 관리자 배너 목록 조회 2.0
+ */
+export type getApiV2AdminBannersUnpublishedResponse200 = {
+  data: PagedModelAdminBannerResponse
+  status: 200
+}
+    
+export type getApiV2AdminBannersUnpublishedResponseSuccess = (getApiV2AdminBannersUnpublishedResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBannersUnpublishedResponse = (getApiV2AdminBannersUnpublishedResponseSuccess)
+
+export const getGetApiV2AdminBannersUnpublishedUrl = (params?: GetApiV2AdminBannersUnpublishedParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/banners/unpublished?${stringifiedParams}` : `/api/2.0/admin/banners/unpublished`
+}
+
+export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBannersUnpublishedParams, options?: RequestInit): Promise<getApiV2AdminBannersUnpublishedResponse> => {
+  
+  return customFetch<getApiV2AdminBannersUnpublishedResponse>(getGetApiV2AdminBannersUnpublishedUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 판매공고 없이 관리자가 등록한 보틀 구매내역을 조회합니다.
+ * @summary 보틀 관련 관리자 수동 구매내역 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidManualPurchasesResponse200 = {
+  data: PagedModelAdminBottleManualPurchaseV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess = (getApiV2AdminBottlesBottleidManualPurchasesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidManualPurchasesResponse = (getApiV2AdminBottlesBottleidManualPurchasesResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidManualPurchasesUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/manual-purchases?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/manual-purchases`
+}
+
+export const getApiV2AdminBottlesBottleidManualPurchases = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidManualPurchasesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidManualPurchasesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidManualPurchasesResponse>(getGetApiV2AdminBottlesBottleidManualPurchasesUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 해당 보틀의 관리자 수동 구매내역 전체를 MyBatis 쓰기 잠금 후 결제 완료, 수령 대기, 수령 완료 상태 중 하나로 변경합니다.
+ * @summary 보틀 관련 관리자 수동 구매내역 상태 일괄 변경 2.0
+ */
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200 = {
+  data: AdminManualPurchaseBulkStatusUpdateResponse
+  status: 200
+}
+    
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse = (patchApiV2AdminBottlesBottleidManualPurchasesStatusResponseSuccess)
+
+export const getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/manual-purchases/status`
+}
+
+export const patchApiV2AdminBottlesBottleidManualPurchasesStatus = async (bottleId: number,
+    patchApiV2AdminBottlesBottleidManualPurchasesStatusBody: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody, options?: RequestInit): Promise<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse> => {
+  
+  return customFetch<patchApiV2AdminBottlesBottleidManualPurchasesStatusResponse>(getPatchApiV2AdminBottlesBottleidManualPurchasesStatusUrl(bottleId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiV2AdminBottlesBottleidManualPurchasesStatusBody,)
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 보틀 관리 상세에 표시할 관련 예약 공고를 조회합니다.
+ * @summary 보틀 관련 예약 공고 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidReservationNoticesResponse200 = {
+  data: PagedModelAdminBottleReservationNoticeV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess = (getApiV2AdminBottlesBottleidReservationNoticesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidReservationNoticesResponse = (getApiV2AdminBottlesBottleidReservationNoticesResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidReservationNoticesUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/reservation-notices?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/reservation-notices`
+}
+
+export const getApiV2AdminBottlesBottleidReservationNotices = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationNoticesParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationNoticesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidReservationNoticesResponse>(getGetApiV2AdminBottlesBottleidReservationNoticesUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 보틀 관리 상세에 표시할 관련 예약 신청을 조회합니다.
+ * @summary 보틀 관련 예약 신청 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidReservationsResponse200 = {
+  data: PagedModelAdminBottleReservationV2Response
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidReservationsResponseSuccess = (getApiV2AdminBottlesBottleidReservationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidReservationsResponse = (getApiV2AdminBottlesBottleidReservationsResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidReservationsUrl = (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles/${bottleId}/reservations?${stringifiedParams}` : `/api/2.0/admin/bottles/${bottleId}/reservations`
+}
+
+export const getApiV2AdminBottlesBottleidReservations = async (bottleId: number,
+    params?: GetApiV2AdminBottlesBottleidReservationsParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationsResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidReservationsResponse>(getGetApiV2AdminBottlesBottleidReservationsUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
+ * @summary 아카이브 보틀 목록 조회 2.0
+ */
+export type getApiV2BottlesResponse200 = {
+  data: PagedModelBottleResponse
+  status: 200
+}
+    
+export type getApiV2BottlesResponseSuccess = (getApiV2BottlesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2BottlesResponse = (getApiV2BottlesResponseSuccess)
+
+export const getGetApiV2BottlesUrl = (params?: GetApiV2BottlesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/bottles?${stringifiedParams}` : `/api/2.0/bottles`
+}
+
+export const getApiV2Bottles = async (params?: GetApiV2BottlesParams, options?: RequestInit): Promise<getApiV2BottlesResponse> => {
+  
+  return customFetch<getApiV2BottlesResponse>(getGetApiV2BottlesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 사용자에게 노출 가능한 보틀의 필터 항목을 조회합니다.
+ * @summary 아카이브 검색 파라미터 조회 2.0
+ */
+export type getApiV2BottlesParametersResponse200 = {
+  data: BottleSearchParameterValues
+  status: 200
+}
+    
+export type getApiV2BottlesParametersResponseSuccess = (getApiV2BottlesParametersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2BottlesParametersResponse = (getApiV2BottlesParametersResponseSuccess)
+
+export const getGetApiV2BottlesParametersUrl = () => {
+
+
+  
+
+  return `/api/2.0/bottles/parameters`
+}
+
+export const getApiV2BottlesParameters = async ( options?: RequestInit): Promise<getApiV2BottlesParametersResponse> => {
+  
+  return customFetch<getApiV2BottlesParametersResponse>(getGetApiV2BottlesParametersUrl(),
   {      
     ...options,
     method: 'GET'
@@ -13509,6 +14277,44 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
     method: 'POST'
     
     
+  }
+);}
+
+
+
+/**
+ * 관리자가 개발 환경에서 고정된 예약 공고 또는 결제 안내 테스트 메시지를 한 건 발송합니다.
+ * @summary 비즈엠 테스트 메시지 발송(개발용)
+ */
+export type postApiAdminDevBizmTestMessagesResponse200 = {
+  data: DevBizmTestMessageResponse
+  status: 200
+}
+    
+export type postApiAdminDevBizmTestMessagesResponseSuccess = (postApiAdminDevBizmTestMessagesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiAdminDevBizmTestMessagesResponse = (postApiAdminDevBizmTestMessagesResponseSuccess)
+
+export const getPostApiAdminDevBizmTestMessagesUrl = () => {
+
+
+  
+
+  return `/api/admin/dev/bizm/test-messages`
+}
+
+export const postApiAdminDevBizmTestMessages = async (postApiAdminDevBizmTestMessagesBody: PostApiAdminDevBizmTestMessagesBody, options?: RequestInit): Promise<postApiAdminDevBizmTestMessagesResponse> => {
+  
+  return customFetch<postApiAdminDevBizmTestMessagesResponse>(getPostApiAdminDevBizmTestMessagesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiAdminDevBizmTestMessagesBody,)
   }
 );}
 
@@ -18047,6 +18853,43 @@ export const getGetApiBottlesUrl = (params?: GetApiBottlesParams,) => {
 export const getApiBottles = async (params?: GetApiBottlesParams, options?: RequestInit): Promise<getApiBottlesResponse> => {
   
   return customFetch<getApiBottlesResponse>(getGetApiBottlesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 시리즈 설정에서 노출이 허용된 브랜드별 시리즈와 설명, 대표 이미지, 대표 보틀 ID를 반환합니다.
+ * @summary 브랜드별 시리즈 조회
+ */
+export type getApiBottlesBrandSeriesResponse200 = {
+  data: BottleBrandSeriesResponse[]
+  status: 200
+}
+    
+export type getApiBottlesBrandSeriesResponseSuccess = (getApiBottlesBrandSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiBottlesBrandSeriesResponse = (getApiBottlesBrandSeriesResponseSuccess)
+
+export const getGetApiBottlesBrandSeriesUrl = () => {
+
+
+  
+
+  return `/api/bottles/brand-series`
+}
+
+export const getApiBottlesBrandSeries = async ( options?: RequestInit): Promise<getApiBottlesBrandSeriesResponse> => {
+  
+  return customFetch<getApiBottlesBrandSeriesResponse>(getGetApiBottlesBrandSeriesUrl(),
   {      
     ...options,
     method: 'GET'
@@ -22961,87 +23804,6 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
-    
-    
-  }
-);}
-
-
-
-/**
- * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
- * @summary 아카이브 보틀 목록 조회 2.0
- */
-export type getApiV2BottlesResponse200 = {
-  data: PagedModelBottleResponse
-  status: 200
-}
-    
-export type getApiV2BottlesResponseSuccess = (getApiV2BottlesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2BottlesResponse = (getApiV2BottlesResponseSuccess)
-
-export const getGetApiV2BottlesUrl = (params?: GetApiV2BottlesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/2.0/bottles?${stringifiedParams}` : `/api/2.0/bottles`
-}
-
-export const getApiV2Bottles = async (params?: GetApiV2BottlesParams, options?: RequestInit): Promise<getApiV2BottlesResponse> => {
-  
-  return customFetch<getApiV2BottlesResponse>(getGetApiV2BottlesUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * MyBatis 기반으로 사용자에게 노출 가능한 보틀의 필터 항목을 조회합니다.
- * @summary 아카이브 검색 파라미터 조회 2.0
- */
-export type getApiV2BottlesParametersResponse200 = {
-  data: BottleSearchParameterValues
-  status: 200
-}
-    
-export type getApiV2BottlesParametersResponseSuccess = (getApiV2BottlesParametersResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2BottlesParametersResponse = (getApiV2BottlesParametersResponseSuccess)
-
-export const getGetApiV2BottlesParametersUrl = () => {
-
-
-  
-
-  return `/api/2.0/bottles/parameters`
-}
-
-export const getApiV2BottlesParameters = async ( options?: RequestInit): Promise<getApiV2BottlesParametersResponse> => {
-  
-  return customFetch<getApiV2BottlesParametersResponse>(getGetApiV2BottlesParametersUrl(),
-  {      
-    ...options,
-    method: 'GET'
     
     
   }
