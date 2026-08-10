@@ -9,9 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Switch } from "@/components/ui/switch";
 import { Sparkles } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import { autoConfirmApplicationsAction } from "../../actions";
 
@@ -22,12 +23,13 @@ interface ApplicationAutoConfirmModalProps {
 }
 
 export default function ApplicationAutoConfirmModal({ isOpen, close, noticeId }: ApplicationAutoConfirmModalProps) {
+  const [applySeriesPurchasePriority, setApplySeriesPurchasePriority] = useState(true);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleAutoConfirm = () => {
     startTransition(async () => {
-      const result = await autoConfirmApplicationsAction(noticeId);
+      const result = await autoConfirmApplicationsAction(noticeId, applySeriesPurchasePriority);
 
       if (result.success) {
         const confirmedCount = result.data?.confirmedApplicationCount ?? 0;
@@ -56,6 +58,24 @@ export default function ApplicationAutoConfirmModal({ isOpen, close, noticeId }:
             이 공고의 대기 중 예약 신청을 자동 승인배정합니다. 처리 후 신청 상태와 확정 수량이 즉시 변경됩니다.
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="space-y-1">
+            <label htmlFor="series-purchase-priority" className="typo-medium-14 text-gray-900">
+              시리즈 구매 다양성 우선 적용
+            </label>
+            <p className="typo-regular-12 text-gray-600">
+              같은 브랜드·시리즈에서 구매한 보틀 종류 수를 커뮤니티보다 먼저 비교합니다.
+            </p>
+          </div>
+          <Switch
+            id="series-purchase-priority"
+            checked={applySeriesPurchasePriority}
+            onCheckedChange={setApplySeriesPurchasePriority}
+            disabled={isPending}
+            aria-label="시리즈 구매 다양성 우선 적용"
+          />
+        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={close} disabled={isPending}>
