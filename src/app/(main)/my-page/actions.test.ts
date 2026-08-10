@@ -1,5 +1,6 @@
 import { ApiError } from "@/apis/errors";
 import {
+  patchApiV2OrdersOrderidReceipt,
   postApiUsersBusinessesApplications,
   postApiUsersBusinessesApplicationsApplicationidCancel,
   putApiUsersMeAgreements,
@@ -8,10 +9,11 @@ import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { cancelBusinessApplication, submitBusinessApplication, updateProfile } from "./actions";
+import { cancelBusinessApplication, completeReceipt, submitBusinessApplication, updateProfile } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiOrdersOrderidCancel: vi.fn(),
+  patchApiV2OrdersOrderidReceipt: vi.fn(),
   postApiUsersBusinessesApplications: vi.fn(),
   postApiUsersBusinessesApplicationsApplicationidCancel: vi.fn(),
   postApiUsersMeEmailVerificationSend: vi.fn(),
@@ -35,6 +37,7 @@ vi.mock("next/cache", () => ({
 }));
 
 const mockedSubmitBusinessApplication = vi.mocked(postApiUsersBusinessesApplications);
+const mockedCompleteReceipt = vi.mocked(patchApiV2OrdersOrderidReceipt);
 const mockedCancelBusinessApplication = vi.mocked(postApiUsersBusinessesApplicationsApplicationidCancel);
 const mockedPutApiUsersMeAgreements = vi.mocked(putApiUsersMeAgreements);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
@@ -162,6 +165,21 @@ describe("my-page actions", () => {
       },
       { headers: { Authorization: "Bearer mocked" } },
     );
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/my-page");
+  });
+
+  it("본인 주문을 수령 완료 처리하고 마이페이지를 갱신한다", async () => {
+    mockedCompleteReceipt.mockResolvedValue({
+      data: { orderId: 17, orderStatus: "RECEIPT_COMPLETED" },
+      status: 200,
+      headers: new Headers(),
+    });
+
+    await expect(completeReceipt(17)).resolves.toEqual({ success: true });
+
+    expect(mockedCompleteReceipt).toHaveBeenCalledWith(17, {
+      headers: { Authorization: "Bearer mocked" },
+    });
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/my-page");
   });
 });
