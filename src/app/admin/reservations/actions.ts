@@ -11,7 +11,7 @@ import {
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
   postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending,
-  postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm,
+  postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm,
   putApiAdminBottlesReservationsNoticesNoticeid,
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid,
   type PostApiAdminBottlesReservationsApplicationsApplicationidCancelBody,
@@ -519,12 +519,16 @@ export async function cancelApplicationAction(
   }
 }
 
-export async function autoConfirmApplicationsAction(noticeId: number) {
+export async function autoConfirmApplicationsAction(noticeId: number, applySeriesPurchasePriority: boolean) {
   const token = await getAuthToken();
   if (!token) return { success: false, error: "인증이 필요합니다." };
 
   try {
-    const res = await postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm(noticeId, {}, withToken(token));
+    const res = await postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm(
+      noticeId,
+      { applySeriesPurchasePriority },
+      withToken(token),
+    );
     revalidateTag(noticeCacheTag(noticeId), "max");
     revalidatePath("/admin/reservations");
     revalidatePath(`/admin/reservations/${noticeId}`);

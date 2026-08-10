@@ -2401,6 +2401,36 @@ export interface BottleReservationApplicationRequest {
   userBusinessId: number;
 }
 
+export type BottleReservationAutoConfirmRequestPriorityAllocationsItemRole = typeof BottleReservationAutoConfirmRequestPriorityAllocationsItemRole[keyof typeof BottleReservationAutoConfirmRequestPriorityAllocationsItemRole];
+
+
+export const BottleReservationAutoConfirmRequestPriorityAllocationsItemRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+export type BottleReservationAutoConfirmRequestPriorityAllocationsItem = {
+  /** @minimum 0 */
+  quantity?: number;
+  role: BottleReservationAutoConfirmRequestPriorityAllocationsItemRole;
+};
+
+export interface BottleReservationAutoConfirmRequest {
+  /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
+  applySeriesPurchasePriority?: boolean;
+  priorityAllocations?: BottleReservationAutoConfirmRequestPriorityAllocationsItem[];
+}
+
 export interface BottleReservationDecisionRequest {
   /** @minimum 1 */
   confirmedQuantity: number;
@@ -6240,6 +6270,36 @@ export interface UserOrderQueueStatusResponse {
   saleAnnouncementId?: number;
 }
 
+/**
+ * 변경된 주문 상태
+ */
+export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
+
+
+export const UserOrderReceiptResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 사용자 주문 수령 완료 처리 결과
+ */
+export interface UserOrderReceiptResponse {
+  /** 수령 완료 처리한 주문 ID */
+  orderId?: number;
+  /** 변경된 주문 상태 */
+  orderStatus?: UserOrderReceiptResponseOrderStatus;
+}
+
 export type UserReservationBusinessDeliveryResponseCarrierCode = typeof UserReservationBusinessDeliveryResponseCarrierCode[keyof typeof UserReservationBusinessDeliveryResponseCarrierCode];
 
 
@@ -6323,36 +6383,6 @@ export interface UsernameRequest {
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
   username: string;
-}
-
-/**
- * 변경된 주문 상태
- */
-export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
-
-
-export const UserOrderReceiptResponseOrderStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
-  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
-  RECEIPT_PENDING: 'RECEIPT_PENDING',
-  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
-} as const;
-
-/**
- * 사용자 주문 수령 완료 처리 결과
- */
-export interface UserOrderReceiptResponse {
-  /** 수령 완료 처리한 주문 ID */
-  orderId?: number;
-  /** 변경된 주문 상태 */
-  orderStatus?: UserOrderReceiptResponseOrderStatus;
 }
 
 export type GetApiV2AdminBannersPublishedParams = {
@@ -6523,6 +6553,36 @@ export const GetApiV2AdminBottlesSortDirection = {
   ASC: 'ASC',
   DESC: 'DESC',
 } as const;
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
+
+
+export const PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem = {
+  /** @minimum 0 */
+  quantity?: number;
+  role: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole;
+};
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
+  /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
+  applySeriesPurchasePriority?: boolean;
+  priorityAllocations?: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
+};
 
 export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
 page?: number;
@@ -11863,6 +11923,45 @@ export const getApiV2AdminBottlesParameters = async ( options?: RequestInit): Pr
 
 
 /**
+ * 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 비교할지 선택해 자동 확정합니다.
+ * @summary 예약 공고 자동 확정 2.0
+ */
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200 = {
+  data: AdminBottleReservationAutoConfirmResponse
+  status: 200
+}
+    
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponseSuccess = (postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse = (postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponseSuccess)
+
+export const getPostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/reservations/notices/${noticeId}/auto-confirm`
+}
+
+export const postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm = async (noticeId: number,
+    postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody, options?: RequestInit): Promise<postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse> => {
+  
+  return customFetch<postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody,)
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 판매공고 없이 관리자가 등록한 보틀 구매내역을 조회합니다.
  * @summary 보틀 관련 관리자 수동 구매내역 조회 2.0
  */
@@ -12150,6 +12249,43 @@ export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2He
   {      
     ...options,
     method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자가 본인의 픽업 주문 중 준비 중, 결제 완료 또는 수령 대기 상태를 수령 완료로 확정합니다. 처리 후에는 이전 상태로 되돌릴 수 없습니다.
+ * @summary 사용자 주문 수령 완료 처리 2.0
+ */
+export type patchApiV2OrdersOrderidReceiptResponse200 = {
+  data: UserOrderReceiptResponse
+  status: 200
+}
+    
+export type patchApiV2OrdersOrderidReceiptResponseSuccess = (patchApiV2OrdersOrderidReceiptResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2OrdersOrderidReceiptResponse = (patchApiV2OrdersOrderidReceiptResponseSuccess)
+
+export const getPatchApiV2OrdersOrderidReceiptUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/orders/${orderId}/receipt`
+}
+
+export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: RequestInit): Promise<patchApiV2OrdersOrderidReceiptResponse> => {
+  
+  return customFetch<patchApiV2OrdersOrderidReceiptResponse>(getPatchApiV2OrdersOrderidReceiptUrl(orderId),
+  {      
+    ...options,
+    method: 'PATCH'
     
     
   }
@@ -24302,43 +24438,6 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
-    
-    
-  }
-);}
-
-
-
-/**
- * 로그인 사용자가 본인의 픽업 주문 중 준비 중, 결제 완료 또는 수령 대기 상태를 수령 완료로 확정합니다. 처리 후에는 이전 상태로 되돌릴 수 없습니다.
- * @summary 사용자 주문 수령 완료 처리 2.0
- */
-export type patchApiV2OrdersOrderidReceiptResponse200 = {
-  data: UserOrderReceiptResponse
-  status: 200
-}
-    
-export type patchApiV2OrdersOrderidReceiptResponseSuccess = (patchApiV2OrdersOrderidReceiptResponse200) & {
-  headers: Headers;
-};
-;
-
-export type patchApiV2OrdersOrderidReceiptResponse = (patchApiV2OrdersOrderidReceiptResponseSuccess)
-
-export const getPatchApiV2OrdersOrderidReceiptUrl = (orderId: number,) => {
-
-
-  
-
-  return `/api/2.0/orders/${orderId}/receipt`
-}
-
-export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: RequestInit): Promise<patchApiV2OrdersOrderidReceiptResponse> => {
-  
-  return customFetch<patchApiV2OrdersOrderidReceiptResponse>(getPatchApiV2OrdersOrderidReceiptUrl(orderId),
-  {      
-    ...options,
-    method: 'PATCH'
     
     
   }
