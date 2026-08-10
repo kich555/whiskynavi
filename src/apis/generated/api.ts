@@ -479,6 +479,52 @@ export interface AdminBottleReservationV2Response {
   userId?: number;
 }
 
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export interface AdminBottleSeriesRequest {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
+}
+
+/**
+ * 관리자 보틀 시리즈 응답
+ */
+export interface AdminBottleSeriesResponse {
+  brand?: string;
+  createdAt?: string;
+  description?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  representativeBottleId?: number;
+  series?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
 
 
@@ -3802,6 +3848,11 @@ export interface PagedModelAdminBottleReservationV2Response {
   page?: PageMetadata;
 }
 
+export interface PagedModelAdminBottleSeriesResponse {
+  content?: AdminBottleSeriesResponse[];
+  page?: PageMetadata;
+}
+
 export interface PagedModelAdminBusinessApplicationResponse {
   content?: AdminBusinessApplicationResponse[];
   page?: PageMetadata;
@@ -6296,6 +6347,80 @@ page?: number;
  * @maximum 100
  */
 size?: number;
+};
+
+export type GetApiV2AdminBottleSeriesParams = {
+keyword?: string;
+visible?: boolean;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export type PostApiV2AdminBottleSeriesBody = {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
+};
+
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export type PutApiV2AdminBottleSeriesSeriesidBody = {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
 };
 
 export type GetApiV2AdminBottlesParams = {
@@ -11430,6 +11555,197 @@ export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBann
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 브랜드 또는 시리즈명과 노출 여부로 보틀 시리즈를 페이지 조회합니다.
+ * @summary 관리자 보틀 시리즈 목록 조회 2.0
+ */
+export type getApiV2AdminBottleSeriesResponse200 = {
+  data: PagedModelAdminBottleSeriesResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottleSeriesResponseSuccess = (getApiV2AdminBottleSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottleSeriesResponse = (getApiV2AdminBottleSeriesResponseSuccess)
+
+export const getGetApiV2AdminBottleSeriesUrl = (params?: GetApiV2AdminBottleSeriesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottle-series?${stringifiedParams}` : `/api/2.0/admin/bottle-series`
+}
+
+export const getApiV2AdminBottleSeries = async (params?: GetApiV2AdminBottleSeriesParams, options?: RequestInit): Promise<getApiV2AdminBottleSeriesResponse> => {
+  
+  return customFetch<getApiV2AdminBottleSeriesResponse>(getGetApiV2AdminBottleSeriesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 생성 2.0
+ */
+export type postApiV2AdminBottleSeriesResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type postApiV2AdminBottleSeriesResponseSuccess = (postApiV2AdminBottleSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminBottleSeriesResponse = (postApiV2AdminBottleSeriesResponseSuccess)
+
+export const getPostApiV2AdminBottleSeriesUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series`
+}
+
+export const postApiV2AdminBottleSeries = async (postApiV2AdminBottleSeriesBody: PostApiV2AdminBottleSeriesBody, options?: RequestInit): Promise<postApiV2AdminBottleSeriesResponse> => {
+  
+  return customFetch<postApiV2AdminBottleSeriesResponse>(getPostApiV2AdminBottleSeriesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminBottleSeriesBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 삭제 2.0
+ */
+export type deleteApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminBottleSeriesSeriesidResponseSuccess = (deleteApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminBottleSeriesSeriesidResponse = (deleteApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getDeleteApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const deleteApiV2AdminBottleSeriesSeriesid = async (seriesId: number, options?: RequestInit): Promise<deleteApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<deleteApiV2AdminBottleSeriesSeriesidResponse>(getDeleteApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 상세 조회 2.0
+ */
+export type getApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottleSeriesSeriesidResponseSuccess = (getApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottleSeriesSeriesidResponse = (getApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getGetApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const getApiV2AdminBottleSeriesSeriesid = async (seriesId: number, options?: RequestInit): Promise<getApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<getApiV2AdminBottleSeriesSeriesidResponse>(getGetApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 수정 2.0
+ */
+export type putApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type putApiV2AdminBottleSeriesSeriesidResponseSuccess = (putApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiV2AdminBottleSeriesSeriesidResponse = (putApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getPutApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const putApiV2AdminBottleSeriesSeriesid = async (seriesId: number,
+    putApiV2AdminBottleSeriesSeriesidBody: PutApiV2AdminBottleSeriesSeriesidBody, options?: RequestInit): Promise<putApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<putApiV2AdminBottleSeriesSeriesidResponse>(getPutApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiV2AdminBottleSeriesSeriesidBody,)
   }
 );}
 

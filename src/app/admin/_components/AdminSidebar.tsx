@@ -10,6 +10,7 @@ import {
   History,
   Home,
   ImageIcon,
+  Layers3,
   MapPin,
   MessageCircleQuestion,
   MessageSquare,
@@ -73,6 +74,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         label: "보틀관리",
         icon: Package,
         href: "/admin/products",
+      },
+      {
+        id: "bottle-series",
+        label: "보틀 시리즈 관리",
+        icon: Layers3,
+        href: "/admin/bottle-series",
       },
       {
         id: "reservations",
