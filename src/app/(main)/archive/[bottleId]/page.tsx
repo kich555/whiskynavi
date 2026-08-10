@@ -1,6 +1,9 @@
 import { getApiBottlesId } from "@/apis/generated/api";
+import { withToken } from "@/apis/mutator";
 import RichTextContent from "@/components/editor/RichTextContent";
 import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
+import { getAuthToken } from "@/lib/auth";
+import { formatCurrency } from "@/lib/formatters";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -8,7 +11,8 @@ import Link from "next/link";
 const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
   const { bottleId: bottleIdParam } = await params;
   const bottleId = Number(bottleIdParam);
-  const { data: bottle } = await getApiBottlesId(bottleId);
+  const token = await getAuthToken();
+  const { data: bottle } = await getApiBottlesId(bottleId, withToken(token));
 
   return (
     <div className="min-h-screen bg-[#1d2429]">
@@ -57,6 +61,12 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
                     label: "용량",
                     value: bottle.capacity != null ? `${bottle.capacity}ml` : undefined,
                   },
+                  ...(bottle.supplyPrice != null
+                    ? [{ label: "공급가", value: formatCurrency(bottle.supplyPrice) }]
+                    : []),
+                  ...(bottle.consumerPrice != null
+                    ? [{ label: "권장소매가", value: formatCurrency(bottle.consumerPrice) }]
+                    : []),
                 ].map((item, index, arr) => (
                   <div
                     key={item.label}

@@ -4,6 +4,7 @@ import type { BottleResponse } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
 import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { formatCurrency } from "@/lib/formatters";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useRouter } from "next/navigation";
 
@@ -54,6 +55,10 @@ export default function BottleDetailModal({ bottle }: Props) {
                 label: "용량",
                 value: bottle.capacity != null ? `${bottle.capacity}ml` : undefined,
               },
+              ...(bottle.supplyPrice != null ? [{ label: "공급가", value: formatCurrency(bottle.supplyPrice) }] : []),
+              ...(bottle.consumerPrice != null
+                ? [{ label: "권장소매가", value: formatCurrency(bottle.consumerPrice) }]
+                : []),
             ].map((item, index, arr) => (
               <div
                 key={item.label}
