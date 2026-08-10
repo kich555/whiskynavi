@@ -6325,6 +6325,36 @@ export interface UsernameRequest {
   username: string;
 }
 
+/**
+ * 변경된 주문 상태
+ */
+export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
+
+
+export const UserOrderReceiptResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 사용자 주문 수령 완료 처리 결과
+ */
+export interface UserOrderReceiptResponse {
+  /** 수령 완료 처리한 주문 ID */
+  orderId?: number;
+  /** 변경된 주문 상태 */
+  orderStatus?: UserOrderReceiptResponseOrderStatus;
+}
+
 export type GetApiV2AdminBannersPublishedParams = {
 /**
  * @minimum 0
@@ -24272,6 +24302,43 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자가 본인의 픽업 주문 중 준비 중, 결제 완료 또는 수령 대기 상태를 수령 완료로 확정합니다. 처리 후에는 이전 상태로 되돌릴 수 없습니다.
+ * @summary 사용자 주문 수령 완료 처리 2.0
+ */
+export type patchApiV2OrdersOrderidReceiptResponse200 = {
+  data: UserOrderReceiptResponse
+  status: 200
+}
+    
+export type patchApiV2OrdersOrderidReceiptResponseSuccess = (patchApiV2OrdersOrderidReceiptResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2OrdersOrderidReceiptResponse = (patchApiV2OrdersOrderidReceiptResponseSuccess)
+
+export const getPatchApiV2OrdersOrderidReceiptUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/orders/${orderId}/receipt`
+}
+
+export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: RequestInit): Promise<patchApiV2OrdersOrderidReceiptResponse> => {
+  
+  return customFetch<patchApiV2OrdersOrderidReceiptResponse>(getPatchApiV2OrdersOrderidReceiptUrl(orderId),
+  {      
+    ...options,
+    method: 'PATCH'
     
     
   }

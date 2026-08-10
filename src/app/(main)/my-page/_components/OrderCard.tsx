@@ -3,8 +3,10 @@
 import type { UserOrderResponse } from "@/apis/generated/api";
 import { formatOrderClassification } from "@/lib/order-classification";
 import { ChevronRight } from "lucide-react";
+import { isReceiptCompletionAllowed } from "../_lib/constants";
 import { getOrderDisplayNames } from "../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../_lib/utils";
+import ReceiptCompleteButton from "./ReceiptCompleteButton";
 
 interface OrderCardProps {
   order: UserOrderResponse;
@@ -15,6 +17,8 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const orderClassification = formatOrderClassification(order);
   const displayNames = getOrderDisplayNames(order);
+  const canCompleteReceipt =
+    isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
 
   return (
     <div
@@ -39,12 +43,21 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
           {orderClassification}
         </p>
       )}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="typo-bold-18 text-white md:text-xl">{formatCurrency(order.totalPrice)}</p>
-        <button className="typo-medium-12 md:typo-medium-14 flex items-center gap-1 text-gray-400 hover:text-white">
-          상세보기
-          <ChevronRight size={14} className="md:size-4" />
-        </button>
+        <div className="flex items-center gap-2">
+          {canCompleteReceipt ? (
+            <ReceiptCompleteButton
+              orderId={order.id!}
+              itemName={displayNames.primaryName}
+              className="typo-medium-12 h-8 border-purple-400/60 bg-purple-500/10 px-3 text-purple-200 hover:bg-purple-500/20 hover:text-white"
+            />
+          ) : null}
+          <button className="typo-medium-12 md:typo-medium-14 flex items-center gap-1 text-gray-400 hover:text-white">
+            상세보기
+            <ChevronRight size={14} className="md:size-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
