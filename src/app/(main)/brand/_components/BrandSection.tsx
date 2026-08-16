@@ -6,6 +6,7 @@ import { useState } from "react";
 import BrandBackground from "./BrandBackground";
 import BrandSectionShell from "./BrandSectionShell";
 import BrandTitle from "./BrandTitle";
+import SeriesDropDown from "./SeriesDropDown";
 import SeriesExplorer from "./SeriesExplorer";
 
 interface BrandSectionProps {
@@ -21,27 +22,22 @@ const BrandSection = ({ brand, series, seriesProducts }: BrandSectionProps) => {
   const bgImage = selectedSeries?.imgUrl ?? brand.bgImage;
 
   return (
-    <BrandSectionShell brandId={brand.id}>
-      <BrandBackground bgImage={bgImage} name={selected} />
-      <div className="relative">
-        <BrandTitle title={brand.name} subtitle={brand.subname} />
-        {/* Brand Philosophy */}
-        <div className="mx-auto mb-8 max-w-3xl px-6 text-center">
-          <p className="typo-medium-14 leading-relaxed text-white/90 sm:text-base">{brand.description}</p>
+    <>
+      <BrandSectionShell brandId={brand.id}>
+        <BrandBackground bgImage={bgImage} name={selected} />
+        <div className="relative">
+          <BrandTitle title={brand.name} subtitle={brand.subname} />
+          <div className="mx-auto mb-8 flex max-w-3xl flex-col items-center justify-center gap-4 px-6 text-center">
+            <p className="typo-medium-14 leading-relaxed text-white/90 sm:text-base">{brand.description}</p>
+            <SeriesDropDown series={series} selected={selected} onSelect={setSelected} />
+          </div>
+          {/* Series Explorer */}
+          {Object.keys(seriesProducts).length > 0 && (
+            <SeriesExplorer brand={brand} seriesProducts={seriesProducts} selected={selected} />
+          )}
         </div>
-
-        {/* Series Explorer */}
-        {Object.keys(seriesProducts).length > 0 && (
-          <SeriesExplorer
-            brand={brand}
-            series={series}
-            seriesProducts={seriesProducts}
-            selected={selected}
-            onSelect={setSelected}
-          />
-        )}
-      </div>
-    </BrandSectionShell>
+      </BrandSectionShell>
+    </>
   );
 };
 
