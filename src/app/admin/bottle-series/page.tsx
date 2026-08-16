@@ -45,7 +45,7 @@ export default async function BottleSeriesPage({ searchParams }: BottleSeriesPag
     <BottleSeriesContent
       searchParams={params}
       series={response.data.content ?? []}
-      totalElements={response.data.page?.totalElements ?? 0}
+      totalElements={response.data.totalElements ?? 0}
     />
   );
 }

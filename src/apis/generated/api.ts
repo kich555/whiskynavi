@@ -480,6 +480,56 @@ export interface AdminBottleReservationV2Response {
 }
 
 /**
+ * 관리자 보틀 시리즈 응답
+ */
+export interface AdminBottleSeriesResponse {
+  brand?: string;
+  createdAt?: string;
+  description?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  representativeBottleId?: number;
+  series?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface SortObject {
+  empty?: boolean;
+  sorted?: boolean;
+  unsorted?: boolean;
+}
+
+export interface PageableObject {
+  offset?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  paged?: boolean;
+  sort?: SortObject;
+  unpaged?: boolean;
+}
+
+/**
+ * 필터용 브랜드 목록을 포함한 관리자 보틀 시리즈 페이지 응답
+ */
+export interface AdminBottleSeriesListResponse {
+  /** 브랜드 필터 선택값 */
+  brands?: string[];
+  content?: AdminBottleSeriesResponse[];
+  empty?: boolean;
+  first?: boolean;
+  last?: boolean;
+  number?: number;
+  numberOfElements?: number;
+  pageable?: PageableObject;
+  size?: number;
+  sort?: SortObject;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+/**
  * 관리자 보틀 시리즈 생성·수정 요청
  */
 export interface AdminBottleSeriesRequest {
@@ -507,22 +557,6 @@ export interface AdminBottleSeriesRequest {
   series: string;
   /** 공개 브랜드-시리즈 API 노출 여부 */
   visible: boolean;
-}
-
-/**
- * 관리자 보틀 시리즈 응답
- */
-export interface AdminBottleSeriesResponse {
-  brand?: string;
-  createdAt?: string;
-  description?: string;
-  id?: number;
-  imageKey?: string;
-  imageUrl?: string;
-  representativeBottleId?: number;
-  series?: string;
-  updatedAt?: string;
-  visible?: boolean;
 }
 
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
@@ -3901,11 +3935,6 @@ export interface PagedModelAdminBottleReservationV2Response {
   page?: PageMetadata;
 }
 
-export interface PagedModelAdminBottleSeriesResponse {
-  content?: AdminBottleSeriesResponse[];
-  page?: PageMetadata;
-}
-
 export interface PagedModelAdminBusinessApplicationResponse {
   content?: AdminBusinessApplicationResponse[];
   page?: PageMetadata;
@@ -6026,7 +6055,10 @@ size?: number;
 
 export type GetApiV2AdminBottleSeriesParams = {
 keyword?: string;
+brand?: string;
 visible?: boolean;
+sortBy?: GetApiV2AdminBottleSeriesSortBy;
+sortDirection?: GetApiV2AdminBottleSeriesSortDirection;
 /**
  * @minimum 0
  */
@@ -6037,6 +6069,23 @@ page?: number;
  */
 size?: number;
 };
+
+export type GetApiV2AdminBottleSeriesSortBy = typeof GetApiV2AdminBottleSeriesSortBy[keyof typeof GetApiV2AdminBottleSeriesSortBy];
+
+
+export const GetApiV2AdminBottleSeriesSortBy = {
+  ID: 'ID',
+  BRAND: 'BRAND',
+  VISIBLE: 'VISIBLE',
+} as const;
+
+export type GetApiV2AdminBottleSeriesSortDirection = typeof GetApiV2AdminBottleSeriesSortDirection[keyof typeof GetApiV2AdminBottleSeriesSortDirection];
+
+
+export const GetApiV2AdminBottleSeriesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
 
 /**
  * 관리자 보틀 시리즈 생성·수정 요청
@@ -10995,11 +11044,11 @@ export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBann
 
 
 /**
- * 브랜드 또는 시리즈명과 노출 여부로 보틀 시리즈를 페이지 조회합니다.
+ * 브랜드 또는 시리즈명 통합 검색, 브랜드·노출 여부 필터와 ID·브랜드·노출 여부 정렬을 적용해 보틀 시리즈를 페이지 조회합니다. 응답의 brands는 브랜드 필터 선택값입니다.
  * @summary 관리자 보틀 시리즈 목록 조회 2.0
  */
 export type getApiV2AdminBottleSeriesResponse200 = {
-  data: PagedModelAdminBottleSeriesResponse
+  data: AdminBottleSeriesListResponse
   status: 200
 }
     
