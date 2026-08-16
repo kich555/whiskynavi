@@ -6103,6 +6103,12 @@ export type GetApiV2AdminBottlesParams = {
  * 0부터 시작하는 페이지 번호
  * @minimum 0
  */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
 page?: number;
 /**
  * 페이지당 보틀 수

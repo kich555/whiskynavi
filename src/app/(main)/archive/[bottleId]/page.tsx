@@ -15,7 +15,7 @@ const Page = async ({ params }: { params: Promise<{ bottleId: string }> }) => {
   const { data: bottle } = await getApiBottlesId(bottleId, withToken(token));
 
   return (
-    <div className="min-h-screen bg-[#1d2429]">
+    <div className="mt-10 min-h-screen bg-[#1d2429]">
       <div className="mx-auto max-w-[1440px] px-4 py-6 lg:px-10 lg:py-12">
         {/* Back Button */}
         <Link

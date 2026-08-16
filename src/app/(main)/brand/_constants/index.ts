@@ -125,7 +125,7 @@ export const NAVI = {
 };
 
 export const TAILS = {
-  id: "위스키테일즈",
+  id: "더위스키테일즈",
   bgImage: "/brands/bg-the-whisky-tails.png",
   icon: "/brands/icon-the-whisky-tails.png",
   iconSize: { width: 181, height: 110 },
