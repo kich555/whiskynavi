@@ -34,28 +34,28 @@ export default function Pagination({ currentPage, totalPages, buildPageUrl }: Pa
   const pageNumbers = generatePageNumbers(currentPage, totalPages);
 
   return (
-    <div className="mt-8 flex items-center justify-center gap-2 pb-4 sm:gap-4">
+    <div className="mt-8 flex items-center justify-center gap-2 pb-4 md:gap-4">
       {currentPage === 1 ? (
-        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 sm:px-3 sm:text-base">
-          <ChevronLeft className="sm:hidden" size={16} />
-          <span className="hidden sm:inline">이전</span>
+        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 md:px-3 md:text-base">
+          <ChevronLeft className="md:hidden" size={16} />
+          <span className="hidden md:inline">이전</span>
         </span>
       ) : (
         <Link
           href={buildPageUrl(currentPage - 1)}
-          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 sm:px-3 sm:text-base"
+          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 md:px-3 md:text-base"
         >
-          <ChevronLeft className="sm:hidden" size={16} />
-          <span className="hidden sm:inline">이전</span>
+          <ChevronLeft className="md:hidden" size={16} />
+          <span className="hidden md:inline">이전</span>
         </Link>
       )}
-      <div className="flex items-center gap-1.5 sm:gap-3">
+      <div className="flex items-center gap-1.5 md:gap-3">
         {pageNumbers.map((page, idx) =>
           typeof page === "number" ? (
             <Link
               key={page}
               href={buildPageUrl(page)}
-              className={`px-1.5 py-0.5 typo-medium-12 sm:px-2 sm:py-1 sm:text-base ${
+              className={`px-1.5 py-0.5 typo-medium-12 md:px-2 md:py-1 md:text-base ${
                 currentPage === page ? "font-bold text-white" : "text-gray-400 hover:text-gray-300"
               }`}
             >
@@ -64,7 +64,7 @@ export default function Pagination({ currentPage, totalPages, buildPageUrl }: Pa
           ) : (
             <span
               key={`ellipsis-${idx}`}
-              className="typo-medium-12 px-1.5 py-0.5 text-gray-400 sm:px-2 sm:py-1 sm:text-base"
+              className="typo-medium-12 px-1.5 py-0.5 text-gray-400 md:px-2 md:py-1 md:text-base"
             >
               {page}
             </span>
@@ -72,17 +72,17 @@ export default function Pagination({ currentPage, totalPages, buildPageUrl }: Pa
         )}
       </div>
       {currentPage === totalPages ? (
-        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 sm:px-3 sm:text-base">
-          <ChevronRight className="sm:hidden" size={16} />
-          <span className="hidden sm:inline">다음</span>
+        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 md:px-3 md:text-base">
+          <ChevronRight className="md:hidden" size={16} />
+          <span className="hidden md:inline">다음</span>
         </span>
       ) : (
         <Link
           href={buildPageUrl(currentPage + 1)}
-          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 sm:px-3 sm:text-base"
+          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 md:px-3 md:text-base"
         >
-          <ChevronRight className="sm:hidden" size={16} />
-          <span className="hidden sm:inline">다음</span>
+          <ChevronRight className="md:hidden" size={16} />
+          <span className="hidden md:inline">다음</span>
         </Link>
       )}
     </div>
