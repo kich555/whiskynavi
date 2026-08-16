@@ -1,4 +1,4 @@
-import { Award, Briefcase, Calendar, Package, Users } from "lucide-react";
+import { Award, Briefcase, Calendar, MessageSquare, Package, Users } from "lucide-react";
 import { getStats } from "../_lib/getStats";
 
 export default async function DashboardStats() {
@@ -46,6 +46,13 @@ export default async function DashboardStats() {
       icon: Briefcase,
       color: "text-blue-500",
       valueColor: "text-blue-600",
+    },
+    {
+      label: "미응답 문의",
+      value: stats.totalUnansweredInquiries,
+      icon: MessageSquare,
+      color: "text-red-500",
+      valueColor: "text-red-600",
     },
   ];
 

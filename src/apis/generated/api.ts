@@ -776,6 +776,26 @@ export interface AdminBusinessUserResponse {
 }
 
 /**
+ * 관리자 대시보드 통계 응답
+ */
+export interface AdminDashboardStatsResponse {
+  /** 보틀 예약 신청 수 */
+  totalApplications: number;
+  /** 등록 보틀 수 */
+  totalBottles: number;
+  /** 사업자 회원 수 */
+  totalBusinessMembers: number;
+  /** 보틀 예약 공고 수 */
+  totalNotices: number;
+  /** 전체 주문 수 */
+  totalOrders: number;
+  /** 미응답 1대1 문의 수 */
+  totalUnansweredInquiries: number;
+  /** 전체 회원 수 */
+  totalUsers: number;
+}
+
+/**
  * 배송지 주소록 저장 요청
  */
 export interface AdminDeliveryAddressRequest {
@@ -2428,9 +2448,9 @@ export type BottleReservationAutoConfirmRequestPriorityAllocationsItem = {
 export interface BottleReservationAutoConfirmRequest {
   /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
   applySeriesPurchasePriority?: boolean;
-  priorityAllocations?: BottleReservationAutoConfirmRequestPriorityAllocationsItem[];
   /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
   includeAdminManualOrdersInSeriesScore?: boolean;
+  priorityAllocations?: BottleReservationAutoConfirmRequestPriorityAllocationsItem[];
 }
 
 export interface BottleReservationDecisionRequest {
@@ -2946,6 +2966,7 @@ export type DevBizmTestMessageRequestMessageType = typeof DevBizmTestMessageRequ
 export const DevBizmTestMessageRequestMessageType = {
   RESERVATION_OPEN: 'RESERVATION_OPEN',
   PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
 } as const;
 
 export interface DevBizmTestMessageRequest {
@@ -4950,331 +4971,6 @@ export interface PostResponse {
 }
 
 /**
- * 예약 발송 취소 요청
- */
-export interface PpurioCancelRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-}
-
-/**
- * 치환 문구
- */
-export interface PpurioChangeWord {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export interface PpurioFile {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type PpurioKakaoRequestResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export type PpurioKakaoRequestResend = {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PpurioKakaoRequestResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
-};
-
-/**
- * 치환 문구
- */
-export type PpurioKakaoRequestTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PpurioKakaoRequestTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PpurioKakaoRequestTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 카카오 알림톡 발송 요청
- */
-export interface PpurioKakaoRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /**
-   * 대체 발송 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  isResend: string;
-  /**
-   * 메시지 타입 (ALT/ALL/ALH/ALI)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 대체 문자 발송 정보 */
-  resend?: PpurioKakaoRequestResend;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /**
-   * 발신프로필
-   * @minLength 1
-   */
-  senderProfile: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PpurioKakaoRequestTargetsItem[];
-  /**
-   * 템플릿 코드
-   * @minLength 1
-   */
-  templateCode: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type PpurioMessageRequestFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 치환 문구
- */
-export type PpurioMessageRequestTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PpurioMessageRequestTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PpurioMessageRequestTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 문자 발송 요청
- */
-export interface PpurioMessageRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PpurioMessageRequestFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 수신거부 설정 유형 (예: AD) */
-  rejectType?: string;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /** 제목 */
-  subject?: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PpurioMessageRequestTargetsItem[];
-}
-
-/**
- * 뿌리오 API 공통 응답
- */
-export interface PpurioResponse {
-  /** 결과 코드 */
-  code?: number;
-  /** 결과 설명 */
-  description?: string;
-  /** 발송 요청 시 발급되는 메시지 키 */
-  messsageKey?: string;
-  /** 요청 시 사용한 참조 키 */
-  refKey?: string;
-}
-
-/**
- * 치환 문구
- */
-export type PpurioTargetChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export interface PpurioTarget {
-  /** 치환 문구 */
-  changeWord?: PpurioTargetChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-}
-
-/**
- * 뿌리오 토큰 발급 응답
- */
-export interface PpurioTokenResponse {
-  /** 토큰 만료 시각(yyyyMMddHHmmss) */
-  expired?: number;
-  /** 발급된 액세스 토큰 */
-  token?: string;
-  /** 토큰 타입(예: Bearer) */
-  type?: string;
-}
-
-/**
  * 사전 등록 요청 본문
  */
 export interface PreRegisterRequest {
@@ -5343,49 +5039,6 @@ export interface RefreshTokenRequest {
    * @minLength 1
    */
   refreshToken: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type ResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export interface Resend {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: ResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
 }
 
 /**
@@ -5555,46 +5208,6 @@ export interface ReservationBusinessDeliveryRequest {
    * @maxLength 100
    */
   trackingNumber?: string;
-}
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export interface ReservationOpenSmsCorrectionRequest {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
-}
-
-/**
- * 정정 문자 캠페인 상태
- */
-export type ReservationOpenSmsCorrectionResponseStatus = typeof ReservationOpenSmsCorrectionResponseStatus[keyof typeof ReservationOpenSmsCorrectionResponseStatus];
-
-
-export const ReservationOpenSmsCorrectionResponseStatus = {
-  QUEUED: 'QUEUED',
-  PREPARING: 'PREPARING',
-  SENDING: 'SENDING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-} as const;
-
-/**
- * 예약 오픈 문자 정정 캠페인 생성 결과
- */
-export interface ReservationOpenSmsCorrectionResponse {
-  /** 정정 문자 캠페인 ID */
-  campaignId?: number;
-  /** 정정 문자 발송 대상 큐 수 */
-  queuedCount?: number;
-  /** 예약 공고 ID */
-  saleAnnouncementId?: number;
-  /** 정정 문자 캠페인 상태 */
-  status?: ReservationOpenSmsCorrectionResponseStatus;
 }
 
 export type ReservationPriorityAllocationRequestRole = typeof ReservationPriorityAllocationRequestRole[keyof typeof ReservationPriorityAllocationRequestRole];
@@ -6583,9 +6196,9 @@ export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPrior
 export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
   /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
   applySeriesPurchasePriority?: boolean;
-  priorityAllocations?: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
   /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
   includeAdminManualOrdersInSeriesScore?: boolean;
+  priorityAllocations?: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
 };
 
 export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
@@ -7724,18 +7337,6 @@ export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
 };
 
 /**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
-};
-
-/**
  * 수정할 추가 메타데이터입니다.
  */
 export type PatchApiAdminBottlesIdBodyExtraInfos = {[key: string]: string};
@@ -8056,6 +7657,7 @@ export type PostApiAdminDevBizmTestMessagesBodyMessageType = typeof PostApiAdmin
 export const PostApiAdminDevBizmTestMessagesBodyMessageType = {
   RESERVATION_OPEN: 'RESERVATION_OPEN',
   PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
 } as const;
 
 export type PostApiAdminDevBizmTestMessagesBody = {
@@ -8363,18 +7965,6 @@ export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityA
 
 export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody = {
   priorityAllocations?: PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
-};
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
 };
 
 /**
@@ -10679,260 +10269,6 @@ export type PatchApiOrdersOrderidCancelBody = {
 };
 
 /**
- * 예약 발송 취소 요청
- */
-export type PostApiPpurioCancelBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-};
-
-/**
- * 예약 발송 취소 요청
- */
-export type PostApiPpurioCancelKakaoBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-};
-
-/**
- * MMS 첨부 파일
- */
-export type PostApiPpurioKakaoBodyResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export type PostApiPpurioKakaoBodyResend = {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PostApiPpurioKakaoBodyResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
-};
-
-/**
- * 치환 문구
- */
-export type PostApiPpurioKakaoBodyTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PostApiPpurioKakaoBodyTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PostApiPpurioKakaoBodyTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 카카오 알림톡 발송 요청
- */
-export type PostApiPpurioKakaoBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /**
-   * 대체 발송 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  isResend: string;
-  /**
-   * 메시지 타입 (ALT/ALL/ALH/ALI)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 대체 문자 발송 정보 */
-  resend?: PostApiPpurioKakaoBodyResend;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /**
-   * 발신프로필
-   * @minLength 1
-   */
-  senderProfile: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PostApiPpurioKakaoBodyTargetsItem[];
-  /**
-   * 템플릿 코드
-   * @minLength 1
-   */
-  templateCode: string;
-};
-
-/**
- * MMS 첨부 파일
- */
-export type PostApiPpurioMessageBodyFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 치환 문구
- */
-export type PostApiPpurioMessageBodyTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PostApiPpurioMessageBodyTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PostApiPpurioMessageBodyTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 문자 발송 요청
- */
-export type PostApiPpurioMessageBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PostApiPpurioMessageBodyFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 수신거부 설정 유형 (예: AD) */
-  rejectType?: string;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /** 제목 */
-  subject?: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PostApiPpurioMessageBodyTargetsItem[];
-};
-
-/**
  * 사전 등록 요청 본문
  */
 export type PostApiPreRegisterBody = {
@@ -12136,6 +11472,43 @@ export const getApiV2AdminBottlesBottleidReservations = async (bottleId: number,
     params?: GetApiV2AdminBottlesBottleidReservationsParams, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidReservationsResponse> => {
   
   return customFetch<getApiV2AdminBottlesBottleidReservationsResponse>(getGetApiV2AdminBottlesBottleidReservationsUrl(bottleId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자 대시보드 카드에 표시할 회원, 주문, 보틀, 예약, 사업자 회원, 미응답 문의 수를 조회합니다.
+ * @summary 관리자 대시보드 통계 조회 2.0
+ */
+export type getApiV2AdminDashboardStatsResponse200 = {
+  data: AdminDashboardStatsResponse
+  status: 200
+}
+    
+export type getApiV2AdminDashboardStatsResponseSuccess = (getApiV2AdminDashboardStatsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminDashboardStatsResponse = (getApiV2AdminDashboardStatsResponseSuccess)
+
+export const getGetApiV2AdminDashboardStatsUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/dashboard/stats`
+}
+
+export const getApiV2AdminDashboardStats = async ( options?: RequestInit): Promise<getApiV2AdminDashboardStatsResponse> => {
+  
+  return customFetch<getApiV2AdminDashboardStatsResponse>(getGetApiV2AdminDashboardStatsUrl(),
   {      
     ...options,
     method: 'GET'
@@ -14029,7 +13402,7 @@ export const putApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: nu
 
 
 /**
- * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다.
+ * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다. 시리즈 구매 다양성에 관리자 수동 등록 구매내역을 포함할지 선택할 수 있습니다.
  * @summary 예약 신청 할당 Excel 다운로드
  */
 export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
@@ -14230,45 +13603,6 @@ export const getApiAdminBottlesReservationsNoticesNoticeidExcel = async (noticeI
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/bottles/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -14934,7 +14268,7 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
 
 
 /**
- * 관리자가 개발 환경에서 고정된 예약 공고 또는 결제 안내 테스트 메시지를 한 건 발송합니다.
+ * 관리자가 개발 환경에서 고정된 예약 공고, 결제 안내 또는 배송안내 테스트 메시지를 한 건 발송합니다.
  * @summary 비즈엠 테스트 메시지 발송(개발용)
  */
 export type postApiAdminDevBizmTestMessagesResponse200 = {
@@ -15745,45 +15079,6 @@ export const getApiAdminItemsReservationsNoticesNoticeidExcel = async (noticeId:
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/items/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -21931,195 +21226,6 @@ export const getApiOrdersOrderidDelivery = async (orderId: number, options?: Req
   {      
     ...options,
     method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * 예약된 문자 발송을 취소합니다.
- * @summary 문자 예약 취소
- */
-export type postApiPpurioCancelResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioCancelResponseSuccess = (postApiPpurioCancelResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioCancelResponse = (postApiPpurioCancelResponseSuccess)
-
-export const getPostApiPpurioCancelUrl = () => {
-
-
-  
-
-  return `/api/ppurio/cancel`
-}
-
-export const postApiPpurioCancel = async (postApiPpurioCancelBody: PostApiPpurioCancelBody, options?: RequestInit): Promise<postApiPpurioCancelResponse> => {
-  
-  return customFetch<postApiPpurioCancelResponse>(getPostApiPpurioCancelUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioCancelBody,)
-  }
-);}
-
-
-
-/**
- * 예약된 카카오 알림톡 발송을 취소합니다.
- * @summary 카카오 예약 취소
- */
-export type postApiPpurioCancelKakaoResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioCancelKakaoResponseSuccess = (postApiPpurioCancelKakaoResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioCancelKakaoResponse = (postApiPpurioCancelKakaoResponseSuccess)
-
-export const getPostApiPpurioCancelKakaoUrl = () => {
-
-
-  
-
-  return `/api/ppurio/cancel/kakao`
-}
-
-export const postApiPpurioCancelKakao = async (postApiPpurioCancelKakaoBody: PostApiPpurioCancelKakaoBody, options?: RequestInit): Promise<postApiPpurioCancelKakaoResponse> => {
-  
-  return customFetch<postApiPpurioCancelKakaoResponse>(getPostApiPpurioCancelKakaoUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioCancelKakaoBody,)
-  }
-);}
-
-
-
-/**
- * 템플릿을 이용해 카카오 알림톡을 발송합니다.
- * @summary 카카오 알림톡 발송
- */
-export type postApiPpurioKakaoResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioKakaoResponseSuccess = (postApiPpurioKakaoResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioKakaoResponse = (postApiPpurioKakaoResponseSuccess)
-
-export const getPostApiPpurioKakaoUrl = () => {
-
-
-  
-
-  return `/api/ppurio/kakao`
-}
-
-export const postApiPpurioKakao = async (postApiPpurioKakaoBody: PostApiPpurioKakaoBody, options?: RequestInit): Promise<postApiPpurioKakaoResponse> => {
-  
-  return customFetch<postApiPpurioKakaoResponse>(getPostApiPpurioKakaoUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioKakaoBody,)
-  }
-);}
-
-
-
-/**
- * SMS/LMS/MMS 발송을 위해 뿌리오 메시지 API를 호출합니다.
- * @summary 문자 발송
- */
-export type postApiPpurioMessageResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioMessageResponseSuccess = (postApiPpurioMessageResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioMessageResponse = (postApiPpurioMessageResponseSuccess)
-
-export const getPostApiPpurioMessageUrl = () => {
-
-
-  
-
-  return `/api/ppurio/message`
-}
-
-export const postApiPpurioMessage = async (postApiPpurioMessageBody: PostApiPpurioMessageBody, options?: RequestInit): Promise<postApiPpurioMessageResponse> => {
-  
-  return customFetch<postApiPpurioMessageResponse>(getPostApiPpurioMessageUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioMessageBody,)
-  }
-);}
-
-
-
-/**
- * 메시지 발송 전 필요한 엑세스 토큰을 발급합니다.
- * @summary 뿌리오 토큰 갱신
- */
-export type postApiPpurioTokenResponse200 = {
-  data: PpurioTokenResponse
-  status: 200
-}
-    
-export type postApiPpurioTokenResponseSuccess = (postApiPpurioTokenResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioTokenResponse = (postApiPpurioTokenResponseSuccess)
-
-export const getPostApiPpurioTokenUrl = () => {
-
-
-  
-
-  return `/api/ppurio/token`
-}
-
-export const postApiPpurioToken = async ( options?: RequestInit): Promise<postApiPpurioTokenResponse> => {
-  
-  return customFetch<postApiPpurioTokenResponse>(getPostApiPpurioTokenUrl(),
-  {      
-    ...options,
-    method: 'POST'
     
     
   }
