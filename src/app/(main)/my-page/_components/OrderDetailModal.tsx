@@ -7,10 +7,11 @@ import { formatOrderClassification } from "@/lib/order-classification";
 import Link from "next/link";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../general-items/delivery-order/_lib/order-utils";
-import { isOrderCancellationAllowed } from "../_lib/constants";
+import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../_lib/constants";
 import { getOrderDisplayNames } from "../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../_lib/utils";
 import OrderCancelModal from "./OrderCancelModal";
+import ReceiptCompleteButton from "./ReceiptCompleteButton";
 
 interface OrderDetailModalProps {
   isOpen: boolean;
@@ -21,6 +22,8 @@ interface OrderDetailModalProps {
 export default function OrderDetailModal({ isOpen, close, order }: OrderDetailModalProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
+  const canCompleteReceipt =
+    isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
   const orderClassification = formatOrderClassification(order);
   const displayNames = getOrderDisplayNames(order);
 
@@ -125,12 +128,19 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
             </div>
           )}
 
-          {/* 취소 버튼 */}
-          {canCancel && (
+          {/* 주문 상태 변경 버튼 */}
+          {(canCompleteReceipt || canCancel) && (
             <div className="border-t pt-4">
-              <Button variant="destructive" onClick={handleCancelClick}>
-                주문 취소
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                {canCompleteReceipt ? (
+                  <ReceiptCompleteButton orderId={order.id!} itemName={displayNames.primaryName} onCompleted={close} />
+                ) : null}
+                {canCancel ? (
+                  <Button variant="destructive" onClick={handleCancelClick}>
+                    주문 취소
+                  </Button>
+                ) : null}
+              </div>
             </div>
           )}
           {displayNames.isBottleReservation && order.id && (

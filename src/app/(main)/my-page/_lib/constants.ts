@@ -1,4 +1,8 @@
-import { UserOrderResponseOrderStatus, UserOrderResponseSaleTiming } from "@/apis/generated/api";
+import {
+  UserOrderResponseFulfillmentMethod,
+  UserOrderResponseOrderStatus,
+  UserOrderResponseSaleTiming,
+} from "@/apis/generated/api";
 
 export const ORDER_STATUS_MAP: Record<string, { label: string; colorClass: string }> = {
   [UserOrderResponseOrderStatus.ORDER_REQUESTED]: {
@@ -49,11 +53,25 @@ const CANCELABLE_STATUSES = new Set<string>([
   UserOrderResponseOrderStatus.ORDER_PREPARING,
 ]);
 
+const RECEIPT_COMPLETABLE_STATUSES = new Set<string>([
+  UserOrderResponseOrderStatus.ORDER_PREPARING,
+  UserOrderResponseOrderStatus.PAYMENT_COMPLETED,
+  UserOrderResponseOrderStatus.RECEIPT_PENDING,
+]);
+
 export function isOrderCancellationAllowed(orderStatus?: string, saleTiming?: string): boolean {
   return (
     saleTiming !== UserOrderResponseSaleTiming.RESERVATION &&
     orderStatus !== undefined &&
     CANCELABLE_STATUSES.has(orderStatus)
+  );
+}
+
+export function isReceiptCompletionAllowed(orderStatus?: string, fulfillmentMethod?: string): boolean {
+  return (
+    fulfillmentMethod === UserOrderResponseFulfillmentMethod.PICKUP &&
+    orderStatus !== undefined &&
+    RECEIPT_COMPLETABLE_STATUSES.has(orderStatus)
   );
 }
 

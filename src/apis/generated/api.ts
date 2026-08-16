@@ -479,6 +479,52 @@ export interface AdminBottleReservationV2Response {
   userId?: number;
 }
 
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export interface AdminBottleSeriesRequest {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
+}
+
+/**
+ * 관리자 보틀 시리즈 응답
+ */
+export interface AdminBottleSeriesResponse {
+  brand?: string;
+  createdAt?: string;
+  description?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  representativeBottleId?: number;
+  series?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
 
 
@@ -727,6 +773,26 @@ export interface AdminBusinessUserResponse {
   userId?: number;
   userStatus?: string;
   username?: string;
+}
+
+/**
+ * 관리자 대시보드 통계 응답
+ */
+export interface AdminDashboardStatsResponse {
+  /** 보틀 예약 신청 수 */
+  totalApplications: number;
+  /** 등록 보틀 수 */
+  totalBottles: number;
+  /** 사업자 회원 수 */
+  totalBusinessMembers: number;
+  /** 보틀 예약 공고 수 */
+  totalNotices: number;
+  /** 전체 주문 수 */
+  totalOrders: number;
+  /** 미응답 1대1 문의 수 */
+  totalUnansweredInquiries: number;
+  /** 전체 회원 수 */
+  totalUsers: number;
 }
 
 /**
@@ -2355,6 +2421,38 @@ export interface BottleReservationApplicationRequest {
   userBusinessId: number;
 }
 
+export type BottleReservationAutoConfirmRequestPriorityAllocationsItemRole = typeof BottleReservationAutoConfirmRequestPriorityAllocationsItemRole[keyof typeof BottleReservationAutoConfirmRequestPriorityAllocationsItemRole];
+
+
+export const BottleReservationAutoConfirmRequestPriorityAllocationsItemRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+export type BottleReservationAutoConfirmRequestPriorityAllocationsItem = {
+  /** @minimum 0 */
+  quantity?: number;
+  role: BottleReservationAutoConfirmRequestPriorityAllocationsItemRole;
+};
+
+export interface BottleReservationAutoConfirmRequest {
+  /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
+  applySeriesPurchasePriority?: boolean;
+  /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
+  includeAdminManualOrdersInSeriesScore?: boolean;
+  priorityAllocations?: BottleReservationAutoConfirmRequestPriorityAllocationsItem[];
+}
+
 export interface BottleReservationDecisionRequest {
   /** @minimum 1 */
   confirmedQuantity: number;
@@ -2868,6 +2966,7 @@ export type DevBizmTestMessageRequestMessageType = typeof DevBizmTestMessageRequ
 export const DevBizmTestMessageRequestMessageType = {
   RESERVATION_OPEN: 'RESERVATION_OPEN',
   PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
 } as const;
 
 export interface DevBizmTestMessageRequest {
@@ -3799,6 +3898,11 @@ export interface PagedModelAdminBottleReservationNoticeV2Response {
 
 export interface PagedModelAdminBottleReservationV2Response {
   content?: AdminBottleReservationV2Response[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminBottleSeriesResponse {
+  content?: AdminBottleSeriesResponse[];
   page?: PageMetadata;
 }
 
@@ -4867,331 +4971,6 @@ export interface PostResponse {
 }
 
 /**
- * 예약 발송 취소 요청
- */
-export interface PpurioCancelRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-}
-
-/**
- * 치환 문구
- */
-export interface PpurioChangeWord {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export interface PpurioFile {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type PpurioKakaoRequestResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export type PpurioKakaoRequestResend = {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PpurioKakaoRequestResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
-};
-
-/**
- * 치환 문구
- */
-export type PpurioKakaoRequestTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PpurioKakaoRequestTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PpurioKakaoRequestTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 카카오 알림톡 발송 요청
- */
-export interface PpurioKakaoRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /**
-   * 대체 발송 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  isResend: string;
-  /**
-   * 메시지 타입 (ALT/ALL/ALH/ALI)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 대체 문자 발송 정보 */
-  resend?: PpurioKakaoRequestResend;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /**
-   * 발신프로필
-   * @minLength 1
-   */
-  senderProfile: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PpurioKakaoRequestTargetsItem[];
-  /**
-   * 템플릿 코드
-   * @minLength 1
-   */
-  templateCode: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type PpurioMessageRequestFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 치환 문구
- */
-export type PpurioMessageRequestTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PpurioMessageRequestTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PpurioMessageRequestTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 문자 발송 요청
- */
-export interface PpurioMessageRequest {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PpurioMessageRequestFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 수신거부 설정 유형 (예: AD) */
-  rejectType?: string;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /** 제목 */
-  subject?: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PpurioMessageRequestTargetsItem[];
-}
-
-/**
- * 뿌리오 API 공통 응답
- */
-export interface PpurioResponse {
-  /** 결과 코드 */
-  code?: number;
-  /** 결과 설명 */
-  description?: string;
-  /** 발송 요청 시 발급되는 메시지 키 */
-  messsageKey?: string;
-  /** 요청 시 사용한 참조 키 */
-  refKey?: string;
-}
-
-/**
- * 치환 문구
- */
-export type PpurioTargetChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export interface PpurioTarget {
-  /** 치환 문구 */
-  changeWord?: PpurioTargetChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-}
-
-/**
- * 뿌리오 토큰 발급 응답
- */
-export interface PpurioTokenResponse {
-  /** 토큰 만료 시각(yyyyMMddHHmmss) */
-  expired?: number;
-  /** 발급된 액세스 토큰 */
-  token?: string;
-  /** 토큰 타입(예: Bearer) */
-  type?: string;
-}
-
-/**
  * 사전 등록 요청 본문
  */
 export interface PreRegisterRequest {
@@ -5260,49 +5039,6 @@ export interface RefreshTokenRequest {
    * @minLength 1
    */
   refreshToken: string;
-}
-
-/**
- * MMS 첨부 파일
- */
-export type ResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export interface Resend {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: ResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
 }
 
 /**
@@ -5472,46 +5208,6 @@ export interface ReservationBusinessDeliveryRequest {
    * @maxLength 100
    */
   trackingNumber?: string;
-}
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export interface ReservationOpenSmsCorrectionRequest {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
-}
-
-/**
- * 정정 문자 캠페인 상태
- */
-export type ReservationOpenSmsCorrectionResponseStatus = typeof ReservationOpenSmsCorrectionResponseStatus[keyof typeof ReservationOpenSmsCorrectionResponseStatus];
-
-
-export const ReservationOpenSmsCorrectionResponseStatus = {
-  QUEUED: 'QUEUED',
-  PREPARING: 'PREPARING',
-  SENDING: 'SENDING',
-  COMPLETED: 'COMPLETED',
-  FAILED: 'FAILED',
-} as const;
-
-/**
- * 예약 오픈 문자 정정 캠페인 생성 결과
- */
-export interface ReservationOpenSmsCorrectionResponse {
-  /** 정정 문자 캠페인 ID */
-  campaignId?: number;
-  /** 정정 문자 발송 대상 큐 수 */
-  queuedCount?: number;
-  /** 예약 공고 ID */
-  saleAnnouncementId?: number;
-  /** 정정 문자 캠페인 상태 */
-  status?: ReservationOpenSmsCorrectionResponseStatus;
 }
 
 export type ReservationPriorityAllocationRequestRole = typeof ReservationPriorityAllocationRequestRole[keyof typeof ReservationPriorityAllocationRequestRole];
@@ -6189,6 +5885,36 @@ export interface UserOrderQueueStatusResponse {
   saleAnnouncementId?: number;
 }
 
+/**
+ * 변경된 주문 상태
+ */
+export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
+
+
+export const UserOrderReceiptResponseOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCEL_REJECTED: 'CANCEL_REJECTED',
+} as const;
+
+/**
+ * 사용자 주문 수령 완료 처리 결과
+ */
+export interface UserOrderReceiptResponse {
+  /** 수령 완료 처리한 주문 ID */
+  orderId?: number;
+  /** 변경된 주문 상태 */
+  orderStatus?: UserOrderReceiptResponseOrderStatus;
+}
+
 export type UserReservationBusinessDeliveryResponseCarrierCode = typeof UserReservationBusinessDeliveryResponseCarrierCode[keyof typeof UserReservationBusinessDeliveryResponseCarrierCode];
 
 
@@ -6296,6 +6022,189 @@ page?: number;
  * @maximum 100
  */
 size?: number;
+};
+
+export type GetApiV2AdminBottleSeriesParams = {
+keyword?: string;
+visible?: boolean;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export type PostApiV2AdminBottleSeriesBody = {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
+};
+
+/**
+ * 관리자 보틀 시리즈 생성·수정 요청
+ */
+export type PutApiV2AdminBottleSeriesSeriesidBody = {
+  /**
+   * 브랜드명
+   * @minLength 0
+   * @maxLength 50
+   */
+  brand: string;
+  /** 시리즈 설명 */
+  description?: string;
+  /**
+   * 업로드된 대표 이미지 S3 key
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /** 대표 보틀 ID */
+  representativeBottleId?: number;
+  /**
+   * 시리즈명
+   * @minLength 0
+   * @maxLength 50
+   */
+  series: string;
+  /** 공개 브랜드-시리즈 API 노출 여부 */
+  visible: boolean;
+};
+
+export type GetApiV2AdminBottlesParams = {
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
+  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
+  orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
+};
+
+export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
+page?: number;
+/**
+ * 페이지당 보틀 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+/**
+ * 이름, 회사, 브랜드, 시리즈, 몰트 타입, 증류소, 캐스크 정보, 설명 통합검색어
+ */
+keyword?: string;
+/**
+ * 브랜드 필터
+ */
+brand?: string[];
+/**
+ * 시리즈 필터
+ */
+series?: string[];
+/**
+ * 증류소 필터
+ */
+distillery?: string[];
+/**
+ * 캐스크 타입 필터
+ */
+caskType?: string[];
+/**
+ * 아카이브 노출 여부 필터
+ */
+visible?: boolean;
+/**
+ * 정렬 기준
+ */
+sortBy?: GetApiV2AdminBottlesSortBy;
+/**
+ * 정렬 방향
+ */
+sortDirection?: GetApiV2AdminBottlesSortDirection;
+};
+
+export type GetApiV2AdminBottlesSortBy = typeof GetApiV2AdminBottlesSortBy[keyof typeof GetApiV2AdminBottlesSortBy];
+
+
+export const GetApiV2AdminBottlesSortBy = {
+  ID: 'ID',
+  NAME: 'NAME',
+  BRAND: 'BRAND',
+  DISTILLERY: 'DISTILLERY',
+  SERIES: 'SERIES',
+  CASK_TYPE: 'CASK_TYPE',
+  ABV: 'ABV',
+  CAPACITY: 'CAPACITY',
+  BOTTLED_DATE: 'BOTTLED_DATE',
+  CREATED_AT: 'CREATED_AT',
+  UPDATED_AT: 'UPDATED_AT',
+} as const;
+
+export type GetApiV2AdminBottlesSortDirection = typeof GetApiV2AdminBottlesSortDirection[keyof typeof GetApiV2AdminBottlesSortDirection];
+
+
+export const GetApiV2AdminBottlesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
+
+
+export const PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = {
+  ROLE_GUEST: 'ROLE_GUEST',
+  ROLE_USER: 'ROLE_USER',
+  ROLE_ADMIN: 'ROLE_ADMIN',
+  ROLE_SUPER_ADMIN: 'ROLE_SUPER_ADMIN',
+  ROLE_CONSUMER: 'ROLE_CONSUMER',
+  ROLE_WHISKYNAVI_MEMBER: 'ROLE_WHISKYNAVI_MEMBER',
+  ROLE_WHISKYTALES_MEMBER: 'ROLE_WHISKYTALES_MEMBER',
+  ROLE_BLIND_MEMBER: 'ROLE_BLIND_MEMBER',
+  ROLE_BUSINESS: 'ROLE_BUSINESS',
+  ROLE_TRAILNTALE_BUSINESS: 'ROLE_TRAILNTALE_BUSINESS',
+  ROLE_COMMUNITY_BUSINESS: 'ROLE_COMMUNITY_BUSINESS',
+  ROLE_PICK_UP_BUSINESS: 'ROLE_PICK_UP_BUSINESS',
+} as const;
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem = {
+  /** @minimum 0 */
+  quantity?: number;
+  role: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole;
+};
+
+export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
+  /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
+  applySeriesPurchasePriority?: boolean;
+  /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
+  includeAdminManualOrdersInSeriesScore?: boolean;
+  priorityAllocations?: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
 };
 
 export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
@@ -7397,6 +7306,10 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   reservationStartAt: string;
 };
 
+export type GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams = {
+includeAdminManualOrdersInSeriesScore?: boolean;
+};
+
 export type PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody = {
   file: Blob;
 };
@@ -7427,18 +7340,6 @@ export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorit
 
 export type PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
   priorityAllocations?: PostApiAdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
-};
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
 };
 
 /**
@@ -7762,6 +7663,7 @@ export type PostApiAdminDevBizmTestMessagesBodyMessageType = typeof PostApiAdmin
 export const PostApiAdminDevBizmTestMessagesBodyMessageType = {
   RESERVATION_OPEN: 'RESERVATION_OPEN',
   PAYMENT_GUIDE: 'PAYMENT_GUIDE',
+  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
 } as const;
 
 export type PostApiAdminDevBizmTestMessagesBody = {
@@ -8069,18 +7971,6 @@ export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityA
 
 export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody = {
   priorityAllocations?: PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
-};
-
-/**
- * 예약 오픈 문자 정정 발송 요청
- */
-export type PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody = {
-  /**
-   * 정정 문자에 넣을 안내문. 예약 일정, 주소, 취소 등 변경 안내 내용을 자유롭게 입력한다.
-   * @minLength 0
-   * @maxLength 1000
-   */
-  message: string;
 };
 
 /**
@@ -10385,260 +10275,6 @@ export type PatchApiOrdersOrderidCancelBody = {
 };
 
 /**
- * 예약 발송 취소 요청
- */
-export type PostApiPpurioCancelBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-};
-
-/**
- * 예약 발송 취소 요청
- */
-export type PostApiPpurioCancelKakaoBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 취소할 메시지 키
-   * @minLength 1
-   */
-  messageKey: string;
-};
-
-/**
- * MMS 첨부 파일
- */
-export type PostApiPpurioKakaoBodyResendFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 대체 문자 발송 정보
- */
-export type PostApiPpurioKakaoBodyResend = {
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PostApiPpurioKakaoBodyResendFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /** 제목 */
-  subject?: string;
-};
-
-/**
- * 치환 문구
- */
-export type PostApiPpurioKakaoBodyTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PostApiPpurioKakaoBodyTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PostApiPpurioKakaoBodyTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 카카오 알림톡 발송 요청
- */
-export type PostApiPpurioKakaoBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /**
-   * 대체 발송 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  isResend: string;
-  /**
-   * 메시지 타입 (ALT/ALL/ALH/ALI)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 대체 문자 발송 정보 */
-  resend?: PostApiPpurioKakaoBodyResend;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /**
-   * 발신프로필
-   * @minLength 1
-   */
-  senderProfile: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PostApiPpurioKakaoBodyTargetsItem[];
-  /**
-   * 템플릿 코드
-   * @minLength 1
-   */
-  templateCode: string;
-};
-
-/**
- * MMS 첨부 파일
- */
-export type PostApiPpurioMessageBodyFilesItem = {
-  /**
-   * Base64 인코딩된 파일 데이터
-   * @minLength 1
-   */
-  data: string;
-  /**
-   * 파일 이름
-   * @minLength 1
-   */
-  name: string;
-  /** 파일 크기 (byte) */
-  size?: number;
-};
-
-/**
- * 치환 문구
- */
-export type PostApiPpurioMessageBodyTargetsItemChangeWord = {
-  var1?: string;
-  var2?: string;
-  var3?: string;
-  var4?: string;
-  var5?: string;
-  var6?: string;
-  var7?: string;
-  var8?: string;
-};
-
-/**
- * 수신자 정보
- */
-export type PostApiPpurioMessageBodyTargetsItem = {
-  /** 치환 문구 */
-  changeWord?: PostApiPpurioMessageBodyTargetsItemChangeWord;
-  /** 이름 치환값 */
-  name?: string;
-  /**
-   * 수신 번호
-   * @minLength 1
-   */
-  to: string;
-};
-
-/**
- * 문자 발송 요청
- */
-export type PostApiPpurioMessageBody = {
-  /**
-   * 뿌리오 계정
-   * @minLength 1
-   */
-  account: string;
-  /**
-   * 메시지 내용
-   * @minLength 1
-   */
-  content: string;
-  /**
-   * 수신 번호 중복 허용 여부 (Y/N)
-   * @minLength 1
-   */
-  duplicateFlag: string;
-  /** 첨부 파일 목록 (MMS) */
-  files?: PostApiPpurioMessageBodyFilesItem[];
-  /**
-   * 발신 번호
-   * @minLength 1
-   */
-  from: string;
-  /**
-   * 메시지 타입 (SMS/LMS/MMS)
-   * @minLength 1
-   */
-  messageType: string;
-  /**
-   * 고객사 참조 키
-   * @minLength 1
-   */
-  refKey: string;
-  /** 수신거부 설정 유형 (예: AD) */
-  rejectType?: string;
-  /** 예약 발송 시간 (yyyy-MM-ddTHH:mm:ss) */
-  sendTime?: string;
-  /** 제목 */
-  subject?: string;
-  /** 수신자 목록 수 */
-  targetCount?: number;
-  /**
-   * 수신자 목록
-   * @minItems 1
-   */
-  targets: PostApiPpurioMessageBodyTargetsItem[];
-};
-
-/**
  * 사전 등록 요청 본문
  */
 export type PostApiPreRegisterBody = {
@@ -11365,6 +11001,317 @@ export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBann
 
 
 /**
+ * 브랜드 또는 시리즈명과 노출 여부로 보틀 시리즈를 페이지 조회합니다.
+ * @summary 관리자 보틀 시리즈 목록 조회 2.0
+ */
+export type getApiV2AdminBottleSeriesResponse200 = {
+  data: PagedModelAdminBottleSeriesResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottleSeriesResponseSuccess = (getApiV2AdminBottleSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottleSeriesResponse = (getApiV2AdminBottleSeriesResponseSuccess)
+
+export const getGetApiV2AdminBottleSeriesUrl = (params?: GetApiV2AdminBottleSeriesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottle-series?${stringifiedParams}` : `/api/2.0/admin/bottle-series`
+}
+
+export const getApiV2AdminBottleSeries = async (params?: GetApiV2AdminBottleSeriesParams, options?: RequestInit): Promise<getApiV2AdminBottleSeriesResponse> => {
+  
+  return customFetch<getApiV2AdminBottleSeriesResponse>(getGetApiV2AdminBottleSeriesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 생성 2.0
+ */
+export type postApiV2AdminBottleSeriesResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type postApiV2AdminBottleSeriesResponseSuccess = (postApiV2AdminBottleSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminBottleSeriesResponse = (postApiV2AdminBottleSeriesResponseSuccess)
+
+export const getPostApiV2AdminBottleSeriesUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series`
+}
+
+export const postApiV2AdminBottleSeries = async (postApiV2AdminBottleSeriesBody: PostApiV2AdminBottleSeriesBody, options?: RequestInit): Promise<postApiV2AdminBottleSeriesResponse> => {
+  
+  return customFetch<postApiV2AdminBottleSeriesResponse>(getPostApiV2AdminBottleSeriesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminBottleSeriesBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 삭제 2.0
+ */
+export type deleteApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminBottleSeriesSeriesidResponseSuccess = (deleteApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminBottleSeriesSeriesidResponse = (deleteApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getDeleteApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const deleteApiV2AdminBottleSeriesSeriesid = async (seriesId: number, options?: RequestInit): Promise<deleteApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<deleteApiV2AdminBottleSeriesSeriesidResponse>(getDeleteApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 상세 조회 2.0
+ */
+export type getApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottleSeriesSeriesidResponseSuccess = (getApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottleSeriesSeriesidResponse = (getApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getGetApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const getApiV2AdminBottleSeriesSeriesid = async (seriesId: number, options?: RequestInit): Promise<getApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<getApiV2AdminBottleSeriesSeriesidResponse>(getGetApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 관리자 보틀 시리즈 수정 2.0
+ */
+export type putApiV2AdminBottleSeriesSeriesidResponse200 = {
+  data: AdminBottleSeriesResponse
+  status: 200
+}
+    
+export type putApiV2AdminBottleSeriesSeriesidResponseSuccess = (putApiV2AdminBottleSeriesSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiV2AdminBottleSeriesSeriesidResponse = (putApiV2AdminBottleSeriesSeriesidResponseSuccess)
+
+export const getPutApiV2AdminBottleSeriesSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottle-series/${seriesId}`
+}
+
+export const putApiV2AdminBottleSeriesSeriesid = async (seriesId: number,
+    putApiV2AdminBottleSeriesSeriesidBody: PutApiV2AdminBottleSeriesSeriesidBody, options?: RequestInit): Promise<putApiV2AdminBottleSeriesSeriesidResponse> => {
+  
+  return customFetch<putApiV2AdminBottleSeriesSeriesidResponse>(getPutApiV2AdminBottleSeriesSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiV2AdminBottleSeriesSeriesidBody,)
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 관리자 보틀 목록을 검색, 필터링, 정렬하여 조회합니다.
+ * @summary 관리자 보틀 목록 조회 2.0
+ */
+export type getApiV2AdminBottlesResponse200 = {
+  data: PagedModelBottleAdminResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottlesResponseSuccess = (getApiV2AdminBottlesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesResponse = (getApiV2AdminBottlesResponseSuccess)
+
+export const getGetApiV2AdminBottlesUrl = (params?: GetApiV2AdminBottlesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/bottles?${stringifiedParams}` : `/api/2.0/admin/bottles`
+}
+
+export const getApiV2AdminBottles = async (params?: GetApiV2AdminBottlesParams, options?: RequestInit): Promise<getApiV2AdminBottlesResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesResponse>(getGetApiV2AdminBottlesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * MyBatis 기반으로 관리자 보틀 목록의 필터 선택값을 조회합니다.
+ * @summary 관리자 보틀 필터 파라미터 조회 2.0
+ */
+export type getApiV2AdminBottlesParametersResponse200 = {
+  data: BottleAdminParameterValues
+  status: 200
+}
+    
+export type getApiV2AdminBottlesParametersResponseSuccess = (getApiV2AdminBottlesParametersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesParametersResponse = (getApiV2AdminBottlesParametersResponseSuccess)
+
+export const getGetApiV2AdminBottlesParametersUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/parameters`
+}
+
+export const getApiV2AdminBottlesParameters = async ( options?: RequestInit): Promise<getApiV2AdminBottlesParametersResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesParametersResponse>(getGetApiV2AdminBottlesParametersUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 비교할지 선택해 자동 확정합니다.
+ * @summary 예약 공고 자동 확정 2.0
+ */
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200 = {
+  data: AdminBottleReservationAutoConfirmResponse
+  status: 200
+}
+    
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponseSuccess = (postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse = (postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponseSuccess)
+
+export const getPostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/reservations/notices/${noticeId}/auto-confirm`
+}
+
+export const postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm = async (noticeId: number,
+    postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody, options?: RequestInit): Promise<postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse> => {
+  
+  return customFetch<postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmResponse>(getPostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmUrl(noticeId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody,)
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 판매공고 없이 관리자가 등록한 보틀 구매내역을 조회합니다.
  * @summary 보틀 관련 관리자 수동 구매내역 조회 2.0
  */
@@ -11542,6 +11489,43 @@ export const getApiV2AdminBottlesBottleidReservations = async (bottleId: number,
 
 
 /**
+ * 관리자 대시보드 카드에 표시할 회원, 주문, 보틀, 예약, 사업자 회원, 미응답 문의 수를 조회합니다.
+ * @summary 관리자 대시보드 통계 조회 2.0
+ */
+export type getApiV2AdminDashboardStatsResponse200 = {
+  data: AdminDashboardStatsResponse
+  status: 200
+}
+    
+export type getApiV2AdminDashboardStatsResponseSuccess = (getApiV2AdminDashboardStatsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminDashboardStatsResponse = (getApiV2AdminDashboardStatsResponseSuccess)
+
+export const getGetApiV2AdminDashboardStatsUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/dashboard/stats`
+}
+
+export const getApiV2AdminDashboardStats = async ( options?: RequestInit): Promise<getApiV2AdminDashboardStatsResponse> => {
+  
+  return customFetch<getApiV2AdminDashboardStatsResponse>(getGetApiV2AdminDashboardStatsUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
  * @summary 아카이브 보틀 목록 조회 2.0
  */
@@ -11652,6 +11636,43 @@ export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2He
   {      
     ...options,
     method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자가 본인의 픽업 주문 중 준비 중, 결제 완료 또는 수령 대기 상태를 수령 완료로 확정합니다. 처리 후에는 이전 상태로 되돌릴 수 없습니다.
+ * @summary 사용자 주문 수령 완료 처리 2.0
+ */
+export type patchApiV2OrdersOrderidReceiptResponse200 = {
+  data: UserOrderReceiptResponse
+  status: 200
+}
+    
+export type patchApiV2OrdersOrderidReceiptResponseSuccess = (patchApiV2OrdersOrderidReceiptResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2OrdersOrderidReceiptResponse = (patchApiV2OrdersOrderidReceiptResponseSuccess)
+
+export const getPatchApiV2OrdersOrderidReceiptUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/orders/${orderId}/receipt`
+}
+
+export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: RequestInit): Promise<patchApiV2OrdersOrderidReceiptResponse> => {
+  
+  return customFetch<patchApiV2OrdersOrderidReceiptResponse>(getPatchApiV2OrdersOrderidReceiptUrl(orderId),
+  {      
+    ...options,
+    method: 'PATCH'
     
     
   }
@@ -13387,7 +13408,7 @@ export const putApiAdminBottlesReservationsNoticesNoticeid = async (noticeId: nu
 
 
 /**
- * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다.
+ * 보틀 예약 공고의 신청 목록과 할당 수량 입력 칼럼이 포함된 Excel을 내려받습니다. 시리즈 구매 다양성에 관리자 수동 등록 구매내역을 포함할지 선택할 수 있습니다.
  * @summary 예약 신청 할당 Excel 다운로드
  */
 export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse200 = {
@@ -13402,17 +13423,26 @@ export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse
 
 export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess)
 
-export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,
+    params?: GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+  return stringifiedParams.length > 0 ? `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel?${stringifiedParams}` : `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
 }
 
-export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number,
+    params?: GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
   
-  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId,params),
   {      
     ...options,
     method: 'GET'
@@ -13579,45 +13609,6 @@ export const getApiAdminBottlesReservationsNoticesNoticeidExcel = async (noticeI
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/bottles/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminBottlesReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -14283,7 +14274,7 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
 
 
 /**
- * 관리자가 개발 환경에서 고정된 예약 공고 또는 결제 안내 테스트 메시지를 한 건 발송합니다.
+ * 관리자가 개발 환경에서 고정된 예약 공고, 결제 안내 또는 배송안내 테스트 메시지를 한 건 발송합니다.
  * @summary 비즈엠 테스트 메시지 발송(개발용)
  */
 export type postApiAdminDevBizmTestMessagesResponse200 = {
@@ -15094,45 +15085,6 @@ export const getApiAdminItemsReservationsNoticesNoticeidExcel = async (noticeId:
     method: 'GET'
     
     
-  }
-);}
-
-
-
-/**
- * 기존 예약 오픈 문자 캠페인 대상자 전체에게 입력한 안내문을 담은 정정 문자를 발송 예약합니다.
- * @summary 예약 오픈 문자 정정 발송 예약
- */
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200 = {
-  data: ReservationOpenSmsCorrectionResponse
-  status: 200
-}
-    
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse = (postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponseSuccess)
-
-export const getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl = (noticeId: number,) => {
-
-
-  
-
-  return `/api/admin/items/reservations/notices/${noticeId}/open-sms/correction`
-}
-
-export const postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrection = async (noticeId: number,
-    postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody: PostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody, options?: RequestInit): Promise<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse> => {
-  
-  return customFetch<postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionResponse>(getPostApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionUrl(noticeId),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminItemsReservationsNoticesNoticeidOpenSmsCorrectionBody,)
   }
 );}
 
@@ -21280,195 +21232,6 @@ export const getApiOrdersOrderidDelivery = async (orderId: number, options?: Req
   {      
     ...options,
     method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * 예약된 문자 발송을 취소합니다.
- * @summary 문자 예약 취소
- */
-export type postApiPpurioCancelResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioCancelResponseSuccess = (postApiPpurioCancelResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioCancelResponse = (postApiPpurioCancelResponseSuccess)
-
-export const getPostApiPpurioCancelUrl = () => {
-
-
-  
-
-  return `/api/ppurio/cancel`
-}
-
-export const postApiPpurioCancel = async (postApiPpurioCancelBody: PostApiPpurioCancelBody, options?: RequestInit): Promise<postApiPpurioCancelResponse> => {
-  
-  return customFetch<postApiPpurioCancelResponse>(getPostApiPpurioCancelUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioCancelBody,)
-  }
-);}
-
-
-
-/**
- * 예약된 카카오 알림톡 발송을 취소합니다.
- * @summary 카카오 예약 취소
- */
-export type postApiPpurioCancelKakaoResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioCancelKakaoResponseSuccess = (postApiPpurioCancelKakaoResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioCancelKakaoResponse = (postApiPpurioCancelKakaoResponseSuccess)
-
-export const getPostApiPpurioCancelKakaoUrl = () => {
-
-
-  
-
-  return `/api/ppurio/cancel/kakao`
-}
-
-export const postApiPpurioCancelKakao = async (postApiPpurioCancelKakaoBody: PostApiPpurioCancelKakaoBody, options?: RequestInit): Promise<postApiPpurioCancelKakaoResponse> => {
-  
-  return customFetch<postApiPpurioCancelKakaoResponse>(getPostApiPpurioCancelKakaoUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioCancelKakaoBody,)
-  }
-);}
-
-
-
-/**
- * 템플릿을 이용해 카카오 알림톡을 발송합니다.
- * @summary 카카오 알림톡 발송
- */
-export type postApiPpurioKakaoResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioKakaoResponseSuccess = (postApiPpurioKakaoResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioKakaoResponse = (postApiPpurioKakaoResponseSuccess)
-
-export const getPostApiPpurioKakaoUrl = () => {
-
-
-  
-
-  return `/api/ppurio/kakao`
-}
-
-export const postApiPpurioKakao = async (postApiPpurioKakaoBody: PostApiPpurioKakaoBody, options?: RequestInit): Promise<postApiPpurioKakaoResponse> => {
-  
-  return customFetch<postApiPpurioKakaoResponse>(getPostApiPpurioKakaoUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioKakaoBody,)
-  }
-);}
-
-
-
-/**
- * SMS/LMS/MMS 발송을 위해 뿌리오 메시지 API를 호출합니다.
- * @summary 문자 발송
- */
-export type postApiPpurioMessageResponse200 = {
-  data: PpurioResponse
-  status: 200
-}
-    
-export type postApiPpurioMessageResponseSuccess = (postApiPpurioMessageResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioMessageResponse = (postApiPpurioMessageResponseSuccess)
-
-export const getPostApiPpurioMessageUrl = () => {
-
-
-  
-
-  return `/api/ppurio/message`
-}
-
-export const postApiPpurioMessage = async (postApiPpurioMessageBody: PostApiPpurioMessageBody, options?: RequestInit): Promise<postApiPpurioMessageResponse> => {
-  
-  return customFetch<postApiPpurioMessageResponse>(getPostApiPpurioMessageUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiPpurioMessageBody,)
-  }
-);}
-
-
-
-/**
- * 메시지 발송 전 필요한 엑세스 토큰을 발급합니다.
- * @summary 뿌리오 토큰 갱신
- */
-export type postApiPpurioTokenResponse200 = {
-  data: PpurioTokenResponse
-  status: 200
-}
-    
-export type postApiPpurioTokenResponseSuccess = (postApiPpurioTokenResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiPpurioTokenResponse = (postApiPpurioTokenResponseSuccess)
-
-export const getPostApiPpurioTokenUrl = () => {
-
-
-  
-
-  return `/api/ppurio/token`
-}
-
-export const postApiPpurioToken = async ( options?: RequestInit): Promise<postApiPpurioTokenResponse> => {
-  
-  return customFetch<postApiPpurioTokenResponse>(getPostApiPpurioTokenUrl(),
-  {      
-    ...options,
-    method: 'POST'
     
     
   }

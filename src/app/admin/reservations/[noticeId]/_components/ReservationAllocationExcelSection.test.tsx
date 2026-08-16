@@ -45,6 +45,18 @@ describe("ReservationAllocationExcelSection", () => {
     expect(link).toHaveAttribute("href", "/api/admin/reservations/42/allocation-excel");
   });
 
+  it("수동 등록 구매내역 포함 옵션을 켜면 다운로드 링크에 옵션을 추가한다", async () => {
+    const user = userEvent.setup();
+    render(<ReservationAllocationExcelSection noticeId={42} />);
+
+    await user.click(screen.getByRole("switch", { name: "Excel 시리즈 가산점에 관리자 수동 등록 주문 포함" }));
+
+    expect(screen.getByRole("link", { name: "할당용 Excel 다운로드" })).toHaveAttribute(
+      "href",
+      "/api/admin/reservations/42/allocation-excel?includeAdminManualOrdersInSeriesScore=true",
+    );
+  });
+
   it("파일을 선택하지 않고 업로드하면 안내 toast를 표시하고 action을 호출하지 않는다", async () => {
     const { toast } = await import("sonner");
     const user = userEvent.setup();

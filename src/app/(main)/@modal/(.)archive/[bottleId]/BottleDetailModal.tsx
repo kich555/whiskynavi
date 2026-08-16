@@ -5,6 +5,7 @@ import RichTextContent from "@/components/editor/RichTextContent";
 import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useIsMobile } from "@/hooks/use-media-query";
+import { formatCurrency } from "@/lib/formatters";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -66,15 +67,19 @@ export default function BottleDetailModal({ bottle }: Props) {
                 label: "용량",
                 value: bottle.capacity != null ? `${bottle.capacity}ml` : undefined,
               },
+              ...(bottle.supplyPrice != null ? [{ label: "공급가", value: formatCurrency(bottle.supplyPrice) }] : []),
+              ...(bottle.consumerPrice != null
+                ? [{ label: "권장소매가", value: formatCurrency(bottle.consumerPrice) }]
+                : []),
             ].map((item, index, arr) => (
               <div
                 key={item.label}
-                className={`flex items-center justify-between pb-2 ${
+                className={`flex items-center justify-between gap-2 pb-2 ${
                   index < arr.length - 1 ? "border-b border-white/10" : ""
                 }`}
               >
-                <span className="typo-medium-14 text-gray-400">{item.label}</span>
-                <span className="typo-medium-14 text-white">{item.value || "-"}</span>
+                <span className="typo-medium-14 whitespace-nowrap text-gray-400">{item.label}</span>
+                <span className="typo-medium-14 text-right text-white">{item.value || "-"}</span>
               </div>
             ))}
           </div>

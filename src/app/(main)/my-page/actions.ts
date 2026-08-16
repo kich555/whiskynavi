@@ -3,6 +3,7 @@
 import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiOrdersOrderidCancel,
+  patchApiV2OrdersOrderidReceipt,
   postApiUsersBusinessesApplications,
   postApiUsersBusinessesApplicationsApplicationidCancel,
   postApiUsersMeEmailVerificationSend,
@@ -101,6 +102,35 @@ export async function cancelOrder(orderId: number, reason?: string): Promise<{ s
     return {
       success: false,
       error: getUserErrorMessage(error, "주문 취소에 실패했습니다."),
+    };
+  }
+}
+
+const completeReceiptSchema = z.object({
+  orderId: z.number().positive(),
+});
+
+export async function completeReceipt(orderId: number): Promise<{ success: boolean; error?: string }> {
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { success: false, error: "로그인이 필요합니다." };
+    }
+
+    const parsed = completeReceiptSchema.safeParse({ orderId });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0].message };
+    }
+
+    await patchApiV2OrdersOrderidReceipt(parsed.data.orderId, withToken(token));
+
+    revalidatePath("/my-page");
+    return { success: true };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "수령 완료 처리에 실패했습니다."),
     };
   }
 }

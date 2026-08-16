@@ -5,11 +5,13 @@ import {
   postApiAdminBottlesReservationsNotices,
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel,
   postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending,
+  postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm,
   putApiAdminBottlesReservationsNoticesNoticeid,
 } from "@/apis/generated/api";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  autoConfirmApplicationsAction,
   createNoticeFormAction,
   deleteNoticeAction,
   rejectPendingApplicationsAction,
@@ -42,6 +44,7 @@ vi.mock("@/apis/generated/api", () => ({
   postApiAdminBottlesReservationsNoticesNoticeidApplicationsRejectPending: vi.fn(),
   postApiAdminBottlesReservationsNoticesNoticeidAllocationExcel: vi.fn(),
   postApiAdminBottlesReservationsNoticesNoticeidAutoConfirm: vi.fn(),
+  postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm: vi.fn(),
   putApiAdminBottlesReservationsNoticesNoticeid: vi.fn(),
   putApiAdminReservationDeliveriesNoticesNoticeidBusinessesBusinessid: vi.fn(),
 }));
@@ -294,6 +297,45 @@ describe("uploadReservationAllocationExcelAction", () => {
       success: false,
       error: "예약 신청 Excel 할당을 처리할 수 없습니다.",
       failures,
+    });
+  });
+});
+
+describe("autoConfirmApplicationsAction", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("시리즈 우선순위와 수동 등록 구매내역 포함 옵션을 함께 전달한다", async () => {
+    vi.mocked(postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm).mockResolvedValue({
+      data: {
+        confirmedApplicationCount: 2,
+        rejectedApplicationCount: 1,
+      },
+      status: 200,
+      headers: new Headers(),
+    } as Awaited<ReturnType<typeof postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm>>);
+
+    const result = await autoConfirmApplicationsAction({
+      noticeId: 100,
+      applySeriesPurchasePriority: true,
+      includeAdminManualOrdersInSeriesScore: true,
+    });
+
+    expect(postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm).toHaveBeenCalledWith(
+      100,
+      {
+        applySeriesPurchasePriority: true,
+        includeAdminManualOrdersInSeriesScore: true,
+      },
+      { token: "admin-token" },
+    );
+    expect(result).toEqual({
+      success: true,
+      data: {
+        confirmedApplicationCount: 2,
+        rejectedApplicationCount: 1,
+      },
     });
   });
 });

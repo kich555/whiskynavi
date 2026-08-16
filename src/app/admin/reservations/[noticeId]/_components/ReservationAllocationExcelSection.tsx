@@ -6,6 +6,7 @@ import type {
 } from "@/apis/generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { Download, FileSpreadsheet, FileUp } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition } from "react";
@@ -21,8 +22,11 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [result, setResult] = useState<ReservationAllocationExcelResponse | null>(null);
   const [failures, setFailures] = useState<ReservationAllocationExcelFailureResponse[]>([]);
+  const [includeAdminManualOrdersInSeriesScore, setIncludeAdminManualOrdersInSeriesScore] = useState(false);
   const [isPending, startTransition] = useTransition();
-  const downloadHref = `/api/admin/reservations/${noticeId}/allocation-excel`;
+  const downloadHref = includeAdminManualOrdersInSeriesScore
+    ? `/api/admin/reservations/${noticeId}/allocation-excel?includeAdminManualOrdersInSeriesScore=true`
+    : `/api/admin/reservations/${noticeId}/allocation-excel`;
 
   const handleUpload = () => {
     const file = fileInputRef.current?.files?.[0];
@@ -58,7 +62,7 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
                 할당용 Excel 다운로드
               </a>
             </Button>
- <label className="flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 typo-medium-14 text-gray-700 xl:w-[360px]">
+            <label className="typo-medium-14 flex min-h-9 min-w-0 flex-1 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 text-gray-700 xl:w-[360px]">
               <FileSpreadsheet className="size-4 shrink-0 text-gray-400" />
               <span className="sr-only">예약 할당 Excel 파일</span>
               <Input ref={fileInputRef} type="file" accept=".xlsx" className="h-auto border-0 px-0 shadow-none" />
@@ -69,10 +73,26 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
             Excel 할당 업로드
           </Button>
         </div>
- <p className="mt-2 typo-medium-12 text-gray-500">배정수량 0은 신청 거절로 처리됩니다.</p>
+        <div className="mt-3 flex items-center justify-between gap-4 border-t border-gray-200 pt-3">
+          <div className="space-y-1">
+            <label htmlFor="admin-manual-orders-in-allocation-excel" className="typo-medium-14 text-gray-900">
+              관리자 수동 등록 주문 포함
+            </label>
+            <p className="typo-regular-12 text-gray-500">
+              Excel의 시리즈 구매 보틀 종류 수에 관리자 수동 등록 주문을 포함합니다.
+            </p>
+          </div>
+          <Switch
+            id="admin-manual-orders-in-allocation-excel"
+            checked={includeAdminManualOrdersInSeriesScore}
+            onCheckedChange={setIncludeAdminManualOrdersInSeriesScore}
+            aria-label="Excel 시리즈 가산점에 관리자 수동 등록 주문 포함"
+          />
+        </div>
+        <p className="typo-medium-12 mt-2 text-gray-500">배정수량 0은 신청 거절로 처리됩니다.</p>
 
         {result && (
- <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-gray-200 pt-3 typo-medium-14 text-gray-700">
+          <div className="typo-medium-14 mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-gray-200 pt-3 text-gray-700">
             <span className="font-semibold text-gray-900">총 할당 수량 {result.totalAllocatedQuantity ?? 0}</span>
             <span>할당 신청 {result.allocatedApplicationCount ?? 0}건</span>
             <span>거절 신청 {result.rejectedApplicationCount ?? 0}건</span>
@@ -83,9 +103,9 @@ export default function ReservationAllocationExcelSection({ noticeId }: Reservat
 
         {failures.length > 0 && (
           <div className="mt-3 overflow-x-auto border-t border-gray-200 pt-3">
- <table className="w-full min-w-[520px] typo-medium-14">
+            <table className="typo-medium-14 w-full min-w-[520px]">
               <thead>
- <tr className="text-left typo-semibold-12 text-gray-500 uppercase">
+                <tr className="typo-semibold-12 text-left text-gray-500 uppercase">
                   <th className="w-20 py-1 pr-3">행</th>
                   <th className="w-28 py-1 pr-3">신청 ID</th>
                   <th className="py-1 pr-3">사유</th>

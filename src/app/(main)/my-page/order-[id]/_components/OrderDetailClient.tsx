@@ -8,7 +8,8 @@ import Link from "next/link";
 import { overlay } from "overlay-kit";
 import { getDeliveryProgressLabel } from "../../../general-items/delivery-order/_lib/order-utils";
 import OrderCancelModal from "../../_components/OrderCancelModal";
-import { isOrderCancellationAllowed } from "../../_lib/constants";
+import ReceiptCompleteButton from "../../_components/ReceiptCompleteButton";
+import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../../_lib/constants";
 import { getOrderDisplayNames } from "../../_lib/order-display";
 import { formatCurrency, formatDate, getOrderStatusConfig } from "../../_lib/utils";
 
@@ -19,6 +20,8 @@ interface OrderDetailClientProps {
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = getOrderStatusConfig(order.orderStatus);
   const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
+  const canCompleteReceipt =
+    isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
   const orderClassification = formatOrderClassification(order);
   const displayNames = getOrderDisplayNames(order);
 
@@ -51,11 +54,16 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
               <p className="typo-bold-20 mb-1 sm:text-2xl">{status.label}</p>
               <p className="typo-medium-14 text-white/60">{formatDate(order.createdAt)}</p>
             </div>
-            {canCancel && (
-              <Button variant="destructive" onClick={handleCancelClick}>
-                주문 취소
-              </Button>
-            )}
+            <div className="flex flex-wrap gap-2">
+              {canCompleteReceipt ? (
+                <ReceiptCompleteButton orderId={order.id!} itemName={displayNames.primaryName} />
+              ) : null}
+              {canCancel ? (
+                <Button variant="destructive" onClick={handleCancelClick}>
+                  주문 취소
+                </Button>
+              ) : null}
+            </div>
           </div>
         </div>
 

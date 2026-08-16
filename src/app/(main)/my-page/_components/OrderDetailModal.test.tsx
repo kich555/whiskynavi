@@ -85,4 +85,22 @@ describe("OrderDetailModal", () => {
     expect(screen.getByRole("dialog")).toHaveClass("max-h-[calc(100dvh-2rem)]", "overflow-hidden");
     expect(screen.getByTestId("order-detail-scroll-area")).toHaveClass("min-h-0", "overflow-y-auto");
   });
+
+  it("수령 대기 주문에는 수령완료 처리 버튼을 표시한다", () => {
+    const order = {
+      id: 4,
+      orderNumber: "ODR-PICKUP-1",
+      orderStatus: "RECEIPT_PENDING",
+      fulfillmentMethod: "PICKUP",
+      itemName: "픽업 보틀",
+      requestedQuantity: 1,
+      approvedQuantity: 1,
+      totalPrice: 10000,
+    } satisfies UserOrderResponse;
+
+    render(<OrderDetailModal isOpen close={() => {}} order={order} />);
+
+    expect(screen.getByRole("button", { name: "수령완료 처리" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "주문 취소" })).not.toBeInTheDocument();
+  });
 });

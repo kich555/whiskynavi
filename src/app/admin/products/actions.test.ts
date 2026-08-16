@@ -1,13 +1,19 @@
-import { patchApiAdminBottlesId, postApiAdminBottles, postApiAdminImagesPurpose } from "@/apis/generated/api";
+import {
+  patchApiAdminBottlesId,
+  patchApiV2AdminBottlesBottleidManualPurchasesStatus,
+  postApiAdminBottles,
+  postApiAdminImagesPurpose,
+} from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { createBottleFormAction, updateBottleFormAction } from "./actions";
+import { createBottleFormAction, updateBottleFormAction, updateManualPurchaseStatusesAction } from "./actions";
 import { MAX_BOTTLE_IMAGE_SIZE_MB } from "./image-constraints";
 
 vi.mock("@/apis/generated/api", () => ({
   patchApiAdminBottlesId: vi.fn(),
+  patchApiV2AdminBottlesBottleidManualPurchasesStatus: vi.fn(),
   postApiAdminBottles: vi.fn(),
   postApiAdminImagesPurpose: vi.fn(),
 }));
@@ -27,6 +33,7 @@ vi.mock("next/navigation", () => ({
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedCreateBottle = vi.mocked(postApiAdminBottles);
 const mockedUpdateBottle = vi.mocked(patchApiAdminBottlesId);
+const mockedUpdateManualPurchaseStatuses = vi.mocked(patchApiV2AdminBottlesBottleidManualPurchasesStatus);
 const mockedUpload = vi.mocked(postApiAdminImagesPurpose);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
 const mockedRedirect = vi.mocked(redirect);
@@ -70,6 +77,15 @@ describe("bottle admin actions", () => {
     });
     mockedUpdateBottle.mockResolvedValue({
       data: { id: 10, name: "나비 1st" },
+      status: 200,
+      headers: new Headers(),
+    });
+    mockedUpdateManualPurchaseStatuses.mockResolvedValue({
+      data: {
+        bottleId: 10,
+        orderStatus: "RECEIPT_COMPLETED",
+        updatedCount: 2,
+      },
       status: 200,
       headers: new Headers(),
     });
@@ -153,6 +169,21 @@ describe("bottle admin actions", () => {
       }),
       { headers: { Authorization: "Bearer admin-token" } },
     );
+  });
+
+  it("updates all manual purchases for the bottle through the 2.0 API", async () => {
+    const result = await updateManualPurchaseStatusesAction(10, "RECEIPT_COMPLETED");
+
+    expect(mockedUpdateManualPurchaseStatuses).toHaveBeenCalledWith(
+      10,
+      {
+        orderStatus: "RECEIPT_COMPLETED",
+      },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/products/10");
+    expect(mockedRevalidatePath).toHaveBeenCalledWith("/admin/bottle-orders");
+    expect(result).toEqual({ success: true, updatedCount: 2 });
   });
 
   it("returns the bottle image limit without uploading an oversized image", async () => {

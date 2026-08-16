@@ -4,8 +4,10 @@ import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   deleteApiAdminBottlesId,
   patchApiAdminBottlesId,
+  patchApiV2AdminBottlesBottleidManualPurchasesStatus,
   postApiAdminBottles,
   postApiAdminImagesPurpose,
+  type AdminManualPurchaseBulkStatusUpdateRequestOrderStatus,
   type PostApiAdminBottlesBodyExtraInfos,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
@@ -367,6 +369,40 @@ export async function deleteBottleAction(id: number) {
     return {
       success: false,
       error: getUserErrorMessage(error, "제품 삭제에 실패했습니다."),
+    };
+  }
+}
+
+export async function updateManualPurchaseStatusesAction(
+  bottleId: number,
+  orderStatus: AdminManualPurchaseBulkStatusUpdateRequestOrderStatus,
+) {
+  const token = await getAuthToken();
+
+  if (!token) {
+    return { success: false as const, error: "인증이 필요합니다." };
+  }
+
+  try {
+    const response = await patchApiV2AdminBottlesBottleidManualPurchasesStatus(
+      bottleId,
+      { orderStatus },
+      withToken(token),
+    );
+
+    revalidatePath(`/admin/products/${bottleId}`);
+    revalidatePath("/admin/bottle-orders");
+
+    return {
+      success: true as const,
+      updatedCount: response.data.updatedCount ?? 0,
+    };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    logActionError("updateManualPurchaseStatusesAction", error);
+    return {
+      success: false as const,
+      error: getUserErrorMessage(error, "수동 구매내역 상태 변경에 실패했습니다."),
     };
   }
 }
