@@ -24,12 +24,17 @@ interface ApplicationAutoConfirmModalProps {
 
 export default function ApplicationAutoConfirmModal({ isOpen, close, noticeId }: ApplicationAutoConfirmModalProps) {
   const [applySeriesPurchasePriority, setApplySeriesPurchasePriority] = useState(true);
+  const [includeAdminManualOrdersInSeriesScore, setIncludeAdminManualOrdersInSeriesScore] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
 
   const handleAutoConfirm = () => {
     startTransition(async () => {
-      const result = await autoConfirmApplicationsAction(noticeId, applySeriesPurchasePriority);
+      const result = await autoConfirmApplicationsAction({
+        noticeId,
+        applySeriesPurchasePriority,
+        includeAdminManualOrdersInSeriesScore,
+      });
 
       if (result.success) {
         const confirmedCount = result.data?.confirmedApplicationCount ?? 0;
@@ -59,22 +64,42 @@ export default function ApplicationAutoConfirmModal({ isOpen, close, noticeId }:
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center justify-between gap-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-          <div className="space-y-1">
-            <label htmlFor="series-purchase-priority" className="typo-medium-14 text-gray-900">
-              시리즈 구매 다양성 우선 적용
-            </label>
-            <p className="typo-regular-12 text-gray-600">
-              같은 브랜드·시리즈에서 구매한 보틀 종류 수를 커뮤니티보다 먼저 비교합니다.
-            </p>
+        <div className="space-y-3 rounded-lg border border-gray-200 bg-gray-50 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="space-y-1">
+              <label htmlFor="series-purchase-priority" className="typo-medium-14 text-gray-900">
+                시리즈 구매 다양성 우선 적용
+              </label>
+              <p className="typo-regular-12 text-gray-600">
+                같은 브랜드·시리즈에서 구매한 보틀 종류 수를 커뮤니티보다 먼저 비교합니다.
+              </p>
+            </div>
+            <Switch
+              id="series-purchase-priority"
+              checked={applySeriesPurchasePriority}
+              onCheckedChange={setApplySeriesPurchasePriority}
+              disabled={isPending}
+              aria-label="시리즈 구매 다양성 우선 적용"
+            />
           </div>
-          <Switch
-            id="series-purchase-priority"
-            checked={applySeriesPurchasePriority}
-            onCheckedChange={setApplySeriesPurchasePriority}
-            disabled={isPending}
-            aria-label="시리즈 구매 다양성 우선 적용"
-          />
+
+          <div className="flex items-center justify-between gap-4 border-t border-gray-200 pt-3">
+            <div className="space-y-1">
+              <label htmlFor="admin-manual-orders-in-series-score" className="typo-medium-14 text-gray-900">
+                관리자 수동 등록 주문 포함
+              </label>
+              <p className="typo-regular-12 text-gray-600">
+                관리자가 수동 등록한 주문도 시리즈 구매 보틀 종류 수에 포함합니다.
+              </p>
+            </div>
+            <Switch
+              id="admin-manual-orders-in-series-score"
+              checked={includeAdminManualOrdersInSeriesScore}
+              onCheckedChange={setIncludeAdminManualOrdersInSeriesScore}
+              disabled={isPending || !applySeriesPurchasePriority}
+              aria-label="시리즈 가산점에 관리자 수동 등록 주문 포함"
+            />
+          </div>
         </div>
 
         <DialogFooter>
