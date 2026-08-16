@@ -2,14 +2,11 @@ import { getApiAdminBottlesReservationsNotices } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parseApiPage } from "@/lib/page-response";
+import { SearchParams } from "@/types/search";
 import ReservationsContent from "./_components/ReservationsContent";
 
 interface ReservationsPageProps {
-  searchParams: Promise<{
-    page?: string;
-    limit?: string;
-    q?: string;
-  }>;
+  searchParams: Promise<SearchParams>;
 }
 
 export default async function ReservationsPage({ searchParams }: ReservationsPageProps) {

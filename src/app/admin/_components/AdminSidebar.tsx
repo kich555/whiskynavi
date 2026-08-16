@@ -3,6 +3,7 @@
 import {
   Award,
   Ban,
+  BookOpenText,
   Briefcase,
   Calendar,
   FilePenLine,
@@ -104,6 +105,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         label: "구매내역 대량 등록",
         icon: FileSpreadsheet,
         href: "/admin/manual-purchases/import",
+      },
+      {
+        id: "series",
+        label: "시리즈관리",
+        icon: BookOpenText,
+        href: "/admin/series",
       },
     ],
   },
