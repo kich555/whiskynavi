@@ -36,14 +36,14 @@ export default function Pagination({ currentPage, totalPages, buildPageUrl }: Pa
   return (
     <div className="mt-8 flex items-center justify-center gap-2 pb-4 sm:gap-4">
       {currentPage === 1 ? (
-        <span className="typo-bold-14 px-2 py-1 text-white opacity-30 sm:px-3 sm:text-base">
+        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 sm:px-3 sm:text-base">
           <ChevronLeft className="sm:hidden" size={16} />
           <span className="hidden sm:inline">이전</span>
         </span>
       ) : (
         <Link
           href={buildPageUrl(currentPage - 1)}
-          className="typo-bold-14 px-2 py-1 text-white hover:text-gray-300 sm:px-3 sm:text-base"
+          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 sm:px-3 sm:text-base"
         >
           <ChevronLeft className="sm:hidden" size={16} />
           <span className="hidden sm:inline">이전</span>
@@ -72,14 +72,14 @@ export default function Pagination({ currentPage, totalPages, buildPageUrl }: Pa
         )}
       </div>
       {currentPage === totalPages ? (
-        <span className="typo-bold-14 px-2 py-1 text-white opacity-30 sm:px-3 sm:text-base">
+        <span className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white opacity-30 sm:px-3 sm:text-base">
           <ChevronRight className="sm:hidden" size={16} />
           <span className="hidden sm:inline">다음</span>
         </span>
       ) : (
         <Link
           href={buildPageUrl(currentPage + 1)}
-          className="typo-bold-14 px-2 py-1 text-white hover:text-gray-300 sm:px-3 sm:text-base"
+          className="typo-bold-14 px-2 py-1 whitespace-nowrap text-white hover:text-gray-300 sm:px-3 sm:text-base"
         >
           <ChevronRight className="sm:hidden" size={16} />
           <span className="hidden sm:inline">다음</span>
