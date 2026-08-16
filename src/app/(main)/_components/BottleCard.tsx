@@ -28,7 +28,7 @@ const BottleCard = ({ bottle }: Props) => {
       </div>
 
       <Link href={`/archive/${bottle.id}`} className="block">
-        <p className="typo-medium-12 text-gray-400">{bottle.brand ?? bottle.company ?? ""}</p>
+        <p className="typo-medium-12 text-gray-400">{bottle.series ?? ""}</p>
         <h3
           className="typo-medium-14 mt-2 line-clamp-2 text-white group-hover:text-gray-300"
           style={{ lineHeight: 1.4 }}
