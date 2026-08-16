@@ -10,7 +10,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whisky
  * 브라우저에서 백엔드 URL을 직접 열면 Authorization 헤더를 붙일 수 없으므로,
  * 현재 NextAuth 세션의 access token으로 백엔드 파일 응답을 대신 받아 전달한다.
  */
-export async function GET(_request: Request, { params }: { params: Promise<{ noticeId: string }> }) {
+export async function GET(request: Request, { params }: { params: Promise<{ noticeId: string }> }) {
   const { noticeId: noticeIdParam } = await params;
   const noticeId = parsePositiveInt(noticeIdParam);
   if (!noticeId) {
@@ -23,7 +23,11 @@ export async function GET(_request: Request, { params }: { params: Promise<{ not
     return new Response("인증이 필요합니다.", { status: 401 });
   }
 
-  const upstreamUrl = `${API_BASE_URL}${getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId)}`;
+  const includeAdminManualOrdersInSeriesScore =
+    new URL(request.url).searchParams.get("includeAdminManualOrdersInSeriesScore") === "true";
+  const upstreamUrl = `${API_BASE_URL}${getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId, {
+    includeAdminManualOrdersInSeriesScore,
+  })}`;
   let upstreamResponse: Response;
 
   try {

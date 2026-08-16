@@ -74,6 +74,12 @@ export interface UpdateNoticeAvailableQuantityInput {
   gradeConditions: PutApiAdminBottlesReservationsNoticesNoticeidBodyGradeConditionsItem[];
 }
 
+export interface AutoConfirmApplicationsInput {
+  noticeId: number;
+  applySeriesPurchasePriority: boolean;
+  includeAdminManualOrdersInSeriesScore: boolean;
+}
+
 const DEFAULT_DELIVERY_CARRIER_CODE = "CJ_LOGISTICS";
 const DEFAULT_RESERVATION_REQUIRED_ROLE =
   PostApiAdminBottlesReservationsNoticesBodyGradeConditionsItemRequiredRole.ROLE_USER;
@@ -519,14 +525,21 @@ export async function cancelApplicationAction(
   }
 }
 
-export async function autoConfirmApplicationsAction(noticeId: number, applySeriesPurchasePriority: boolean) {
+export async function autoConfirmApplicationsAction({
+  noticeId,
+  applySeriesPurchasePriority,
+  includeAdminManualOrdersInSeriesScore,
+}: AutoConfirmApplicationsInput) {
   const token = await getAuthToken();
   if (!token) return { success: false, error: "인증이 필요합니다." };
 
   try {
     const res = await postApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirm(
       noticeId,
-      { applySeriesPurchasePriority },
+      {
+        applySeriesPurchasePriority,
+        includeAdminManualOrdersInSeriesScore,
+      },
       withToken(token),
     );
     revalidateTag(noticeCacheTag(noticeId), "max");

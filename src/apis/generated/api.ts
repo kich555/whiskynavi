@@ -2429,6 +2429,8 @@ export interface BottleReservationAutoConfirmRequest {
   /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
   applySeriesPurchasePriority?: boolean;
   priorityAllocations?: BottleReservationAutoConfirmRequestPriorityAllocationsItem[];
+  /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
+  includeAdminManualOrdersInSeriesScore?: boolean;
 }
 
 export interface BottleReservationDecisionRequest {
@@ -6582,6 +6584,8 @@ export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBody = {
   /** 동일 브랜드·시리즈의 과거 구매 보틀 종류 수를 커뮤니티보다 먼저 적용할지 여부 */
   applySeriesPurchasePriority?: boolean;
   priorityAllocations?: PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItem[];
+  /** 시리즈 구매 다양성 계산에 관리자 수동 등록 구매내역을 포함할지 여부 */
+  includeAdminManualOrdersInSeriesScore?: boolean;
 };
 
 export type GetApiV2AdminBottlesBottleidManualPurchasesParams = {
@@ -7681,6 +7685,10 @@ export type PutApiAdminBottlesReservationsNoticesNoticeidBody = {
   price: number;
   reservationEndAt: string;
   reservationStartAt: string;
+};
+
+export type GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams = {
+includeAdminManualOrdersInSeriesScore?: boolean;
 };
 
 export type PostApiAdminBottlesReservationsNoticesNoticeidAllocationExcelBody = {
@@ -14036,17 +14044,26 @@ export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse
 
 export type getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse = (getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponseSuccess)
 
-export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,) => {
+export const getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl = (noticeId: number,
+    params?: GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
+  return stringifiedParams.length > 0 ? `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel?${stringifiedParams}` : `/api/admin/bottles/reservations/notices/${noticeId}/allocation-excel`
 }
 
-export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
+export const getApiAdminBottlesReservationsNoticesNoticeidAllocationExcel = async (noticeId: number,
+    params?: GetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelParams, options?: RequestInit): Promise<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse> => {
   
-  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId),
+  return customFetch<getApiAdminBottlesReservationsNoticesNoticeidAllocationExcelResponse>(getGetApiAdminBottlesReservationsNoticesNoticeidAllocationExcelUrl(noticeId,params),
   {      
     ...options,
     method: 'GET'
