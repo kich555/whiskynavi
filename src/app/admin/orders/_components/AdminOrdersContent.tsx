@@ -465,7 +465,7 @@ export default function AdminOrdersContent({
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[1120px]">
-              <thead className="border-b border-gray-200 bg-gray-50">
+              <thead className="border-b border-gray-200 bg-gray-50 whitespace-nowrap">
                 <tr>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">주문</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">고객</th>
@@ -506,7 +506,7 @@ export default function AdminOrdersContent({
                     return (
                       <tr key={order.id} className="align-top transition-colors hover:bg-gray-50">
                         <td className="px-4 py-4">
-                          <div className="font-medium text-gray-900">{order.orderNumber ?? "-"}</div>
+                          <div className="font-medium whitespace-nowrap text-gray-900">{order.orderNumber ?? "-"}</div>
                           <div className="mt-1 typo-medium-12 text-gray-500">{formatDateTime(order.createdAt)}</div>
                           <span className={`mt-2 inline-flex rounded-full px-2 py-0.5 typo-medium-12 ${statusColor}`}>
                             {statusLabel}

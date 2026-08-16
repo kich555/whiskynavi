@@ -62,12 +62,12 @@ export default function BottleDetailModal({ bottle }: Props) {
             ].map((item, index, arr) => (
               <div
                 key={item.label}
-                className={`flex items-center justify-between pb-2 ${
+                className={`flex items-center justify-between gap-2 pb-2 ${
                   index < arr.length - 1 ? "border-b border-white/10" : ""
                 }`}
               >
-                <span className="typo-medium-14 text-gray-400">{item.label}</span>
-                <span className="typo-medium-14 text-white">{item.value || "-"}</span>
+                <span className="typo-medium-14 whitespace-nowrap text-gray-400">{item.label}</span>
+                <span className="typo-medium-14 text-right text-white">{item.value || "-"}</span>
               </div>
             ))}
           </div>
