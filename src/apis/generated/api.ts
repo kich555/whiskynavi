@@ -5929,8 +5929,9 @@ export interface UserOrderQueueStatusResponse {
 
 /**
  * 변경된 주문 상태
+ * @nullable
  */
-export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
+export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus] | null;
 
 
 export const UserOrderReceiptResponseOrderStatus = {
@@ -5953,7 +5954,10 @@ export const UserOrderReceiptResponseOrderStatus = {
 export interface UserOrderReceiptResponse {
   /** 수령 완료 처리한 주문 ID */
   orderId?: number;
-  /** 변경된 주문 상태 */
+  /**
+   * 변경된 주문 상태
+   * @nullable
+   */
   orderStatus?: UserOrderReceiptResponseOrderStatus;
 }
 
@@ -6514,6 +6518,56 @@ export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typ
 export const GetApiV2BottlesDirection = {
   ASC: 'ASC',
   DESC: 'DESC',
+} as const;
+
+export type GetApiV2OrdersParams = {
+/**
+ * 주문 상태 필터. 지정하면 관리자 수동입력 주문은 제외합니다.
+ */
+orderStatus?: GetApiV2OrdersOrderStatus;
+/**
+ * 관리자 수동입력 주문만 조회할지 여부. orderStatus와 함께 지정하면 결과가 없습니다.
+ */
+manualOnly?: boolean;
+/**
+ * 내림차순 정렬 기준
+ */
+sort?: GetApiV2OrdersSort;
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 주문 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2OrdersOrderStatus = typeof GetApiV2OrdersOrderStatus[keyof typeof GetApiV2OrdersOrderStatus];
+
+
+export const GetApiV2OrdersOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+} as const;
+
+export type GetApiV2OrdersSort = typeof GetApiV2OrdersSort[keyof typeof GetApiV2OrdersSort];
+
+
+export const GetApiV2OrdersSort = {
+  CREATED_AT: 'CREATED_AT',
+  BOTTLED_DATE: 'BOTTLED_DATE',
 } as const;
 
 export type GetApiAdminBannersParams = {
@@ -11782,6 +11836,53 @@ export const getGetApiV2HealthUrl = () => {
 export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2HealthResponse> => {
   
   return customFetch<getApiV2HealthResponse>(getGetApiV2HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 주문을 상태로 필터링하고 주문 생성일 또는 보틀 병입일 기준 최신순으로 조회합니다.
+orderStatus를 지정하면 관리자 수동입력 주문은 제외합니다.
+manualOnly=true이면 관리자 수동입력 주문만 조회하며, 해당 주문의 상태는 사용자 응답에 포함하지 않습니다.
+
+ * @summary 마이페이지 주문 내역 조회 2.0
+ */
+export type getApiV2OrdersResponse200 = {
+  data: PagedModelUserOrderResponse
+  status: 200
+}
+    
+export type getApiV2OrdersResponseSuccess = (getApiV2OrdersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2OrdersResponse = (getApiV2OrdersResponseSuccess)
+
+export const getGetApiV2OrdersUrl = (params?: GetApiV2OrdersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/orders?${stringifiedParams}` : `/api/2.0/orders`
+}
+
+export const getApiV2Orders = async (params?: GetApiV2OrdersParams, options?: RequestInit): Promise<getApiV2OrdersResponse> => {
+  
+  return customFetch<getApiV2OrdersResponse>(getGetApiV2OrdersUrl(params),
   {      
     ...options,
     method: 'GET'

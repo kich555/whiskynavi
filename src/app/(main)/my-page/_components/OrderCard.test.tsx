@@ -148,4 +148,22 @@ describe("OrderCard", () => {
 
     expect(screen.queryByRole("button", { name: "수령완료 처리" })).not.toBeInTheDocument();
   });
+
+  it("수동입력 주문에는 상태 배지나 대체 상태 문구를 표시하지 않는다", () => {
+    render(
+      <OrderCard
+        order={{
+          id: 6,
+          orderNumber: "ODR-MANUAL-1",
+          orderSource: "ADMIN_MANUAL",
+          itemName: "관리자 입력 보틀",
+          totalPrice: 120000,
+        }}
+        onClick={vi.fn()}
+      />,
+    );
+
+    expect(screen.queryByText("알 수 없음")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "수령완료 처리" })).not.toBeInTheDocument();
+  });
 });
