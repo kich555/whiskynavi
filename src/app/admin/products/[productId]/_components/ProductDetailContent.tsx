@@ -26,7 +26,7 @@ export default function ProductDetailContent({ product, children }: ProductDetai
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
-            onClick={() => router.back()}
+            onClick={() => router.push("/admin/products")}
             className="flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={20} />
