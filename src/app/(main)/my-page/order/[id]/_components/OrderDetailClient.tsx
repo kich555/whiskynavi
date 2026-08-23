@@ -6,12 +6,12 @@ import { formatOrderClassification } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { overlay } from "overlay-kit";
-import { getDeliveryProgressLabel } from "../../../general-items/delivery-order/_lib/order-utils";
-import OrderCancelModal from "../../_components/OrderCancelModal";
-import ReceiptCompleteButton from "../../_components/ReceiptCompleteButton";
-import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../../_lib/constants";
-import { getOrderDisplayNames } from "../../_lib/order-display";
-import { formatCurrency, formatDate, getOrderStatusConfig } from "../../_lib/utils";
+import { getDeliveryProgressLabel } from "../../../../general-items/delivery-order/_lib/order-utils";
+import OrderCancelModal from "../../../_components/OrderCancelModal";
+import ReceiptCompleteButton from "../../../_components/ReceiptCompleteButton";
+import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../../../_lib/constants";
+import { getOrderDisplayNames } from "../../../_lib/order-display";
+import { formatCurrency, formatDate, getOrderStatusConfig } from "../../../_lib/utils";
 
 interface OrderDetailClientProps {
   order: UserOrderResponse;

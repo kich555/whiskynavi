@@ -95,6 +95,30 @@ describe("OrdersTab", () => {
     expect(url.searchParams.has("page")).toBe(false);
   });
 
+  it("모바일에서 주문 카드를 누르면 동적 상세 경로로 이동한다", () => {
+    render(
+      <OrdersTab
+        orders={{
+          content: [
+            {
+              id: 42,
+              orderNumber: "ODR-MOBILE-42",
+              itemName: "모바일 주문",
+              totalPrice: 10000,
+            },
+          ],
+          page: { number: 0, totalPages: 1 },
+        }}
+        hasError={false}
+        filters={defaultFilters}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("상세보기"));
+
+    expect(pushMock).toHaveBeenCalledWith("/my-page/order/42");
+  });
+
   it("API 오류 시 재시도 동작을 제공한다", () => {
     renderOrdersTab(defaultFilters, true);
 
