@@ -22,7 +22,6 @@ interface SeriesListProps {
 }
 
 const SeriesList = ({ searchParams, series, totalElements }: SeriesListProps) => {
-  console.log("series,", series);
   const { toggle } = useSidebar();
   const router = useRouter();
 
@@ -44,7 +43,6 @@ const SeriesList = ({ searchParams, series, totalElements }: SeriesListProps) =>
       }),
     ).values(),
   ];
-  console.log("brandOptions", brandOptions);
   const visibilityOptions = [
     { value: "all", label: "전체" },
     { value: "true", label: "공개" },
@@ -84,7 +82,7 @@ const SeriesList = ({ searchParams, series, totalElements }: SeriesListProps) =>
         <div className="mb-4 flex justify-end">
           <button
             type="button"
-            onClick={() => router.push("/admin/products/new")}
+            onClick={() => router.push("/admin/series/new")}
             className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700"
           >
             <Plus size={16} />

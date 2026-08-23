@@ -30,10 +30,6 @@ export default async function SeriesPage({ searchParams }: SeriesPageProps) {
   );
 
   return (
-    <SeriesList
-      searchParams={params}
-      series={res.data.content ?? []}
-      totalElements={res.data.page?.totalElements ?? 0}
-    />
+    <SeriesList searchParams={params} series={res.data.content ?? []} totalElements={res.data.totalElements ?? 0} />
   );
 }
