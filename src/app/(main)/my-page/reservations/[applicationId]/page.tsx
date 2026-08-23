@@ -36,7 +36,7 @@ export default async function RelatedReservationNoticePage({ params }: RelatedRe
     <div className="min-h-screen bg-[#1d2429] pt-20 pb-12">
       <div className="mx-auto max-w-[1440px] px-4 py-6 lg:px-10 lg:py-12">
         <Link
-          href={`/my-page/order-${applicationId}`}
+          href={`/my-page/order/${applicationId}`}
           className="mb-6 flex items-center gap-2 text-white/70 transition-colors hover:text-white"
         >
           <ArrowLeft size={20} />

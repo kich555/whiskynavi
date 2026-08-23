@@ -45,7 +45,7 @@ export default function OrdersTab({ orders, hasError, filters }: OrdersTabProps)
     if (isDesktop) {
       overlay.open(({ isOpen, close }) => <OrderDetailModal isOpen={isOpen} close={close} order={order} />);
     } else {
-      router.push(`/my-page/order-${order.id}`);
+      router.push(`/my-page/order/${order.id}`);
     }
   };
 
