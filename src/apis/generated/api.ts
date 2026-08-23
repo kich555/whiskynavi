@@ -480,6 +480,56 @@ export interface AdminBottleReservationV2Response {
 }
 
 /**
+ * 관리자 보틀 시리즈 응답
+ */
+export interface AdminBottleSeriesResponse {
+  brand?: string;
+  createdAt?: string;
+  description?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  representativeBottleId?: number;
+  series?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface SortObject {
+  empty?: boolean;
+  sorted?: boolean;
+  unsorted?: boolean;
+}
+
+export interface PageableObject {
+  offset?: number;
+  pageNumber?: number;
+  pageSize?: number;
+  paged?: boolean;
+  sort?: SortObject;
+  unpaged?: boolean;
+}
+
+/**
+ * 필터용 브랜드 목록을 포함한 관리자 보틀 시리즈 페이지 응답
+ */
+export interface AdminBottleSeriesListResponse {
+  /** 브랜드 필터 선택값 */
+  brands?: string[];
+  content?: AdminBottleSeriesResponse[];
+  empty?: boolean;
+  first?: boolean;
+  last?: boolean;
+  number?: number;
+  numberOfElements?: number;
+  pageable?: PageableObject;
+  size?: number;
+  sort?: SortObject;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+/**
  * 관리자 보틀 시리즈 생성·수정 요청
  */
 export interface AdminBottleSeriesRequest {
@@ -507,22 +557,6 @@ export interface AdminBottleSeriesRequest {
   series: string;
   /** 공개 브랜드-시리즈 API 노출 여부 */
   visible: boolean;
-}
-
-/**
- * 관리자 보틀 시리즈 응답
- */
-export interface AdminBottleSeriesResponse {
-  brand?: string;
-  createdAt?: string;
-  description?: string;
-  id?: number;
-  imageKey?: string;
-  imageUrl?: string;
-  representativeBottleId?: number;
-  series?: string;
-  updatedAt?: string;
-  visible?: boolean;
 }
 
 export type AdminBusinessApplicationAuditLogResponseAfterStatus = typeof AdminBusinessApplicationAuditLogResponseAfterStatus[keyof typeof AdminBusinessApplicationAuditLogResponseAfterStatus];
@@ -987,6 +1021,19 @@ export interface AdminInquiryDetailResponse {
 export interface AdminInquiryMessageRequest {
   /** @minLength 1 */
   content: string;
+  hasImage?: boolean;
+}
+
+/**
+ * 관리자 1대1 문의 답변 수정 요청
+ */
+export interface AdminInquiryReplyUpdateRequest {
+  /**
+   * 수정할 답변 내용
+   * @minLength 1
+   */
+  content: string;
+  /** 답변 이미지 포함 여부 */
   hasImage?: boolean;
 }
 
@@ -3901,11 +3948,6 @@ export interface PagedModelAdminBottleReservationV2Response {
   page?: PageMetadata;
 }
 
-export interface PagedModelAdminBottleSeriesResponse {
-  content?: AdminBottleSeriesResponse[];
-  page?: PageMetadata;
-}
-
 export interface PagedModelAdminBusinessApplicationResponse {
   content?: AdminBusinessApplicationResponse[];
   page?: PageMetadata;
@@ -5887,8 +5929,9 @@ export interface UserOrderQueueStatusResponse {
 
 /**
  * 변경된 주문 상태
+ * @nullable
  */
-export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus];
+export type UserOrderReceiptResponseOrderStatus = typeof UserOrderReceiptResponseOrderStatus[keyof typeof UserOrderReceiptResponseOrderStatus] | null;
 
 
 export const UserOrderReceiptResponseOrderStatus = {
@@ -5911,7 +5954,10 @@ export const UserOrderReceiptResponseOrderStatus = {
 export interface UserOrderReceiptResponse {
   /** 수령 완료 처리한 주문 ID */
   orderId?: number;
-  /** 변경된 주문 상태 */
+  /**
+   * 변경된 주문 상태
+   * @nullable
+   */
   orderStatus?: UserOrderReceiptResponseOrderStatus;
 }
 
@@ -6026,7 +6072,10 @@ size?: number;
 
 export type GetApiV2AdminBottleSeriesParams = {
 keyword?: string;
+brand?: string;
 visible?: boolean;
+sortBy?: GetApiV2AdminBottleSeriesSortBy;
+sortDirection?: GetApiV2AdminBottleSeriesSortDirection;
 /**
  * @minimum 0
  */
@@ -6037,6 +6086,23 @@ page?: number;
  */
 size?: number;
 };
+
+export type GetApiV2AdminBottleSeriesSortBy = typeof GetApiV2AdminBottleSeriesSortBy[keyof typeof GetApiV2AdminBottleSeriesSortBy];
+
+
+export const GetApiV2AdminBottleSeriesSortBy = {
+  ID: 'ID',
+  BRAND: 'BRAND',
+  VISIBLE: 'VISIBLE',
+} as const;
+
+export type GetApiV2AdminBottleSeriesSortDirection = typeof GetApiV2AdminBottleSeriesSortDirection[keyof typeof GetApiV2AdminBottleSeriesSortDirection];
+
+
+export const GetApiV2AdminBottleSeriesSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
 
 /**
  * 관리자 보틀 시리즈 생성·수정 요청
@@ -6103,12 +6169,6 @@ export type GetApiV2AdminBottlesParams = {
  * 0부터 시작하는 페이지 번호
  * @minimum 0
  */
-export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
-  /** 해당 보틀의 전체 수동 구매내역에 적용할 상태. PAYMENT_COMPLETED, RECEIPT_PENDING, RECEIPT_COMPLETED만 허용됩니다. */
-  orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
-};
-
-export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
 page?: number;
 /**
  * 페이지당 보틀 수
@@ -6367,6 +6427,19 @@ export const GetApiV2AdminBottlesBottleidReservationsSortDirection = {
   DESC: 'DESC',
 } as const;
 
+/**
+ * 관리자 1대1 문의 답변 수정 요청
+ */
+export type PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody = {
+  /**
+   * 수정할 답변 내용
+   * @minLength 1
+   */
+  content: string;
+  /** 답변 이미지 포함 여부 */
+  hasImage?: boolean;
+};
+
 export type GetApiV2BottlesParams = {
 /**
  * 0부터 시작하는 페이지 번호
@@ -6445,6 +6518,56 @@ export type GetApiV2BottlesDirection = typeof GetApiV2BottlesDirection[keyof typ
 export const GetApiV2BottlesDirection = {
   ASC: 'ASC',
   DESC: 'DESC',
+} as const;
+
+export type GetApiV2OrdersParams = {
+/**
+ * 주문 상태 필터. 지정하면 관리자 수동입력 주문은 제외합니다.
+ */
+orderStatus?: GetApiV2OrdersOrderStatus;
+/**
+ * 관리자 수동입력 주문만 조회할지 여부. orderStatus와 함께 지정하면 결과가 없습니다.
+ */
+manualOnly?: boolean;
+/**
+ * 내림차순 정렬 기준
+ */
+sort?: GetApiV2OrdersSort;
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 주문 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2OrdersOrderStatus = typeof GetApiV2OrdersOrderStatus[keyof typeof GetApiV2OrdersOrderStatus];
+
+
+export const GetApiV2OrdersOrderStatus = {
+  ORDER_REQUESTED: 'ORDER_REQUESTED',
+  PAYMENT_PENDING: 'PAYMENT_PENDING',
+  ORDER_PREPARING: 'ORDER_PREPARING',
+  PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
+  SHIPPING: 'SHIPPING',
+  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
+  RECEIPT_PENDING: 'RECEIPT_PENDING',
+  RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
+  ORDER_CANCELED: 'ORDER_CANCELED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+} as const;
+
+export type GetApiV2OrdersSort = typeof GetApiV2OrdersSort[keyof typeof GetApiV2OrdersSort];
+
+
+export const GetApiV2OrdersSort = {
+  CREATED_AT: 'CREATED_AT',
+  BOTTLED_DATE: 'BOTTLED_DATE',
 } as const;
 
 export type GetApiAdminBannersParams = {
@@ -11001,11 +11124,11 @@ export const getApiV2AdminBannersUnpublished = async (params?: GetApiV2AdminBann
 
 
 /**
- * 브랜드 또는 시리즈명과 노출 여부로 보틀 시리즈를 페이지 조회합니다.
+ * 브랜드 또는 시리즈명 통합 검색, 브랜드·노출 여부 필터와 ID·브랜드·노출 여부 정렬을 적용해 보틀 시리즈를 페이지 조회합니다. 응답의 brands는 브랜드 필터 선택값입니다.
  * @summary 관리자 보틀 시리즈 목록 조회 2.0
  */
 export type getApiV2AdminBottleSeriesResponse200 = {
-  data: PagedModelAdminBottleSeriesResponse
+  data: AdminBottleSeriesListResponse
   status: 200
 }
     
@@ -11526,6 +11649,86 @@ export const getApiV2AdminDashboardStats = async ( options?: RequestInit): Promi
 
 
 /**
+ * 문의에 등록된 관리자 답변을 삭제하고 남은 최신 메시지를 기준으로 문의 상태를 갱신합니다.
+ * @summary 1대1 문의 답변 삭제(관리자) 2.0
+ */
+export type deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponseSuccess = (deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponse = (deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponseSuccess)
+
+export const getDeleteApiV2AdminInquiriesInquiryidRepliesReplyidUrl = (inquiryId: number,
+    replyId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/inquiries/${inquiryId}/replies/${replyId}`
+}
+
+export const deleteApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId: number,
+    replyId: number, options?: RequestInit): Promise<deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponse> => {
+  
+  return customFetch<deleteApiV2AdminInquiriesInquiryidRepliesReplyidResponse>(getDeleteApiV2AdminInquiriesInquiryidRepliesReplyidUrl(inquiryId,replyId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 문의에 등록된 관리자 답변의 내용과 이미지 포함 여부를 수정합니다.
+ * @summary 1대1 문의 답변 수정(관리자) 2.0
+ */
+export type patchApiV2AdminInquiriesInquiryidRepliesReplyidResponse200 = {
+  data: AdminInquiryMessageResponse
+  status: 200
+}
+    
+export type patchApiV2AdminInquiriesInquiryidRepliesReplyidResponseSuccess = (patchApiV2AdminInquiriesInquiryidRepliesReplyidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2AdminInquiriesInquiryidRepliesReplyidResponse = (patchApiV2AdminInquiriesInquiryidRepliesReplyidResponseSuccess)
+
+export const getPatchApiV2AdminInquiriesInquiryidRepliesReplyidUrl = (inquiryId: number,
+    replyId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/inquiries/${inquiryId}/replies/${replyId}`
+}
+
+export const patchApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId: number,
+    replyId: number,
+    patchApiV2AdminInquiriesInquiryidRepliesReplyidBody: PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody, options?: RequestInit): Promise<patchApiV2AdminInquiriesInquiryidRepliesReplyidResponse> => {
+  
+  return customFetch<patchApiV2AdminInquiriesInquiryidRepliesReplyidResponse>(getPatchApiV2AdminInquiriesInquiryidRepliesReplyidUrl(inquiryId,replyId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiV2AdminInquiriesInquiryidRepliesReplyidBody,)
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
  * @summary 아카이브 보틀 목록 조회 2.0
  */
@@ -11633,6 +11836,53 @@ export const getGetApiV2HealthUrl = () => {
 export const getApiV2Health = async ( options?: RequestInit): Promise<getApiV2HealthResponse> => {
   
   return customFetch<getApiV2HealthResponse>(getGetApiV2HealthUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 로그인 사용자의 주문을 상태로 필터링하고 주문 생성일 또는 보틀 병입일 기준 최신순으로 조회합니다.
+orderStatus를 지정하면 관리자 수동입력 주문은 제외합니다.
+manualOnly=true이면 관리자 수동입력 주문만 조회하며, 해당 주문의 상태는 사용자 응답에 포함하지 않습니다.
+
+ * @summary 마이페이지 주문 내역 조회 2.0
+ */
+export type getApiV2OrdersResponse200 = {
+  data: PagedModelUserOrderResponse
+  status: 200
+}
+    
+export type getApiV2OrdersResponseSuccess = (getApiV2OrdersResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2OrdersResponse = (getApiV2OrdersResponseSuccess)
+
+export const getGetApiV2OrdersUrl = (params?: GetApiV2OrdersParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/orders?${stringifiedParams}` : `/api/2.0/orders`
+}
+
+export const getApiV2Orders = async (params?: GetApiV2OrdersParams, options?: RequestInit): Promise<getApiV2OrdersResponse> => {
+  
+  return customFetch<getApiV2OrdersResponse>(getGetApiV2OrdersUrl(params),
   {      
     ...options,
     method: 'GET'

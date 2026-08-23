@@ -208,8 +208,8 @@ export function Carousel3D<T>({
     <div className="relative">
       <div
         ref={containerRef}
-        className={`relative flex items-center justify-center overflow-visible [perspective:2000px] ${containerClassName}`}
-        style={{ height: containerHeight }}
+        className={`relative flex h-[360px] items-center justify-center overflow-visible [perspective:2000px] sm:h-[440px] ${containerClassName}`}
+        style={containerHeight === "440px" ? undefined : { height: containerHeight }}
       >
         {items.map((item, index) => {
           const position = positions[index];
