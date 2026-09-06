@@ -4,14 +4,12 @@ import BottleSeriesPage from "./page";
 
 const mocks = vi.hoisted(() => ({
   getBottleSeries: vi.fn(),
-  getBottlesParameters: vi.fn(),
   getAuthToken: vi.fn(),
   renderContent: vi.fn(),
 }));
 
 vi.mock("@/apis/generated/api", () => ({
   getApiV2AdminBottleSeries: mocks.getBottleSeries,
-  getApiAdminBottlesParameters: mocks.getBottlesParameters,
 }));
 
 vi.mock("@/apis/mutator", () => ({
@@ -36,36 +34,26 @@ describe("BottleSeriesPage", () => {
     mocks.getBottleSeries.mockResolvedValue({
       data: {
         content: [{ id: 1, brand: "Macallan", series: "Double Cask" }],
-        totalElements: 24,
+        page: { totalElements: 24 },
       },
-    });
-    mocks.getBottlesParameters.mockResolvedValue({
-      data: { brands: ["Macallan", "Glenfiddich"] },
     });
   });
 
-  it("검색, 노출 여부, 브랜드, 페이지 조건으로 2.0 관리자 API를 조회한다", async () => {
+  it("검색, 노출 여부, 페이지 조건으로 2.0 관리자 API를 조회한다", async () => {
     const page = await BottleSeriesPage({
-      searchParams: Promise.resolve({
-        page: "2",
-        limit: "10",
-        q: " macallan ",
-        visible: "false",
-        brand: " Macallan ",
-      }),
+      searchParams: Promise.resolve({ page: "2", limit: "10", q: " macallan ", visible: "false" }),
     });
 
     render(page);
 
     expect(mocks.getBottleSeries).toHaveBeenCalledWith(
-      { keyword: "macallan", visible: false, brand: "Macallan", page: 1, size: 10 },
+      { keyword: "macallan", visible: false, page: 1, size: 10 },
       { token: "admin-token" },
     );
     expect(mocks.renderContent).toHaveBeenCalledWith(
       expect.objectContaining({
         series: [{ id: 1, brand: "Macallan", series: "Double Cask" }],
         totalElements: 24,
-        brands: ["Macallan", "Glenfiddich"],
       }),
     );
     expect(screen.getByText("보틀 시리즈 목록")).toBeInTheDocument();
@@ -81,23 +69,6 @@ describe("BottleSeriesPage", () => {
     expect(mocks.getBottleSeries).toHaveBeenCalledWith(
       { keyword: undefined, visible: undefined, page: 0, size: 20 },
       { token: "admin-token" },
-    );
-  });
-
-  it("page.totalElements 중첩 구조로 응답해도 총 개수를 올바르게 전달한다", async () => {
-    mocks.getBottleSeries.mockResolvedValueOnce({
-      data: {
-        content: [{ id: 2, brand: "Glenfiddich", series: "12" }],
-        page: { totalElements: 42 },
-      },
-    });
-
-    const page = await BottleSeriesPage({ searchParams: Promise.resolve({}) });
-
-    render(page);
-
-    expect(mocks.renderContent).toHaveBeenCalledWith(
-      expect.objectContaining({ totalElements: 42 }),
     );
   });
 });
