@@ -112,6 +112,21 @@ export interface AdminAnnouncementSummaryResponse {
   visible?: boolean;
 }
 
+export interface AdminBackgroundResponse {
+  bodyHtml?: string;
+  deleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: number;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  sortOrder?: number;
+  subtitle?: string;
+  title?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
 /**
  * 배너별 노출 순서 변경 항목입니다.
  */
@@ -257,6 +272,33 @@ export interface AdminBottleManualPurchaseV2Response {
   unitPrice?: number;
   userId?: number;
   userPhone?: string;
+}
+
+/**
+ * 보틀 원본 라벨 등록 상태. 미등록이면 available=false이고 파일 정보는 null입니다.
+ */
+export interface AdminBottleOriginalLabelResponse {
+  /** 원본 라벨 다운로드 가능 여부 */
+  available?: boolean;
+  bottleId?: number;
+  contentType?: string;
+  /** 다운로드 파일명 */
+  filename?: string;
+  height?: number;
+  sizeBytes?: number;
+  width?: number;
+}
+
+/**
+ * 보틀 생성 시 사용할 사전 업로드 원본 라벨. uploadId는 한 번만 사용할 수 있습니다.
+ */
+export interface AdminBottleOriginalLabelUploadResponse {
+  contentType?: string;
+  filename?: string;
+  height?: number;
+  sizeBytes?: number;
+  uploadId?: string;
+  width?: number;
 }
 
 export interface AdminBottleReservationApplicantResponse {
@@ -809,6 +851,48 @@ export interface AdminBusinessUserResponse {
   username?: string;
 }
 
+export interface BottleResponse {
+  id?: number;
+  imageUrl?: string;
+  name?: string;
+}
+
+export interface ProfileResponse {
+  label?: string;
+  sortOrder?: number;
+  value?: string;
+}
+
+export interface AdminCharacterResponse {
+  bottles?: BottleResponse[];
+  deleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: number;
+  description?: string;
+  englishName?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  name?: string;
+  profiles?: ProfileResponse[];
+  slug?: string;
+  sortOrder?: number;
+  tagline?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface AdminCurationResponse {
+  available?: boolean;
+  contentId?: number;
+  href?: string;
+  imageUrl?: string;
+  section?: string;
+  sortOrder?: number;
+  summary?: string;
+  title?: string;
+}
+
 /**
  * 관리자 대시보드 통계 응답
  */
@@ -948,6 +1032,24 @@ export interface AdminDeliveryCsvUploadResponse {
   totalRows?: number;
 }
 
+export interface AdminHomeBannerResponse {
+  deleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: number;
+  description?: string;
+  id?: number;
+  imageKey?: string;
+  imageUrl?: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  mobileImageKey?: string;
+  mobileImageUrl?: string;
+  sortOrder?: number;
+  title?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
 /**
  * 이미지 업로드 용도입니다.
  */
@@ -955,21 +1057,30 @@ export type AdminImageUploadResponsePurpose = typeof AdminImageUploadResponsePur
 
 
 export const AdminImageUploadResponsePurpose = {
+  TALES_CONTENT: 'TALES_CONTENT',
+  TALES_COMMUNITY: 'TALES_COMMUNITY',
   BOTTLE: 'BOTTLE',
   RESERVATION_NOTICE: 'RESERVATION_NOTICE',
   ITEM: 'ITEM',
+  TALES_COMIC_COVER: 'TALES_COMIC_COVER',
+  TALES_COMIC_EPISODE_THUMBNAIL: 'TALES_COMIC_EPISODE_THUMBNAIL',
+  TALES_COMIC_EPISODE_IMAGE: 'TALES_COMIC_EPISODE_IMAGE',
 } as const;
 
 /**
  * 관리자 이미지 업로드 응답입니다.
  */
 export interface AdminImageUploadResponse {
+  /** 검증된 실제 이미지 세로 픽셀입니다. */
+  height?: number;
   /** DB에 저장할 S3 object key입니다. */
   key?: string;
   /** 이미지 업로드 용도입니다. */
   purpose?: AdminImageUploadResponsePurpose;
   /** 화면 미리보기에 사용할 CloudFront URL입니다. */
   url?: string;
+  /** 검증된 실제 이미지 가로 픽셀입니다. */
+  width?: number;
 }
 
 export type AdminInquirySummaryResponseStatus = typeof AdminInquirySummaryResponseStatus[keyof typeof AdminInquirySummaryResponseStatus];
@@ -2047,6 +2158,45 @@ export interface AuthResponse {
   username?: string;
 }
 
+export interface BackgroundRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  bodyHtml: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  subtitle?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+}
+
+export interface BackgroundResponse {
+  bodyHtml?: string;
+  id?: number;
+  imageUrl?: string;
+  sortOrder?: number;
+  subtitle?: string;
+  title?: string;
+  updatedAt?: string;
+}
+
 /**
  * 글타입 사용처입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다. 생략하면 POST로 처리합니다.
  */
@@ -2358,6 +2508,11 @@ export interface BottleCreateRequest {
    */
   name: string;
   /**
+   * 원본 라벨 사전 업로드 API가 반환한 uploadId입니다. 생략하면 원본 없이 생성하며, 전달하면 보틀 생성과 함께 원본을 연결합니다.
+   * @pattern [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+   */
+  originalLabelUploadId?: string;
+  /**
    * 해당되는 경우 시리즈명을 입력합니다.
    * @minLength 0
    * @maxLength 50
@@ -2584,59 +2739,6 @@ export interface BottleReservationPickupWaitingPickupRequest {
   bottleId?: number;
   /** 같은 병이 여러 공고에 걸쳐 있을 때 범위를 좁히는 예약 공고 ID */
   noticeId?: number;
-}
-
-/**
- * 추가 메타데이터입니다.
- */
-export type BottleResponseExtraInfos = {[key: string]: string};
-
-/**
- * 보틀 상세 응답입니다.
- */
-export interface BottleResponse {
-  /** 도수(ABV)입니다. */
-  abv?: number;
-  /** 병입일입니다. */
-  bottledDate?: string;
-  /** 브랜드명입니다. */
-  brand?: string;
-  /** 용량(ml)입니다. */
-  capacity?: number;
-  /** 캐스크 번호입니다. */
-  caskNumber?: string;
-  /** 캐스크 타입입니다. */
-  caskType?: string;
-  /** 제조사 또는 회사명입니다. */
-  company?: string;
-  /** 사업자에게만 제공되는 권장소매가입니다. */
-  consumerPrice?: number;
-  /** 생성 일시입니다. */
-  createdAt?: string;
-  /** 보틀 설명입니다. */
-  description?: string;
-  /** 증류일입니다. */
-  distillationDate?: string;
-  /** 증류소명입니다. */
-  distillery?: string;
-  /** 추가 메타데이터입니다. */
-  extraInfos?: BottleResponseExtraInfos;
-  /** 보틀 고유 ID입니다. */
-  id?: number;
-  /** 대표 이미지를 제외한 추가 이미지의 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
-  imageUrls?: string[];
-  /** 보틀 대표 라벨 이미지의 CloudFront 공개 URL입니다. */
-  imgUrl?: string;
-  /** 몰트 타입입니다. */
-  maltType?: string;
-  /** 보틀 노출명입니다. */
-  name?: string;
-  /** 시리즈명입니다. */
-  series?: string;
-  /** 사업자에게만 제공되는 공급가입니다. */
-  supplyPrice?: number;
-  /** 수정 일시입니다. */
-  updatedAt?: string;
 }
 
 export interface BottleSearchParameterValues {
@@ -2895,6 +2997,82 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+export type CharacterRequestProfilesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  label: string;
+  /**
+   * @minLength 0
+   * @maxLength 300
+   */
+  value: string;
+};
+
+export interface CharacterRequest {
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  bottleIds?: number[];
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  englishName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  name: string;
+  /**
+   * @minItems 0
+   * @maxItems 20
+   */
+  profiles?: CharacterRequestProfilesItem[];
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  slug: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  tagline?: string;
+  visible?: boolean;
+}
+
+export interface CharacterResponse {
+  bottles?: BottleResponse[];
+  description?: string;
+  englishName?: string;
+  id?: number;
+  imageUrl?: string;
+  name?: string;
+  profiles?: ProfileResponse[];
+  slug?: string;
+  sortOrder?: number;
+  tagline?: string;
+  updatedAt?: string;
+}
+
 /**
  * 게시글 댓글의 답글 정보를 담은 응답 DTO입니다.
  */
@@ -2989,6 +3167,25 @@ export interface CreatePostRequest {
    * @maxLength 200
    */
   title: string;
+}
+
+export interface CurationRequest {
+  /**
+   * @minItems 0
+   * @maxItems 12
+   */
+  contentIds: number[];
+}
+
+export interface CurationResponse {
+  available?: boolean;
+  contentId?: number;
+  href?: string;
+  imageUrl?: string;
+  section?: string;
+  sortOrder?: number;
+  summary?: string;
+  title?: string;
 }
 
 /**
@@ -3247,6 +3444,95 @@ export interface HealthCheckResponse {
   service?: string;
   status?: string;
   timestamp?: string;
+}
+
+export interface HomeBannerRequest {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkLabel?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkUrl?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  mobileImageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+}
+
+export interface HomeBannerResponse {
+  description?: string;
+  id?: number;
+  imageUrl?: string;
+  linkLabel?: string;
+  linkUrl?: string;
+  mobileImageUrl?: string;
+  sortOrder?: number;
+  title?: string;
+  updatedAt?: string;
+}
+
+export interface ImageRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  altText: string;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  height: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  width: number;
+}
+
+export interface ImageResponse {
+  altText?: string;
+  height?: number;
+  id?: number;
+  imageKey?: string;
+  sortOrder?: number;
+  url?: string;
+  width?: number;
 }
 
 /**
@@ -3592,6 +3878,21 @@ export interface LoginRequest {
    * @minLength 1
    */
   password: string;
+}
+
+export interface TalesComicEpisodeSummaryResponse {
+  displayLabel?: string;
+  episodeNumber?: number;
+  id?: number;
+  publishedAt?: string;
+  summary?: string;
+  thumbnailUrl?: string;
+  title?: string;
+}
+
+export interface Navigation {
+  nextEpisode?: TalesComicEpisodeSummaryResponse;
+  previousEpisode?: TalesComicEpisodeSummaryResponse;
 }
 
 export interface NiceIdAdminSessionStatusResponse {
@@ -5012,6 +5313,11 @@ export interface PostResponse {
   viewCount?: number;
 }
 
+export interface PostPageResponse {
+  content?: PostResponse[];
+  page?: PageMetadata;
+}
+
 /**
  * 사전 등록 요청 본문
  */
@@ -5070,6 +5376,19 @@ export interface PreRegisterResponse {
 export interface PresignUrlResponse {
   /** 일정 시간만 유효한 프리사인드 URL 문자열입니다. */
   url?: string;
+}
+
+export interface ProfileRequest {
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  label: string;
+  /**
+   * @minLength 0
+   * @maxLength 300
+   */
+  value: string;
 }
 
 /**
@@ -5416,6 +5735,12 @@ export interface SaleAnnouncementUpdateRequest {
   totalQuantity?: number;
 }
 
+export interface SeriesSummary {
+  id?: number;
+  slug?: string;
+  title?: string;
+}
+
 export interface ShippingPolicyResponse {
   baseShippingFee?: number;
   enabled?: boolean;
@@ -5523,6 +5848,442 @@ export interface SocialLinkResponse {
   providerName?: string;
   /** 연동 수정 시각 */
   updatedAt?: string;
+}
+
+export interface TalesAdminComicEpisodeSummaryResponse {
+  createdAt?: string;
+  deleted?: boolean;
+  displayLabel?: string;
+  episodeNumber?: number;
+  id?: number;
+  publishedAt?: string;
+  sortOrder?: number;
+  state?: string;
+  summary?: string;
+  thumbnailKey?: string;
+  thumbnailUrl?: string;
+  title?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface TalesAdminComicEpisodeDetailResponse {
+  episode?: TalesAdminComicEpisodeSummaryResponse;
+  images?: ImageResponse[];
+  seriesId?: number;
+  seriesSlug?: string;
+  seriesTitle?: string;
+}
+
+export interface TalesAdminComicEpisodePageResponse {
+  content?: TalesAdminComicEpisodeSummaryResponse[];
+  page?: PageMetadata;
+}
+
+export type TalesAdminComicEpisodeRequestImagesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  altText: string;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  height: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  width: number;
+};
+
+export interface TalesAdminComicEpisodeRequest {
+  /**
+   * @minLength 0
+   * @maxLength 30
+   */
+  displayLabel?: string;
+  /**
+   * @minimum 1
+   * @maximum 99999
+   */
+  episodeNumber: number;
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  images: TalesAdminComicEpisodeRequestImagesItem[];
+  publishedAt?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  thumbnailKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible: boolean;
+}
+
+export type TalesAdminComicSeriesCreateRequestPublicationStatus = typeof TalesAdminComicSeriesCreateRequestPublicationStatus[keyof typeof TalesAdminComicSeriesCreateRequestPublicationStatus];
+
+
+export const TalesAdminComicSeriesCreateRequestPublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface TalesAdminComicSeriesCreateRequest {
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  authorName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  coverImageKey?: string;
+  publicationStatus: TalesAdminComicSeriesCreateRequestPublicationStatus;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  scheduleText?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   * @pattern [a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?
+   */
+  slug: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 1000
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  title: string;
+  visible: boolean;
+}
+
+export type TalesAdminComicSeriesResponsePublicationStatus = typeof TalesAdminComicSeriesResponsePublicationStatus[keyof typeof TalesAdminComicSeriesResponsePublicationStatus];
+
+
+export const TalesAdminComicSeriesResponsePublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface TalesAdminComicSeriesResponse {
+  authorName?: string;
+  coverImageKey?: string;
+  coverImageUrl?: string;
+  createdAt?: string;
+  deleted?: boolean;
+  deletedAt?: string;
+  deletedBy?: number;
+  id?: number;
+  latestEpisode?: TalesAdminComicEpisodeSummaryResponse;
+  publicationStatus?: TalesAdminComicSeriesResponsePublicationStatus;
+  publishedEpisodeCount?: number;
+  scheduleText?: string;
+  slug?: string;
+  sortOrder?: number;
+  summary?: string;
+  title?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface TalesAdminComicSeriesPageResponse {
+  content?: TalesAdminComicSeriesResponse[];
+  page?: PageMetadata;
+}
+
+export type TalesAdminComicSeriesUpdateRequestPublicationStatus = typeof TalesAdminComicSeriesUpdateRequestPublicationStatus[keyof typeof TalesAdminComicSeriesUpdateRequestPublicationStatus];
+
+
+export const TalesAdminComicSeriesUpdateRequestPublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface TalesAdminComicSeriesUpdateRequest {
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  authorName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  coverImageKey?: string;
+  publicationStatus: TalesAdminComicSeriesUpdateRequestPublicationStatus;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  scheduleText?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 1000
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  title: string;
+  visible: boolean;
+}
+
+export interface TalesAdminNoticeResponse {
+  category?: string;
+  categoryActive?: boolean;
+  categoryId?: number;
+  categoryLabel?: string;
+  content?: string;
+  createdAt?: string;
+  expiredAt?: string;
+  id?: number;
+  pinned?: boolean;
+  priority?: number;
+  publishedAt?: string;
+  title?: string;
+  updatedAt?: string;
+  visible?: boolean;
+}
+
+export interface TalesAdminNoticePageResponse {
+  content?: TalesAdminNoticeResponse[];
+  page?: PageMetadata;
+}
+
+export interface TalesAdminNoticeRequest {
+  categoryId: number;
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  expiredAt?: string;
+  pinned: boolean;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  priority: number;
+  publishedAt?: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  visible: boolean;
+}
+
+export interface TalesComicEpisodeDetailResponse {
+  episode?: TalesComicEpisodeSummaryResponse;
+  images?: ImageResponse[];
+  navigation?: Navigation;
+  series?: SeriesSummary;
+}
+
+export interface TalesComicPageMetadata {
+  number?: number;
+  size?: number;
+  totalElements?: number;
+  totalPages?: number;
+}
+
+export interface TalesComicEpisodePageResponse {
+  content?: TalesComicEpisodeSummaryResponse[];
+  page?: TalesComicPageMetadata;
+}
+
+export type TalesComicSeriesResponsePublicationStatus = typeof TalesComicSeriesResponsePublicationStatus[keyof typeof TalesComicSeriesResponsePublicationStatus];
+
+
+export const TalesComicSeriesResponsePublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export interface TalesComicSeriesResponse {
+  authorName?: string;
+  coverImageUrl?: string;
+  id?: number;
+  latestEpisode?: TalesComicEpisodeSummaryResponse;
+  publicationStatus?: TalesComicSeriesResponsePublicationStatus;
+  publishedEpisodeCount?: number;
+  scheduleText?: string;
+  slug?: string;
+  summary?: string;
+  title?: string;
+}
+
+export interface TalesComicSeriesDetailResponse {
+  episodes?: TalesComicEpisodePageResponse;
+  series?: TalesComicSeriesResponse;
+}
+
+export interface TalesComicSeriesPageResponse {
+  content?: TalesComicSeriesResponse[];
+  page?: TalesComicPageMetadata;
+}
+
+export interface TalesCommunityCommentCreateRequest {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  content: string;
+  parentCommentId?: number;
+}
+
+export interface TalesCommunityCommentResponse {
+  author?: string;
+  authorId?: number;
+  content?: string;
+  createdAt?: string;
+  id?: number;
+  parentCommentId?: number;
+  postId?: number;
+  updatedAt?: string;
+}
+
+export interface TalesCommunityPostCreateRequest {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+}
+
+export interface TalesCommunityPostResponse {
+  author?: string;
+  authorId?: number;
+  board?: string;
+  category?: string;
+  categoryLabel?: string;
+  commentCount?: number;
+  content?: string;
+  createdAt?: string;
+  hasImage?: boolean;
+  id?: number;
+  title?: string;
+  updatedAt?: string;
+  viewCount?: number;
+}
+
+export interface TalesCommunityPostPageResponse {
+  content?: TalesCommunityPostResponse[];
+  page?: PageMetadata;
+}
+
+export interface TalesNoticeCategoryResponse {
+  active?: boolean;
+  code?: string;
+  createdAt?: string;
+  displayOrder?: number;
+  id?: number;
+  name?: string;
+  /** 이 분류에 연결된 공지 수 */
+  noticeCount?: number;
+  updatedAt?: string;
+}
+
+export interface TalesNoticeCategoryListResponse {
+  categories?: TalesNoticeCategoryResponse[];
+}
+
+export interface TalesNoticeCategoryRequest {
+  /** 공개 공지 탭 노출 여부 */
+  active: boolean;
+  /**
+   * URL과 API 필터에 사용하는 분류 코드
+   * @minLength 2
+   * @maxLength 40
+   * @pattern [a-z0-9][a-z0-9-]{1,39}
+   */
+  code: string;
+  /**
+   * 오름차순 노출 순서
+   * @minimum 0
+   * @maximum 9999
+   */
+  displayOrder: number;
+  /**
+   * 공지 탭에 표시할 이름
+   * @minLength 0
+   * @maxLength 30
+   */
+  name: string;
+}
+
+export interface TalesNoticeResponse {
+  category?: string;
+  categoryLabel?: string;
+  content?: string;
+  id?: number;
+  pinned?: boolean;
+  publishedAt?: string;
+  title?: string;
+}
+
+export interface TalesNoticePageResponse {
+  content?: TalesNoticeResponse[];
+  page?: PageMetadata;
 }
 
 /**
@@ -5675,6 +6436,21 @@ export interface UserAnnouncementResponse {
   scope?: UserAnnouncementResponseScope;
   /** 사용자에게 표시되는 제목입니다. */
   title?: string;
+}
+
+/**
+ * 보틀 원본 라벨 등록 상태. 미등록이면 available=false이고 파일 정보는 null입니다.
+ */
+export interface UserBottleOriginalLabelResponse {
+  /** 원본 라벨 다운로드 가능 여부 */
+  available?: boolean;
+  bottleId?: number;
+  contentType?: string;
+  /** 다운로드 파일명 */
+  filename?: string;
+  height?: number;
+  sizeBytes?: number;
+  width?: number;
 }
 
 export type UserBottleReservationPickupBulkUpdateResponseStatus = typeof UserBottleReservationPickupBulkUpdateResponseStatus[keyof typeof UserBottleReservationPickupBulkUpdateResponseStatus];
@@ -6235,6 +7011,10 @@ export const GetApiV2AdminBottlesSortDirection = {
   DESC: 'DESC',
 } as const;
 
+export type PostApiV2AdminBottlesOriginalLabelUploadsBody = {
+  file: Blob;
+};
+
 export type PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole = typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole[keyof typeof PostApiV2AdminBottlesReservationsNoticesNoticeidAutoConfirmBodyPriorityAllocationsItemRole];
 
 
@@ -6343,6 +7123,10 @@ export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBody = {
   orderStatus: PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus;
 };
 
+export type PutApiV2AdminBottlesBottleidOriginalLabelBody = {
+  file: Blob;
+};
+
 export type GetApiV2AdminBottlesBottleidReservationNoticesParams = {
 page?: number;
 size?: number;
@@ -6440,6 +7224,634 @@ export type PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody = {
   hasImage?: boolean;
 };
 
+export type Create2Body = {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  bodyHtml: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  subtitle?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+};
+
+export type Update2Body = {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  bodyHtml: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  subtitle?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+};
+
+export type Create1BodyProfilesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  label: string;
+  /**
+   * @minLength 0
+   * @maxLength 300
+   */
+  value: string;
+};
+
+export type Create1Body = {
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  bottleIds?: number[];
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  englishName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  name: string;
+  /**
+   * @minItems 0
+   * @maxItems 20
+   */
+  profiles?: Create1BodyProfilesItem[];
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  slug: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  tagline?: string;
+  visible?: boolean;
+};
+
+export type Update1BodyProfilesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 50
+   */
+  label: string;
+  /**
+   * @minLength 0
+   * @maxLength 300
+   */
+  value: string;
+};
+
+export type Update1Body = {
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  bottleIds?: number[];
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  englishName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  name: string;
+  /**
+   * @minItems 0
+   * @maxItems 20
+   */
+  profiles?: Update1BodyProfilesItem[];
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  slug: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  tagline?: string;
+  visible?: boolean;
+};
+
+export type GetApiV2AdminTalesComicsParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: string;
+state?: string;
+};
+
+export type PostApiV2AdminTalesComicsBodyPublicationStatus = typeof PostApiV2AdminTalesComicsBodyPublicationStatus[keyof typeof PostApiV2AdminTalesComicsBodyPublicationStatus];
+
+
+export const PostApiV2AdminTalesComicsBodyPublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export type PostApiV2AdminTalesComicsBody = {
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  authorName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  coverImageKey?: string;
+  publicationStatus: PostApiV2AdminTalesComicsBodyPublicationStatus;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  scheduleText?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   * @pattern [a-z0-9](?:[a-z0-9-]{0,98}[a-z0-9])?
+   */
+  slug: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 1000
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  title: string;
+  visible: boolean;
+};
+
+export type PutApiV2AdminTalesComicsSeriesidBodyPublicationStatus = typeof PutApiV2AdminTalesComicsSeriesidBodyPublicationStatus[keyof typeof PutApiV2AdminTalesComicsSeriesidBodyPublicationStatus];
+
+
+export const PutApiV2AdminTalesComicsSeriesidBodyPublicationStatus = {
+  PREPARING: 'PREPARING',
+  ONGOING: 'ONGOING',
+  HIATUS: 'HIATUS',
+  COMPLETED: 'COMPLETED',
+} as const;
+
+export type PutApiV2AdminTalesComicsSeriesidBody = {
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  authorName?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  coverImageKey?: string;
+  publicationStatus: PutApiV2AdminTalesComicsSeriesidBodyPublicationStatus;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  scheduleText?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 1000
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 100
+   */
+  title: string;
+  visible: boolean;
+};
+
+export type GetEpisodesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+state?: string;
+};
+
+export type CreateEpisodeBodyImagesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  altText: string;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  height: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  width: number;
+};
+
+export type CreateEpisodeBody = {
+  /**
+   * @minLength 0
+   * @maxLength 30
+   */
+  displayLabel?: string;
+  /**
+   * @minimum 1
+   * @maximum 99999
+   */
+  episodeNumber: number;
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  images: CreateEpisodeBodyImagesItem[];
+  publishedAt?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  thumbnailKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible: boolean;
+};
+
+export type UpdateEpisodeBodyImagesItem = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  altText: string;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  height: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minimum 1
+   * @maximum 12000
+   */
+  width: number;
+};
+
+export type UpdateEpisodeBody = {
+  /**
+   * @minLength 0
+   * @maxLength 30
+   */
+  displayLabel?: string;
+  /**
+   * @minimum 1
+   * @maximum 99999
+   */
+  episodeNumber: number;
+  /**
+   * @minItems 0
+   * @maxItems 50
+   */
+  images: UpdateEpisodeBodyImagesItem[];
+  publishedAt?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  summary?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  thumbnailKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible: boolean;
+};
+
+export type GetApiV2AdminTalesCommunityBoardPostsParams = {
+page?: number;
+size?: number;
+searchType?: string;
+keyword?: string;
+};
+
+export type CreateBody = {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkLabel?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkUrl?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  mobileImageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+};
+
+export type UpdateBody = {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  description?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  imageKey?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkLabel?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  linkUrl?: string;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  mobileImageKey?: string;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  sortOrder?: number;
+  /**
+   * @minLength 0
+   * @maxLength 150
+   */
+  title: string;
+  visible?: boolean;
+};
+
+export type OptionsParams = {
+section: string;
+keyword?: string;
+};
+
+export type SaveBody = {
+  /**
+   * @minItems 0
+   * @maxItems 12
+   */
+  contentIds: number[];
+};
+
+export type PostApiV2AdminTalesNoticeCategoriesBody = {
+  /** 공개 공지 탭 노출 여부 */
+  active: boolean;
+  /**
+   * URL과 API 필터에 사용하는 분류 코드
+   * @minLength 2
+   * @maxLength 40
+   * @pattern [a-z0-9][a-z0-9-]{1,39}
+   */
+  code: string;
+  /**
+   * 오름차순 노출 순서
+   * @minimum 0
+   * @maximum 9999
+   */
+  displayOrder: number;
+  /**
+   * 공지 탭에 표시할 이름
+   * @minLength 0
+   * @maxLength 30
+   */
+  name: string;
+};
+
+export type PutApiV2AdminTalesNoticeCategoriesCategoryidBody = {
+  /** 공개 공지 탭 노출 여부 */
+  active: boolean;
+  /**
+   * URL과 API 필터에 사용하는 분류 코드
+   * @minLength 2
+   * @maxLength 40
+   * @pattern [a-z0-9][a-z0-9-]{1,39}
+   */
+  code: string;
+  /**
+   * 오름차순 노출 순서
+   * @minimum 0
+   * @maximum 9999
+   */
+  displayOrder: number;
+  /**
+   * 공지 탭에 표시할 이름
+   * @minLength 0
+   * @maxLength 30
+   */
+  name: string;
+};
+
+export type GetApiV2AdminTalesNoticesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+status?: string;
+};
+
+export type PostApiV2AdminTalesNoticesBody = {
+  categoryId: number;
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  expiredAt?: string;
+  pinned: boolean;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  priority: number;
+  publishedAt?: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  visible: boolean;
+};
+
+export type PutApiV2AdminTalesNoticesNoticeidBody = {
+  categoryId: number;
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  expiredAt?: string;
+  pinned: boolean;
+  /**
+   * @minimum 0
+   * @maximum 9999
+   */
+  priority: number;
+  publishedAt?: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+  visible: boolean;
+};
+
 export type GetApiV2BottlesParams = {
 /**
  * 0부터 시작하는 페이지 번호
@@ -6507,6 +7919,8 @@ export type GetApiV2BottlesSort = typeof GetApiV2BottlesSort[keyof typeof GetApi
 
 export const GetApiV2BottlesSort = {
   REGISTERED: 'REGISTERED',
+  NAME: 'NAME',
+  ABV: 'ABV',
   BOTTLED_DATE: 'BOTTLED_DATE',
   DISTILLATION_DATE: 'DISTILLATION_DATE',
   MATURATION_AGE: 'MATURATION_AGE',
@@ -6519,6 +7933,10 @@ export const GetApiV2BottlesDirection = {
   ASC: 'ASC',
   DESC: 'DESC',
 } as const;
+
+export type GetApiV2BottlesParametersParams = {
+brand?: string[];
+};
 
 export type GetApiV2OrdersParams = {
 /**
@@ -6569,6 +7987,84 @@ export const GetApiV2OrdersSort = {
   CREATED_AT: 'CREATED_AT',
   BOTTLED_DATE: 'BOTTLED_DATE',
 } as const;
+
+export type GetApiV2TalesComicsParams = {
+page?: number;
+size?: number;
+status?: string;
+};
+
+export type GetApiV2TalesComicsSeriesslugParams = {
+page?: number;
+size?: number;
+};
+
+export type GetApiV2TalesComicsSeriesslugEpisodesParams = {
+page?: number;
+size?: number;
+};
+
+export type UploadBody = {
+  file: Blob;
+};
+
+export type GetApiV2TalesCommunityBoardPostsParams = {
+page?: number;
+size?: number;
+searchType?: string;
+keyword?: string;
+};
+
+export type PostApiV2TalesCommunityBoardPostsBody = {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+};
+
+export type UpdatePostBody = {
+  /**
+   * @minLength 0
+   * @maxLength 20000
+   */
+  content: string;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  title: string;
+};
+
+export type PostApiV2TalesCommunityBoardPostsPostidCommentsBody = {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  content: string;
+  parentCommentId?: number;
+};
+
+export type UpdateCommentBody = {
+  /**
+   * @minLength 0
+   * @maxLength 2000
+   */
+  content: string;
+  parentCommentId?: number;
+};
+
+export type GetApiV2TalesNoticesParams = {
+page?: number;
+size?: number;
+keyword?: string;
+category?: string;
+};
 
 export type GetApiAdminBannersParams = {
 /**
@@ -7203,6 +8699,11 @@ export type PostApiAdminBottlesBody = {
    */
   name: string;
   /**
+   * 원본 라벨 사전 업로드 API가 반환한 uploadId입니다. 생략하면 원본 없이 생성하며, 전달하면 보틀 생성과 함께 원본을 연결합니다.
+   * @pattern [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}
+   */
+  originalLabelUploadId?: string;
+  /**
    * 해당되는 경우 시리즈명을 입력합니다.
    * @minLength 0
    * @maxLength 50
@@ -7802,8 +9303,8 @@ export type PostApiAdminImagesPurposeBody = {
   file: Blob;
 };
 
-export type List1Params = {
-status?: List1Status;
+export type List9Params = {
+status?: List9Status;
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -7820,10 +9321,10 @@ size?: number;
 sort?: string[];
 };
 
-export type List1Status = typeof List1Status[keyof typeof List1Status];
+export type List9Status = typeof List9Status[keyof typeof List9Status];
 
 
-export const List1Status = {
+export const List9Status = {
   WAITING: 'WAITING',
   ANSWERED: 'ANSWERED',
   CLOSED: 'CLOSED',
@@ -9047,7 +10548,7 @@ export type PatchApiAdminSalesSaleidBody = {
   totalQuantity?: number;
 };
 
-export type UpdateBody = {
+export type Update3Body = {
   /** @minimum 0 */
   baseShippingFee: number;
   enabled: boolean;
@@ -9943,7 +11444,7 @@ size?: number;
 sort?: string[];
 };
 
-export type ListParams = {
+export type List3Params = {
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -9963,7 +11464,7 @@ sort?: string[];
 /**
  * 1대1 문의 작성 요청입니다.
  */
-export type CreateBody = {
+export type Create3Body = {
   /** @minLength 1 */
   content: string;
   hasImage?: boolean;
@@ -11359,6 +12860,46 @@ export const getApiV2AdminBottles = async (params?: GetApiV2AdminBottlesParams, 
 
 
 /**
+ * 보틀 ID 없이 multipart/form-data의 file 파트로 원본을 업로드합니다. 반환된 uploadId를 보틀 생성 JSON의 originalLabelUploadId에 전달하면 함께 등록됩니다. 원본만 파일 크기 제한을 적용하지 않으며 JPG/PNG/WEBP와 해상도 검증은 유지합니다.
+ * @summary 보틀 생성용 원본 라벨 사전 업로드 2.0
+ */
+export type postApiV2AdminBottlesOriginalLabelUploadsResponse200 = {
+  data: AdminBottleOriginalLabelUploadResponse
+  status: 200
+}
+    
+export type postApiV2AdminBottlesOriginalLabelUploadsResponseSuccess = (postApiV2AdminBottlesOriginalLabelUploadsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminBottlesOriginalLabelUploadsResponse = (postApiV2AdminBottlesOriginalLabelUploadsResponseSuccess)
+
+export const getPostApiV2AdminBottlesOriginalLabelUploadsUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/original-label-uploads`
+}
+
+export const postApiV2AdminBottlesOriginalLabelUploads = async (postApiV2AdminBottlesOriginalLabelUploadsBody: PostApiV2AdminBottlesOriginalLabelUploadsBody, options?: RequestInit): Promise<postApiV2AdminBottlesOriginalLabelUploadsResponse> => {
+    const formData = new FormData();
+formData.append(`file`, postApiV2AdminBottlesOriginalLabelUploadsBody.file);
+
+  return customFetch<postApiV2AdminBottlesOriginalLabelUploadsResponse>(getPostApiV2AdminBottlesOriginalLabelUploadsUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 관리자 보틀 목록의 필터 선택값을 조회합니다.
  * @summary 관리자 보틀 필터 파라미터 조회 2.0
  */
@@ -11514,6 +13055,163 @@ export const patchApiV2AdminBottlesBottleidManualPurchasesStatus = async (bottle
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       patchApiV2AdminBottlesBottleidManualPurchasesStatusBody,)
+  }
+);}
+
+
+
+/**
+ * 원본 라벨 연결을 제거합니다. 미등록 상태에서도 204를 반환합니다.
+ * @summary 보틀 원본 라벨 등록 해제 2.0
+ */
+export type deleteApiV2AdminBottlesBottleidOriginalLabelResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminBottlesBottleidOriginalLabelResponseSuccess = (deleteApiV2AdminBottlesBottleidOriginalLabelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminBottlesBottleidOriginalLabelResponse = (deleteApiV2AdminBottlesBottleidOriginalLabelResponseSuccess)
+
+export const getDeleteApiV2AdminBottlesBottleidOriginalLabelUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/original-label`
+}
+
+export const deleteApiV2AdminBottlesBottleidOriginalLabel = async (bottleId: number, options?: RequestInit): Promise<deleteApiV2AdminBottlesBottleidOriginalLabelResponse> => {
+  
+  return customFetch<deleteApiV2AdminBottlesBottleidOriginalLabelResponse>(getDeleteApiV2AdminBottlesBottleidOriginalLabelUrl(bottleId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 숨김 보틀도 조회할 수 있습니다. 미등록 보틀은 available=false입니다.
+ * @summary 보틀 원본 라벨 등록 상태 조회 2.0
+ */
+export type getApiV2AdminBottlesBottleidOriginalLabelResponse200 = {
+  data: AdminBottleOriginalLabelResponse
+  status: 200
+}
+    
+export type getApiV2AdminBottlesBottleidOriginalLabelResponseSuccess = (getApiV2AdminBottlesBottleidOriginalLabelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBottlesBottleidOriginalLabelResponse = (getApiV2AdminBottlesBottleidOriginalLabelResponseSuccess)
+
+export const getGetApiV2AdminBottlesBottleidOriginalLabelUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/original-label`
+}
+
+export const getApiV2AdminBottlesBottleidOriginalLabel = async (bottleId: number, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidOriginalLabelResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidOriginalLabelResponse>(getGetApiV2AdminBottlesBottleidOriginalLabelUrl(bottleId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * multipart/form-data의 file 파트로 원본 이미지를 전송합니다. JPG/PNG/WEBP를 압축 없이 저장하며 파일 크기 제한은 적용하지 않습니다. 기존 이미지 형식·해상도 검증은 유지합니다. 보틀당 1개이며 재업로드하면 교체합니다.
+ * @summary 보틀 원본 라벨 등록·교체 2.0
+ */
+export type putApiV2AdminBottlesBottleidOriginalLabelResponse200 = {
+  data: AdminBottleOriginalLabelResponse
+  status: 200
+}
+    
+export type putApiV2AdminBottlesBottleidOriginalLabelResponseSuccess = (putApiV2AdminBottlesBottleidOriginalLabelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiV2AdminBottlesBottleidOriginalLabelResponse = (putApiV2AdminBottlesBottleidOriginalLabelResponseSuccess)
+
+export const getPutApiV2AdminBottlesBottleidOriginalLabelUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/original-label`
+}
+
+export const putApiV2AdminBottlesBottleidOriginalLabel = async (bottleId: number,
+    putApiV2AdminBottlesBottleidOriginalLabelBody: PutApiV2AdminBottlesBottleidOriginalLabelBody, options?: RequestInit): Promise<putApiV2AdminBottlesBottleidOriginalLabelResponse> => {
+    const formData = new FormData();
+formData.append(`file`, putApiV2AdminBottlesBottleidOriginalLabelBody.file);
+
+  return customFetch<putApiV2AdminBottlesBottleidOriginalLabelResponse>(getPutApiV2AdminBottlesBottleidOriginalLabelUrl(bottleId),
+  {      
+    ...options,
+    method: 'PUT'
+    ,
+    body: 
+      formData,
+  }
+);}
+
+
+
+/**
+ * 관리자는 숨김 보틀도 다운로드할 수 있습니다. 첨부 파일 다운로드용 S3 서명 URL로 이동합니다. 미등록 원본은 404입니다.
+ * @summary 보틀 원본 라벨 다운로드 2.0
+ */
+export type getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse302 = {
+  data: void
+  status: 302
+}
+
+export type getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse404 = {
+  data: void
+  status: 404
+}
+    
+;
+export type getApiV2AdminBottlesBottleidOriginalLabelDownloadResponseError = (getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse302 | getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse404) & {
+  headers: Headers;
+};
+
+export type getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse = (getApiV2AdminBottlesBottleidOriginalLabelDownloadResponseError)
+
+export const getGetApiV2AdminBottlesBottleidOriginalLabelDownloadUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/bottles/${bottleId}/original-label/download`
+}
+
+export const getApiV2AdminBottlesBottleidOriginalLabelDownload = async (bottleId: number, options?: RequestInit): Promise<getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse> => {
+  
+  return customFetch<getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse>(getGetApiV2AdminBottlesBottleidOriginalLabelDownloadUrl(bottleId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
   }
 );}
 
@@ -11729,6 +13427,1565 @@ export const patchApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId:
 
 
 /**
+ * @summary Whisky Tales backgrounds 목록 2.0
+ */
+export type list2Response200 = {
+  data: AdminBackgroundResponse[]
+  status: 200
+}
+    
+export type list2ResponseSuccess = (list2Response200) & {
+  headers: Headers;
+};
+;
+
+export type list2Response = (list2ResponseSuccess)
+
+export const getList2Url = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/backgrounds`
+}
+
+export const list2 = async ( options?: RequestInit): Promise<list2Response> => {
+  
+  return customFetch<list2Response>(getList2Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 생성 2.0
+ */
+export type create2Response200 = {
+  data: AdminBackgroundResponse
+  status: 200
+}
+    
+export type create2ResponseSuccess = (create2Response200) & {
+  headers: Headers;
+};
+;
+
+export type create2Response = (create2ResponseSuccess)
+
+export const getCreate2Url = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/backgrounds`
+}
+
+export const create2 = async (create2Body: Create2Body, options?: RequestInit): Promise<create2Response> => {
+  
+  return customFetch<create2Response>(getCreate2Url(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      create2Body,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 삭제 2.0
+ */
+export type delete2Response200 = {
+  data: void
+  status: 200
+}
+    
+export type delete2ResponseSuccess = (delete2Response200) & {
+  headers: Headers;
+};
+;
+
+export type delete2Response = (delete2ResponseSuccess)
+
+export const getDelete2Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/backgrounds/${id}`
+}
+
+export const delete2 = async (id: number, options?: RequestInit): Promise<delete2Response> => {
+  
+  return customFetch<delete2Response>(getDelete2Url(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 상세 2.0
+ */
+export type get2Response200 = {
+  data: AdminBackgroundResponse
+  status: 200
+}
+    
+export type get2ResponseSuccess = (get2Response200) & {
+  headers: Headers;
+};
+;
+
+export type get2Response = (get2ResponseSuccess)
+
+export const getGet2Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/backgrounds/${id}`
+}
+
+export const get2 = async (id: number, options?: RequestInit): Promise<get2Response> => {
+  
+  return customFetch<get2Response>(getGet2Url(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 수정 2.0
+ */
+export type update2Response200 = {
+  data: AdminBackgroundResponse
+  status: 200
+}
+    
+export type update2ResponseSuccess = (update2Response200) & {
+  headers: Headers;
+};
+;
+
+export type update2Response = (update2ResponseSuccess)
+
+export const getUpdate2Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/backgrounds/${id}`
+}
+
+export const update2 = async (id: number,
+    update2Body: Update2Body, options?: RequestInit): Promise<update2Response> => {
+  
+  return customFetch<update2Response>(getUpdate2Url(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      update2Body,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 목록 2.0
+ */
+export type list1Response200 = {
+  data: AdminCharacterResponse[]
+  status: 200
+}
+    
+export type list1ResponseSuccess = (list1Response200) & {
+  headers: Headers;
+};
+;
+
+export type list1Response = (list1ResponseSuccess)
+
+export const getList1Url = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/characters`
+}
+
+export const list1 = async ( options?: RequestInit): Promise<list1Response> => {
+  
+  return customFetch<list1Response>(getList1Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 생성 2.0
+ */
+export type create1Response200 = {
+  data: AdminCharacterResponse
+  status: 200
+}
+    
+export type create1ResponseSuccess = (create1Response200) & {
+  headers: Headers;
+};
+;
+
+export type create1Response = (create1ResponseSuccess)
+
+export const getCreate1Url = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/characters`
+}
+
+export const create1 = async (create1Body: Create1Body, options?: RequestInit): Promise<create1Response> => {
+  
+  return customFetch<create1Response>(getCreate1Url(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      create1Body,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 삭제 2.0
+ */
+export type delete1Response200 = {
+  data: void
+  status: 200
+}
+    
+export type delete1ResponseSuccess = (delete1Response200) & {
+  headers: Headers;
+};
+;
+
+export type delete1Response = (delete1ResponseSuccess)
+
+export const getDelete1Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/characters/${id}`
+}
+
+export const delete1 = async (id: number, options?: RequestInit): Promise<delete1Response> => {
+  
+  return customFetch<delete1Response>(getDelete1Url(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 상세 2.0
+ */
+export type get1Response200 = {
+  data: AdminCharacterResponse
+  status: 200
+}
+    
+export type get1ResponseSuccess = (get1Response200) & {
+  headers: Headers;
+};
+;
+
+export type get1Response = (get1ResponseSuccess)
+
+export const getGet1Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/characters/${id}`
+}
+
+export const get1 = async (id: number, options?: RequestInit): Promise<get1Response> => {
+  
+  return customFetch<get1Response>(getGet1Url(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 수정 2.0
+ */
+export type update1Response200 = {
+  data: AdminCharacterResponse
+  status: 200
+}
+    
+export type update1ResponseSuccess = (update1Response200) & {
+  headers: Headers;
+};
+;
+
+export type update1Response = (update1ResponseSuccess)
+
+export const getUpdate1Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/characters/${id}`
+}
+
+export const update1 = async (id: number,
+    update1Body: Update1Body, options?: RequestInit): Promise<update1Response> => {
+  
+  return customFetch<update1Response>(getUpdate1Url(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      update1Body,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 만화 작품 목록 조회 2.0
+ */
+export type getApiV2AdminTalesComicsResponse200 = {
+  data: TalesAdminComicSeriesPageResponse
+  status: 200
+}
+    
+export type getApiV2AdminTalesComicsResponseSuccess = (getApiV2AdminTalesComicsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesComicsResponse = (getApiV2AdminTalesComicsResponseSuccess)
+
+export const getGetApiV2AdminTalesComicsUrl = (params?: GetApiV2AdminTalesComicsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/tales/comics?${stringifiedParams}` : `/api/2.0/admin/tales/comics`
+}
+
+export const getApiV2AdminTalesComics = async (params?: GetApiV2AdminTalesComicsParams, options?: RequestInit): Promise<getApiV2AdminTalesComicsResponse> => {
+  
+  return customFetch<getApiV2AdminTalesComicsResponse>(getGetApiV2AdminTalesComicsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 만화 작품 생성 2.0
+ */
+export type postApiV2AdminTalesComicsResponse200 = {
+  data: TalesAdminComicSeriesResponse
+  status: 200
+}
+    
+export type postApiV2AdminTalesComicsResponseSuccess = (postApiV2AdminTalesComicsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminTalesComicsResponse = (postApiV2AdminTalesComicsResponseSuccess)
+
+export const getPostApiV2AdminTalesComicsUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics`
+}
+
+export const postApiV2AdminTalesComics = async (postApiV2AdminTalesComicsBody: PostApiV2AdminTalesComicsBody, options?: RequestInit): Promise<postApiV2AdminTalesComicsResponse> => {
+  
+  return customFetch<postApiV2AdminTalesComicsResponse>(getPostApiV2AdminTalesComicsUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminTalesComicsBody,)
+  }
+);}
+
+
+
+export type deleteSeriesResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteSeriesResponseSuccess = (deleteSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteSeriesResponse = (deleteSeriesResponseSuccess)
+
+export const getDeleteSeriesUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}`
+}
+
+export const deleteSeries = async (seriesId: number, options?: RequestInit): Promise<deleteSeriesResponse> => {
+  
+  return customFetch<deleteSeriesResponse>(getDeleteSeriesUrl(seriesId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 만화 작품 상세 조회 2.0
+ */
+export type getApiV2AdminTalesComicsSeriesidResponse200 = {
+  data: TalesAdminComicSeriesResponse
+  status: 200
+}
+    
+export type getApiV2AdminTalesComicsSeriesidResponseSuccess = (getApiV2AdminTalesComicsSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesComicsSeriesidResponse = (getApiV2AdminTalesComicsSeriesidResponseSuccess)
+
+export const getGetApiV2AdminTalesComicsSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}`
+}
+
+export const getApiV2AdminTalesComicsSeriesid = async (seriesId: number, options?: RequestInit): Promise<getApiV2AdminTalesComicsSeriesidResponse> => {
+  
+  return customFetch<getApiV2AdminTalesComicsSeriesidResponse>(getGetApiV2AdminTalesComicsSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 만화 작품 수정 2.0
+ */
+export type putApiV2AdminTalesComicsSeriesidResponse200 = {
+  data: TalesAdminComicSeriesResponse
+  status: 200
+}
+    
+export type putApiV2AdminTalesComicsSeriesidResponseSuccess = (putApiV2AdminTalesComicsSeriesidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiV2AdminTalesComicsSeriesidResponse = (putApiV2AdminTalesComicsSeriesidResponseSuccess)
+
+export const getPutApiV2AdminTalesComicsSeriesidUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}`
+}
+
+export const putApiV2AdminTalesComicsSeriesid = async (seriesId: number,
+    putApiV2AdminTalesComicsSeriesidBody: PutApiV2AdminTalesComicsSeriesidBody, options?: RequestInit): Promise<putApiV2AdminTalesComicsSeriesidResponse> => {
+  
+  return customFetch<putApiV2AdminTalesComicsSeriesidResponse>(getPutApiV2AdminTalesComicsSeriesidUrl(seriesId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiV2AdminTalesComicsSeriesidBody,)
+  }
+);}
+
+
+
+export type getEpisodesResponse200 = {
+  data: TalesAdminComicEpisodePageResponse
+  status: 200
+}
+    
+export type getEpisodesResponseSuccess = (getEpisodesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getEpisodesResponse = (getEpisodesResponseSuccess)
+
+export const getGetEpisodesUrl = (seriesId: number,
+    params?: GetEpisodesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/tales/comics/${seriesId}/episodes?${stringifiedParams}` : `/api/2.0/admin/tales/comics/${seriesId}/episodes`
+}
+
+export const getEpisodes = async (seriesId: number,
+    params?: GetEpisodesParams, options?: RequestInit): Promise<getEpisodesResponse> => {
+  
+  return customFetch<getEpisodesResponse>(getGetEpisodesUrl(seriesId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+export type createEpisodeResponse200 = {
+  data: TalesAdminComicEpisodeDetailResponse
+  status: 200
+}
+    
+export type createEpisodeResponseSuccess = (createEpisodeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type createEpisodeResponse = (createEpisodeResponseSuccess)
+
+export const getCreateEpisodeUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/episodes`
+}
+
+export const createEpisode = async (seriesId: number,
+    createEpisodeBody: CreateEpisodeBody, options?: RequestInit): Promise<createEpisodeResponse> => {
+  
+  return customFetch<createEpisodeResponse>(getCreateEpisodeUrl(seriesId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createEpisodeBody,)
+  }
+);}
+
+
+
+export type deleteEpisodeResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteEpisodeResponseSuccess = (deleteEpisodeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteEpisodeResponse = (deleteEpisodeResponseSuccess)
+
+export const getDeleteEpisodeUrl = (seriesId: number,
+    episodeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/episodes/${episodeId}`
+}
+
+export const deleteEpisode = async (seriesId: number,
+    episodeId: number, options?: RequestInit): Promise<deleteEpisodeResponse> => {
+  
+  return customFetch<deleteEpisodeResponse>(getDeleteEpisodeUrl(seriesId,episodeId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+export type getEpisodeResponse200 = {
+  data: TalesAdminComicEpisodeDetailResponse
+  status: 200
+}
+    
+export type getEpisodeResponseSuccess = (getEpisodeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getEpisodeResponse = (getEpisodeResponseSuccess)
+
+export const getGetEpisodeUrl = (seriesId: number,
+    episodeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/episodes/${episodeId}`
+}
+
+export const getEpisode = async (seriesId: number,
+    episodeId: number, options?: RequestInit): Promise<getEpisodeResponse> => {
+  
+  return customFetch<getEpisodeResponse>(getGetEpisodeUrl(seriesId,episodeId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+export type updateEpisodeResponse200 = {
+  data: TalesAdminComicEpisodeDetailResponse
+  status: 200
+}
+    
+export type updateEpisodeResponseSuccess = (updateEpisodeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type updateEpisodeResponse = (updateEpisodeResponseSuccess)
+
+export const getUpdateEpisodeUrl = (seriesId: number,
+    episodeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/episodes/${episodeId}`
+}
+
+export const updateEpisode = async (seriesId: number,
+    episodeId: number,
+    updateEpisodeBody: UpdateEpisodeBody, options?: RequestInit): Promise<updateEpisodeResponse> => {
+  
+  return customFetch<updateEpisodeResponse>(getUpdateEpisodeUrl(seriesId,episodeId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateEpisodeBody,)
+  }
+);}
+
+
+
+export type restoreEpisodeResponse200 = {
+  data: TalesAdminComicEpisodeDetailResponse
+  status: 200
+}
+    
+export type restoreEpisodeResponseSuccess = (restoreEpisodeResponse200) & {
+  headers: Headers;
+};
+;
+
+export type restoreEpisodeResponse = (restoreEpisodeResponseSuccess)
+
+export const getRestoreEpisodeUrl = (seriesId: number,
+    episodeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/episodes/${episodeId}/restore`
+}
+
+export const restoreEpisode = async (seriesId: number,
+    episodeId: number, options?: RequestInit): Promise<restoreEpisodeResponse> => {
+  
+  return customFetch<restoreEpisodeResponse>(getRestoreEpisodeUrl(seriesId,episodeId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+export type restoreSeriesResponse200 = {
+  data: TalesAdminComicSeriesResponse
+  status: 200
+}
+    
+export type restoreSeriesResponseSuccess = (restoreSeriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type restoreSeriesResponse = (restoreSeriesResponseSuccess)
+
+export const getRestoreSeriesUrl = (seriesId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/comics/${seriesId}/restore`
+}
+
+export const restoreSeries = async (seriesId: number, options?: RequestInit): Promise<restoreSeriesResponse> => {
+  
+  return customFetch<restoreSeriesResponse>(getRestoreSeriesUrl(seriesId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 커뮤니티 게시글 목록 조회 2.0
+ */
+export type getApiV2AdminTalesCommunityBoardPostsResponse200 = {
+  data: PostPageResponse
+  status: 200
+}
+    
+export type getApiV2AdminTalesCommunityBoardPostsResponseSuccess = (getApiV2AdminTalesCommunityBoardPostsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesCommunityBoardPostsResponse = (getApiV2AdminTalesCommunityBoardPostsResponseSuccess)
+
+export const getGetApiV2AdminTalesCommunityBoardPostsUrl = (board: string,
+    params?: GetApiV2AdminTalesCommunityBoardPostsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/tales/community/${board}/posts?${stringifiedParams}` : `/api/2.0/admin/tales/community/${board}/posts`
+}
+
+export const getApiV2AdminTalesCommunityBoardPosts = async (board: string,
+    params?: GetApiV2AdminTalesCommunityBoardPostsParams, options?: RequestInit): Promise<getApiV2AdminTalesCommunityBoardPostsResponse> => {
+  
+  return customFetch<getApiV2AdminTalesCommunityBoardPostsResponse>(getGetApiV2AdminTalesCommunityBoardPostsUrl(board,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 게시글과 댓글을 보존하면서 관리자 정보와 함께 soft delete 합니다.
+ * @summary Whisky Tales 관리자 커뮤니티 게시글 삭제 2.0
+ */
+export type deleteApiV2AdminTalesCommunityBoardPostsPostidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminTalesCommunityBoardPostsPostidResponseSuccess = (deleteApiV2AdminTalesCommunityBoardPostsPostidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminTalesCommunityBoardPostsPostidResponse = (deleteApiV2AdminTalesCommunityBoardPostsPostidResponseSuccess)
+
+export const getDeleteApiV2AdminTalesCommunityBoardPostsPostidUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/community/${board}/posts/${postId}`
+}
+
+export const deleteApiV2AdminTalesCommunityBoardPostsPostid = async (board: string,
+    postId: number, options?: RequestInit): Promise<deleteApiV2AdminTalesCommunityBoardPostsPostidResponse> => {
+  
+  return customFetch<deleteApiV2AdminTalesCommunityBoardPostsPostidResponse>(getDeleteApiV2AdminTalesCommunityBoardPostsPostidUrl(board,postId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 목록 2.0
+ */
+export type listResponse200 = {
+  data: AdminHomeBannerResponse[]
+  status: 200
+}
+    
+export type listResponseSuccess = (listResponse200) & {
+  headers: Headers;
+};
+;
+
+export type listResponse = (listResponseSuccess)
+
+export const getListUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-banners`
+}
+
+export const list = async ( options?: RequestInit): Promise<listResponse> => {
+  
+  return customFetch<listResponse>(getListUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 생성 2.0
+ */
+export type createResponse200 = {
+  data: AdminHomeBannerResponse
+  status: 200
+}
+    
+export type createResponseSuccess = (createResponse200) & {
+  headers: Headers;
+};
+;
+
+export type createResponse = (createResponseSuccess)
+
+export const getCreateUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-banners`
+}
+
+export const create = async (createBody: CreateBody, options?: RequestInit): Promise<createResponse> => {
+  
+  return customFetch<createResponse>(getCreateUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      createBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 삭제 2.0
+ */
+export type _deleteResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type _deleteResponseSuccess = (_deleteResponse200) & {
+  headers: Headers;
+};
+;
+
+export type _deleteResponse = (_deleteResponseSuccess)
+
+export const getDeleteUrl = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-banners/${id}`
+}
+
+export const _delete = async (id: number, options?: RequestInit): Promise<_deleteResponse> => {
+  
+  return customFetch<_deleteResponse>(getDeleteUrl(id),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 상세 2.0
+ */
+export type getResponse200 = {
+  data: AdminHomeBannerResponse
+  status: 200
+}
+    
+export type getResponseSuccess = (getResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getResponse = (getResponseSuccess)
+
+export const getGetUrl = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-banners/${id}`
+}
+
+export const get = async (id: number, options?: RequestInit): Promise<getResponse> => {
+  
+  return customFetch<getResponse>(getGetUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 수정 2.0
+ */
+export type updateResponse200 = {
+  data: AdminHomeBannerResponse
+  status: 200
+}
+    
+export type updateResponseSuccess = (updateResponse200) & {
+  headers: Headers;
+};
+;
+
+export type updateResponse = (updateResponseSuccess)
+
+export const getUpdateUrl = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-banners/${id}`
+}
+
+export const update = async (id: number,
+    updateBody: UpdateBody, options?: RequestInit): Promise<updateResponse> => {
+  
+  return customFetch<updateResponse>(getUpdateUrl(id),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 홈 편성 조회 2.0
+ */
+export type list8Response200 = {
+  data: AdminCurationResponse[]
+  status: 200
+}
+    
+export type list8ResponseSuccess = (list8Response200) & {
+  headers: Headers;
+};
+;
+
+export type list8Response = (list8ResponseSuccess)
+
+export const getList8Url = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-curation`
+}
+
+export const list8 = async ( options?: RequestInit): Promise<list8Response> => {
+  
+  return customFetch<list8Response>(getList8Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 홈 편성 후보 검색 2.0
+ */
+export type optionsResponse200 = {
+  data: AdminCurationResponse[]
+  status: 200
+}
+    
+export type optionsResponseSuccess = (optionsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type optionsResponse = (optionsResponseSuccess)
+
+export const getOptionsUrl = (params: OptionsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/tales/home-curation/options?${stringifiedParams}` : `/api/2.0/admin/tales/home-curation/options`
+}
+
+export const options = async (params: OptionsParams, options?: RequestInit): Promise<optionsResponse> => {
+  
+  return customFetch<optionsResponse>(getOptionsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 홈 섹션 편성 저장 2.0
+ */
+export type saveResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type saveResponseSuccess = (saveResponse200) & {
+  headers: Headers;
+};
+;
+
+export type saveResponse = (saveResponseSuccess)
+
+export const getSaveUrl = (section: string,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/home-curation/${section}`
+}
+
+export const save = async (section: string,
+    saveBody: SaveBody, options?: RequestInit): Promise<saveResponse> => {
+  
+  return customFetch<saveResponse>(getSaveUrl(section),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      saveBody,)
+  }
+);}
+
+
+
+/**
+ * 삭제되지 않은 공지 분류를 노출 순서대로 조회합니다.
+ * @summary Whisky Tales 공지 분류 목록 조회 2.0
+ */
+export type getApiV2AdminTalesNoticeCategoriesResponse200 = {
+  data: TalesNoticeCategoryResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminTalesNoticeCategoriesResponseSuccess = (getApiV2AdminTalesNoticeCategoriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesNoticeCategoriesResponse = (getApiV2AdminTalesNoticeCategoriesResponseSuccess)
+
+export const getGetApiV2AdminTalesNoticeCategoriesUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notice-categories`
+}
+
+export const getApiV2AdminTalesNoticeCategories = async ( options?: RequestInit): Promise<getApiV2AdminTalesNoticeCategoriesResponse> => {
+  
+  return customFetch<getApiV2AdminTalesNoticeCategoriesResponse>(getGetApiV2AdminTalesNoticeCategoriesUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공지 분류 생성 2.0
+ */
+export type postApiV2AdminTalesNoticeCategoriesResponse201 = {
+  data: TalesNoticeCategoryResponse
+  status: 201
+}
+
+export type postApiV2AdminTalesNoticeCategoriesResponse409 = {
+  data: TalesNoticeCategoryResponse
+  status: 409
+}
+    
+export type postApiV2AdminTalesNoticeCategoriesResponseSuccess = (postApiV2AdminTalesNoticeCategoriesResponse201) & {
+  headers: Headers;
+};
+export type postApiV2AdminTalesNoticeCategoriesResponseError = (postApiV2AdminTalesNoticeCategoriesResponse409) & {
+  headers: Headers;
+};
+
+export type postApiV2AdminTalesNoticeCategoriesResponse = (postApiV2AdminTalesNoticeCategoriesResponseSuccess | postApiV2AdminTalesNoticeCategoriesResponseError)
+
+export const getPostApiV2AdminTalesNoticeCategoriesUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notice-categories`
+}
+
+export const postApiV2AdminTalesNoticeCategories = async (postApiV2AdminTalesNoticeCategoriesBody: PostApiV2AdminTalesNoticeCategoriesBody, options?: RequestInit): Promise<postApiV2AdminTalesNoticeCategoriesResponse> => {
+  
+  return customFetch<postApiV2AdminTalesNoticeCategoriesResponse>(getPostApiV2AdminTalesNoticeCategoriesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminTalesNoticeCategoriesBody,)
+  }
+);}
+
+
+
+/**
+ * 연결된 공지가 없는 분류만 soft delete 합니다.
+ * @summary Whisky Tales 공지 분류 삭제 2.0
+ */
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse204 = {
+  data: void
+  status: 204
+}
+
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse404 = {
+  data: void
+  status: 404
+}
+
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse409 = {
+  data: void
+  status: 409
+}
+    
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponseSuccess = (deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse204) & {
+  headers: Headers;
+};
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponseError = (deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse404 | deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse409) & {
+  headers: Headers;
+};
+
+export type deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse = (deleteApiV2AdminTalesNoticeCategoriesCategoryidResponseSuccess | deleteApiV2AdminTalesNoticeCategoriesCategoryidResponseError)
+
+export const getDeleteApiV2AdminTalesNoticeCategoriesCategoryidUrl = (categoryId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notice-categories/${categoryId}`
+}
+
+export const deleteApiV2AdminTalesNoticeCategoriesCategoryid = async (categoryId: number, options?: RequestInit): Promise<deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse> => {
+  
+  return customFetch<deleteApiV2AdminTalesNoticeCategoriesCategoryidResponse>(getDeleteApiV2AdminTalesNoticeCategoriesCategoryidUrl(categoryId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공지 분류 수정 2.0
+ */
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponse200 = {
+  data: TalesNoticeCategoryResponse
+  status: 200
+}
+
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponse404 = {
+  data: TalesNoticeCategoryResponse
+  status: 404
+}
+
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponse409 = {
+  data: TalesNoticeCategoryResponse
+  status: 409
+}
+    
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponseSuccess = (putApiV2AdminTalesNoticeCategoriesCategoryidResponse200) & {
+  headers: Headers;
+};
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponseError = (putApiV2AdminTalesNoticeCategoriesCategoryidResponse404 | putApiV2AdminTalesNoticeCategoriesCategoryidResponse409) & {
+  headers: Headers;
+};
+
+export type putApiV2AdminTalesNoticeCategoriesCategoryidResponse = (putApiV2AdminTalesNoticeCategoriesCategoryidResponseSuccess | putApiV2AdminTalesNoticeCategoriesCategoryidResponseError)
+
+export const getPutApiV2AdminTalesNoticeCategoriesCategoryidUrl = (categoryId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notice-categories/${categoryId}`
+}
+
+export const putApiV2AdminTalesNoticeCategoriesCategoryid = async (categoryId: number,
+    putApiV2AdminTalesNoticeCategoriesCategoryidBody: PutApiV2AdminTalesNoticeCategoriesCategoryidBody, options?: RequestInit): Promise<putApiV2AdminTalesNoticeCategoriesCategoryidResponse> => {
+  
+  return customFetch<putApiV2AdminTalesNoticeCategoriesCategoryidResponse>(getPutApiV2AdminTalesNoticeCategoriesCategoryidUrl(categoryId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiV2AdminTalesNoticeCategoriesCategoryidBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 공지 목록 조회 2.0
+ */
+export type getApiV2AdminTalesNoticesResponse200 = {
+  data: TalesAdminNoticePageResponse
+  status: 200
+}
+    
+export type getApiV2AdminTalesNoticesResponseSuccess = (getApiV2AdminTalesNoticesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesNoticesResponse = (getApiV2AdminTalesNoticesResponseSuccess)
+
+export const getGetApiV2AdminTalesNoticesUrl = (params?: GetApiV2AdminTalesNoticesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/tales/notices?${stringifiedParams}` : `/api/2.0/admin/tales/notices`
+}
+
+export const getApiV2AdminTalesNotices = async (params?: GetApiV2AdminTalesNoticesParams, options?: RequestInit): Promise<getApiV2AdminTalesNoticesResponse> => {
+  
+  return customFetch<getApiV2AdminTalesNoticesResponse>(getGetApiV2AdminTalesNoticesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 공지 생성 2.0
+ */
+export type postApiV2AdminTalesNoticesResponse200 = {
+  data: TalesAdminNoticeResponse
+  status: 200
+}
+    
+export type postApiV2AdminTalesNoticesResponseSuccess = (postApiV2AdminTalesNoticesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminTalesNoticesResponse = (postApiV2AdminTalesNoticesResponseSuccess)
+
+export const getPostApiV2AdminTalesNoticesUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notices`
+}
+
+export const postApiV2AdminTalesNotices = async (postApiV2AdminTalesNoticesBody: PostApiV2AdminTalesNoticesBody, options?: RequestInit): Promise<postApiV2AdminTalesNoticesResponse> => {
+  
+  return customFetch<postApiV2AdminTalesNoticesResponse>(getPostApiV2AdminTalesNoticesUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminTalesNoticesBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 공지 삭제 2.0
+ */
+export type deleteApiV2AdminTalesNoticesNoticeidResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteApiV2AdminTalesNoticesNoticeidResponseSuccess = (deleteApiV2AdminTalesNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteApiV2AdminTalesNoticesNoticeidResponse = (deleteApiV2AdminTalesNoticesNoticeidResponseSuccess)
+
+export const getDeleteApiV2AdminTalesNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notices/${noticeId}`
+}
+
+export const deleteApiV2AdminTalesNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<deleteApiV2AdminTalesNoticesNoticeidResponse> => {
+  
+  return customFetch<deleteApiV2AdminTalesNoticesNoticeidResponse>(getDeleteApiV2AdminTalesNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 공지 상세 조회 2.0
+ */
+export type getApiV2AdminTalesNoticesNoticeidResponse200 = {
+  data: TalesAdminNoticeResponse
+  status: 200
+}
+    
+export type getApiV2AdminTalesNoticesNoticeidResponseSuccess = (getApiV2AdminTalesNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminTalesNoticesNoticeidResponse = (getApiV2AdminTalesNoticesNoticeidResponseSuccess)
+
+export const getGetApiV2AdminTalesNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notices/${noticeId}`
+}
+
+export const getApiV2AdminTalesNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiV2AdminTalesNoticesNoticeidResponse> => {
+  
+  return customFetch<getApiV2AdminTalesNoticesNoticeidResponse>(getGetApiV2AdminTalesNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 관리자 공지 수정 2.0
+ */
+export type putApiV2AdminTalesNoticesNoticeidResponse200 = {
+  data: TalesAdminNoticeResponse
+  status: 200
+}
+    
+export type putApiV2AdminTalesNoticesNoticeidResponseSuccess = (putApiV2AdminTalesNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type putApiV2AdminTalesNoticesNoticeidResponse = (putApiV2AdminTalesNoticesNoticeidResponseSuccess)
+
+export const getPutApiV2AdminTalesNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/tales/notices/${noticeId}`
+}
+
+export const putApiV2AdminTalesNoticesNoticeid = async (noticeId: number,
+    putApiV2AdminTalesNoticesNoticeidBody: PutApiV2AdminTalesNoticesNoticeidBody, options?: RequestInit): Promise<putApiV2AdminTalesNoticesNoticeidResponse> => {
+  
+  return customFetch<putApiV2AdminTalesNoticesNoticeidResponse>(getPutApiV2AdminTalesNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      putApiV2AdminTalesNoticesNoticeidBody,)
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
  * @summary 아카이브 보틀 목록 조회 2.0
  */
@@ -11788,17 +15045,103 @@ export type getApiV2BottlesParametersResponseSuccess = (getApiV2BottlesParameter
 
 export type getApiV2BottlesParametersResponse = (getApiV2BottlesParametersResponseSuccess)
 
-export const getGetApiV2BottlesParametersUrl = () => {
+export const getGetApiV2BottlesParametersUrl = (params?: GetApiV2BottlesParametersParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
 
-  
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/2.0/bottles/parameters`
+  return stringifiedParams.length > 0 ? `/api/2.0/bottles/parameters?${stringifiedParams}` : `/api/2.0/bottles/parameters`
 }
 
-export const getApiV2BottlesParameters = async ( options?: RequestInit): Promise<getApiV2BottlesParametersResponse> => {
+export const getApiV2BottlesParameters = async (params?: GetApiV2BottlesParametersParams, options?: RequestInit): Promise<getApiV2BottlesParametersResponse> => {
   
-  return customFetch<getApiV2BottlesParametersResponse>(getGetApiV2BottlesParametersUrl(),
+  return customFetch<getApiV2BottlesParametersResponse>(getGetApiV2BottlesParametersUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 공개 보틀은 비회원도 조회할 수 있습니다. 숨김 또는 없는 보틀은 404입니다. 미등록 보틀은 available=false입니다.
+ * @summary 보틀 원본 라벨 등록 상태 조회 2.0
+ */
+export type getApiV2BottlesBottleidOriginalLabelResponse200 = {
+  data: UserBottleOriginalLabelResponse
+  status: 200
+}
+    
+export type getApiV2BottlesBottleidOriginalLabelResponseSuccess = (getApiV2BottlesBottleidOriginalLabelResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2BottlesBottleidOriginalLabelResponse = (getApiV2BottlesBottleidOriginalLabelResponseSuccess)
+
+export const getGetApiV2BottlesBottleidOriginalLabelUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/bottles/${bottleId}/original-label`
+}
+
+export const getApiV2BottlesBottleidOriginalLabel = async (bottleId: number, options?: RequestInit): Promise<getApiV2BottlesBottleidOriginalLabelResponse> => {
+  
+  return customFetch<getApiV2BottlesBottleidOriginalLabelResponse>(getGetApiV2BottlesBottleidOriginalLabelUrl(bottleId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 공개 보틀은 비회원도 다운로드할 수 있습니다. 첨부 파일 다운로드용 S3 서명 URL로 이동합니다. 미등록 원본은 404입니다.
+ * @summary 보틀 원본 라벨 다운로드 2.0
+ */
+export type getApiV2BottlesBottleidOriginalLabelDownloadResponse302 = {
+  data: void
+  status: 302
+}
+
+export type getApiV2BottlesBottleidOriginalLabelDownloadResponse404 = {
+  data: void
+  status: 404
+}
+    
+;
+export type getApiV2BottlesBottleidOriginalLabelDownloadResponseError = (getApiV2BottlesBottleidOriginalLabelDownloadResponse302 | getApiV2BottlesBottleidOriginalLabelDownloadResponse404) & {
+  headers: Headers;
+};
+
+export type getApiV2BottlesBottleidOriginalLabelDownloadResponse = (getApiV2BottlesBottleidOriginalLabelDownloadResponseError)
+
+export const getGetApiV2BottlesBottleidOriginalLabelDownloadUrl = (bottleId: number,) => {
+
+
+  
+
+  return `/api/2.0/bottles/${bottleId}/original-label/download`
+}
+
+export const getApiV2BottlesBottleidOriginalLabelDownload = async (bottleId: number, options?: RequestInit): Promise<getApiV2BottlesBottleidOriginalLabelDownloadResponse> => {
+  
+  return customFetch<getApiV2BottlesBottleidOriginalLabelDownloadResponse>(getGetApiV2BottlesBottleidOriginalLabelDownloadUrl(bottleId),
   {      
     ...options,
     method: 'GET'
@@ -11923,6 +15266,980 @@ export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: 
   {      
     ...options,
     method: 'PATCH'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 목록 2.0
+ */
+export type list7Response200 = {
+  data: BackgroundResponse[]
+  status: 200
+}
+    
+export type list7ResponseSuccess = (list7Response200) & {
+  headers: Headers;
+};
+;
+
+export type list7Response = (list7ResponseSuccess)
+
+export const getList7Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/backgrounds`
+}
+
+export const list7 = async ( options?: RequestInit): Promise<list7Response> => {
+  
+  return customFetch<list7Response>(getList7Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 상세 2.0
+ */
+export type get5Response200 = {
+  data: BackgroundResponse
+  status: 200
+}
+    
+export type get5ResponseSuccess = (get5Response200) & {
+  headers: Headers;
+};
+;
+
+export type get5Response = (get5ResponseSuccess)
+
+export const getGet5Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/backgrounds/${id}`
+}
+
+export const get5 = async (id: number, options?: RequestInit): Promise<get5Response> => {
+  
+  return customFetch<get5Response>(getGet5Url(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 목록 2.0
+ */
+export type list6Response200 = {
+  data: CharacterResponse[]
+  status: 200
+}
+    
+export type list6ResponseSuccess = (list6Response200) & {
+  headers: Headers;
+};
+;
+
+export type list6Response = (list6ResponseSuccess)
+
+export const getList6Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/characters`
+}
+
+export const list6 = async ( options?: RequestInit): Promise<list6Response> => {
+  
+  return customFetch<list6Response>(getList6Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 보틀 관련 캐릭터 조회 2.0
+ */
+export type forBottleResponse200 = {
+  data: CharacterResponse[]
+  status: 200
+}
+    
+export type forBottleResponseSuccess = (forBottleResponse200) & {
+  headers: Headers;
+};
+;
+
+export type forBottleResponse = (forBottleResponseSuccess)
+
+export const getForBottleUrl = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/characters/for-bottle/${id}`
+}
+
+export const forBottle = async (id: number, options?: RequestInit): Promise<forBottleResponse> => {
+  
+  return customFetch<forBottleResponse>(getForBottleUrl(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 상세 2.0
+ */
+export type get4Response200 = {
+  data: CharacterResponse
+  status: 200
+}
+    
+export type get4ResponseSuccess = (get4Response200) & {
+  headers: Headers;
+};
+;
+
+export type get4Response = (get4ResponseSuccess)
+
+export const getGet4Url = (slug: string,) => {
+
+
+  
+
+  return `/api/2.0/tales/characters/${slug}`
+}
+
+export const get4 = async (slug: string, options?: RequestInit): Promise<get4Response> => {
+  
+  return customFetch<get4Response>(getGet4Url(slug),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 만화 작품 목록 조회 2.0
+ */
+export type getApiV2TalesComicsResponse200 = {
+  data: TalesComicSeriesPageResponse
+  status: 200
+}
+    
+export type getApiV2TalesComicsResponseSuccess = (getApiV2TalesComicsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesComicsResponse = (getApiV2TalesComicsResponseSuccess)
+
+export const getGetApiV2TalesComicsUrl = (params?: GetApiV2TalesComicsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/tales/comics?${stringifiedParams}` : `/api/2.0/tales/comics`
+}
+
+export const getApiV2TalesComics = async (params?: GetApiV2TalesComicsParams, options?: RequestInit): Promise<getApiV2TalesComicsResponse> => {
+  
+  return customFetch<getApiV2TalesComicsResponse>(getGetApiV2TalesComicsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 만화 작품 상세 조회 2.0
+ */
+export type getApiV2TalesComicsSeriesslugResponse200 = {
+  data: TalesComicSeriesDetailResponse
+  status: 200
+}
+    
+export type getApiV2TalesComicsSeriesslugResponseSuccess = (getApiV2TalesComicsSeriesslugResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesComicsSeriesslugResponse = (getApiV2TalesComicsSeriesslugResponseSuccess)
+
+export const getGetApiV2TalesComicsSeriesslugUrl = (seriesSlug: string,
+    params?: GetApiV2TalesComicsSeriesslugParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/tales/comics/${seriesSlug}?${stringifiedParams}` : `/api/2.0/tales/comics/${seriesSlug}`
+}
+
+export const getApiV2TalesComicsSeriesslug = async (seriesSlug: string,
+    params?: GetApiV2TalesComicsSeriesslugParams, options?: RequestInit): Promise<getApiV2TalesComicsSeriesslugResponse> => {
+  
+  return customFetch<getApiV2TalesComicsSeriesslugResponse>(getGetApiV2TalesComicsSeriesslugUrl(seriesSlug,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 만화 회차 목록 조회 2.0
+ */
+export type getApiV2TalesComicsSeriesslugEpisodesResponse200 = {
+  data: TalesComicEpisodePageResponse
+  status: 200
+}
+    
+export type getApiV2TalesComicsSeriesslugEpisodesResponseSuccess = (getApiV2TalesComicsSeriesslugEpisodesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesComicsSeriesslugEpisodesResponse = (getApiV2TalesComicsSeriesslugEpisodesResponseSuccess)
+
+export const getGetApiV2TalesComicsSeriesslugEpisodesUrl = (seriesSlug: string,
+    params?: GetApiV2TalesComicsSeriesslugEpisodesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/tales/comics/${seriesSlug}/episodes?${stringifiedParams}` : `/api/2.0/tales/comics/${seriesSlug}/episodes`
+}
+
+export const getApiV2TalesComicsSeriesslugEpisodes = async (seriesSlug: string,
+    params?: GetApiV2TalesComicsSeriesslugEpisodesParams, options?: RequestInit): Promise<getApiV2TalesComicsSeriesslugEpisodesResponse> => {
+  
+  return customFetch<getApiV2TalesComicsSeriesslugEpisodesResponse>(getGetApiV2TalesComicsSeriesslugEpisodesUrl(seriesSlug,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 만화 회차 뷰어 조회 2.0
+ */
+export type getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponse200 = {
+  data: TalesComicEpisodeDetailResponse
+  status: 200
+}
+    
+export type getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponseSuccess = (getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponse = (getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponseSuccess)
+
+export const getGetApiV2TalesComicsSeriesslugEpisodesEpisodeidUrl = (seriesSlug: string,
+    episodeId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/comics/${seriesSlug}/episodes/${episodeId}`
+}
+
+export const getApiV2TalesComicsSeriesslugEpisodesEpisodeid = async (seriesSlug: string,
+    episodeId: number, options?: RequestInit): Promise<getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponse> => {
+  
+  return customFetch<getApiV2TalesComicsSeriesslugEpisodesEpisodeidResponse>(getGetApiV2TalesComicsSeriesslugEpisodesEpisodeidUrl(seriesSlug,episodeId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 회원 게시글 이미지 업로드 2.0
+ */
+export type uploadResponse200 = {
+  data: ImageResponse
+  status: 200
+}
+    
+export type uploadResponseSuccess = (uploadResponse200) & {
+  headers: Headers;
+};
+;
+
+export type uploadResponse = (uploadResponseSuccess)
+
+export const getUploadUrl = () => {
+
+
+  
+
+  return `/api/2.0/tales/community/images`
+}
+
+export const upload = async (uploadBody: UploadBody, options?: RequestInit): Promise<uploadResponse> => {
+    const formData = new FormData();
+formData.append(`file`, uploadBody.file);
+
+  return customFetch<uploadResponse>(getUploadUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    ,
+    body: 
+      formData,
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 커뮤니티 게시글 목록 조회 2.0
+ */
+export type getApiV2TalesCommunityBoardPostsResponse200 = {
+  data: TalesCommunityPostPageResponse
+  status: 200
+}
+    
+export type getApiV2TalesCommunityBoardPostsResponseSuccess = (getApiV2TalesCommunityBoardPostsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesCommunityBoardPostsResponse = (getApiV2TalesCommunityBoardPostsResponseSuccess)
+
+export const getGetApiV2TalesCommunityBoardPostsUrl = (board: string,
+    params?: GetApiV2TalesCommunityBoardPostsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/tales/community/${board}/posts?${stringifiedParams}` : `/api/2.0/tales/community/${board}/posts`
+}
+
+export const getApiV2TalesCommunityBoardPosts = async (board: string,
+    params?: GetApiV2TalesCommunityBoardPostsParams, options?: RequestInit): Promise<getApiV2TalesCommunityBoardPostsResponse> => {
+  
+  return customFetch<getApiV2TalesCommunityBoardPostsResponse>(getGetApiV2TalesCommunityBoardPostsUrl(board,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 커뮤니티 게시글 작성 2.0
+ */
+export type postApiV2TalesCommunityBoardPostsResponse200 = {
+  data: TalesCommunityPostResponse
+  status: 200
+}
+    
+export type postApiV2TalesCommunityBoardPostsResponseSuccess = (postApiV2TalesCommunityBoardPostsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2TalesCommunityBoardPostsResponse = (postApiV2TalesCommunityBoardPostsResponseSuccess)
+
+export const getPostApiV2TalesCommunityBoardPostsUrl = (board: string,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts`
+}
+
+export const postApiV2TalesCommunityBoardPosts = async (board: string,
+    postApiV2TalesCommunityBoardPostsBody: PostApiV2TalesCommunityBoardPostsBody, options?: RequestInit): Promise<postApiV2TalesCommunityBoardPostsResponse> => {
+  
+  return customFetch<postApiV2TalesCommunityBoardPostsResponse>(getPostApiV2TalesCommunityBoardPostsUrl(board),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2TalesCommunityBoardPostsBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 본인 게시글 삭제 2.0
+ */
+export type deletePostResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deletePostResponseSuccess = (deletePostResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deletePostResponse = (deletePostResponseSuccess)
+
+export const getDeletePostUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}`
+}
+
+export const deletePost = async (board: string,
+    postId: number, options?: RequestInit): Promise<deletePostResponse> => {
+  
+  return customFetch<deletePostResponse>(getDeletePostUrl(board,postId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 커뮤니티 게시글 상세 조회 2.0
+ */
+export type getApiV2TalesCommunityBoardPostsPostidResponse200 = {
+  data: TalesCommunityPostResponse
+  status: 200
+}
+    
+export type getApiV2TalesCommunityBoardPostsPostidResponseSuccess = (getApiV2TalesCommunityBoardPostsPostidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesCommunityBoardPostsPostidResponse = (getApiV2TalesCommunityBoardPostsPostidResponseSuccess)
+
+export const getGetApiV2TalesCommunityBoardPostsPostidUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}`
+}
+
+export const getApiV2TalesCommunityBoardPostsPostid = async (board: string,
+    postId: number, options?: RequestInit): Promise<getApiV2TalesCommunityBoardPostsPostidResponse> => {
+  
+  return customFetch<getApiV2TalesCommunityBoardPostsPostidResponse>(getGetApiV2TalesCommunityBoardPostsPostidUrl(board,postId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 본인 게시글 수정 2.0
+ */
+export type updatePostResponse200 = {
+  data: TalesCommunityPostResponse
+  status: 200
+}
+    
+export type updatePostResponseSuccess = (updatePostResponse200) & {
+  headers: Headers;
+};
+;
+
+export type updatePostResponse = (updatePostResponseSuccess)
+
+export const getUpdatePostUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}`
+}
+
+export const updatePost = async (board: string,
+    postId: number,
+    updatePostBody: UpdatePostBody, options?: RequestInit): Promise<updatePostResponse> => {
+  
+  return customFetch<updatePostResponse>(getUpdatePostUrl(board,postId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updatePostBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 커뮤니티 댓글 목록 조회 2.0
+ */
+export type getApiV2TalesCommunityBoardPostsPostidCommentsResponse200 = {
+  data: TalesCommunityCommentResponse[]
+  status: 200
+}
+    
+export type getApiV2TalesCommunityBoardPostsPostidCommentsResponseSuccess = (getApiV2TalesCommunityBoardPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesCommunityBoardPostsPostidCommentsResponse = (getApiV2TalesCommunityBoardPostsPostidCommentsResponseSuccess)
+
+export const getGetApiV2TalesCommunityBoardPostsPostidCommentsUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}/comments`
+}
+
+export const getApiV2TalesCommunityBoardPostsPostidComments = async (board: string,
+    postId: number, options?: RequestInit): Promise<getApiV2TalesCommunityBoardPostsPostidCommentsResponse> => {
+  
+  return customFetch<getApiV2TalesCommunityBoardPostsPostidCommentsResponse>(getGetApiV2TalesCommunityBoardPostsPostidCommentsUrl(board,postId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 커뮤니티 댓글 작성 2.0
+ */
+export type postApiV2TalesCommunityBoardPostsPostidCommentsResponse200 = {
+  data: TalesCommunityCommentResponse
+  status: 200
+}
+    
+export type postApiV2TalesCommunityBoardPostsPostidCommentsResponseSuccess = (postApiV2TalesCommunityBoardPostsPostidCommentsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2TalesCommunityBoardPostsPostidCommentsResponse = (postApiV2TalesCommunityBoardPostsPostidCommentsResponseSuccess)
+
+export const getPostApiV2TalesCommunityBoardPostsPostidCommentsUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}/comments`
+}
+
+export const postApiV2TalesCommunityBoardPostsPostidComments = async (board: string,
+    postId: number,
+    postApiV2TalesCommunityBoardPostsPostidCommentsBody: PostApiV2TalesCommunityBoardPostsPostidCommentsBody, options?: RequestInit): Promise<postApiV2TalesCommunityBoardPostsPostidCommentsResponse> => {
+  
+  return customFetch<postApiV2TalesCommunityBoardPostsPostidCommentsResponse>(getPostApiV2TalesCommunityBoardPostsPostidCommentsUrl(board,postId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2TalesCommunityBoardPostsPostidCommentsBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 본인 댓글 삭제 2.0
+ */
+export type deleteCommentResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type deleteCommentResponseSuccess = (deleteCommentResponse200) & {
+  headers: Headers;
+};
+;
+
+export type deleteCommentResponse = (deleteCommentResponseSuccess)
+
+export const getDeleteCommentUrl = (board: string,
+    postId: number,
+    commentId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}/comments/${commentId}`
+}
+
+export const deleteComment = async (board: string,
+    postId: number,
+    commentId: number, options?: RequestInit): Promise<deleteCommentResponse> => {
+  
+  return customFetch<deleteCommentResponse>(getDeleteCommentUrl(board,postId,commentId),
+  {      
+    ...options,
+    method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 본인 댓글 수정 2.0
+ */
+export type updateCommentResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type updateCommentResponseSuccess = (updateCommentResponse200) & {
+  headers: Headers;
+};
+;
+
+export type updateCommentResponse = (updateCommentResponseSuccess)
+
+export const getUpdateCommentUrl = (board: string,
+    postId: number,
+    commentId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}/comments/${commentId}`
+}
+
+export const updateComment = async (board: string,
+    postId: number,
+    commentId: number,
+    updateCommentBody: UpdateCommentBody, options?: RequestInit): Promise<updateCommentResponse> => {
+  
+  return customFetch<updateCommentResponse>(getUpdateCommentUrl(board,postId,commentId),
+  {      
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updateCommentBody,)
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 게시글 조회수 기록 2.0
+ */
+export type viewsResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type viewsResponseSuccess = (viewsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type viewsResponse = (viewsResponseSuccess)
+
+export const getViewsUrl = (board: string,
+    postId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/community/${board}/posts/${postId}/views`
+}
+
+export const views = async (board: string,
+    postId: number, options?: RequestInit): Promise<viewsResponse> => {
+  
+  return customFetch<viewsResponse>(getViewsUrl(board,postId),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales home-banners 목록 2.0
+ */
+export type list5Response200 = {
+  data: HomeBannerResponse[]
+  status: 200
+}
+    
+export type list5ResponseSuccess = (list5Response200) & {
+  headers: Headers;
+};
+;
+
+export type list5Response = (list5ResponseSuccess)
+
+export const getList5Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/home-banners`
+}
+
+export const list5 = async ( options?: RequestInit): Promise<list5Response> => {
+  
+  return customFetch<list5Response>(getList5Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 홈 편성 조회 2.0
+ */
+export type list4Response200 = {
+  data: CurationResponse[]
+  status: 200
+}
+    
+export type list4ResponseSuccess = (list4Response200) & {
+  headers: Headers;
+};
+;
+
+export type list4Response = (list4ResponseSuccess)
+
+export const getList4Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/home-curation`
+}
+
+export const list4 = async ( options?: RequestInit): Promise<list4Response> => {
+  
+  return customFetch<list4Response>(getList4Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 공지 목록 조회 2.0
+ */
+export type getApiV2TalesNoticesResponse200 = {
+  data: TalesNoticePageResponse
+  status: 200
+}
+    
+export type getApiV2TalesNoticesResponseSuccess = (getApiV2TalesNoticesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesNoticesResponse = (getApiV2TalesNoticesResponseSuccess)
+
+export const getGetApiV2TalesNoticesUrl = (params?: GetApiV2TalesNoticesParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/tales/notices?${stringifiedParams}` : `/api/2.0/tales/notices`
+}
+
+export const getApiV2TalesNotices = async (params?: GetApiV2TalesNoticesParams, options?: RequestInit): Promise<getApiV2TalesNoticesResponse> => {
+  
+  return customFetch<getApiV2TalesNoticesResponse>(getGetApiV2TalesNoticesUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 공지 분류 조회 2.0
+ */
+export type getApiV2TalesNoticeCategoriesResponse200 = {
+  data: TalesNoticeCategoryListResponse
+  status: 200
+}
+    
+export type getApiV2TalesNoticeCategoriesResponseSuccess = (getApiV2TalesNoticeCategoriesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesNoticeCategoriesResponse = (getApiV2TalesNoticeCategoriesResponseSuccess)
+
+export const getGetApiV2TalesNoticeCategoriesUrl = () => {
+
+
+  
+
+  return `/api/2.0/tales/notices/categories`
+}
+
+export const getApiV2TalesNoticeCategories = async ( options?: RequestInit): Promise<getApiV2TalesNoticeCategoriesResponse> => {
+  
+  return customFetch<getApiV2TalesNoticeCategoriesResponse>(getGetApiV2TalesNoticeCategoriesUrl(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 공개 공지 상세 조회 2.0
+ */
+export type getApiV2TalesNoticesNoticeidResponse200 = {
+  data: TalesNoticeResponse
+  status: 200
+}
+    
+export type getApiV2TalesNoticesNoticeidResponseSuccess = (getApiV2TalesNoticesNoticeidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2TalesNoticesNoticeidResponse = (getApiV2TalesNoticesNoticeidResponseSuccess)
+
+export const getGetApiV2TalesNoticesNoticeidUrl = (noticeId: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/notices/${noticeId}`
+}
+
+export const getApiV2TalesNoticesNoticeid = async (noticeId: number, options?: RequestInit): Promise<getApiV2TalesNoticesNoticeidResponse> => {
+  
+  return customFetch<getApiV2TalesNoticesNoticeidResponse>(getGetApiV2TalesNoticesNoticeidUrl(noticeId),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
@@ -13153,7 +17470,7 @@ export const getApiAdminBottles = async (params?: GetApiAdminBottlesParams, opti
 
 
 /**
- * 병 메타데이터를 JSON RequestBody 로 받아 저장합니다. labelImgKey는 대표 이미지이고 additionalImageKeys는 대표 이미지를 제외한 추가 이미지 목록입니다.
+ * 병 메타데이터를 JSON RequestBody 로 받아 저장합니다. originalLabelUploadId를 전달하면 사전 업로드한 원본 라벨을 보틀과 함께 원자적으로 등록합니다. labelImgKey는 대표 이미지이고 additionalImageKeys는 대표 이미지를 제외한 추가 이미지 목록입니다.
  * @summary 병 정보 등록(관리자)
  */
 export type postApiAdminBottlesResponse200 = {
@@ -14562,7 +18879,7 @@ export const postApiAdminDevBizmTestMessages = async (postApiAdminDevBizmTestMes
 
 
 /**
- * 관리자가 보틀, 예약 공고, 일반 상품 이미지를 용도별 S3 경로에 업로드합니다. JPG/PNG/WEBP 형식, 실제 파일 구조, 크기와 해상도를 서버에서 검증합니다.
+ * 관리자가 보틀, 예약 공고, 일반 상품, Whisky Tales 만화 이미지를 용도별 S3 경로에 업로드합니다. JPG/PNG/WEBP 형식, 실제 파일 구조, 크기와 해상도를 서버에서 검증합니다.
  * @summary 이미지 업로드(관리자)
  */
 export type postApiAdminImagesPurposeResponse200 = {
@@ -14577,7 +18894,7 @@ export type postApiAdminImagesPurposeResponseSuccess = (postApiAdminImagesPurpos
 
 export type postApiAdminImagesPurposeResponse = (postApiAdminImagesPurposeResponseSuccess)
 
-export const getPostApiAdminImagesPurposeUrl = (purpose: 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM',) => {
+export const getPostApiAdminImagesPurposeUrl = (purpose: 'TALES_CONTENT' | 'TALES_COMMUNITY' | 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM' | 'TALES_COMIC_COVER' | 'TALES_COMIC_EPISODE_THUMBNAIL' | 'TALES_COMIC_EPISODE_IMAGE',) => {
 
 
   
@@ -14585,7 +18902,7 @@ export const getPostApiAdminImagesPurposeUrl = (purpose: 'BOTTLE' | 'RESERVATION
   return `/api/admin/images/${purpose}`
 }
 
-export const postApiAdminImagesPurpose = async (purpose: 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM',
+export const postApiAdminImagesPurpose = async (purpose: 'TALES_CONTENT' | 'TALES_COMMUNITY' | 'BOTTLE' | 'RESERVATION_NOTICE' | 'ITEM' | 'TALES_COMIC_COVER' | 'TALES_COMIC_EPISODE_THUMBNAIL' | 'TALES_COMIC_EPISODE_IMAGE',
     postApiAdminImagesPurposeBody: PostApiAdminImagesPurposeBody, options?: RequestInit): Promise<postApiAdminImagesPurposeResponse> => {
     const formData = new FormData();
 formData.append(`file`, postApiAdminImagesPurposeBody.file);
@@ -14605,19 +18922,19 @@ formData.append(`file`, postApiAdminImagesPurposeBody.file);
 /**
  * @summary 1대1 문의 목록 조회(관리자)
  */
-export type list1Response200 = {
+export type list9Response200 = {
   data: PagedModelAdminInquirySummaryResponse
   status: 200
 }
     
-export type list1ResponseSuccess = (list1Response200) & {
+export type list9ResponseSuccess = (list9Response200) & {
   headers: Headers;
 };
 ;
 
-export type list1Response = (list1ResponseSuccess)
+export type list9Response = (list9ResponseSuccess)
 
-export const getList1Url = (params?: List1Params,) => {
+export const getList9Url = (params?: List9Params,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -14632,9 +18949,9 @@ export const getList1Url = (params?: List1Params,) => {
   return stringifiedParams.length > 0 ? `/api/admin/inquiries?${stringifiedParams}` : `/api/admin/inquiries`
 }
 
-export const list1 = async (params?: List1Params, options?: RequestInit): Promise<list1Response> => {
+export const list9 = async (params?: List9Params, options?: RequestInit): Promise<list9Response> => {
   
-  return customFetch<list1Response>(getList1Url(params),
+  return customFetch<list9Response>(getList9Url(params),
   {      
     ...options,
     method: 'GET'
@@ -14648,19 +18965,19 @@ export const list1 = async (params?: List1Params, options?: RequestInit): Promis
 /**
  * @summary 1대1 문의 상세 조회(관리자)
  */
-export type get2Response200 = {
+export type get7Response200 = {
   data: AdminInquiryDetailResponse
   status: 200
 }
     
-export type get2ResponseSuccess = (get2Response200) & {
+export type get7ResponseSuccess = (get7Response200) & {
   headers: Headers;
 };
 ;
 
-export type get2Response = (get2ResponseSuccess)
+export type get7Response = (get7ResponseSuccess)
 
-export const getGet2Url = (inquiryId: number,) => {
+export const getGet7Url = (inquiryId: number,) => {
 
 
   
@@ -14668,9 +18985,9 @@ export const getGet2Url = (inquiryId: number,) => {
   return `/api/admin/inquiries/${inquiryId}`
 }
 
-export const get2 = async (inquiryId: number, options?: RequestInit): Promise<get2Response> => {
+export const get7 = async (inquiryId: number, options?: RequestInit): Promise<get7Response> => {
   
-  return customFetch<get2Response>(getGet2Url(inquiryId),
+  return customFetch<get7Response>(getGet7Url(inquiryId),
   {      
     ...options,
     method: 'GET'
@@ -16814,19 +21131,19 @@ export const patchApiAdminSalesSaleid = async (saleId: number,
 
 
 
-export type getResponse200 = {
+export type get3Response200 = {
   data: ShippingPolicyResponse
   status: 200
 }
     
-export type getResponseSuccess = (getResponse200) & {
+export type get3ResponseSuccess = (get3Response200) & {
   headers: Headers;
 };
 ;
 
-export type getResponse = (getResponseSuccess)
+export type get3Response = (get3ResponseSuccess)
 
-export const getGetUrl = () => {
+export const getGet3Url = () => {
 
 
   
@@ -16834,9 +21151,9 @@ export const getGetUrl = () => {
   return `/api/admin/shipping-policy`
 }
 
-export const get = async ( options?: RequestInit): Promise<getResponse> => {
+export const get3 = async ( options?: RequestInit): Promise<get3Response> => {
   
-  return customFetch<getResponse>(getGetUrl(),
+  return customFetch<get3Response>(getGet3Url(),
   {      
     ...options,
     method: 'GET'
@@ -16847,19 +21164,19 @@ export const get = async ( options?: RequestInit): Promise<getResponse> => {
 
 
 
-export type updateResponse200 = {
+export type update3Response200 = {
   data: ShippingPolicyResponse
   status: 200
 }
     
-export type updateResponseSuccess = (updateResponse200) & {
+export type update3ResponseSuccess = (update3Response200) & {
   headers: Headers;
 };
 ;
 
-export type updateResponse = (updateResponseSuccess)
+export type update3Response = (update3ResponseSuccess)
 
-export const getUpdateUrl = () => {
+export const getUpdate3Url = () => {
 
 
   
@@ -16867,15 +21184,15 @@ export const getUpdateUrl = () => {
   return `/api/admin/shipping-policy`
 }
 
-export const update = async (updateBody: UpdateBody, options?: RequestInit): Promise<updateResponse> => {
+export const update3 = async (update3Body: Update3Body, options?: RequestInit): Promise<update3Response> => {
   
-  return customFetch<updateResponse>(getUpdateUrl(),
+  return customFetch<update3Response>(getUpdate3Url(),
   {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      updateBody,)
+      update3Body,)
   }
 );}
 
@@ -20258,19 +24575,19 @@ export const getApiHealth = async ( options?: RequestInit): Promise<getApiHealth
 /**
  * @summary 내 1대1 문의 목록 조회
  */
-export type listResponse200 = {
+export type list3Response200 = {
   data: PagedModelInquirySummaryResponse
   status: 200
 }
     
-export type listResponseSuccess = (listResponse200) & {
+export type list3ResponseSuccess = (list3Response200) & {
   headers: Headers;
 };
 ;
 
-export type listResponse = (listResponseSuccess)
+export type list3Response = (list3ResponseSuccess)
 
-export const getListUrl = (params?: ListParams,) => {
+export const getList3Url = (params?: List3Params,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -20285,9 +24602,9 @@ export const getListUrl = (params?: ListParams,) => {
   return stringifiedParams.length > 0 ? `/api/inquiries?${stringifiedParams}` : `/api/inquiries`
 }
 
-export const list = async (params?: ListParams, options?: RequestInit): Promise<listResponse> => {
+export const list3 = async (params?: List3Params, options?: RequestInit): Promise<list3Response> => {
   
-  return customFetch<listResponse>(getListUrl(params),
+  return customFetch<list3Response>(getList3Url(params),
   {      
     ...options,
     method: 'GET'
@@ -20301,19 +24618,19 @@ export const list = async (params?: ListParams, options?: RequestInit): Promise<
 /**
  * @summary 1대1 문의 작성
  */
-export type createResponse200 = {
+export type create3Response200 = {
   data: InquiryDetailResponse
   status: 200
 }
     
-export type createResponseSuccess = (createResponse200) & {
+export type create3ResponseSuccess = (create3Response200) & {
   headers: Headers;
 };
 ;
 
-export type createResponse = (createResponseSuccess)
+export type create3Response = (create3ResponseSuccess)
 
-export const getCreateUrl = () => {
+export const getCreate3Url = () => {
 
 
   
@@ -20321,15 +24638,15 @@ export const getCreateUrl = () => {
   return `/api/inquiries`
 }
 
-export const create = async (createBody: CreateBody, options?: RequestInit): Promise<createResponse> => {
+export const create3 = async (create3Body: Create3Body, options?: RequestInit): Promise<create3Response> => {
   
-  return customFetch<createResponse>(getCreateUrl(),
+  return customFetch<create3Response>(getCreate3Url(),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      createBody,)
+      create3Body,)
   }
 );}
 
@@ -20338,19 +24655,19 @@ export const create = async (createBody: CreateBody, options?: RequestInit): Pro
 /**
  * @summary 1대1 문의 삭제
  */
-export type _deleteResponse200 = {
+export type delete3Response200 = {
   data: void
   status: 200
 }
     
-export type _deleteResponseSuccess = (_deleteResponse200) & {
+export type delete3ResponseSuccess = (delete3Response200) & {
   headers: Headers;
 };
 ;
 
-export type _deleteResponse = (_deleteResponseSuccess)
+export type delete3Response = (delete3ResponseSuccess)
 
-export const getDeleteUrl = (inquiryId: number,) => {
+export const getDelete3Url = (inquiryId: number,) => {
 
 
   
@@ -20358,9 +24675,9 @@ export const getDeleteUrl = (inquiryId: number,) => {
   return `/api/inquiries/${inquiryId}`
 }
 
-export const _delete = async (inquiryId: number, options?: RequestInit): Promise<_deleteResponse> => {
+export const delete3 = async (inquiryId: number, options?: RequestInit): Promise<delete3Response> => {
   
-  return customFetch<_deleteResponse>(getDeleteUrl(inquiryId),
+  return customFetch<delete3Response>(getDelete3Url(inquiryId),
   {      
     ...options,
     method: 'DELETE'
@@ -20374,19 +24691,19 @@ export const _delete = async (inquiryId: number, options?: RequestInit): Promise
 /**
  * @summary 내 1대1 문의 상세 조회
  */
-export type get1Response200 = {
+export type get6Response200 = {
   data: InquiryDetailResponse
   status: 200
 }
     
-export type get1ResponseSuccess = (get1Response200) & {
+export type get6ResponseSuccess = (get6Response200) & {
   headers: Headers;
 };
 ;
 
-export type get1Response = (get1ResponseSuccess)
+export type get6Response = (get6ResponseSuccess)
 
-export const getGet1Url = (inquiryId: number,) => {
+export const getGet6Url = (inquiryId: number,) => {
 
 
   
@@ -20394,9 +24711,9 @@ export const getGet1Url = (inquiryId: number,) => {
   return `/api/inquiries/${inquiryId}`
 }
 
-export const get1 = async (inquiryId: number, options?: RequestInit): Promise<get1Response> => {
+export const get6 = async (inquiryId: number, options?: RequestInit): Promise<get6Response> => {
   
-  return customFetch<get1Response>(getGet1Url(inquiryId),
+  return customFetch<get6Response>(getGet6Url(inquiryId),
   {      
     ...options,
     method: 'GET'
