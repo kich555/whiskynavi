@@ -4,8 +4,11 @@ import type { BottleResponse } from "@/apis/generated/api";
 import RichTextContent from "@/components/editor/RichTextContent";
 import RepresentativeImageCarousel from "@/components/media/RepresentativeImageCarousel";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { useIsMobile } from "@/hooks/use-media-query";
+import { formatCurrency } from "@/lib/formatters";
 import { sanitizeRichTextContent } from "@/lib/rich-text";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 interface Props {
   bottle: BottleResponse;
@@ -13,6 +16,16 @@ interface Props {
 
 export default function BottleDetailModal({ bottle }: Props) {
   const router = useRouter();
+  const isMobile = useIsMobile();
+
+  // 모바일: overlay 모달 대신 디테일 페이지로 하드 네비게이션.
+  // router.replace는 클라이언트 네비 → (.) 인터셉션 라우트가 다시 매칭되어 모달 route로 재진입함.
+  // 하드 네비(페이지 로드)로 인터셉션을 우회해 실제 /archive/[bottleId] 페이지를 렌더한다.
+  useEffect(() => {
+    if (isMobile) window.location.href = `/archive/${bottle.id}`;
+  }, [isMobile, bottle.id]);
+
+  if (isMobile) return null;
 
   return (
     <Dialog
@@ -54,15 +67,19 @@ export default function BottleDetailModal({ bottle }: Props) {
                 label: "용량",
                 value: bottle.capacity != null ? `${bottle.capacity}ml` : undefined,
               },
+              ...(bottle.supplyPrice != null ? [{ label: "공급가", value: formatCurrency(bottle.supplyPrice) }] : []),
+              ...(bottle.consumerPrice != null
+                ? [{ label: "권장소매가", value: formatCurrency(bottle.consumerPrice) }]
+                : []),
             ].map((item, index, arr) => (
               <div
                 key={item.label}
-                className={`flex items-center justify-between pb-2 ${
+                className={`flex items-center justify-between gap-2 pb-2 ${
                   index < arr.length - 1 ? "border-b border-white/10" : ""
                 }`}
               >
-                <span className="typo-medium-14 text-gray-400">{item.label}</span>
-                <span className="typo-medium-14 text-white">{item.value || "-"}</span>
+                <span className="typo-medium-14 whitespace-nowrap text-gray-400">{item.label}</span>
+                <span className="typo-medium-14 text-right text-white">{item.value || "-"}</span>
               </div>
             ))}
           </div>

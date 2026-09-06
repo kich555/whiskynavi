@@ -62,7 +62,7 @@ export default function UserProfileCard({ user }: UserProfileCardProps) {
         );
       } else {
         return (
-          <Drawer open={isOpen} onOpenChange={(open) => !open && close()}>
+          <Drawer open={isOpen} onOpenChange={(open) => !open && close()} repositionInputs={false}>
             <DrawerContent className="max-h-[85vh]">
               <DrawerHeader>
                 <DrawerTitle>비밀번호 변경</DrawerTitle>
@@ -83,16 +83,16 @@ export default function UserProfileCard({ user }: UserProfileCardProps) {
         <div className="w-full md:w-auto">
           <div className="mb-2 flex items-center gap-3">
             <User size={28} className="md:size-8" />
-            <h2 className="typo-bold-24 md:text-3xl">{user.name}님</h2>
+            <h2 className="typo-bold-18 md:text-3xl">{user.name}님</h2>
             <button
               onClick={handleEditProfile}
-              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
+              className="typo-bold-10 border border-white/20 bg-white/10 px-2 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
             >
               내 정보 수정
             </button>
             <button
               onClick={handleChangePassword}
-              className="typo-bold-12 border border-white/20 bg-white/10 px-2.5 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
+              className="typo-bold-10 border border-white/20 bg-white/10 px-2 py-1 transition-colors hover:bg-white/20 md:px-3 md:py-1.5 md:typo-medium-14"
             >
               비밀번호 변경
             </button>

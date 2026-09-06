@@ -1,6 +1,7 @@
 import { BottleResponse } from "@/apis/generated/api";
 import { ImageLightbox } from "@/components/ui/ImageLightbox";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
+import { formatCurrency } from "@/lib/formatters";
 import Link from "next/link";
 
 interface Props {
@@ -27,13 +28,29 @@ const BottleCard = ({ bottle }: Props) => {
       </div>
 
       <Link href={`/archive/${bottle.id}`} className="block">
-        <p className="typo-medium-12 text-gray-400">{bottle.brand ?? bottle.company ?? ""}</p>
+        <p className="typo-medium-12 text-gray-400">{bottle.series ?? ""}</p>
         <h3
           className="typo-medium-14 mt-2 line-clamp-2 text-white group-hover:text-gray-300"
           style={{ lineHeight: 1.4 }}
         >
           {bottle.name}
         </h3>
+        {(bottle.supplyPrice != null || bottle.consumerPrice != null) && (
+          <dl className="mt-2 space-y-1 border-t border-white/10 pt-2">
+            {bottle.supplyPrice != null && (
+              <div className="flex items-center justify-between gap-2">
+                <dt className="typo-medium-10 text-gray-500">공급가</dt>
+                <dd className="typo-bold-12 text-white">{formatCurrency(bottle.supplyPrice)}</dd>
+              </div>
+            )}
+            {bottle.consumerPrice != null && (
+              <div className="flex items-center justify-between gap-2">
+                <dt className="typo-medium-10 text-gray-500">권장소매가</dt>
+                <dd className="typo-medium-12 text-gray-300">{formatCurrency(bottle.consumerPrice)}</dd>
+              </div>
+            )}
+          </dl>
+        )}
         <div className="mt-2 flex items-center justify-between">
           <span className="typo-medium-12 text-gray-500">{bottle.distillery ?? ""}</span>
           {bottle.abv != null && <span className="typo-medium-12 text-gray-400">{bottle.abv}%</span>}

@@ -67,7 +67,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
 
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full whitespace-nowrap">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
@@ -75,7 +75,7 @@ export default function ReservationsContent({ searchParams, notices, totalElemen
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">제품명</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">상태</th>
-                  <th className="typo-bold-12 px-4 py-3 text-right text-gray-700 uppercase">가격</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">가격</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">신청 수량</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">수락 수량</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">예약기간</th>

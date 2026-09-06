@@ -64,3 +64,25 @@
 ### Domain docs
 
 단일 컨텍스트 구조 — 저장소 루트에 `CONTEXT.md` + `docs/adr/`. 자세한 내용은 `docs/agents/domain.md` 참고.
+
+## Vendored repos
+
+`repos/effect/`는 Effect(`Effect-TS/effect`) 소스를 git subtree로 포함한 참고 자료다.
+
+- **읽기 전용**: 수정하거나 `@repos/effect`에서 import 금지. Effect API 동작 확인용 참고로만 사용.
+- Effect 작업 시 `repos/effect/packages/effect/src/`에서 해당 API 정의를 먼저 읽는다.
+- 업데이트: `git subtree pull --prefix=repos/effect https://github.com/Effect-TS/effect.git main --squash`
+
+## codegraph
+
+로컬 심볼 인덱스(`.codegraph/`, gitignore됨). Effect 소스까지 인덱싱되어 있으므로 심볼 탐색 시 `codegraph context "<task>"`로 관련 소스를 빠르게 찾는다.
+
+## graphify
+
+This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
+
+Rules:
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
+- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
+- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
+- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).

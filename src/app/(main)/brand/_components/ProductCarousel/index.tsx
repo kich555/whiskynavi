@@ -23,7 +23,6 @@ const ProductCarousel = ({ brandProducts, brand }: Props) => {
               bottleIndex={index}
               position={position}
               isCenter={isCenter}
-              brandName={brand.name}
               onSelect={onSelect}
             />
           )}

@@ -59,7 +59,7 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
   try {
     res = await fetch(fullUrl, {
       ...options,
-      cache: "no-store",
+      cache: options.cache ?? "no-store",
     });
   } catch {
     throw new NetworkError();
@@ -80,7 +80,7 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
         retryRes = await fetch(fullUrl, {
           ...options,
           headers: retryHeaders,
-          cache: "no-store",
+          cache: options.cache ?? "no-store",
         });
       } catch {
         throw new NetworkError();

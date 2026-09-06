@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# git post-commit 훅 — 커밋 후 페이지 문서 자동 갱신 + graphify 동기화
+# Codex/Claude Code 공통. Stop hook 없는 환경(Codex)의 주 갱신 트리거.
+#
+# 동작:
+# 1. 방금 커밋된 src/app/ 변경 파일 감지 (HEAD~1..HEAD)
+# 2. refresh-page-docs.sh postcommit 모드 호출
+# 3. 문서 갱신 + graphify update 실행
+#
+# 비활성화: .claude/scripts/.skip-page-docs 파일 존재 시 스킵
+# 설치: git config core.hooksPath git-hooks (설치 스크립트로 자동화)
+
+set -euo pipefail
+
+REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+cd "$REPO_ROOT"
+
+# 스킵 플래그
+if [[ -f .claude/scripts/.skip-page-docs ]]; then
+  exit 0
+fi
+
+# src/app/ 변경 없으면 종료
+changed=$(git diff --name-only HEAD~1 HEAD 2>/dev/null | grep -c '^src/app/' || true)
+if [[ "$changed" -eq 0 ]]; then
+  exit 0
+fi
+
+# postcommit 모드로 갱신 스크립트 실행
+# 환경변수 PAGE_DOCS_MODE=postcommit 전달
+if [[ -x .claude/scripts/refresh-page-docs.sh ]]; then
+  PAGE_DOCS_MODE=postcommit .claude/scripts/refresh-page-docs.sh
+fi
+
+exit 0

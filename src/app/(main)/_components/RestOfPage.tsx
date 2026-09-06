@@ -48,7 +48,6 @@ export default function RestOfPage({ youtubeEmbedUrl }: RestOfPageProps) {
             >
               <div className="typo-bold-14 mb-2 text-white md:mb-3 md:text-xl lg:text-2xl">ARCHIVE</div>
               <div className="mb-3 text-[10px] leading-relaxed text-gray-400 md:mb-6 md:typo-medium-14">
-                <br className="md:hidden" />
                 <span className="hidden md:inline">
                   위스키내비에서 발매한
                   <br />

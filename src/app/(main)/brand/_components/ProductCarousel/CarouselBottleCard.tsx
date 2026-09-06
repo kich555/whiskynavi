@@ -10,7 +10,6 @@ interface Props {
   bottleIndex: number;
   position: Carousel3DPosition;
   isCenter: boolean;
-  brandName: string;
   onSelect: (index: number) => void;
 }
 
@@ -19,7 +18,6 @@ const CarouselBottleCard = memo(function CarouselBottleCard({
   bottleIndex,
   position,
   isCenter,
-  brandName,
   onSelect,
 }: Props) {
   const baseWidth = 240;
@@ -81,14 +79,14 @@ const CarouselBottleCard = memo(function CarouselBottleCard({
               onClick={(e) => e.stopPropagation()}
             >
               <span className="typo-bold-12 mb-4 inline-block border border-white/20 bg-white/15 px-2.5 py-1 text-white/90 backdrop-blur-sm">
-                {brandName}
+                {bottle.series}
               </span>
               <h4 className="typo-medium-14 line-clamp-2 leading-snug break-all text-white">{bottle.name}</h4>
             </Link>
           ) : (
             <>
               <span className="typo-bold-12 mb-4 inline-block border border-white/20 bg-white/15 px-2.5 py-1 text-white/90 backdrop-blur-sm">
-                {brandName}
+                {bottle.series}
               </span>
               <h4 className="typo-medium-14 mb-2 line-clamp-2 leading-snug break-all text-white">{bottle.name}</h4>
             </>
