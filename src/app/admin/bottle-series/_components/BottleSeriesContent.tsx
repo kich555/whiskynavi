@@ -20,9 +20,15 @@ interface BottleSeriesContentProps {
   searchParams: BottleSeriesSearchParams;
   series: AdminBottleSeriesResponse[];
   totalElements: number;
+  brands: string[];
 }
 
-export default function BottleSeriesContent({ searchParams, series, totalElements }: BottleSeriesContentProps) {
+export default function BottleSeriesContent({
+  searchParams,
+  series,
+  totalElements,
+  brands,
+}: BottleSeriesContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
   const [formTarget, setFormTarget] = useState<AdminBottleSeriesResponse | null | undefined>(undefined);
@@ -32,6 +38,7 @@ export default function BottleSeriesContent({ searchParams, series, totalElement
   const itemsPerPage = Number(searchParams.limit) || 20;
   const searchQuery = searchParams.q || "";
   const visibility = searchParams.visible === "true" || searchParams.visible === "false" ? searchParams.visible : "all";
+  const selectedBrand = searchParams.brand || "all";
 
   const updateParams = (updates: Record<string, string | undefined>) => {
     const params = createSearchParams(searchParams);
@@ -66,6 +73,22 @@ export default function BottleSeriesContent({ searchParams, series, totalElement
                 <SelectItem value="all">전체</SelectItem>
                 <SelectItem value="true">노출</SelectItem>
                 <SelectItem value="false">숨김</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedBrand}
+              onValueChange={(value) => updateParams({ brand: value === "all" ? undefined : value, page: "1" })}
+            >
+              <SelectTrigger aria-label="브랜드 필터" className="w-44 bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">전체 브랜드</SelectItem>
+                {brands.map((brand) => (
+                  <SelectItem key={brand} value={brand}>
+                    {brand}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>
