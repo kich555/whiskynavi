@@ -103,4 +103,25 @@ describe("OrderDetailModal", () => {
     expect(screen.getByRole("button", { name: "수령완료 처리" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "주문 취소" })).not.toBeInTheDocument();
   });
+
+  it("수동입력 주문에는 주문 상태와 배송 진행 단계를 표시하지 않는다", () => {
+    const order = {
+      id: 5,
+      orderNumber: "ODR-MANUAL-1",
+      orderSource: "ADMIN_MANUAL",
+      itemName: "관리자 입력 보틀",
+      requestedQuantity: 1,
+      totalPrice: 120000,
+      delivery: {
+        receiverName: "나비",
+        address: "서울특별시 중구",
+      },
+    } satisfies UserOrderResponse;
+
+    render(<OrderDetailModal isOpen close={() => {}} order={order} />);
+
+    expect(screen.queryByText("알 수 없음")).not.toBeInTheDocument();
+    expect(screen.queryByText("배송 진행")).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "주문 취소" })).not.toBeInTheDocument();
+  });
 });

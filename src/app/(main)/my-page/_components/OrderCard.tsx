@@ -14,7 +14,7 @@ interface OrderCardProps {
 }
 
 export default function OrderCard({ order, onClick }: OrderCardProps) {
-  const status = getOrderStatusConfig(order.orderStatus);
+  const status = order.orderStatus ? getOrderStatusConfig(order.orderStatus) : null;
   const orderClassification = formatOrderClassification(order);
   const displayNames = getOrderDisplayNames(order);
   const canCompleteReceipt =
@@ -30,9 +30,11 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
           <p className="typo-medium-12 md:typo-medium-14 mb-1 text-gray-400">주문번호: {order.orderNumber}</p>
           <p className="typo-medium-12 md:typo-medium-14 text-gray-400">{formatDate(order.createdAt)}</p>
         </div>
-        <span className={`typo-bold-12 md:typo-medium-14 px-2 py-0.5 md:px-3 md:py-1 ${status.colorClass}`}>
-          {status.label}
-        </span>
+        {status ? (
+          <span className={`typo-bold-12 md:typo-medium-14 px-2 py-0.5 md:px-3 md:py-1 ${status.colorClass}`}>
+            {status.label}
+          </span>
+        ) : null}
       </div>
       <h4 className="typo-bold-14 mb-2 text-white md:text-base">{displayNames.primaryName}</h4>
       {displayNames.secondaryName && (

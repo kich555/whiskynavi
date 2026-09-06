@@ -6,19 +6,19 @@ import { formatOrderClassification } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { overlay } from "overlay-kit";
-import { getDeliveryProgressLabel } from "../../../general-items/delivery-order/_lib/order-utils";
-import OrderCancelModal from "../../_components/OrderCancelModal";
-import ReceiptCompleteButton from "../../_components/ReceiptCompleteButton";
-import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../../_lib/constants";
-import { getOrderDisplayNames } from "../../_lib/order-display";
-import { formatCurrency, formatDate, getOrderStatusConfig } from "../../_lib/utils";
+import { getDeliveryProgressLabel } from "../../../../general-items/delivery-order/_lib/order-utils";
+import OrderCancelModal from "../../../_components/OrderCancelModal";
+import ReceiptCompleteButton from "../../../_components/ReceiptCompleteButton";
+import { isOrderCancellationAllowed, isReceiptCompletionAllowed } from "../../../_lib/constants";
+import { getOrderDisplayNames } from "../../../_lib/order-display";
+import { formatCurrency, formatDate, getOrderStatusConfig } from "../../../_lib/utils";
 
 interface OrderDetailClientProps {
   order: UserOrderResponse;
 }
 
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
-  const status = getOrderStatusConfig(order.orderStatus);
+  const status = order.orderStatus ? getOrderStatusConfig(order.orderStatus) : null;
   const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
   const canCompleteReceipt =
     isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
@@ -48,24 +48,26 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
         </div>
 
         {/* Order Status */}
-        <div className={`mb-4 border p-4 sm:mb-6 sm:p-6 ${status.colorClass}`}>
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="typo-bold-20 mb-1 sm:text-2xl">{status.label}</p>
-              <p className="typo-medium-14 text-white/60">{formatDate(order.createdAt)}</p>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {canCompleteReceipt ? (
-                <ReceiptCompleteButton orderId={order.id!} itemName={displayNames.primaryName} />
-              ) : null}
-              {canCancel ? (
-                <Button variant="destructive" onClick={handleCancelClick}>
-                  주문 취소
-                </Button>
-              ) : null}
+        {status ? (
+          <div className={`mb-4 border p-4 sm:mb-6 sm:p-6 ${status.colorClass}`}>
+            <div className="flex flex-wrap items-center justify-between gap-4">
+              <div>
+                <p className="typo-bold-20 mb-1 sm:text-2xl">{status.label}</p>
+                <p className="typo-medium-14 text-white/60">{formatDate(order.createdAt)}</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {canCompleteReceipt ? (
+                  <ReceiptCompleteButton orderId={order.id!} itemName={displayNames.primaryName} />
+                ) : null}
+                {canCancel ? (
+                  <Button variant="destructive" onClick={handleCancelClick}>
+                    주문 취소
+                  </Button>
+                ) : null}
+              </div>
             </div>
           </div>
-        </div>
+        ) : null}
 
         {/* Main Content */}
         <div className="border border-white/10 bg-white/5 p-4 sm:p-6 lg:p-8">
@@ -123,7 +125,9 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                   배송 정보
                 </h3>
                 <div className="space-y-3 sm:space-y-4">
-                  <InfoRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, order.delivery)} />
+                  {order.orderStatus ? (
+                    <InfoRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, order.delivery)} />
+                  ) : null}
                   <InfoRow label="수령인" value={order.delivery.receiverName ?? "-"} />
                   <InfoRow label="연락처" value={order.delivery.receiverPhone ?? "-"} />
                   <InfoRow label="주소" value={order.delivery.address ?? "-"} />

@@ -1,7 +1,13 @@
 "use server";
 
 import { getUserErrorMessage } from "@/apis/errors";
-import { close, reopen, reply } from "@/apis/generated/api";
+import {
+  close,
+  deleteApiV2AdminInquiriesInquiryidRepliesReplyid as deleteInquiryReply,
+  reopen,
+  reply,
+  patchApiV2AdminInquiriesInquiryidRepliesReplyid as updateInquiryReply,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { richTextHasContent, richTextHasImage, sanitizeRichTextContent } from "@/lib/rich-text";
@@ -14,7 +20,7 @@ export type AdminInquiryActionState = {
   submittedAt?: number;
 };
 
-const replySchema = z.object({
+const replyContentSchema = z.object({
   content: z.string().trim().min(1, "답변 내용을 입력해주세요."),
 });
 
@@ -37,7 +43,7 @@ export async function replyInquiryAction(
     const options = await getAdminOptions();
     if (!options) return { success: false, error: "인증이 필요합니다." };
 
-    const parsed = replySchema.safeParse({ content: formData.get("content") });
+    const parsed = replyContentSchema.safeParse({ content: formData.get("content") });
     if (!parsed.success) {
       return { success: false, error: parsed.error.issues[0].message };
     }
@@ -54,6 +60,53 @@ export async function replyInquiryAction(
     return {
       success: false,
       error: getUserErrorMessage(error, "답변을 등록하지 못했습니다."),
+    };
+  }
+}
+
+export async function updateInquiryReplyAction(
+  inquiryId: number,
+  replyId: number,
+  _previousState: AdminInquiryActionState,
+  formData: FormData,
+): Promise<AdminInquiryActionState> {
+  try {
+    const options = await getAdminOptions();
+    if (!options) return { success: false, error: "인증이 필요합니다." };
+
+    const parsed = replyContentSchema.safeParse({ content: formData.get("content") });
+    if (!parsed.success) {
+      return { success: false, error: parsed.error.issues[0].message };
+    }
+
+    const content = sanitizeRichTextContent(parsed.data.content);
+    if (!richTextHasContent(content)) {
+      return { success: false, error: "답변 내용을 입력해주세요." };
+    }
+
+    await updateInquiryReply(inquiryId, replyId, { content, hasImage: richTextHasImage(content) }, options);
+    revalidateInquiryPages(inquiryId);
+    return { success: true, submittedAt: Date.now() };
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "답변을 수정하지 못했습니다."),
+    };
+  }
+}
+
+export async function deleteInquiryReplyAction(inquiryId: number, replyId: number): Promise<AdminInquiryActionState> {
+  try {
+    const options = await getAdminOptions();
+    if (!options) return { success: false, error: "인증이 필요합니다." };
+
+    await deleteInquiryReply(inquiryId, replyId, options);
+    revalidateInquiryPages(inquiryId);
+    return { success: true };
+  } catch (error) {
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "답변을 삭제하지 못했습니다."),
     };
   }
 }

@@ -17,6 +17,10 @@ export const ORDER_STATUS_MAP: Record<string, { label: string; colorClass: strin
     label: "준비 중",
     colorClass: "border-blue-600/30 bg-blue-600/20 text-blue-400",
   },
+  [UserOrderResponseOrderStatus.PAYMENT_COMPLETED]: {
+    label: "결제 완료",
+    colorClass: "border-blue-600/30 bg-blue-600/20 text-blue-400",
+  },
   [UserOrderResponseOrderStatus.SHIPPING]: {
     label: "배송중",
     colorClass: "border-blue-600/30 bg-blue-600/20 text-blue-400",

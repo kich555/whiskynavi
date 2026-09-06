@@ -18,10 +18,15 @@ const SeriesExplorer = ({ brand, seriesProducts, selected }: SeriesExplorerProps
       {/* Series panel: header row (title + select) + carousel */}
       <div className="">
         {/* Header row */}
-        {/* <div className="flex items-center justify-between gap-4 px-5 py-4 lg:px-8 lg:py-6"></div> */}
+        <div className="flex items-center justify-between gap-4 px-5 py-4 lg:px-8 lg:py-6"></div>
 
         {/* Selected series carousel */}
-        {products.length > 0 && <ProductCarousel key={selected} brandProducts={products} brand={brand} />}
+        {products.length > 0 && (
+          <div className="px-3 py-6 lg:px-6 lg:py-8">
+            {/* key remount resets Carousel3D index when switching series */}
+            <ProductCarousel key={selected} brandProducts={products} brand={brand} />
+          </div>
+        )}
 
         {/* Archive Link for selected series */}
         {selected && (

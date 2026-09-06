@@ -1,6 +1,10 @@
 "use client";
 
-import { postApiBoardsUploads, type AdminInquiryDetailResponse } from "@/apis/generated/api";
+import {
+  postApiBoardsUploads,
+  type AdminInquiryDetailResponse,
+  type AdminInquiryMessageResponse,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import AdminHeader from "@/app/admin/_components/AdminHeader";
 import { useSidebar } from "@/app/admin/_components/AdminLayoutClient";
@@ -9,14 +13,20 @@ import RichTextImageEditor from "@/components/editor/RichTextImageEditor";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatDateTime } from "@/lib/formatters";
-import { ArrowLeft, ExternalLink, Lock, RotateCcw } from "lucide-react";
+import { ArrowLeft, ExternalLink, Lock, Pencil, RotateCcw, Trash2, X } from "lucide-react";
 import { getSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useActionState, useCallback, useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import { formatInquiryAuthor } from "../_lib/formatInquiryAuthor";
-import { closeInquiryAction, reopenInquiryAction, replyInquiryAction } from "../actions";
+import {
+  closeInquiryAction,
+  deleteInquiryReplyAction,
+  reopenInquiryAction,
+  replyInquiryAction,
+  updateInquiryReplyAction,
+} from "../actions";
 
 const STATUS_LABEL: Record<string, string> = {
   WAITING: "답변 대기",
@@ -29,6 +39,149 @@ const STATUS_COLOR: Record<string, string> = {
   ANSWERED: "border-emerald-200 bg-emerald-50 text-emerald-700",
   CLOSED: "border-gray-200 bg-gray-100 text-gray-600",
 };
+
+type UploadReplyImage = (file: File) => Promise<string>;
+
+function InquiryMessage({
+  inquiryId,
+  message,
+  uploadFn,
+}: {
+  inquiryId: number;
+  message: AdminInquiryMessageResponse;
+  uploadFn: UploadReplyImage;
+}) {
+  const router = useRouter();
+  const [isEditing, setIsEditing] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
+  const [isUpdatePending, startUpdateTransition] = useTransition();
+  const [isDeletePending, startDeleteTransition] = useTransition();
+  const isAdmin = message.authorType === "ADMIN";
+  const wasUpdated = Boolean(message.updatedAt && message.createdAt && message.updatedAt !== message.createdAt);
+
+  const startEditing = () => {
+    setUpdateError(null);
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => {
+    setUpdateError(null);
+    setIsEditing(false);
+  };
+
+  const handleUpdate = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formData = new FormData(event.currentTarget);
+
+    startUpdateTransition(async () => {
+      setUpdateError(null);
+      const result = await updateInquiryReplyAction(inquiryId, message.id!, { success: false }, formData);
+      if (!result.success) {
+        setUpdateError(result.error ?? "답변을 수정하지 못했습니다.");
+        return;
+      }
+      setIsEditing(false);
+      toast.success("답변을 수정했습니다.");
+      router.refresh();
+    });
+  };
+
+  const handleDelete = () => {
+    if (!message.id || !window.confirm("이 관리자 답변을 삭제하시겠습니까? 삭제한 답변은 복구할 수 없습니다.")) {
+      return;
+    }
+
+    startDeleteTransition(async () => {
+      const result = await deleteInquiryReplyAction(inquiryId, message.id!);
+      if (!result.success) {
+        toast.error(result.error ?? "답변을 삭제하지 못했습니다.");
+        return;
+      }
+      toast.success("답변을 삭제했습니다.");
+      router.refresh();
+    });
+  };
+
+  return (
+    <div className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
+      <div className={`max-w-[85%] md:max-w-[70%] ${isAdmin ? "text-right" : "text-left"}`}>
+        <div className={`mb-1 flex items-center gap-2 ${isAdmin ? "justify-end" : "justify-start"}`}>
+          <p className="typo-medium-12 text-gray-500">{formatInquiryAuthor(message)}</p>
+          {isAdmin && message.id && !isEditing ? (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={startEditing}
+                disabled={isDeletePending}
+                aria-label="답변 수정"
+                title="답변 수정"
+                className="rounded p-1 text-gray-400 transition-colors hover:bg-gray-100 hover:text-amber-700 disabled:opacity-50"
+              >
+                <Pencil className="size-3.5" />
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isDeletePending}
+                aria-label="답변 삭제"
+                title="답변 삭제"
+                className="rounded p-1 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600 disabled:opacity-50"
+              >
+                <Trash2 className="size-3.5" />
+              </button>
+            </div>
+          ) : null}
+        </div>
+
+        {isEditing ? (
+          <form onSubmit={handleUpdate} className="w-[min(42rem,80vw)] text-left">
+            <RichTextImageEditor
+              variant="admin"
+              compact
+              defaultValue={message.content ?? ""}
+              uploadFn={uploadFn}
+              placeholder="답변 내용을 입력해주세요."
+              onUploadingChange={setIsUploading}
+            />
+            {updateError ? (
+              <p role="alert" className="typo-medium-14 mt-2 text-red-600">
+                {updateError}
+              </p>
+            ) : null}
+            <div className="mt-3 flex justify-end gap-2">
+              <Button type="button" variant="outline" onClick={cancelEditing} disabled={isUpdatePending || isUploading}>
+                <X /> 취소
+              </Button>
+              <Button
+                type="submit"
+                disabled={isUpdatePending || isUploading}
+                className="bg-amber-600 text-white hover:bg-amber-700"
+              >
+                <Pencil />
+                {isUploading ? "이미지 업로드 중..." : isUpdatePending ? "수정 중..." : "수정 완료"}
+              </Button>
+            </div>
+          </form>
+        ) : (
+          <RichTextContent
+            html={message.content ?? ""}
+            className={`typo-medium-14 rounded-2xl px-4 py-3 text-left ${
+              isAdmin ? "rounded-tr-sm bg-amber-600 text-white" : "rounded-tl-sm bg-gray-100 text-gray-900"
+            }`}
+          />
+        )}
+
+        {!isEditing ? (
+          <time className="typo-medium-12 mt-1 block text-gray-400">
+            {formatDateTime(message.createdAt)}
+            {wasUpdated ? " · 수정됨" : ""}
+          </time>
+        ) : null}
+      </div>
+    </div>
+  );
+}
 
 export default function AdminInquiryDetailContent({ detail }: { detail: AdminInquiryDetailResponse }) {
   const inquiry = detail.inquiry!;
@@ -117,25 +270,9 @@ export default function AdminInquiryDetailContent({ detail }: { detail: AdminInq
             </header>
 
             <div className="space-y-5 p-5 md:p-7">
-              {(detail.messages ?? []).map((message) => {
-                const isAdmin = message.authorType === "ADMIN";
-                return (
-                  <div key={message.id} className={`flex ${isAdmin ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[85%] md:max-w-[70%] ${isAdmin ? "text-right" : "text-left"}`}>
-                      <p className="typo-medium-12 mb-1 text-gray-500">{formatInquiryAuthor(message)}</p>
-                      <RichTextContent
-                        html={message.content ?? ""}
-                        className={`typo-medium-14 rounded-2xl px-4 py-3 text-left ${
-                          isAdmin ? "rounded-tr-sm bg-amber-600 text-white" : "rounded-tl-sm bg-gray-100 text-gray-900"
-                        }`}
-                      />
-                      <time className="typo-medium-12 mt-1 block text-gray-400">
-                        {formatDateTime(message.createdAt)}
-                      </time>
-                    </div>
-                  </div>
-                );
-              })}
+              {(detail.messages ?? []).map((message) => (
+                <InquiryMessage key={message.id} inquiryId={inquiry.id!} message={message} uploadFn={uploadFn} />
+              ))}
 
               {isClosed ? (
                 <div className="typo-medium-14 border-t border-gray-200 pt-6 text-center text-gray-500">

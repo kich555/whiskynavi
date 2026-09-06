@@ -8,6 +8,7 @@ import type {
 import { Crown, Package } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import type { OrderHistoryFilters } from "../_lib/order-history";
 import BusinessRegistrationSection from "./BusinessRegistrationSection";
 import FaqSection from "./FaqSection";
 import MembershipTab from "./MembershipTab";
@@ -16,10 +17,18 @@ import UserProfileCard from "./UserProfileCard";
 interface MyPageClientProps {
   user: UserSelfResponse;
   orders: PagedModelUserOrderResponse;
+  ordersError: boolean;
+  orderFilters: OrderHistoryFilters;
   businessApplicationOverview: UserBusinessApplicationOverviewResponse | null;
 }
 
-export default function MyPageClient({ user, orders, businessApplicationOverview }: MyPageClientProps) {
+export default function MyPageClient({
+  user,
+  orders,
+  ordersError,
+  orderFilters,
+  businessApplicationOverview,
+}: MyPageClientProps) {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab") === "membership" ? "membership" : "orders";
   const [activeTab, setActiveTab] = useState<"orders" | "membership">(initialTab);
@@ -49,7 +58,7 @@ export default function MyPageClient({ user, orders, businessApplicationOverview
             <nav className="flex">
               <button
                 onClick={() => handleTabChange("orders")}
-                className={`typo-semibold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
+                className={`typo-bold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
                   activeTab === "orders" ? "border-b-2 border-white text-white" : "text-gray-400 hover:text-gray-300"
                 }`}
               >
@@ -58,7 +67,7 @@ export default function MyPageClient({ user, orders, businessApplicationOverview
               </button>
               <button
                 onClick={() => handleTabChange("membership")}
-                className={`typo-semibold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
+                className={`typo-bold-14 flex-1 px-4 py-3 text-center transition-colors md:px-6 md:py-4 md:text-base ${
                   activeTab === "membership"
                     ? "border-b-2 border-white text-white"
                     : "text-gray-400 hover:text-gray-300"
@@ -71,7 +80,7 @@ export default function MyPageClient({ user, orders, businessApplicationOverview
           </div>
 
           <div className="p-4 md:p-8">
-            {activeTab === "orders" && <OrdersTab orders={orders} />}
+            {activeTab === "orders" && <OrdersTab orders={orders} hasError={ordersError} filters={orderFilters} />}
             {activeTab === "membership" && <MembershipTab user={user} />}
           </div>
         </div>

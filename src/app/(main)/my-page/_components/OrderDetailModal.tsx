@@ -20,7 +20,7 @@ interface OrderDetailModalProps {
 }
 
 export default function OrderDetailModal({ isOpen, close, order }: OrderDetailModalProps) {
-  const status = getOrderStatusConfig(order.orderStatus);
+  const status = order.orderStatus ? getOrderStatusConfig(order.orderStatus) : null;
   const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
   const canCompleteReceipt =
     isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
@@ -55,7 +55,9 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
               <p className="typo-medium-14 text-gray-500">주문번호: {order.orderNumber}</p>
               <p className="typo-medium-14 text-gray-500">{formatDate(order.createdAt)}</p>
             </div>
-            <span className={`typo-bold-14 rounded px-3 py-1 ${status.colorClass}`}>{status.label}</span>
+            {status ? (
+              <span className={`typo-bold-14 rounded px-3 py-1 ${status.colorClass}`}>{status.label}</span>
+            ) : null}
           </div>
 
           {/* 상품 정보 */}
@@ -81,7 +83,7 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
                 <span className="typo-medium-14">{formatCurrency(order.unitPrice)}</span>
               </div>
               <div className="flex justify-between border-t pt-2">
-                <span className="typo-semibold-14 text-gray-900">총 금액</span>
+                <span className="typo-bold-14 text-gray-900">총 금액</span>
                 <span className="typo-bold-14 text-gray-900">{formatCurrency(order.totalPrice)}</span>
               </div>
             </div>
@@ -105,7 +107,9 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
             <div className="border-t pt-4">
               <h4 className="mb-3 font-bold text-gray-900">배송 정보</h4>
               <div className="typo-medium-14 space-y-2">
-                <DetailRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, order.delivery)} />
+                {order.orderStatus ? (
+                  <DetailRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, order.delivery)} />
+                ) : null}
                 <DetailRow label="수령인" value={order.delivery.receiverName} />
                 <DetailRow label="연락처" value={order.delivery.receiverPhone} />
                 <DetailRow label="주소" value={order.delivery.address} />
