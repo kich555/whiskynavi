@@ -70,10 +70,6 @@ export default function ParameterCombobox({
           setInputValue("");
           setIsOpen(true);
         }}
-        onClick={() => {
-          setInputValue("");
-          setIsOpen(true);
-        }}
         onKeyDown={(e) => {
           if (e.key === "Escape") setIsOpen(false);
           if (e.key === "ArrowDown") setIsOpen(true);

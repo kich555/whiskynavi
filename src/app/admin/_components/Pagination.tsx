@@ -56,9 +56,7 @@ export default function Pagination({
     });
   };
 
-  // 아이템이 없을 때만 바 전체를 숨긴다. 페이지당 셀렉터는 항상 접근 가능해야 하므로
-  // 페이지가 하나여도(총 개수 ≤ 페이지당 개수) 숨기지 않는다.
-  if (!alwaysVisible && totalItems === 0) return null;
+  if (!alwaysVisible && totalPages <= 1) return null;
 
   const startIndex = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
   const endIndex = Math.min(currentPage * itemsPerPage, totalItems);
