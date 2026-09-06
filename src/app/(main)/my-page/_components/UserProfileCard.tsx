@@ -62,7 +62,7 @@ export default function UserProfileCard({ user }: UserProfileCardProps) {
         );
       } else {
         return (
-          <Drawer open={isOpen} onOpenChange={(open) => !open && close()}>
+          <Drawer open={isOpen} onOpenChange={(open) => !open && close()} repositionInputs={false}>
             <DrawerContent className="max-h-[85vh]">
               <DrawerHeader>
                 <DrawerTitle>비밀번호 변경</DrawerTitle>
