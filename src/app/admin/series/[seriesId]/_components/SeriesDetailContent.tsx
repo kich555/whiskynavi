@@ -1,42 +1,50 @@
 "use client";
 
-import type { BottleAdminResponse } from "@/apis/generated/api";
+import type { AdminBottleSeriesResponse, BottleResponse, BottleSeriesResponse } from "@/apis/generated/api";
+import type { Brand } from "@/types/brand";
 import { ArrowLeft, Edit2, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
-import type { ReactNode } from "react";
+
 import AdminHeader from "../../../_components/AdminHeader";
 import { useSidebar } from "../../../_components/AdminLayoutClient";
-import AdminProductDetailView from "../../../components/AdminProductDetailView";
-import ProductDeleteModal from "./ProductDeleteModal";
+import AdminSeriesDetail from "./AdminSeriesDetail";
+import SeriesDeleteModal from "./SeriesDeleteModal";
 
-interface ProductDetailContentProps {
-  product: BottleAdminResponse;
-  children?: ReactNode;
+interface SeriesDetailContentProps {
+  series: AdminBottleSeriesResponse;
+  brand?: Brand;
+  seriesList: BottleSeriesResponse[];
+  seriesProducts: Record<string, BottleResponse[]>;
 }
 
-export default function ProductDetailContent({ product, children }: ProductDetailContentProps) {
+export default function SeriesDetailContent({
+  series,
+  brand,
+  seriesList,
+  seriesProducts,
+}: SeriesDetailContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
 
   return (
     <>
-      <AdminHeader title="제품 상세" onToggleSidebar={toggle} showSearch={false} />
+      <AdminHeader title="시리즈 상세" onToggleSidebar={toggle} showSearch={false} />
       <div className="p-8">
         <div className="mb-6 flex items-center justify-between">
           <button
             type="button"
-            onClick={() => router.push("/admin/products")}
+            onClick={() => router.push("/admin/series")}
             className="flex cursor-pointer items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft size={20} />
-            보틀 목록으로 돌아가기
+            시리즈 목록으로 돌아가기
           </button>
 
           <div className="flex gap-2">
             <button
               type="button"
-              onClick={() => router.push(`/admin/products/${product.id}/edit`)}
+              onClick={() => router.push(`/admin/series/${series.id}/edit`)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-amber-600 px-4 py-2 text-white transition-colors hover:bg-amber-700"
             >
               <Edit2 size={16} />
@@ -44,7 +52,7 @@ export default function ProductDetailContent({ product, children }: ProductDetai
             </button>
             <button
               type="button"
-              onClick={() => overlay.open((props) => <ProductDeleteModal {...props} id={product.id!} />)}
+              onClick={() => overlay.open((props) => <SeriesDeleteModal {...props} id={series.id!} />)}
               className="flex cursor-pointer items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-white transition-colors hover:bg-red-700"
             >
               <Trash2 size={16} />
@@ -53,8 +61,7 @@ export default function ProductDetailContent({ product, children }: ProductDetai
           </div>
         </div>
 
-        <AdminProductDetailView productDetails={product} />
-        {children}
+        <AdminSeriesDetail brand={brand} seriesList={seriesList} seriesProducts={seriesProducts} />
       </div>
     </>
   );
