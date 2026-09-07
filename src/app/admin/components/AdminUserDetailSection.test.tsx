@@ -254,5 +254,9 @@ describe("AdminUserDetailSection", () => {
     await user.click(screen.getByRole("checkbox", { name: "관리자 수동 입력 내역 포함" }));
 
     expect(onIncludeAdminManualOrdersChange).toHaveBeenCalledWith(true);
+
+    await user.click(screen.getByRole("button", { name: /예약 내역/ }));
+
+    expect(screen.queryByText("연도별 예약 통계")).not.toBeInTheDocument();
   });
 });

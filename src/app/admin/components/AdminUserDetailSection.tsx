@@ -495,67 +495,6 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
             <div>
               {orderSummary ? (
                 <>
-                  {reservationStatistics && reservationStatisticsYear != null && (
-                    <section className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-5">
-                      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-                        <div>
-                          <h4 className="typo-bold-16 text-gray-900">연도별 예약 통계</h4>
-                          <p className="typo-medium-12 mt-1 text-gray-500">관리자 입력과 취소 건은 제외합니다.</p>
-                        </div>
-                        <select
-                          aria-label="예약 통계 연도"
-                          value={reservationStatisticsYear}
-                          onChange={(event) => onReservationStatisticsYearChange?.(Number(event.target.value))}
-                          className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
-                        >
-                          {reservationStatisticsYears.map((year) => (
-                            <option key={year} value={year}>
-                              {year}년
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <label className="typo-medium-14 mb-4 flex w-fit cursor-pointer items-center gap-2 text-gray-700">
-                        <input
-                          type="checkbox"
-                          checked={includeAdminManualOrders}
-                          onChange={(event) => onIncludeAdminManualOrdersChange?.(event.target.checked)}
-                          className="size-4 rounded border-gray-300 accent-amber-600"
-                        />
-                        관리자 수동 입력 내역 포함
-                      </label>
-                      {reservationStatistics.brandStatistics.length > 0 ? (
-                        <div className="overflow-x-auto">
-                          <table className="typo-medium-14 w-full">
-                            <thead>
-                              <tr className="border-b border-gray-200 text-left text-gray-700">
-                                <th className="px-3 py-2 font-semibold">브랜드</th>
-                                <th className="px-3 py-2 text-right font-semibold">총 주문 수량</th>
-                                <th className="px-3 py-2 text-right font-semibold">보틀 종류</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {reservationStatistics.brandStatistics.map((statistics) => (
-                                <tr key={statistics.brand} className="border-b border-gray-100 last:border-0">
-                                  <td className="px-3 py-2 text-gray-900">{statistics.brand}</td>
-                                  <td className="px-3 py-2 text-right text-gray-900">
-                                    {statistics.totalOrderQuantity}병
-                                  </td>
-                                  <td className="px-3 py-2 text-right text-gray-900">
-                                    {statistics.distinctBottleCount}종
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      ) : (
-                        <p className="typo-medium-14 py-4 text-center text-gray-500">
-                          {reservationStatisticsYear}년 예약 통계가 없습니다.
-                        </p>
-                      )}
-                    </section>
-                  )}
                   {/* 총 구매 금액 요약 카드 */}
                   <div className="mb-6 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 p-5">
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
