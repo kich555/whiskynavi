@@ -1941,6 +1941,54 @@ export interface AdminUserOrderSummaryResponse {
 }
 
 /**
+ * 회원 구매 통계 비동기 집계 요청 결과
+ */
+export interface AdminUserPurchaseStatisticsRefreshResponse {
+  /** SQS 등록 요청 접수 여부 */
+  accepted?: boolean;
+  /**
+   * 집계 요청 ID
+   * @nullable
+   */
+  requestId?: string | null;
+  /** 통계 대상 연도 */
+  statisticsYear?: number;
+  /** 요청 상태 */
+  status?: string;
+}
+
+/**
+ * 관리자 회원별 연간 구매 통계
+ */
+export interface AdminUserPurchaseStatisticsResponse {
+  /**
+   * 마지막 집계 완료 시각
+   * @nullable
+   */
+  calculatedAt?: string | null;
+  /** 사용자 ID */
+  id?: number;
+  /** 이름 */
+  name?: string;
+  /** 위스키내비 확정 구매 보틀 종류 수 */
+  naviBottleKindCount?: number;
+  /** 위스키내비 확정 구매 병수 */
+  naviBottleQuantity?: number;
+  /** 현재 위스키내비 회원 여부 */
+  naviMember?: boolean;
+  /** 통계 대상 연도 */
+  statisticsYear?: number;
+  /** 위스키테일즈 확정 구매 보틀 종류 수 */
+  talesBottleKindCount?: number;
+  /** 위스키테일즈 확정 구매 병수 */
+  talesBottleQuantity?: number;
+  /** 현재 위스키테일즈 회원 여부 */
+  talesMember?: boolean;
+  /** 사용자명 */
+  username?: string;
+}
+
+/**
  * 사용자 예약 브랜드별 통계
  */
 export interface AdminUserReservationBrandStatisticsResponse {
@@ -4362,6 +4410,11 @@ export interface PagedModelAdminPostDeletionAuditResponse {
 
 export interface PagedModelAdminSaleAnnouncementResponse {
   content?: AdminSaleAnnouncementResponse[];
+  page?: PageMetadata;
+}
+
+export interface PagedModelAdminUserPurchaseStatisticsResponse {
+  content?: AdminUserPurchaseStatisticsResponse[];
   page?: PageMetadata;
 }
 
@@ -7932,6 +7985,86 @@ export type PutApiV2AdminTalesNoticesNoticeidBody = {
   title: string;
   visible: boolean;
 };
+
+export type GetApiV2AdminUsersPurchaseStatisticsParams = {
+/**
+ * 0부터 시작하는 페이지 번호
+ * @minimum 0
+ */
+page?: number;
+/**
+ * 페이지당 회원 수
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+/**
+ * 선택한 검색 필드에 적용할 검색어
+ * @minLength 0
+ * @maxLength 100
+ */
+keyword?: string;
+/**
+ * 검색 필드
+ */
+searchField?: GetApiV2AdminUsersPurchaseStatisticsSearchField;
+/**
+ * 현재 위스키내비 회원 여부
+ */
+naviMember?: boolean;
+/**
+ * 현재 위스키테일즈 회원 여부
+ */
+talesMember?: boolean;
+/**
+ * 해당 연도 위스키내비 구매 존재 여부
+ */
+hasNaviPurchase?: boolean;
+/**
+ * 해당 연도 위스키테일즈 구매 존재 여부
+ */
+hasTalesPurchase?: boolean;
+/**
+ * 정렬 기준
+ */
+sortBy?: GetApiV2AdminUsersPurchaseStatisticsSortBy;
+/**
+ * 정렬 방향
+ */
+sortDirection?: GetApiV2AdminUsersPurchaseStatisticsSortDirection;
+};
+
+export type GetApiV2AdminUsersPurchaseStatisticsSearchField = typeof GetApiV2AdminUsersPurchaseStatisticsSearchField[keyof typeof GetApiV2AdminUsersPurchaseStatisticsSearchField];
+
+
+export const GetApiV2AdminUsersPurchaseStatisticsSearchField = {
+  ID: 'ID',
+  NAME: 'NAME',
+  USERNAME: 'USERNAME',
+} as const;
+
+export type GetApiV2AdminUsersPurchaseStatisticsSortBy = typeof GetApiV2AdminUsersPurchaseStatisticsSortBy[keyof typeof GetApiV2AdminUsersPurchaseStatisticsSortBy];
+
+
+export const GetApiV2AdminUsersPurchaseStatisticsSortBy = {
+  ID: 'ID',
+  NAME: 'NAME',
+  USERNAME: 'USERNAME',
+  NAVI_MEMBER: 'NAVI_MEMBER',
+  NAVI_BOTTLE_QUANTITY: 'NAVI_BOTTLE_QUANTITY',
+  NAVI_BOTTLE_KIND_COUNT: 'NAVI_BOTTLE_KIND_COUNT',
+  TALES_MEMBER: 'TALES_MEMBER',
+  TALES_BOTTLE_QUANTITY: 'TALES_BOTTLE_QUANTITY',
+  TALES_BOTTLE_KIND_COUNT: 'TALES_BOTTLE_KIND_COUNT',
+} as const;
+
+export type GetApiV2AdminUsersPurchaseStatisticsSortDirection = typeof GetApiV2AdminUsersPurchaseStatisticsSortDirection[keyof typeof GetApiV2AdminUsersPurchaseStatisticsSortDirection];
+
+
+export const GetApiV2AdminUsersPurchaseStatisticsSortDirection = {
+  ASC: 'ASC',
+  DESC: 'DESC',
+} as const;
 
 export type GetApiV2AdminUsersUseridReservationStatisticsParams = {
 /**
@@ -15070,6 +15203,94 @@ export const putApiV2AdminTalesNoticesNoticeid = async (noticeId: number,
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       putApiV2AdminTalesNoticesNoticeidBody,)
+  }
+);}
+
+
+
+/**
+ * 매일 집계된 현재 연도 회원별 위스키내비·위스키테일즈 구매 통계를 조회합니다.
+ * @summary 회원 구매 통계 목록 조회 2.0
+ */
+export type getApiV2AdminUsersPurchaseStatisticsResponse200 = {
+  data: PagedModelAdminUserPurchaseStatisticsResponse
+  status: 200
+}
+    
+export type getApiV2AdminUsersPurchaseStatisticsResponseSuccess = (getApiV2AdminUsersPurchaseStatisticsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminUsersPurchaseStatisticsResponse = (getApiV2AdminUsersPurchaseStatisticsResponseSuccess)
+
+export const getGetApiV2AdminUsersPurchaseStatisticsUrl = (params?: GetApiV2AdminUsersPurchaseStatisticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/users/purchase-statistics?${stringifiedParams}` : `/api/2.0/admin/users/purchase-statistics`
+}
+
+export const getApiV2AdminUsersPurchaseStatistics = async (params?: GetApiV2AdminUsersPurchaseStatisticsParams, options?: RequestInit): Promise<getApiV2AdminUsersPurchaseStatisticsResponse> => {
+  
+  return customFetch<getApiV2AdminUsersPurchaseStatisticsResponse>(getGetApiV2AdminUsersPurchaseStatisticsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 현재 연도 구매 통계 집계 메시지를 SQS에 등록하고 실제 집계 완료를 기다리지 않습니다.
+ * @summary 회원 구매 통계 수동 집계 요청 2.0
+ */
+export type postApiV2AdminUsersPurchaseStatisticsRefreshResponse202 = {
+  data: AdminUserPurchaseStatisticsRefreshResponse
+  status: 202
+}
+
+export type postApiV2AdminUsersPurchaseStatisticsRefreshResponse503 = {
+  data: AdminUserPurchaseStatisticsRefreshResponse
+  status: 503
+}
+    
+export type postApiV2AdminUsersPurchaseStatisticsRefreshResponseSuccess = (postApiV2AdminUsersPurchaseStatisticsRefreshResponse202) & {
+  headers: Headers;
+};
+export type postApiV2AdminUsersPurchaseStatisticsRefreshResponseError = (postApiV2AdminUsersPurchaseStatisticsRefreshResponse503) & {
+  headers: Headers;
+};
+
+export type postApiV2AdminUsersPurchaseStatisticsRefreshResponse = (postApiV2AdminUsersPurchaseStatisticsRefreshResponseSuccess | postApiV2AdminUsersPurchaseStatisticsRefreshResponseError)
+
+export const getPostApiV2AdminUsersPurchaseStatisticsRefreshUrl = () => {
+
+
+  
+
+  return `/api/2.0/admin/users/purchase-statistics/refresh`
+}
+
+export const postApiV2AdminUsersPurchaseStatisticsRefresh = async ( options?: RequestInit): Promise<postApiV2AdminUsersPurchaseStatisticsRefreshResponse> => {
+  
+  return customFetch<postApiV2AdminUsersPurchaseStatisticsRefreshResponse>(getPostApiV2AdminUsersPurchaseStatisticsRefreshUrl(),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 

@@ -5,6 +5,7 @@ import {
   Ban,
   Briefcase,
   Calendar,
+  ChartColumn,
   FilePenLine,
   FileSpreadsheet,
   History,
@@ -38,6 +39,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
     label: "회원",
     items: [
       { id: "users", label: "회원 관리", icon: Users, href: "/admin/users" },
+      {
+        id: "user-purchase-statistics",
+        label: "회원 구매 통계",
+        icon: ChartColumn,
+        href: "/admin/user-purchase-statistics",
+      },
       {
         id: "membership",
         label: "멤버십 관리",
