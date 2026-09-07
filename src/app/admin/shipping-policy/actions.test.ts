@@ -1,11 +1,11 @@
-import { update } from "@/apis/generated/api";
+import { putApiAdminShippingPolicy } from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { updateShippingPolicyAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
-  update: vi.fn(),
+  putApiAdminShippingPolicy: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -16,7 +16,7 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-const mockedUpdate = vi.mocked(update);
+const mockedUpdate = vi.mocked(putApiAdminShippingPolicy);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
 

@@ -851,7 +851,7 @@ export interface AdminBusinessUserResponse {
   username?: string;
 }
 
-export interface BottleResponse {
+export interface AdminTalesBottleSummaryResponse {
   id?: number;
   imageUrl?: string;
   name?: string;
@@ -864,7 +864,7 @@ export interface ProfileResponse {
 }
 
 export interface AdminCharacterResponse {
-  bottles?: BottleResponse[];
+  bottles?: AdminTalesBottleSummaryResponse[];
   deleted?: boolean;
   deletedAt?: string;
   deletedBy?: number;
@@ -2763,6 +2763,59 @@ export interface BottleReservationPickupWaitingPickupRequest {
   noticeId?: number;
 }
 
+/**
+ * 추가 메타데이터입니다.
+ */
+export type BottleResponseExtraInfos = {[key: string]: string};
+
+/**
+ * 보틀 상세 응답입니다.
+ */
+export interface BottleResponse {
+  /** 도수(ABV)입니다. */
+  abv?: number;
+  /** 병입일입니다. */
+  bottledDate?: string;
+  /** 브랜드명입니다. */
+  brand?: string;
+  /** 용량(ml)입니다. */
+  capacity?: number;
+  /** 캐스크 번호입니다. */
+  caskNumber?: string;
+  /** 캐스크 타입입니다. */
+  caskType?: string;
+  /** 제조사 또는 회사명입니다. */
+  company?: string;
+  /** 사업자에게만 제공되는 권장소매가입니다. */
+  consumerPrice?: number;
+  /** 생성 일시입니다. */
+  createdAt?: string;
+  /** 보틀 설명입니다. */
+  description?: string;
+  /** 증류일입니다. */
+  distillationDate?: string;
+  /** 증류소명입니다. */
+  distillery?: string;
+  /** 추가 메타데이터입니다. */
+  extraInfos?: BottleResponseExtraInfos;
+  /** 보틀 고유 ID입니다. */
+  id?: number;
+  /** 대표 이미지를 제외한 추가 이미지의 CloudFront 공개 URL 목록입니다. 목록 조회에서는 빈 배열로 반환됩니다. */
+  imageUrls?: string[];
+  /** 보틀 대표 라벨 이미지의 CloudFront 공개 URL입니다. */
+  imgUrl?: string;
+  /** 몰트 타입입니다. */
+  maltType?: string;
+  /** 보틀 노출명입니다. */
+  name?: string;
+  /** 시리즈명입니다. */
+  series?: string;
+  /** 사업자에게만 제공되는 공급가입니다. */
+  supplyPrice?: number;
+  /** 수정 일시입니다. */
+  updatedAt?: string;
+}
+
 export interface BottleSearchParameterValues {
   brands?: string[];
   caskTypes?: string[];
@@ -3081,8 +3134,14 @@ export interface CharacterRequest {
   visible?: boolean;
 }
 
+export interface TalesBottleSummaryResponse {
+  id?: number;
+  imageUrl?: string;
+  name?: string;
+}
+
 export interface CharacterResponse {
-  bottles?: BottleResponse[];
+  bottles?: TalesBottleSummaryResponse[];
   description?: string;
   englishName?: string;
   id?: number;
@@ -9334,8 +9393,8 @@ export type PostApiAdminImagesPurposeBody = {
   file: Blob;
 };
 
-export type List9Params = {
-status?: List9Status;
+export type GetApiAdminInquiriesParams = {
+status?: GetApiAdminInquiriesStatus;
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -9352,16 +9411,16 @@ size?: number;
 sort?: string[];
 };
 
-export type List9Status = typeof List9Status[keyof typeof List9Status];
+export type GetApiAdminInquiriesStatus = typeof GetApiAdminInquiriesStatus[keyof typeof GetApiAdminInquiriesStatus];
 
 
-export const List9Status = {
+export const GetApiAdminInquiriesStatus = {
   WAITING: 'WAITING',
   ANSWERED: 'ANSWERED',
   CLOSED: 'CLOSED',
 } as const;
 
-export type ReplyBody = {
+export type PostApiAdminInquiriesInquiryidRepliesBody = {
   /** @minLength 1 */
   content: string;
   hasImage?: boolean;
@@ -10579,7 +10638,7 @@ export type PatchApiAdminSalesSaleidBody = {
   totalQuantity?: number;
 };
 
-export type Update3Body = {
+export type PutApiAdminShippingPolicyBody = {
   /** @minimum 0 */
   baseShippingFee: number;
   enabled: boolean;
@@ -11475,7 +11534,7 @@ size?: number;
 sort?: string[];
 };
 
-export type List3Params = {
+export type GetApiInquiriesParams = {
 /**
  * Zero-based page index (0..N)
  * @minimum 0
@@ -11495,7 +11554,7 @@ sort?: string[];
 /**
  * 1대1 문의 작성 요청입니다.
  */
-export type Create3Body = {
+export type PostApiInquiriesBody = {
   /** @minLength 1 */
   content: string;
   hasImage?: boolean;
@@ -11509,7 +11568,7 @@ export type Create3Body = {
 /**
  * 1대1 문의 추가 메시지 요청입니다.
  */
-export type AddMessageBody = {
+export type PostApiInquiriesInquiryidMessagesBody = {
   /** @minLength 1 */
   content: string;
   hasImage?: boolean;
@@ -14532,19 +14591,19 @@ export const update = async (id: number,
 /**
  * @summary Whisky Tales 홈 편성 조회 2.0
  */
-export type list8Response200 = {
+export type list7Response200 = {
   data: AdminCurationResponse[]
   status: 200
 }
     
-export type list8ResponseSuccess = (list8Response200) & {
+export type list7ResponseSuccess = (list7Response200) & {
   headers: Headers;
 };
 ;
 
-export type list8Response = (list8ResponseSuccess)
+export type list7Response = (list7ResponseSuccess)
 
-export const getList8Url = () => {
+export const getList7Url = () => {
 
 
   
@@ -14552,9 +14611,9 @@ export const getList8Url = () => {
   return `/api/2.0/admin/tales/home-curation`
 }
 
-export const list8 = async ( options?: RequestInit): Promise<list8Response> => {
+export const list7 = async ( options?: RequestInit): Promise<list7Response> => {
   
-  return customFetch<list8Response>(getList8Url(),
+  return customFetch<list7Response>(getList7Url(),
   {      
     ...options,
     method: 'GET'
@@ -15017,7 +15076,7 @@ export const putApiV2AdminTalesNoticesNoticeid = async (noticeId: number,
 
 
 /**
- * 선택한 연도의 보틀 예약을 브랜드별 총 신청 수량과 중복 없는 보틀 종류 수로 조회합니다. year를 생략하면 올해를 조회하며, includeAdminManualOrders=true면 관리자 수동 입력 주문도 포함합니다.
+ * 선택한 연도의 예약 확정 이후 보틀 주문을 브랜드별 총 주문 수량과 중복 없는 보틀 종류 수로 조회합니다. 신청 및 실제 취소 완료 상태 주문은 제외하며, 취소 거절 주문은 포함합니다. year를 생략하면 올해를 조회하며, includeAdminManualOrders=true면 관리자 수동 입력 주문도 포함합니다.
  * @summary 관리자 사용자 연도별 예약 통계 조회 2.0
  */
 export type getApiV2AdminUsersUseridReservationStatisticsResponse200 = {
@@ -15353,80 +15412,8 @@ export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: 
 /**
  * @summary Whisky Tales backgrounds 목록 2.0
  */
-export type list7Response200 = {
-  data: BackgroundResponse[]
-  status: 200
-}
-    
-export type list7ResponseSuccess = (list7Response200) & {
-  headers: Headers;
-};
-;
-
-export type list7Response = (list7ResponseSuccess)
-
-export const getList7Url = () => {
-
-
-  
-
-  return `/api/2.0/tales/backgrounds`
-}
-
-export const list7 = async ( options?: RequestInit): Promise<list7Response> => {
-  
-  return customFetch<list7Response>(getList7Url(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary Whisky Tales backgrounds 상세 2.0
- */
-export type get5Response200 = {
-  data: BackgroundResponse
-  status: 200
-}
-    
-export type get5ResponseSuccess = (get5Response200) & {
-  headers: Headers;
-};
-;
-
-export type get5Response = (get5ResponseSuccess)
-
-export const getGet5Url = (id: number,) => {
-
-
-  
-
-  return `/api/2.0/tales/backgrounds/${id}`
-}
-
-export const get5 = async (id: number, options?: RequestInit): Promise<get5Response> => {
-  
-  return customFetch<get5Response>(getGet5Url(id),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary Whisky Tales characters 목록 2.0
- */
 export type list6Response200 = {
-  data: CharacterResponse[]
+  data: BackgroundResponse[]
   status: 200
 }
     
@@ -15442,12 +15429,84 @@ export const getList6Url = () => {
 
   
 
-  return `/api/2.0/tales/characters`
+  return `/api/2.0/tales/backgrounds`
 }
 
 export const list6 = async ( options?: RequestInit): Promise<list6Response> => {
   
   return customFetch<list6Response>(getList6Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales backgrounds 상세 2.0
+ */
+export type get4Response200 = {
+  data: BackgroundResponse
+  status: 200
+}
+    
+export type get4ResponseSuccess = (get4Response200) & {
+  headers: Headers;
+};
+;
+
+export type get4Response = (get4ResponseSuccess)
+
+export const getGet4Url = (id: number,) => {
+
+
+  
+
+  return `/api/2.0/tales/backgrounds/${id}`
+}
+
+export const get4 = async (id: number, options?: RequestInit): Promise<get4Response> => {
+  
+  return customFetch<get4Response>(getGet4Url(id),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales characters 목록 2.0
+ */
+export type list5Response200 = {
+  data: CharacterResponse[]
+  status: 200
+}
+    
+export type list5ResponseSuccess = (list5Response200) & {
+  headers: Headers;
+};
+;
+
+export type list5Response = (list5ResponseSuccess)
+
+export const getList5Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/characters`
+}
+
+export const list5 = async ( options?: RequestInit): Promise<list5Response> => {
+  
+  return customFetch<list5Response>(getList5Url(),
   {      
     ...options,
     method: 'GET'
@@ -15497,19 +15556,19 @@ export const forBottle = async (id: number, options?: RequestInit): Promise<forB
 /**
  * @summary Whisky Tales characters 상세 2.0
  */
-export type get4Response200 = {
+export type get3Response200 = {
   data: CharacterResponse
   status: 200
 }
     
-export type get4ResponseSuccess = (get4Response200) & {
+export type get3ResponseSuccess = (get3Response200) & {
   headers: Headers;
 };
 ;
 
-export type get4Response = (get4ResponseSuccess)
+export type get3Response = (get3ResponseSuccess)
 
-export const getGet4Url = (slug: string,) => {
+export const getGet3Url = (slug: string,) => {
 
 
   
@@ -15517,9 +15576,9 @@ export const getGet4Url = (slug: string,) => {
   return `/api/2.0/tales/characters/${slug}`
 }
 
-export const get4 = async (slug: string, options?: RequestInit): Promise<get4Response> => {
+export const get3 = async (slug: string, options?: RequestInit): Promise<get3Response> => {
   
-  return customFetch<get4Response>(getGet4Url(slug),
+  return customFetch<get3Response>(getGet3Url(slug),
   {      
     ...options,
     method: 'GET'
@@ -16140,44 +16199,8 @@ export const views = async (board: string,
 /**
  * @summary Whisky Tales home-banners 목록 2.0
  */
-export type list5Response200 = {
-  data: HomeBannerResponse[]
-  status: 200
-}
-    
-export type list5ResponseSuccess = (list5Response200) & {
-  headers: Headers;
-};
-;
-
-export type list5Response = (list5ResponseSuccess)
-
-export const getList5Url = () => {
-
-
-  
-
-  return `/api/2.0/tales/home-banners`
-}
-
-export const list5 = async ( options?: RequestInit): Promise<list5Response> => {
-  
-  return customFetch<list5Response>(getList5Url(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary Whisky Tales 홈 편성 조회 2.0
- */
 export type list4Response200 = {
-  data: CurationResponse[]
+  data: HomeBannerResponse[]
   status: 200
 }
     
@@ -16193,12 +16216,48 @@ export const getList4Url = () => {
 
   
 
-  return `/api/2.0/tales/home-curation`
+  return `/api/2.0/tales/home-banners`
 }
 
 export const list4 = async ( options?: RequestInit): Promise<list4Response> => {
   
   return customFetch<list4Response>(getList4Url(),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary Whisky Tales 홈 편성 조회 2.0
+ */
+export type list3Response200 = {
+  data: CurationResponse[]
+  status: 200
+}
+    
+export type list3ResponseSuccess = (list3Response200) & {
+  headers: Headers;
+};
+;
+
+export type list3Response = (list3ResponseSuccess)
+
+export const getList3Url = () => {
+
+
+  
+
+  return `/api/2.0/tales/home-curation`
+}
+
+export const list3 = async ( options?: RequestInit): Promise<list3Response> => {
+  
+  return customFetch<list3Response>(getList3Url(),
   {      
     ...options,
     method: 'GET'
@@ -18999,19 +19058,19 @@ formData.append(`file`, postApiAdminImagesPurposeBody.file);
 /**
  * @summary 1대1 문의 목록 조회(관리자)
  */
-export type list9Response200 = {
+export type getApiAdminInquiriesResponse200 = {
   data: PagedModelAdminInquirySummaryResponse
   status: 200
 }
     
-export type list9ResponseSuccess = (list9Response200) & {
+export type getApiAdminInquiriesResponseSuccess = (getApiAdminInquiriesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type list9Response = (list9ResponseSuccess)
+export type getApiAdminInquiriesResponse = (getApiAdminInquiriesResponseSuccess)
 
-export const getList9Url = (params?: List9Params,) => {
+export const getGetApiAdminInquiriesUrl = (params?: GetApiAdminInquiriesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -19026,9 +19085,9 @@ export const getList9Url = (params?: List9Params,) => {
   return stringifiedParams.length > 0 ? `/api/admin/inquiries?${stringifiedParams}` : `/api/admin/inquiries`
 }
 
-export const list9 = async (params?: List9Params, options?: RequestInit): Promise<list9Response> => {
+export const getApiAdminInquiries = async (params?: GetApiAdminInquiriesParams, options?: RequestInit): Promise<getApiAdminInquiriesResponse> => {
   
-  return customFetch<list9Response>(getList9Url(params),
+  return customFetch<getApiAdminInquiriesResponse>(getGetApiAdminInquiriesUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -19042,19 +19101,19 @@ export const list9 = async (params?: List9Params, options?: RequestInit): Promis
 /**
  * @summary 1대1 문의 상세 조회(관리자)
  */
-export type get7Response200 = {
+export type getApiAdminInquiriesInquiryidResponse200 = {
   data: AdminInquiryDetailResponse
   status: 200
 }
     
-export type get7ResponseSuccess = (get7Response200) & {
+export type getApiAdminInquiriesInquiryidResponseSuccess = (getApiAdminInquiriesInquiryidResponse200) & {
   headers: Headers;
 };
 ;
 
-export type get7Response = (get7ResponseSuccess)
+export type getApiAdminInquiriesInquiryidResponse = (getApiAdminInquiriesInquiryidResponseSuccess)
 
-export const getGet7Url = (inquiryId: number,) => {
+export const getGetApiAdminInquiriesInquiryidUrl = (inquiryId: number,) => {
 
 
   
@@ -19062,9 +19121,9 @@ export const getGet7Url = (inquiryId: number,) => {
   return `/api/admin/inquiries/${inquiryId}`
 }
 
-export const get7 = async (inquiryId: number, options?: RequestInit): Promise<get7Response> => {
+export const getApiAdminInquiriesInquiryid = async (inquiryId: number, options?: RequestInit): Promise<getApiAdminInquiriesInquiryidResponse> => {
   
-  return customFetch<get7Response>(getGet7Url(inquiryId),
+  return customFetch<getApiAdminInquiriesInquiryidResponse>(getGetApiAdminInquiriesInquiryidUrl(inquiryId),
   {      
     ...options,
     method: 'GET'
@@ -19078,19 +19137,19 @@ export const get7 = async (inquiryId: number, options?: RequestInit): Promise<ge
 /**
  * @summary 1대1 문의 종료(관리자)
  */
-export type closeResponse200 = {
+export type postApiAdminInquiriesInquiryidCloseResponse200 = {
   data: AdminInquirySummaryResponse
   status: 200
 }
     
-export type closeResponseSuccess = (closeResponse200) & {
+export type postApiAdminInquiriesInquiryidCloseResponseSuccess = (postApiAdminInquiriesInquiryidCloseResponse200) & {
   headers: Headers;
 };
 ;
 
-export type closeResponse = (closeResponseSuccess)
+export type postApiAdminInquiriesInquiryidCloseResponse = (postApiAdminInquiriesInquiryidCloseResponseSuccess)
 
-export const getCloseUrl = (inquiryId: number,) => {
+export const getPostApiAdminInquiriesInquiryidCloseUrl = (inquiryId: number,) => {
 
 
   
@@ -19098,9 +19157,9 @@ export const getCloseUrl = (inquiryId: number,) => {
   return `/api/admin/inquiries/${inquiryId}/close`
 }
 
-export const close = async (inquiryId: number, options?: RequestInit): Promise<closeResponse> => {
+export const postApiAdminInquiriesInquiryidClose = async (inquiryId: number, options?: RequestInit): Promise<postApiAdminInquiriesInquiryidCloseResponse> => {
   
-  return customFetch<closeResponse>(getCloseUrl(inquiryId),
+  return customFetch<postApiAdminInquiriesInquiryidCloseResponse>(getPostApiAdminInquiriesInquiryidCloseUrl(inquiryId),
   {      
     ...options,
     method: 'POST'
@@ -19114,19 +19173,19 @@ export const close = async (inquiryId: number, options?: RequestInit): Promise<c
 /**
  * @summary 1대1 문의 다시 열기(관리자)
  */
-export type reopenResponse200 = {
+export type postApiAdminInquiriesInquiryidReopenResponse200 = {
   data: AdminInquirySummaryResponse
   status: 200
 }
     
-export type reopenResponseSuccess = (reopenResponse200) & {
+export type postApiAdminInquiriesInquiryidReopenResponseSuccess = (postApiAdminInquiriesInquiryidReopenResponse200) & {
   headers: Headers;
 };
 ;
 
-export type reopenResponse = (reopenResponseSuccess)
+export type postApiAdminInquiriesInquiryidReopenResponse = (postApiAdminInquiriesInquiryidReopenResponseSuccess)
 
-export const getReopenUrl = (inquiryId: number,) => {
+export const getPostApiAdminInquiriesInquiryidReopenUrl = (inquiryId: number,) => {
 
 
   
@@ -19134,9 +19193,9 @@ export const getReopenUrl = (inquiryId: number,) => {
   return `/api/admin/inquiries/${inquiryId}/reopen`
 }
 
-export const reopen = async (inquiryId: number, options?: RequestInit): Promise<reopenResponse> => {
+export const postApiAdminInquiriesInquiryidReopen = async (inquiryId: number, options?: RequestInit): Promise<postApiAdminInquiriesInquiryidReopenResponse> => {
   
-  return customFetch<reopenResponse>(getReopenUrl(inquiryId),
+  return customFetch<postApiAdminInquiriesInquiryidReopenResponse>(getPostApiAdminInquiriesInquiryidReopenUrl(inquiryId),
   {      
     ...options,
     method: 'POST'
@@ -19150,19 +19209,19 @@ export const reopen = async (inquiryId: number, options?: RequestInit): Promise<
 /**
  * @summary 1대1 문의 답변 작성(관리자)
  */
-export type replyResponse200 = {
+export type postApiAdminInquiriesInquiryidRepliesResponse200 = {
   data: AdminInquiryMessageResponse
   status: 200
 }
     
-export type replyResponseSuccess = (replyResponse200) & {
+export type postApiAdminInquiriesInquiryidRepliesResponseSuccess = (postApiAdminInquiriesInquiryidRepliesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type replyResponse = (replyResponseSuccess)
+export type postApiAdminInquiriesInquiryidRepliesResponse = (postApiAdminInquiriesInquiryidRepliesResponseSuccess)
 
-export const getReplyUrl = (inquiryId: number,) => {
+export const getPostApiAdminInquiriesInquiryidRepliesUrl = (inquiryId: number,) => {
 
 
   
@@ -19170,16 +19229,16 @@ export const getReplyUrl = (inquiryId: number,) => {
   return `/api/admin/inquiries/${inquiryId}/replies`
 }
 
-export const reply = async (inquiryId: number,
-    replyBody: ReplyBody, options?: RequestInit): Promise<replyResponse> => {
+export const postApiAdminInquiriesInquiryidReplies = async (inquiryId: number,
+    postApiAdminInquiriesInquiryidRepliesBody: PostApiAdminInquiriesInquiryidRepliesBody, options?: RequestInit): Promise<postApiAdminInquiriesInquiryidRepliesResponse> => {
   
-  return customFetch<replyResponse>(getReplyUrl(inquiryId),
+  return customFetch<postApiAdminInquiriesInquiryidRepliesResponse>(getPostApiAdminInquiriesInquiryidRepliesUrl(inquiryId),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      replyBody,)
+      postApiAdminInquiriesInquiryidRepliesBody,)
   }
 );}
 
@@ -21208,19 +21267,22 @@ export const patchApiAdminSalesSaleid = async (saleId: number,
 
 
 
-export type get3Response200 = {
+/**
+ * @summary 관리자 배송 정책 조회
+ */
+export type getApiAdminShippingPolicyResponse200 = {
   data: ShippingPolicyResponse
   status: 200
 }
     
-export type get3ResponseSuccess = (get3Response200) & {
+export type getApiAdminShippingPolicyResponseSuccess = (getApiAdminShippingPolicyResponse200) & {
   headers: Headers;
 };
 ;
 
-export type get3Response = (get3ResponseSuccess)
+export type getApiAdminShippingPolicyResponse = (getApiAdminShippingPolicyResponseSuccess)
 
-export const getGet3Url = () => {
+export const getGetApiAdminShippingPolicyUrl = () => {
 
 
   
@@ -21228,9 +21290,9 @@ export const getGet3Url = () => {
   return `/api/admin/shipping-policy`
 }
 
-export const get3 = async ( options?: RequestInit): Promise<get3Response> => {
+export const getApiAdminShippingPolicy = async ( options?: RequestInit): Promise<getApiAdminShippingPolicyResponse> => {
   
-  return customFetch<get3Response>(getGet3Url(),
+  return customFetch<getApiAdminShippingPolicyResponse>(getGetApiAdminShippingPolicyUrl(),
   {      
     ...options,
     method: 'GET'
@@ -21241,19 +21303,22 @@ export const get3 = async ( options?: RequestInit): Promise<get3Response> => {
 
 
 
-export type update3Response200 = {
+/**
+ * @summary 관리자 배송 정책 수정
+ */
+export type putApiAdminShippingPolicyResponse200 = {
   data: ShippingPolicyResponse
   status: 200
 }
     
-export type update3ResponseSuccess = (update3Response200) & {
+export type putApiAdminShippingPolicyResponseSuccess = (putApiAdminShippingPolicyResponse200) & {
   headers: Headers;
 };
 ;
 
-export type update3Response = (update3ResponseSuccess)
+export type putApiAdminShippingPolicyResponse = (putApiAdminShippingPolicyResponseSuccess)
 
-export const getUpdate3Url = () => {
+export const getPutApiAdminShippingPolicyUrl = () => {
 
 
   
@@ -21261,15 +21326,15 @@ export const getUpdate3Url = () => {
   return `/api/admin/shipping-policy`
 }
 
-export const update3 = async (update3Body: Update3Body, options?: RequestInit): Promise<update3Response> => {
+export const putApiAdminShippingPolicy = async (putApiAdminShippingPolicyBody: PutApiAdminShippingPolicyBody, options?: RequestInit): Promise<putApiAdminShippingPolicyResponse> => {
   
-  return customFetch<update3Response>(getUpdate3Url(),
+  return customFetch<putApiAdminShippingPolicyResponse>(getPutApiAdminShippingPolicyUrl(),
   {      
     ...options,
     method: 'PUT',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      update3Body,)
+      putApiAdminShippingPolicyBody,)
   }
 );}
 
@@ -24652,19 +24717,19 @@ export const getApiHealth = async ( options?: RequestInit): Promise<getApiHealth
 /**
  * @summary 내 1대1 문의 목록 조회
  */
-export type list3Response200 = {
+export type getApiInquiriesResponse200 = {
   data: PagedModelInquirySummaryResponse
   status: 200
 }
     
-export type list3ResponseSuccess = (list3Response200) & {
+export type getApiInquiriesResponseSuccess = (getApiInquiriesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type list3Response = (list3ResponseSuccess)
+export type getApiInquiriesResponse = (getApiInquiriesResponseSuccess)
 
-export const getList3Url = (params?: List3Params,) => {
+export const getGetApiInquiriesUrl = (params?: GetApiInquiriesParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -24679,9 +24744,9 @@ export const getList3Url = (params?: List3Params,) => {
   return stringifiedParams.length > 0 ? `/api/inquiries?${stringifiedParams}` : `/api/inquiries`
 }
 
-export const list3 = async (params?: List3Params, options?: RequestInit): Promise<list3Response> => {
+export const getApiInquiries = async (params?: GetApiInquiriesParams, options?: RequestInit): Promise<getApiInquiriesResponse> => {
   
-  return customFetch<list3Response>(getList3Url(params),
+  return customFetch<getApiInquiriesResponse>(getGetApiInquiriesUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -24695,19 +24760,19 @@ export const list3 = async (params?: List3Params, options?: RequestInit): Promis
 /**
  * @summary 1대1 문의 작성
  */
-export type create3Response200 = {
+export type postApiInquiriesResponse200 = {
   data: InquiryDetailResponse
   status: 200
 }
     
-export type create3ResponseSuccess = (create3Response200) & {
+export type postApiInquiriesResponseSuccess = (postApiInquiriesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type create3Response = (create3ResponseSuccess)
+export type postApiInquiriesResponse = (postApiInquiriesResponseSuccess)
 
-export const getCreate3Url = () => {
+export const getPostApiInquiriesUrl = () => {
 
 
   
@@ -24715,15 +24780,15 @@ export const getCreate3Url = () => {
   return `/api/inquiries`
 }
 
-export const create3 = async (create3Body: Create3Body, options?: RequestInit): Promise<create3Response> => {
+export const postApiInquiries = async (postApiInquiriesBody: PostApiInquiriesBody, options?: RequestInit): Promise<postApiInquiriesResponse> => {
   
-  return customFetch<create3Response>(getCreate3Url(),
+  return customFetch<postApiInquiriesResponse>(getPostApiInquiriesUrl(),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      create3Body,)
+      postApiInquiriesBody,)
   }
 );}
 
@@ -24732,19 +24797,19 @@ export const create3 = async (create3Body: Create3Body, options?: RequestInit): 
 /**
  * @summary 1대1 문의 삭제
  */
-export type delete3Response200 = {
+export type deleteApiInquiriesInquiryidResponse200 = {
   data: void
   status: 200
 }
     
-export type delete3ResponseSuccess = (delete3Response200) & {
+export type deleteApiInquiriesInquiryidResponseSuccess = (deleteApiInquiriesInquiryidResponse200) & {
   headers: Headers;
 };
 ;
 
-export type delete3Response = (delete3ResponseSuccess)
+export type deleteApiInquiriesInquiryidResponse = (deleteApiInquiriesInquiryidResponseSuccess)
 
-export const getDelete3Url = (inquiryId: number,) => {
+export const getDeleteApiInquiriesInquiryidUrl = (inquiryId: number,) => {
 
 
   
@@ -24752,9 +24817,9 @@ export const getDelete3Url = (inquiryId: number,) => {
   return `/api/inquiries/${inquiryId}`
 }
 
-export const delete3 = async (inquiryId: number, options?: RequestInit): Promise<delete3Response> => {
+export const deleteApiInquiriesInquiryid = async (inquiryId: number, options?: RequestInit): Promise<deleteApiInquiriesInquiryidResponse> => {
   
-  return customFetch<delete3Response>(getDelete3Url(inquiryId),
+  return customFetch<deleteApiInquiriesInquiryidResponse>(getDeleteApiInquiriesInquiryidUrl(inquiryId),
   {      
     ...options,
     method: 'DELETE'
@@ -24768,19 +24833,19 @@ export const delete3 = async (inquiryId: number, options?: RequestInit): Promise
 /**
  * @summary 내 1대1 문의 상세 조회
  */
-export type get6Response200 = {
+export type getApiInquiriesInquiryidResponse200 = {
   data: InquiryDetailResponse
   status: 200
 }
     
-export type get6ResponseSuccess = (get6Response200) & {
+export type getApiInquiriesInquiryidResponseSuccess = (getApiInquiriesInquiryidResponse200) & {
   headers: Headers;
 };
 ;
 
-export type get6Response = (get6ResponseSuccess)
+export type getApiInquiriesInquiryidResponse = (getApiInquiriesInquiryidResponseSuccess)
 
-export const getGet6Url = (inquiryId: number,) => {
+export const getGetApiInquiriesInquiryidUrl = (inquiryId: number,) => {
 
 
   
@@ -24788,9 +24853,9 @@ export const getGet6Url = (inquiryId: number,) => {
   return `/api/inquiries/${inquiryId}`
 }
 
-export const get6 = async (inquiryId: number, options?: RequestInit): Promise<get6Response> => {
+export const getApiInquiriesInquiryid = async (inquiryId: number, options?: RequestInit): Promise<getApiInquiriesInquiryidResponse> => {
   
-  return customFetch<get6Response>(getGet6Url(inquiryId),
+  return customFetch<getApiInquiriesInquiryidResponse>(getGetApiInquiriesInquiryidUrl(inquiryId),
   {      
     ...options,
     method: 'GET'
@@ -24804,19 +24869,19 @@ export const get6 = async (inquiryId: number, options?: RequestInit): Promise<ge
 /**
  * @summary 1대1 문의 추가 메시지 작성
  */
-export type addMessageResponse200 = {
+export type postApiInquiriesInquiryidMessagesResponse200 = {
   data: InquiryMessageResponse
   status: 200
 }
     
-export type addMessageResponseSuccess = (addMessageResponse200) & {
+export type postApiInquiriesInquiryidMessagesResponseSuccess = (postApiInquiriesInquiryidMessagesResponse200) & {
   headers: Headers;
 };
 ;
 
-export type addMessageResponse = (addMessageResponseSuccess)
+export type postApiInquiriesInquiryidMessagesResponse = (postApiInquiriesInquiryidMessagesResponseSuccess)
 
-export const getAddMessageUrl = (inquiryId: number,) => {
+export const getPostApiInquiriesInquiryidMessagesUrl = (inquiryId: number,) => {
 
 
   
@@ -24824,16 +24889,16 @@ export const getAddMessageUrl = (inquiryId: number,) => {
   return `/api/inquiries/${inquiryId}/messages`
 }
 
-export const addMessage = async (inquiryId: number,
-    addMessageBody: AddMessageBody, options?: RequestInit): Promise<addMessageResponse> => {
+export const postApiInquiriesInquiryidMessages = async (inquiryId: number,
+    postApiInquiriesInquiryidMessagesBody: PostApiInquiriesInquiryidMessagesBody, options?: RequestInit): Promise<postApiInquiriesInquiryidMessagesResponse> => {
   
-  return customFetch<addMessageResponse>(getAddMessageUrl(inquiryId),
+  return customFetch<postApiInquiriesInquiryidMessagesResponse>(getPostApiInquiriesInquiryidMessagesUrl(inquiryId),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      addMessageBody,)
+      postApiInquiriesInquiryidMessagesBody,)
   }
 );}
 

@@ -51,7 +51,7 @@ export default function UserDetailContent({
     if (userId == null) return;
     const params = new URLSearchParams();
     Object.entries(searchParams).forEach(([key, value]) => {
-      if (value) params.set(key, value);
+      if (typeof value === "string" && value) params.set(key, value);
     });
     params.set("year", String(year));
     if (includeManualOrders) {

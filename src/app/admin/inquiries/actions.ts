@@ -2,11 +2,11 @@
 
 import { getUserErrorMessage } from "@/apis/errors";
 import {
-  close,
   deleteApiV2AdminInquiriesInquiryidRepliesReplyid as deleteInquiryReply,
-  reopen,
-  reply,
   patchApiV2AdminInquiriesInquiryidRepliesReplyid as updateInquiryReply,
+  postApiAdminInquiriesInquiryidClose as close,
+  postApiAdminInquiriesInquiryidReopen as reopen,
+  postApiAdminInquiriesInquiryidReplies as reply,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";

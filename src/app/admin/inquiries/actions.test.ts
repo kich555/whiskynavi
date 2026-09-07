@@ -1,9 +1,9 @@
 import {
-  close,
   deleteApiV2AdminInquiriesInquiryidRepliesReplyid,
   patchApiV2AdminInquiriesInquiryidRepliesReplyid,
-  reopen,
-  reply,
+  postApiAdminInquiriesInquiryidClose,
+  postApiAdminInquiriesInquiryidReopen,
+  postApiAdminInquiriesInquiryidReplies,
 } from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -17,11 +17,11 @@ import {
 } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
-  close: vi.fn(),
   deleteApiV2AdminInquiriesInquiryidRepliesReplyid: vi.fn(),
   patchApiV2AdminInquiriesInquiryidRepliesReplyid: vi.fn(),
-  reopen: vi.fn(),
-  reply: vi.fn(),
+  postApiAdminInquiriesInquiryidClose: vi.fn(),
+  postApiAdminInquiriesInquiryidReopen: vi.fn(),
+  postApiAdminInquiriesInquiryidReplies: vi.fn(),
 }));
 
 vi.mock("@/lib/auth", () => ({
@@ -32,11 +32,11 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-const mockedClose = vi.mocked(close);
+const mockedClose = vi.mocked(postApiAdminInquiriesInquiryidClose);
 const mockedDeleteInquiryReply = vi.mocked(deleteApiV2AdminInquiriesInquiryidRepliesReplyid);
 const mockedUpdateInquiryReply = vi.mocked(patchApiV2AdminInquiriesInquiryidRepliesReplyid);
-const mockedReopen = vi.mocked(reopen);
-const mockedReply = vi.mocked(reply);
+const mockedReopen = vi.mocked(postApiAdminInquiriesInquiryidReopen);
+const mockedReply = vi.mocked(postApiAdminInquiriesInquiryidReplies);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);
 
