@@ -3,11 +3,16 @@ import { render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { toast } from "sonner";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { requestPurchaseStatisticsRefreshAction } from "../actions";
+import { grantCommunityMembershipAction, requestPurchaseStatisticsRefreshAction } from "../actions";
 import UserPurchaseStatisticsContent from "./UserPurchaseStatisticsContent";
 
+const { routerPush, routerRefresh } = vi.hoisted(() => ({
+  routerPush: vi.fn(),
+  routerRefresh: vi.fn(),
+}));
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: routerPush, refresh: routerRefresh }),
 }));
 
 vi.mock("../../_components/AdminHeader", () => ({
@@ -23,6 +28,7 @@ vi.mock("../../_components/Pagination", () => ({
 }));
 
 vi.mock("../actions", () => ({
+  grantCommunityMembershipAction: vi.fn(),
   requestPurchaseStatisticsRefreshAction: vi.fn(),
 }));
 
@@ -47,10 +53,10 @@ const statistic = {
   calculatedAt: "2026-09-07T03:00:00",
 } satisfies AdminUserPurchaseStatisticsResponse;
 
-function renderContent() {
+function renderContent(searchParams: React.ComponentProps<typeof UserPurchaseStatisticsContent>["searchParams"] = {}) {
   return render(
     <UserPurchaseStatisticsContent
-      searchParams={{}}
+      searchParams={searchParams}
       statistics={[statistic]}
       totalElements={1}
       statisticsYear={2026}
@@ -96,5 +102,38 @@ describe("UserPurchaseStatisticsContent", () => {
 
     expect(requestPurchaseStatisticsRefreshAction).toHaveBeenCalledOnce();
     expect(toast.success).toHaveBeenCalledWith("2026년 구매 통계 갱신 요청을 접수했습니다. 완료 후 다시 확인해주세요.");
+  });
+
+  it("내비 최소 구매 병수를 URL 필터로 적용한다", async () => {
+    const user = userEvent.setup();
+    renderContent();
+
+    await user.type(screen.getByRole("spinbutton", { name: "내비 최소 구매 병수" }), "6");
+    await user.click(screen.getByRole("button", { name: "내비 최소 구매 병수 적용" }));
+
+    expect(routerPush).toHaveBeenCalledWith("/admin/user-purchase-statistics?minNaviBottleQuantity=6&page=1");
+  });
+
+  it("테일즈 최소 구매 병수를 URL 필터로 적용한다", async () => {
+    const user = userEvent.setup();
+    renderContent();
+
+    await user.type(screen.getByRole("spinbutton", { name: "테일즈 최소 구매 병수" }), "4");
+    await user.click(screen.getByRole("button", { name: "테일즈 최소 구매 병수 적용" }));
+
+    expect(routerPush).toHaveBeenCalledWith("/admin/user-purchase-statistics?minTalesBottleQuantity=4&page=1");
+  });
+
+  it("비회원에게 테일즈 커뮤니티 등급을 부여하고 회원 여부를 다시 조회한다", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal("confirm", vi.fn().mockReturnValue(true));
+    vi.mocked(grantCommunityMembershipAction).mockResolvedValue({ success: true });
+    renderContent();
+
+    await user.click(screen.getByRole("button", { name: "테일즈 커뮤니티 등급 부여" }));
+
+    expect(grantCommunityMembershipAction).toHaveBeenCalledWith(42, "tales");
+    expect(toast.success).toHaveBeenCalledWith("홍길동 회원에게 테일즈 커뮤니티 등급을 부여했습니다.");
+    expect(routerRefresh).toHaveBeenCalledOnce();
   });
 });

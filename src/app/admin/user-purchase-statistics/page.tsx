@@ -9,6 +9,7 @@ import UserPurchaseStatisticsContent from "./_components/UserPurchaseStatisticsC
 import {
   normalizeUserPurchaseStatisticsSearchParams,
   resolveBooleanFilter,
+  resolveMinimumQuantity,
   type UserPurchaseStatisticsRawSearchParams,
 } from "./filters";
 
@@ -36,8 +37,8 @@ export default async function UserPurchaseStatisticsPage({ searchParams }: UserP
     searchField: params.searchField,
     naviMember: resolveBooleanFilter(params.naviMember),
     talesMember: resolveBooleanFilter(params.talesMember),
-    hasNaviPurchase: resolveBooleanFilter(params.hasNaviPurchase),
-    hasTalesPurchase: resolveBooleanFilter(params.hasTalesPurchase),
+    minNaviBottleQuantity: resolveMinimumQuantity(params.minNaviBottleQuantity),
+    minTalesBottleQuantity: resolveMinimumQuantity(params.minTalesBottleQuantity),
     sortBy: params.sortBy,
     sortDirection: params.sortDirection,
   };

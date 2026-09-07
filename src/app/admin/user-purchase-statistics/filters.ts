@@ -16,12 +16,6 @@ export const PURCHASE_STATISTICS_BOOLEAN_FILTER_OPTIONS = [
   { value: "false", label: "비회원" },
 ] as const;
 
-export const PURCHASE_STATISTICS_PURCHASE_FILTER_OPTIONS = [
-  { value: "all", label: "전체" },
-  { value: "true", label: "구매 있음" },
-  { value: "false", label: "구매 없음" },
-] as const;
-
 export const PURCHASE_STATISTICS_SORT_FIELDS = {
   ID: "ID",
   NAME: "이름",
@@ -43,8 +37,8 @@ export type UserPurchaseStatisticsSearchParams = {
   searchField?: GetApiV2AdminUsersPurchaseStatisticsSearchField;
   naviMember?: PurchaseStatisticsFilterValue;
   talesMember?: PurchaseStatisticsFilterValue;
-  hasNaviPurchase?: PurchaseStatisticsFilterValue;
-  hasTalesPurchase?: PurchaseStatisticsFilterValue;
+  minNaviBottleQuantity?: string;
+  minTalesBottleQuantity?: string;
   sortBy?: GetApiV2AdminUsersPurchaseStatisticsSortBy;
   sortDirection?: GetApiV2AdminUsersPurchaseStatisticsSortDirection;
 };
@@ -69,6 +63,13 @@ function normalizeFilter(value: string | undefined): PurchaseStatisticsFilterVal
     : undefined;
 }
 
+function normalizeMinimumQuantity(value: string | undefined): string | undefined {
+  if (!value || !/^\d+$/.test(value)) return undefined;
+
+  const quantity = Number(value);
+  return Number.isInteger(quantity) && quantity >= 1 && quantity <= 2_147_483_647 ? String(quantity) : undefined;
+}
+
 export function normalizeUserPurchaseStatisticsSearchParams(
   params: UserPurchaseStatisticsRawSearchParams,
 ): UserPurchaseStatisticsSearchParams {
@@ -86,8 +87,8 @@ export function normalizeUserPurchaseStatisticsSearchParams(
         : "NAME",
     naviMember: normalizeFilter(firstQueryValue(params.naviMember)),
     talesMember: normalizeFilter(firstQueryValue(params.talesMember)),
-    hasNaviPurchase: normalizeFilter(firstQueryValue(params.hasNaviPurchase)),
-    hasTalesPurchase: normalizeFilter(firstQueryValue(params.hasTalesPurchase)),
+    minNaviBottleQuantity: normalizeMinimumQuantity(firstQueryValue(params.minNaviBottleQuantity)),
+    minTalesBottleQuantity: normalizeMinimumQuantity(firstQueryValue(params.minTalesBottleQuantity)),
     sortBy:
       sortBy && SORT_FIELDS.has(sortBy as GetApiV2AdminUsersPurchaseStatisticsSortBy)
         ? (sortBy as GetApiV2AdminUsersPurchaseStatisticsSortBy)
@@ -100,4 +101,9 @@ export function resolveBooleanFilter(value?: PurchaseStatisticsFilterValue): boo
   if (value === "true") return true;
   if (value === "false") return false;
   return undefined;
+}
+
+export function resolveMinimumQuantity(value?: string): number | undefined {
+  const normalized = normalizeMinimumQuantity(value);
+  return normalized ? Number(normalized) : undefined;
 }

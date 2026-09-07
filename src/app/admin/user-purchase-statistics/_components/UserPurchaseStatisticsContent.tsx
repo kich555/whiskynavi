@@ -8,15 +8,18 @@ import { createSearchParams } from "@/app/admin/_lib/searchParams";
 import { Badge } from "@/components/ui/badge";
 import { ArrowDown, ArrowUp, ChevronsUpDown, Clock3, RefreshCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { toast } from "sonner";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
-import { requestPurchaseStatisticsRefreshAction } from "../actions";
+import {
+  grantCommunityMembershipAction,
+  requestPurchaseStatisticsRefreshAction,
+  type CommunityMembershipBrand,
+} from "../actions";
 import {
   PURCHASE_STATISTICS_BOOLEAN_FILTER_OPTIONS,
-  PURCHASE_STATISTICS_PURCHASE_FILTER_OPTIONS,
   PURCHASE_STATISTICS_SEARCH_FIELD_OPTIONS,
   PURCHASE_STATISTICS_SORT_FIELDS,
   type PurchaseStatisticsFilterValue,
@@ -26,7 +29,8 @@ import {
 const BASE_PATH = "/admin/user-purchase-statistics";
 const NUMBER_FORMATTER = new Intl.NumberFormat("ko-KR");
 
-type FilterKey = "naviMember" | "talesMember" | "hasNaviPurchase" | "hasTalesPurchase";
+type FilterKey = "naviMember" | "talesMember";
+type MinimumQuantityFilterKey = "minNaviBottleQuantity" | "minTalesBottleQuantity";
 
 interface UserPurchaseStatisticsContentProps {
   searchParams: UserPurchaseStatisticsSearchParams;
@@ -61,6 +65,79 @@ function MemberBadge({ member }: { member: boolean }) {
   );
 }
 
+interface MembershipCellProps {
+  member: boolean;
+  brand: CommunityMembershipBrand;
+  pending: boolean;
+  disabled: boolean;
+  onGrant: () => void;
+}
+
+function MembershipCell({ member, brand, pending, disabled, onGrant }: MembershipCellProps) {
+  const brandLabel = brand === "navi" ? "내비 커뮤니티" : "테일즈 커뮤니티";
+
+  return (
+    <div className="flex items-center gap-2 whitespace-nowrap">
+      <MemberBadge member={member} />
+      {member ? null : (
+        <button
+          type="button"
+          onClick={onGrant}
+          disabled={disabled}
+          aria-label={`${brandLabel} 등급 부여`}
+          className="typo-bold-12 rounded-md border border-amber-300 bg-white px-2.5 py-1.5 text-amber-700 transition-colors hover:bg-amber-50 disabled:cursor-not-allowed disabled:border-gray-200 disabled:text-gray-400"
+        >
+          {pending ? "부여 중..." : "등급 부여"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+interface MinimumPurchaseFilterProps {
+  name: MinimumQuantityFilterKey;
+  label: string;
+  value?: string;
+  onSubmit: (name: MinimumQuantityFilterKey, value: string) => void;
+}
+
+function MinimumPurchaseFilter({ name, label, value, onSubmit }: MinimumPurchaseFilterProps) {
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const formValue = new FormData(event.currentTarget).get(name);
+    onSubmit(name, typeof formValue === "string" ? formValue.trim() : "");
+  };
+
+  return (
+    <form className="space-y-1" onSubmit={handleSubmit}>
+      <label htmlFor={name} className="typo-medium-12 block text-gray-600">
+        {label}
+      </label>
+      <div className="flex gap-2">
+        <input
+          key={value ?? "empty"}
+          id={name}
+          name={name}
+          type="number"
+          min={1}
+          max={2_147_483_647}
+          step={1}
+          defaultValue={value}
+          placeholder="예: 6"
+          className="typo-medium-14 min-w-0 flex-1 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-800 focus:border-amber-500 focus:ring-2 focus:ring-amber-200 focus:outline-none"
+        />
+        <button
+          type="submit"
+          aria-label={`${label} 적용`}
+          className="typo-bold-12 rounded-md border border-gray-300 bg-white px-3 text-gray-700 transition-colors hover:bg-gray-50"
+        >
+          적용
+        </button>
+      </div>
+    </form>
+  );
+}
+
 export default function UserPurchaseStatisticsContent({
   searchParams,
   statistics,
@@ -71,6 +148,8 @@ export default function UserPurchaseStatisticsContent({
   const router = useRouter();
   const { toggle } = useSidebar();
   const [isRefreshPending, startRefreshTransition] = useTransition();
+  const [isMembershipPending, startMembershipTransition] = useTransition();
+  const [pendingMembershipKey, setPendingMembershipKey] = useState<string | null>(null);
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
   const searchField = searchParams.searchField ?? "NAME";
@@ -102,6 +181,24 @@ export default function UserPurchaseStatisticsContent({
     const params = createSearchParams(searchParams);
     if (value === "all") params.delete(key);
     else params.set(key, value);
+    params.set("page", "1");
+    navigate(params);
+  };
+
+  const handleMinimumQuantitySubmit = (key: MinimumQuantityFilterKey, normalizedValue: string) => {
+    const quantity = Number(normalizedValue);
+
+    if (
+      normalizedValue &&
+      (!/^\d+$/.test(normalizedValue) || !Number.isInteger(quantity) || quantity < 1 || quantity > 2_147_483_647)
+    ) {
+      toast.error("최소 구매 병수는 1 이상의 정수로 입력해주세요.");
+      return;
+    }
+
+    const params = createSearchParams(searchParams);
+    if (normalizedValue) params.set(key, String(quantity));
+    else params.delete(key);
     params.set("page", "1");
     navigate(params);
   };
@@ -159,6 +256,34 @@ export default function UserPurchaseStatisticsContent({
     });
   };
 
+  const grantMembership = (item: AdminUserPurchaseStatisticsResponse, brand: CommunityMembershipBrand) => {
+    if (!item.id) {
+      toast.error("사용자 정보를 확인할 수 없습니다.");
+      return;
+    }
+
+    const brandLabel = brand === "navi" ? "내비 커뮤니티" : "테일즈 커뮤니티";
+    const userLabel = item.name || item.username || `ID ${item.id}`;
+    if (!window.confirm(`${userLabel} 회원에게 ${brandLabel} 등급을 부여하시겠습니까?`)) {
+      return;
+    }
+
+    const membershipKey = `${item.id}:${brand}`;
+    setPendingMembershipKey(membershipKey);
+    startMembershipTransition(async () => {
+      const result = await grantCommunityMembershipAction(item.id!, brand);
+      if (!result.success) {
+        toast.error(result.error);
+        setPendingMembershipKey(null);
+        return;
+      }
+
+      toast.success(`${userLabel} 회원에게 ${brandLabel} 등급을 부여했습니다.`);
+      router.refresh();
+      setPendingMembershipKey(null);
+    });
+  };
+
   return (
     <>
       <AdminHeader
@@ -204,11 +329,11 @@ export default function UserPurchaseStatisticsContent({
               options={PURCHASE_STATISTICS_BOOLEAN_FILTER_OPTIONS}
               onChange={(value) => handleFilterChange("naviMember", value)}
             />
-            <FilterSelect
-              label="내비 구매 여부"
-              value={searchParams.hasNaviPurchase ?? "all"}
-              options={PURCHASE_STATISTICS_PURCHASE_FILTER_OPTIONS}
-              onChange={(value) => handleFilterChange("hasNaviPurchase", value)}
+            <MinimumPurchaseFilter
+              name="minNaviBottleQuantity"
+              label="내비 최소 구매 병수"
+              value={searchParams.minNaviBottleQuantity}
+              onSubmit={handleMinimumQuantitySubmit}
             />
             <FilterSelect
               label="테일즈 회원 여부"
@@ -216,18 +341,18 @@ export default function UserPurchaseStatisticsContent({
               options={PURCHASE_STATISTICS_BOOLEAN_FILTER_OPTIONS}
               onChange={(value) => handleFilterChange("talesMember", value)}
             />
-            <FilterSelect
-              label="테일즈 구매 여부"
-              value={searchParams.hasTalesPurchase ?? "all"}
-              options={PURCHASE_STATISTICS_PURCHASE_FILTER_OPTIONS}
-              onChange={(value) => handleFilterChange("hasTalesPurchase", value)}
+            <MinimumPurchaseFilter
+              name="minTalesBottleQuantity"
+              label="테일즈 최소 구매 병수"
+              value={searchParams.minTalesBottleQuantity}
+              onSubmit={handleMinimumQuantitySubmit}
             />
           </div>
         </section>
 
         <section className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[1180px]">
+            <table className="w-full min-w-[1320px]">
               <thead className="border-b border-gray-200 bg-gray-50">
                 <tr>
                   {renderSortableHeader("ID")}
@@ -259,7 +384,13 @@ export default function UserPurchaseStatisticsContent({
                         {item.username ? `@${item.username}` : "-"}
                       </td>
                       <td className="px-4 py-3">
-                        <MemberBadge member={item.naviMember ?? false} />
+                        <MembershipCell
+                          member={item.naviMember ?? false}
+                          brand="navi"
+                          pending={pendingMembershipKey === `${item.id}:navi`}
+                          disabled={isMembershipPending}
+                          onGrant={() => grantMembership(item, "navi")}
+                        />
                       </td>
                       <td className="typo-medium-14 px-4 py-3 text-right text-gray-800">
                         {NUMBER_FORMATTER.format(item.naviBottleQuantity ?? 0)}
@@ -268,7 +399,13 @@ export default function UserPurchaseStatisticsContent({
                         {NUMBER_FORMATTER.format(item.naviBottleKindCount ?? 0)}
                       </td>
                       <td className="px-4 py-3">
-                        <MemberBadge member={item.talesMember ?? false} />
+                        <MembershipCell
+                          member={item.talesMember ?? false}
+                          brand="tales"
+                          pending={pendingMembershipKey === `${item.id}:tales`}
+                          disabled={isMembershipPending}
+                          onGrant={() => grantMembership(item, "tales")}
+                        />
                       </td>
                       <td className="typo-medium-14 px-4 py-3 text-right text-gray-800">
                         {NUMBER_FORMATTER.format(item.talesBottleQuantity ?? 0)}

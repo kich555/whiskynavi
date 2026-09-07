@@ -1,10 +1,18 @@
 "use server";
 
 import { getUserErrorMessage } from "@/apis/errors";
-import { postApiV2AdminUsersPurchaseStatisticsRefresh } from "@/apis/generated/api";
+import { patchApiAdminUsersIdRolesAdd, postApiV2AdminUsersPurchaseStatisticsRefresh } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
+
+export type CommunityMembershipBrand = "navi" | "tales";
+
+const COMMUNITY_MEMBERSHIP_ROLE = {
+  navi: "ROLE_WHISKYNAVI_MEMBER",
+  tales: "ROLE_WHISKYTALES_MEMBER",
+} as const;
 
 export type RequestPurchaseStatisticsRefreshResult =
   | {
@@ -42,6 +50,43 @@ export async function requestPurchaseStatisticsRefreshAction(): Promise<RequestP
     return {
       success: false,
       error: getUserErrorMessage(error, "통계 갱신 요청을 접수하지 못했습니다."),
+    };
+  }
+}
+
+export type GrantCommunityMembershipResult =
+  | { success: true }
+  | {
+      success: false;
+      error: string;
+    };
+
+export async function grantCommunityMembershipAction(
+  userId: number,
+  brand: CommunityMembershipBrand,
+): Promise<GrantCommunityMembershipResult> {
+  if (!Number.isInteger(userId) || userId <= 0) {
+    return { success: false, error: "유효하지 않은 사용자입니다." };
+  }
+  if (brand !== "navi" && brand !== "tales") {
+    return { success: false, error: "유효하지 않은 커뮤니티 등급입니다." };
+  }
+
+  try {
+    const token = await getAuthToken();
+    if (!token) {
+      return { success: false, error: "인증이 필요합니다." };
+    }
+
+    await patchApiAdminUsersIdRolesAdd(userId, { roles: [COMMUNITY_MEMBERSHIP_ROLE[brand]] }, withToken(token));
+    revalidatePath("/admin/user-purchase-statistics");
+    revalidatePath("/admin/membership");
+    return { success: true };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return {
+      success: false,
+      error: getUserErrorMessage(error, "커뮤니티 등급을 부여하지 못했습니다."),
     };
   }
 }
