@@ -1,4 +1,4 @@
-import { _delete, addMessage, create } from "@/apis/generated/api";
+import { deleteApiInquiriesInquiryid, postApiInquiries, postApiInquiriesInquiryidMessages } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -6,9 +6,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { addInquiryMessageAction, createInquiryAction, deleteInquiryAction } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
-  _delete: vi.fn(),
-  addMessage: vi.fn(),
-  create: vi.fn(),
+  deleteApiInquiriesInquiryid: vi.fn(),
+  postApiInquiries: vi.fn(),
+  postApiInquiriesInquiryidMessages: vi.fn(),
 }));
 
 vi.mock("@/apis/mutator", () => ({
@@ -23,9 +23,9 @@ vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
 }));
 
-const mockedCreate = vi.mocked(create);
-const mockedAddMessage = vi.mocked(addMessage);
-const mockedDelete = vi.mocked(_delete);
+const mockedCreate = vi.mocked(postApiInquiries);
+const mockedAddMessage = vi.mocked(postApiInquiriesInquiryidMessages);
+const mockedDelete = vi.mocked(deleteApiInquiriesInquiryid);
 const mockedGetAuthToken = vi.mocked(getAuthToken);
 const mockedWithToken = vi.mocked(withToken);
 const mockedRevalidatePath = vi.mocked(revalidatePath);

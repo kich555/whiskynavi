@@ -1,4 +1,4 @@
-import { get as getShippingPolicy } from "@/apis/generated/api";
+import { getApiAdminShippingPolicy as getShippingPolicy } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import ShippingPolicyContent from "./_components/ShippingPolicyContent";

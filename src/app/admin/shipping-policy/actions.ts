@@ -2,7 +2,7 @@
 
 import { getUserErrorMessage } from "@/apis/errors";
 import {
-  update as updateAdminShippingPolicy,
+  putApiAdminShippingPolicy as updateAdminShippingPolicy,
   type ShippingPolicyResponse,
   type ShippingPolicyUpdateRequest,
 } from "@/apis/generated/api";
