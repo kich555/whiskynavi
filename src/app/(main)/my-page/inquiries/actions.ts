@@ -2,9 +2,9 @@
 
 import { getUserErrorMessage } from "@/apis/errors";
 import {
-  addMessage as addInquiryMessage,
-  create as createInquiry,
-  _delete as deleteInquiry,
+  deleteApiInquiriesInquiryid as deleteInquiry,
+  postApiInquiries as createInquiry,
+  postApiInquiriesInquiryidMessages as addInquiryMessage,
 } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";

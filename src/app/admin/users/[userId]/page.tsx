@@ -1,4 +1,8 @@
-import { getApiAdminOrdersUsersUserid, getApiAdminUsersId } from "@/apis/generated/api";
+import {
+  getApiAdminOrdersUsersUserid,
+  getApiAdminUsersId,
+  getApiV2AdminUsersUseridReservationStatistics,
+} from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parseApiPage, parseDisplayPage, parsePageSize } from "@/lib/page-response";
@@ -9,6 +13,8 @@ export interface UserDetailSearchParams extends Record<string, string | undefine
   limit?: string;
   page?: string;
   tab?: string;
+  year?: string;
+  includeAdminManualOrders?: string;
 }
 
 interface UserDetailPageProps {
@@ -22,11 +28,18 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
   const token = await getAuthToken();
   const currentOrderPage = parseDisplayPage(sp.page);
   const orderItemsPerPage = parsePageSize(sp.limit);
+  const requestedYear = Number(sp.year);
+  const reservationStatisticsYear =
+    Number.isInteger(requestedYear) && requestedYear >= 2000 && requestedYear <= 2100
+      ? requestedYear
+      : new Date().getFullYear();
+  const includeAdminManualOrders = sp.includeAdminManualOrders === "true";
   let user;
   let orderSummary;
+  let reservationStatistics;
 
   try {
-    const [userRes, orderRes] = await Promise.all([
+    const [userRes, orderRes, statisticsRes] = await Promise.all([
       getApiAdminUsersId(Number(userId), withToken(token)),
       getApiAdminOrdersUsersUserid(
         Number(userId),
@@ -36,9 +49,15 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
         },
         withToken(token),
       ),
+      getApiV2AdminUsersUseridReservationStatistics(
+        Number(userId),
+        { year: reservationStatisticsYear, includeAdminManualOrders },
+        withToken(token),
+      ),
     ]);
     user = userRes.data;
     orderSummary = orderRes.data;
+    reservationStatistics = statisticsRes.data;
   } catch {
     notFound();
   }
@@ -51,6 +70,9 @@ export default async function UserDetailPage({ params, searchParams }: UserDetai
       initialActiveTab={sp.tab === "reservations" ? "reservations" : "info"}
       currentOrderPage={currentOrderPage}
       orderItemsPerPage={orderItemsPerPage}
+      reservationStatistics={reservationStatistics}
+      reservationStatisticsYear={reservationStatisticsYear}
+      includeAdminManualOrders={includeAdminManualOrders}
     />
   );
 }

@@ -1,6 +1,10 @@
 "use client";
 
-import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
+import type {
+  AdminUserOrderSummaryResponse,
+  AdminUserReservationStatisticsResponse,
+  AdminUserResponse,
+} from "@/apis/generated/api";
 import type { AdminSearchParams } from "@/app/admin/_lib/searchParams";
 import { ArrowLeft, Edit2, Plus, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -18,6 +22,9 @@ interface UserDetailContentProps {
   initialActiveTab: "info" | "reservations";
   currentOrderPage: number;
   orderItemsPerPage: number;
+  reservationStatistics: AdminUserReservationStatisticsResponse;
+  reservationStatisticsYear: number;
+  includeAdminManualOrders: boolean;
 }
 
 export default function UserDetailContent({
@@ -27,6 +34,9 @@ export default function UserDetailContent({
   initialActiveTab,
   currentOrderPage,
   orderItemsPerPage,
+  reservationStatistics,
+  reservationStatisticsYear,
+  includeAdminManualOrders,
 }: UserDetailContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
@@ -35,6 +45,29 @@ export default function UserDetailContent({
   const openManualPurchaseModal = () => {
     if (userId == null) return;
     overlay.open((props) => <ManualPurchaseCreateModal {...props} userId={userId} />);
+  };
+
+  const updateReservationStatisticsParams = (year: number, includeManualOrders: boolean) => {
+    if (userId == null) return;
+    const params = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (typeof value === "string" && value) params.set(key, value);
+    });
+    params.set("year", String(year));
+    if (includeManualOrders) {
+      params.set("includeAdminManualOrders", "true");
+    } else {
+      params.delete("includeAdminManualOrders");
+    }
+    router.push(`/admin/users/${userId}?${params.toString()}`);
+  };
+
+  const handleReservationStatisticsYearChange = (year: number) => {
+    updateReservationStatisticsParams(year, includeAdminManualOrders);
+  };
+
+  const handleIncludeAdminManualOrdersChange = (checked: boolean) => {
+    updateReservationStatisticsParams(reservationStatisticsYear, checked);
   };
 
   return (
@@ -87,6 +120,11 @@ export default function UserDetailContent({
           initialActiveTab={initialActiveTab}
           currentOrderPage={currentOrderPage}
           orderItemsPerPage={orderItemsPerPage}
+          reservationStatistics={reservationStatistics}
+          reservationStatisticsYear={reservationStatisticsYear}
+          includeAdminManualOrders={includeAdminManualOrders}
+          onReservationStatisticsYearChange={handleReservationStatisticsYearChange}
+          onIncludeAdminManualOrdersChange={handleIncludeAdminManualOrdersChange}
           onAddManualPurchase={openManualPurchaseModal}
         />
       </div>

@@ -1,5 +1,5 @@
 import { ApiError } from "@/apis/errors";
-import { get1 as getInquiry } from "@/apis/generated/api";
+import { getApiInquiriesInquiryid as getInquiry } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import RichTextContent from "@/components/editor/RichTextContent";
 import { Badge } from "@/components/ui/badge";

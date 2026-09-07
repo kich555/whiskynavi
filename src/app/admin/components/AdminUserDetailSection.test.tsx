@@ -113,6 +113,11 @@ const orderSummary = {
   },
 } satisfies AdminUserOrderSummaryResponse;
 
+const reservationStatistics = {
+  year: 2026,
+  brandStatistics: [{ brand: "글렌피딕", totalOrderQuantity: 3, distinctBottleCount: 2 }],
+};
+
 describe("AdminUserDetailSection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -221,5 +226,33 @@ describe("AdminUserDetailSection", () => {
 
     expect(screen.getByText("테스트 위스키")).toBeInTheDocument();
     expect(mocks.pagination).toHaveBeenCalled();
+  });
+
+  it("회원 상세 정보 하단에 브랜드별 예약 수량과 중복 없는 보틀 종류를 표시한다", async () => {
+    const user = userEvent.setup();
+    const onIncludeAdminManualOrdersChange = vi.fn();
+    render(
+      <AdminUserDetailSection
+        {...({
+          isEditMode: false,
+          userDetails,
+          orderSummary,
+          initialActiveTab: "info",
+          reservationStatistics,
+          reservationStatisticsYear: 2026,
+          onIncludeAdminManualOrdersChange,
+        } as React.ComponentProps<typeof AdminUserDetailSection> & { initialActiveTab: "info" })}
+      />,
+    );
+
+    expect(screen.getByText("글렌피딕")).toBeInTheDocument();
+    expect(screen.getByText("3병")).toBeInTheDocument();
+    expect(screen.getByText("2종")).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "예약 통계 연도" })).toHaveValue("2026");
+    expect(screen.getByRole("checkbox", { name: "관리자 수동 입력 내역 포함" })).not.toBeChecked();
+
+    await user.click(screen.getByRole("checkbox", { name: "관리자 수동 입력 내역 포함" }));
+
+    expect(onIncludeAdminManualOrdersChange).toHaveBeenCalledWith(true);
   });
 });

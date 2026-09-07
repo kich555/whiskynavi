@@ -1,6 +1,10 @@
 "use client";
 
-import type { AdminUserOrderSummaryResponse, AdminUserResponse } from "@/apis/generated/api";
+import type {
+  AdminUserOrderSummaryResponse,
+  AdminUserReservationStatisticsResponse,
+  AdminUserResponse,
+} from "@/apis/generated/api";
 import type { AdminSearchParams } from "@/app/admin/_lib/searchParams";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -41,6 +45,11 @@ interface UserDetailViewProps {
   orderItemsPerPage?: number;
   onStatusToggle?: (newStatus: string) => void;
   onAddManualPurchase?: () => void;
+  reservationStatistics?: AdminUserReservationStatisticsResponse;
+  reservationStatisticsYear?: number;
+  includeAdminManualOrders?: boolean;
+  onReservationStatisticsYearChange?: (year: number) => void;
+  onIncludeAdminManualOrdersChange?: (checked: boolean) => void;
   onAddRole?: never;
   onRemoveRole?: never;
   isSaving?: never;
@@ -56,6 +65,11 @@ interface UserDetailEditProps {
   orderItemsPerPage?: number;
   onStatusToggle?: (newStatus: string) => void;
   onAddManualPurchase?: () => void;
+  reservationStatistics?: AdminUserReservationStatisticsResponse;
+  reservationStatisticsYear?: number;
+  includeAdminManualOrders?: boolean;
+  onReservationStatisticsYearChange?: (year: number) => void;
+  onIncludeAdminManualOrdersChange?: (checked: boolean) => void;
   onAddRole?: (role: string) => void;
   onRemoveRole?: (role: string) => void;
   isSaving?: boolean;
@@ -74,12 +88,28 @@ type UserExtWithSocialConnections = NonNullable<AdminUserResponse["userExt"]> & 
 // ─── 컴포넌트 ────────────────────────────────────────────────────
 export default function AdminUserDetailSection(props: UserDetailProps) {
   const { isEditMode, userDetails, orderSummary, onStatusToggle } = props;
-  const { onAddManualPurchase } = props;
+  const {
+    onAddManualPurchase,
+    onIncludeAdminManualOrdersChange,
+    onReservationStatisticsYearChange,
+    reservationStatistics,
+    reservationStatisticsYear,
+    includeAdminManualOrders = false,
+  } = props;
   const userExt = userDetails.userExt as UserExtWithSocialConnections | undefined;
   const orderTotalElements = orderSummary?.orders?.page?.totalElements ?? 0;
   const currentOrderPage = props.currentOrderPage ?? (orderSummary?.orders?.page?.number ?? 0) + 1;
   const orderItemsPerPage = props.orderItemsPerPage ?? orderSummary?.orders?.page?.size ?? 20;
   const orderSearchParams = { ...(props.searchParams ?? {}), tab: "reservations" };
+  const currentYear = new Date().getFullYear();
+  const reservationStatisticsYears = Array.from(
+    new Set([
+      reservationStatisticsYear,
+      ...Array.from({ length: currentYear - 1999 }, (_, index) => currentYear - index),
+    ]),
+  )
+    .filter((year): year is number => year != null)
+    .sort((left, right) => right - left);
 
   const onAddRole = isEditMode ? props.onAddRole : undefined;
   const onRemoveRole = isEditMode ? props.onRemoveRole : undefined;
@@ -397,6 +427,68 @@ export default function AdminUserDetailSection(props: UserDetailProps) {
                   </div>
                 </div>
               </div>
+
+              {reservationStatistics && reservationStatisticsYear != null && (
+                <section className="mt-6 border-t border-gray-200 pt-6">
+                  <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                      <h4 className="typo-bold-16 text-gray-900">연도별 예약 통계</h4>
+                      <p className="typo-medium-12 mt-1 text-gray-500">
+                        {includeAdminManualOrders
+                          ? "예약 확정 이후 주문만 집계하며, 관리자 수동 입력 내역을 포함합니다."
+                          : "예약 확정 이후 주문만 집계하며, 관리자 수동 입력·신청·취소 완료 건은 제외합니다."}
+                      </p>
+                    </div>
+                    <select
+                      aria-label="예약 통계 연도"
+                      value={reservationStatisticsYear}
+                      onChange={(event) => onReservationStatisticsYearChange?.(Number(event.target.value))}
+                      className="typo-medium-14 rounded-md border border-gray-300 bg-white px-3 py-2 text-gray-900"
+                    >
+                      {reservationStatisticsYears.map((year) => (
+                        <option key={year} value={year}>
+                          {year}년
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <label className="typo-medium-14 mb-4 flex w-fit cursor-pointer items-center gap-2 text-gray-700">
+                    <input
+                      type="checkbox"
+                      checked={includeAdminManualOrders}
+                      onChange={(event) => onIncludeAdminManualOrdersChange?.(event.target.checked)}
+                      className="size-4 rounded border-gray-300 accent-amber-600"
+                    />
+                    관리자 수동 입력 내역 포함
+                  </label>
+                  {reservationStatistics.brandStatistics.length > 0 ? (
+                    <div className="overflow-x-auto">
+                      <table className="typo-medium-14 w-full">
+                        <thead>
+                          <tr className="border-b border-gray-200 text-left text-gray-700">
+                            <th className="px-3 py-2 font-semibold">브랜드</th>
+                            <th className="px-3 py-2 text-right font-semibold">총 주문 수량</th>
+                            <th className="px-3 py-2 text-right font-semibold">보틀 종류</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {reservationStatistics.brandStatistics.map((statistics) => (
+                            <tr key={statistics.brand} className="border-b border-gray-100 last:border-0">
+                              <td className="px-3 py-2 text-gray-900">{statistics.brand}</td>
+                              <td className="px-3 py-2 text-right text-gray-900">{statistics.totalOrderQuantity}병</td>
+                              <td className="px-3 py-2 text-right text-gray-900">{statistics.distinctBottleCount}종</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <p className="typo-medium-14 py-4 text-center text-gray-500">
+                      {reservationStatisticsYear}년 예약 통계가 없습니다.
+                    </p>
+                  )}
+                </section>
+              )}
             </div>
           ) : (
             /* 예약 내역 탭 */

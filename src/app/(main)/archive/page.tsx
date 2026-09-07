@@ -14,7 +14,7 @@ type PageProps = {
 
 const Page = async ({ searchParams }: PageProps) => {
   const [params, token] = await Promise.all([searchParams, getAuthToken()]);
-  const bottleParams = await getApiV2BottlesParameters(withToken(token));
+  const bottleParams = await getApiV2BottlesParameters(undefined, withToken(token));
   const suspenseKey = JSON.stringify(params);
 
   return (

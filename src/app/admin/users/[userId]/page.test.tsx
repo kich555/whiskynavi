@@ -1,4 +1,8 @@
-import { getApiAdminOrdersUsersUserid, getApiAdminUsersId } from "@/apis/generated/api";
+import {
+  getApiAdminOrdersUsersUserid,
+  getApiAdminUsersId,
+  getApiV2AdminUsersUseridReservationStatistics,
+} from "@/apis/generated/api";
 import { getAuthToken } from "@/lib/auth";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import UserDetailPage from "./page";
@@ -8,6 +12,7 @@ const userDetailContentMock = vi.hoisted(() => vi.fn(() => null));
 vi.mock("@/apis/generated/api", () => ({
   getApiAdminOrdersUsersUserid: vi.fn(),
   getApiAdminUsersId: vi.fn(),
+  getApiV2AdminUsersUseridReservationStatistics: vi.fn(),
 }));
 
 vi.mock("@/apis/mutator", () => ({
@@ -44,6 +49,9 @@ describe("UserDetailPage", () => {
         totalAmount: 0,
       },
     } as unknown as Awaited<ReturnType<typeof getApiAdminOrdersUsersUserid>>);
+    vi.mocked(getApiV2AdminUsersUseridReservationStatistics).mockResolvedValue({
+      data: { year: 2026, brandStatistics: [] },
+    } as Awaited<ReturnType<typeof getApiV2AdminUsersUseridReservationStatistics>>);
   });
 
   it("URL 페이지와 페이지 크기로 사용자 주문 요약을 조회한다", async () => {
@@ -57,11 +65,17 @@ describe("UserDetailPage", () => {
     });
 
     expect(getApiAdminOrdersUsersUserid).toHaveBeenCalledWith(42, { page: 2, size: 50 }, { token: "admin-token" });
+    expect(getApiV2AdminUsersUseridReservationStatistics).toHaveBeenCalledWith(
+      42,
+      { year: 2026, includeAdminManualOrders: false },
+      { token: "admin-token" },
+    );
     expect(result.props).toEqual(
       expect.objectContaining({
         currentOrderPage: 3,
         initialActiveTab: "reservations",
         orderItemsPerPage: 50,
+        reservationStatisticsYear: 2026,
         searchParams: {
           page: "3",
           limit: "50",

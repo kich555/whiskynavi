@@ -1,5 +1,5 @@
 import { ApiError } from "@/apis/errors";
-import { get2 as getAdminInquiry } from "@/apis/generated/api";
+import { getApiAdminInquiriesInquiryid as getAdminInquiry } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";

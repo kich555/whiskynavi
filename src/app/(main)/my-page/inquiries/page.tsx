@@ -1,4 +1,4 @@
-import { list as listInquiries } from "@/apis/generated/api";
+import { getApiInquiries as listInquiries } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
