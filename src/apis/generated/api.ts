@@ -1941,6 +1941,28 @@ export interface AdminUserOrderSummaryResponse {
 }
 
 /**
+ * 사용자 예약 브랜드별 통계
+ */
+export interface AdminUserReservationBrandStatisticsResponse {
+  /** 보틀 브랜드 */
+  brand: string;
+  /** 중복을 제외한 예약 보틀 종류 수 */
+  distinctBottleCount: number;
+  /** 취소를 제외한 총 예약 신청 수량 */
+  totalOrderQuantity: number;
+}
+
+/**
+ * 관리자용 사용자 연도별 예약 통계 응답
+ */
+export interface AdminUserReservationStatisticsResponse {
+  /** 브랜드별 예약 통계 */
+  brandStatistics: AdminUserReservationBrandStatisticsResponse[];
+  /** 조회 연도 */
+  year: number;
+}
+
+/**
  * 관리자만 확인 가능한 확장 속성 묶음입니다.
  */
 export interface UserExtInfo {
@@ -7852,6 +7874,15 @@ export type PutApiV2AdminTalesNoticesNoticeidBody = {
   visible: boolean;
 };
 
+export type GetApiV2AdminUsersUseridReservationStatisticsParams = {
+/**
+ * @minimum 2000
+ * @maximum 2100
+ */
+year?: number;
+includeAdminManualOrders?: boolean;
+};
+
 export type GetApiV2BottlesParams = {
 /**
  * 0부터 시작하는 페이지 번호
@@ -13176,7 +13207,7 @@ formData.append(`file`, putApiV2AdminBottlesBottleidOriginalLabelBody.file);
 
 
 /**
- * 관리자는 숨김 보틀도 다운로드할 수 있습니다. 첨부 파일 다운로드용 S3 서명 URL로 이동합니다. 미등록 원본은 404입니다.
+ * 관리자는 숨김 보틀도 다운로드할 수 있습니다. 서명 없는 일반 CloudFront URL로 이동합니다. URL 자체는 만료되지 않으며 주소를 알면 직접 접근할 수 있습니다. 미등록 원본은 404입니다.
  * @summary 보틀 원본 라벨 다운로드 2.0
  */
 export type getApiV2AdminBottlesBottleidOriginalLabelDownloadResponse302 = {
@@ -14986,6 +15017,52 @@ export const putApiV2AdminTalesNoticesNoticeid = async (noticeId: number,
 
 
 /**
+ * 선택한 연도의 보틀 예약을 브랜드별 총 신청 수량과 중복 없는 보틀 종류 수로 조회합니다. year를 생략하면 올해를 조회하며, includeAdminManualOrders=true면 관리자 수동 입력 주문도 포함합니다.
+ * @summary 관리자 사용자 연도별 예약 통계 조회 2.0
+ */
+export type getApiV2AdminUsersUseridReservationStatisticsResponse200 = {
+  data: AdminUserReservationStatisticsResponse
+  status: 200
+}
+    
+export type getApiV2AdminUsersUseridReservationStatisticsResponseSuccess = (getApiV2AdminUsersUseridReservationStatisticsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminUsersUseridReservationStatisticsResponse = (getApiV2AdminUsersUseridReservationStatisticsResponseSuccess)
+
+export const getGetApiV2AdminUsersUseridReservationStatisticsUrl = (userId: number,
+    params?: GetApiV2AdminUsersUseridReservationStatisticsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/users/${userId}/reservation-statistics?${stringifiedParams}` : `/api/2.0/admin/users/${userId}/reservation-statistics`
+}
+
+export const getApiV2AdminUsersUseridReservationStatistics = async (userId: number,
+    params?: GetApiV2AdminUsersUseridReservationStatisticsParams, options?: RequestInit): Promise<getApiV2AdminUsersUseridReservationStatisticsResponse> => {
+  
+  return customFetch<getApiV2AdminUsersUseridReservationStatisticsResponse>(getGetApiV2AdminUsersUseridReservationStatisticsUrl(userId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * MyBatis 기반으로 사용자에게 노출 가능한 보틀을 필터링하고 지정한 아카이브 정렬 기준으로 조회합니다.
  * @summary 아카이브 보틀 목록 조회 2.0
  */
@@ -15111,7 +15188,7 @@ export const getApiV2BottlesBottleidOriginalLabel = async (bottleId: number, opt
 
 
 /**
- * 공개 보틀은 비회원도 다운로드할 수 있습니다. 첨부 파일 다운로드용 S3 서명 URL로 이동합니다. 미등록 원본은 404입니다.
+ * 공개 보틀은 비회원도 다운로드할 수 있습니다. 서명 없는 일반 CloudFront URL로 이동합니다. URL 자체는 만료되지 않으며 주소를 알면 직접 접근할 수 있습니다. 미등록 원본은 404입니다.
  * @summary 보틀 원본 라벨 다운로드 2.0
  */
 export type getApiV2BottlesBottleidOriginalLabelDownloadResponse302 = {
