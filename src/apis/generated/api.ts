@@ -8017,13 +8017,15 @@ naviMember?: boolean;
  */
 talesMember?: boolean;
 /**
- * 해당 연도 위스키내비 구매 존재 여부
+ * 해당 연도 위스키내비 최소 구매 병수
+ * @minimum 1
  */
-hasNaviPurchase?: boolean;
+minNaviBottleQuantity?: number;
 /**
- * 해당 연도 위스키테일즈 구매 존재 여부
+ * 해당 연도 위스키테일즈 최소 구매 병수
+ * @minimum 1
  */
-hasTalesPurchase?: boolean;
+minTalesBottleQuantity?: number;
 /**
  * 정렬 기준
  */
