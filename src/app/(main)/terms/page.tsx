@@ -1,7 +1,9 @@
 import {
+  TERMS_CHANGE_REASON,
   TERMS_CONTACT_EMAIL,
   TERMS_CONTACT_PHONE,
   TERMS_EFFECTIVE_DATE,
+  TERMS_NOTICE_DATE,
   TERMS_REPRESENTATIVE,
   TERMS_SECTIONS,
 } from "@/lib/terms";
@@ -22,7 +24,12 @@ export default function TermsPage() {
           <p className="typo-medium-14 mt-4 max-w-2xl leading-6 text-gray-400">
             위스키내비 서비스 이용과 유형상품의 판매, 주문, 배송, 교환·반품 및 환불에 관한 기준입니다.
           </p>
-          <p className="typo-medium-12 mt-3 text-gray-500">시행일: {TERMS_EFFECTIVE_DATE}</p>
+          <div className="typo-medium-12 mt-3 space-y-1 text-gray-500">
+            <p>
+              개정 공지일: {TERMS_NOTICE_DATE} · 시행일: {TERMS_EFFECTIVE_DATE}
+            </p>
+            <p>변경 사유: {TERMS_CHANGE_REASON}</p>
+          </div>
         </header>
 
         <div className="divide-y divide-white/10">
