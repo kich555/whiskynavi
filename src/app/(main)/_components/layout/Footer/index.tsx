@@ -34,7 +34,10 @@ export default function Footer() {
         {/* Desktop: 2 rows - Company info on left, CS on right */}
         <div className="typo-medium-12 hidden space-y-2 text-gray-500 md:block">
           <div className="flex items-center justify-between">
-            <span>(주) 캐스크야드 | 대표 천관호 010-6848-6231 | 사업자등록번호 689-86-03712</span>
+            <span>
+              (주) 캐스크야드 | 대표 천관호 010-6848-6231 | 사업자등록번호 689-86-03712 | 통신판매신고번호:
+              2026-성남분당B-0879
+            </span>
             <span>캐스크 카니발: www.caskcarnival.com</span>
           </div>
           <div className="flex items-center justify-between">
@@ -47,6 +50,7 @@ export default function Footer() {
         {/* Mobile: Compact with | separator */}
         <div className="text-[10px] text-gray-500 md:hidden">
           <p className="mb-1">(주) 캐스크야드 | 사업자등록번호: 689-86-03712 | 대표자: 천관호</p>
+          <p className="mb-1">통신판매신고번호: 2026-성남분당B-0879</p>
           <p className="mb-1">주소: (13591) 경기도 성남시 분당구 서현로 210번길 1. 4층 405-자65</p>
           <p className="mb-1">전화번호: 010-6848-6231 | 이메일: contact@whiskynavi.com</p>
           <p>Copyright CASKYARD. All rights reserved.</p>
