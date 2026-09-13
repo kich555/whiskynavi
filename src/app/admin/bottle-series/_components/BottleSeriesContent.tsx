@@ -23,12 +23,7 @@ interface BottleSeriesContentProps {
   brands: string[];
 }
 
-export default function BottleSeriesContent({
-  searchParams,
-  series,
-  totalElements,
-  brands,
-}: BottleSeriesContentProps) {
+export default function BottleSeriesContent({ searchParams, series, totalElements, brands }: BottleSeriesContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
   const [formTarget, setFormTarget] = useState<AdminBottleSeriesResponse | null | undefined>(undefined);
@@ -106,6 +101,7 @@ export default function BottleSeriesContent({
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">ID</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">이미지</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">브랜드 / 시리즈</th>
+                  <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">Desc</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">대표 보틀 ID</th>
                   <th className="typo-bold-12 px-4 py-3 text-center text-gray-700 uppercase">노출</th>
                   <th className="typo-bold-12 px-4 py-3 text-left text-gray-700 uppercase">수정일</th>
@@ -135,8 +131,10 @@ export default function BottleSeriesContent({
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <p className="typo-medium-14 text-gray-900">{item.brand ?? "-"}</p>
-                        <p className="typo-medium-12 mt-1 text-gray-500">{item.series ?? "-"}</p>
+                        <p className="typo-medium-14 text-gray-900">{item.series ?? "-"}</p>
+                        <p className="typo-medium-12 mt-1.5 text-gray-500">{item.brand ?? "-"}</p>
+                      </td>
+                      <td className="px-4 py-3">
                         {item.description ? (
                           <p className="typo-medium-12 mt-1 max-w-[320px] truncate text-gray-400">{item.description}</p>
                         ) : null}
