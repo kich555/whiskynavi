@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserErrorMessage } from "@/apis/errors";
+import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   postApiOrdersGeneralItemsDeliveryCartTossConfirm,
   postApiOrdersGeneralItemsDeliveryCartTossTickets,
@@ -13,12 +13,7 @@ import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import {
-  buildCartHeaders,
-  CART_COMPLETED_COOKIE,
-  CART_TOKEN_COOKIE,
-  getCartCompletedCookieOptions,
-} from "../_lib/cart-token";
+import { buildCartHeaders, CART_COMPLETED_COOKIE, CART_TOKEN_COOKIE } from "../_lib/cart-token";
 
 const CART_PATH = "/general-items/cart";
 const CART_ORDER_PATH = "/general-items/cart/order";
@@ -27,6 +22,7 @@ type ActionResult<T> = {
   success: boolean;
   data?: T;
   error?: string;
+  retryWithNewKey?: boolean;
 };
 
 type CartOrderBody = PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody;
@@ -84,16 +80,6 @@ async function buildOptions(idempotencyKey?: string): Promise<RequestInit | unde
   return Object.keys(headers).length > 0 ? { headers } : undefined;
 }
 
-async function deleteCartTokenCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.delete({ name: CART_TOKEN_COOKIE, path: "/" });
-}
-
-async function markCartCompletedCookie(): Promise<void> {
-  const cookieStore = await cookies();
-  cookieStore.set(CART_COMPLETED_COOKIE, "1", getCartCompletedCookieOptions());
-}
-
 function revalidateCartPaths() {
   revalidatePath(CART_PATH);
   revalidatePath(CART_ORDER_PATH);
@@ -109,8 +95,9 @@ function revalidateCartPathsSafely() {
 
 async function finalizeSuccessfulCartOrder() {
   try {
-    await deleteCartTokenCookie();
-    await markCartCompletedCookie();
+    // 서버가 구매한 행만 정리하므로 비회원 토큰을 유지해 새로 담은 상품에 접근한다.
+    const cookieStore = await cookies();
+    cookieStore.delete({ name: CART_COMPLETED_COOKIE, path: "/" });
   } catch {
     // 주문 성공 이후의 쿠키 정리 실패가 중복 주문 유도로 이어지지 않게 성공 응답을 보존한다.
   }
@@ -159,6 +146,10 @@ export async function createGeneralItemCartTossTicket(
     return {
       success: false,
       error: guideErrorMessage(error, "토스 결제 준비에 실패했습니다."),
+      ...(error instanceof ApiError &&
+      ["주문 티켓이 만료되었습니다.", "이미 종료된 주문 시도입니다."].includes(error.userMessage ?? "")
+        ? { retryWithNewKey: true }
+        : {}),
     };
   }
 }

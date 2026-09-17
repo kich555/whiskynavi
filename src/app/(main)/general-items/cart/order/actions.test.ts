@@ -101,7 +101,7 @@ describe("general item cart delivery order actions", () => {
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/general-items/cart/order");
   });
 
-  it("confirms Toss cart payment and clears cart token", async () => {
+  it("confirms Toss cart payment and preserves the guest cart token", async () => {
     const cookieStore = createCookieStore("cart-token");
     mockedCookies.mockResolvedValue(cookieStore as unknown as Awaited<ReturnType<typeof cookies>>);
     mockedTossConfirm.mockResolvedValue({
@@ -132,16 +132,9 @@ describe("general item cart delivery order actions", () => {
         },
       },
     );
-    expect(cookieStore.delete).toHaveBeenCalledWith({ name: CART_TOKEN_COOKIE, path: "/" });
-    expect(cookieStore.set).toHaveBeenCalledWith(
-      CART_COMPLETED_COOKIE,
-      "1",
-      expect.objectContaining({
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-      }),
-    );
+    expect(cookieStore.delete).not.toHaveBeenCalledWith({ name: CART_TOKEN_COOKIE, path: "/" });
+    expect(cookieStore.delete).toHaveBeenCalledWith({ name: CART_COMPLETED_COOKIE, path: "/" });
+    expect(cookieStore.set).not.toHaveBeenCalled();
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/general-items/cart");
     expect(mockedRevalidatePath).toHaveBeenCalledWith("/general-items/cart/order");
   });
@@ -159,6 +152,15 @@ describe("general item cart delivery order actions", () => {
       success: false,
       error: "결제 가능 시간이 만료되었습니다. 주문을 다시 시도해 주세요.",
     });
+  });
+
+  it("only allows a new attempt after an explicit terminal ticket error", async () => {
+    mockedTossTickets.mockRejectedValue(new ApiError(400, '{"message":"주문 티켓이 만료되었습니다."}'));
+    expect(await createGeneralItemCartTossTicket(validCartOrderInput, "idem-2")).toMatchObject({
+      retryWithNewKey: true,
+    });
+    mockedTossTickets.mockRejectedValue(new Error("network timeout"));
+    expect(await createGeneralItemCartTossTicket(validCartOrderInput, "idem-2")).not.toHaveProperty("retryWithNewKey");
   });
 
   it("rethrows redirect errors", async () => {

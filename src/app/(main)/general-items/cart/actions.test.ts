@@ -285,9 +285,15 @@ describe("general item cart actions", () => {
     expect(mockedQuote).not.toHaveBeenCalled();
   });
 
-  it("returns an empty quote after checkout completion instead of restoring an authenticated cart", async () => {
+  it("loads the server cart even when a legacy checkout completion cookie exists", async () => {
     mockedGetAuthToken.mockResolvedValue("access-token");
     mockedCookies.mockResolvedValue(createCompletedCookieStore() as unknown as Awaited<ReturnType<typeof cookies>>);
+    mockedGetOrCreate.mockResolvedValue({ data: { items: [] }, status: 200, headers: new Headers() });
+    mockedQuote.mockResolvedValue({
+      data: { items: [], itemsTotalPrice: 0, shippingFee: 0, totalPrice: 0 },
+      status: 200,
+      headers: new Headers(),
+    });
 
     const result = await fetchCartQuote();
 
@@ -295,8 +301,8 @@ describe("general item cart actions", () => {
       success: true,
       data: { items: [], itemsTotalPrice: 0, shippingFee: 0, totalPrice: 0 },
     });
-    expect(mockedGetOrCreate).not.toHaveBeenCalled();
-    expect(mockedQuote).not.toHaveBeenCalled();
+    expect(mockedGetOrCreate).toHaveBeenCalled();
+    expect(mockedQuote).toHaveBeenCalled();
   });
 
   it("returns an empty current cart without API call when no auth or cart token exists", async () => {

@@ -64,6 +64,7 @@ function mockKakaoPostcode(data: MockPostcodeData) {
 describe("CartDeliveryOrderClient", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -172,6 +173,40 @@ describe("CartDeliveryOrderClient", () => {
         expect.any(String),
       );
     });
+  });
+
+  it("keeps a ticket key on uncertain failures and remount, but changes it for an edited order", async () => {
+    const user = userEvent.setup();
+    mockedCreateGeneralItemCartTossTicket.mockResolvedValue({ success: false, error: "네트워크 오류" });
+    const first = render(<CartDeliveryOrderClient quote={baseQuote} />);
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(1));
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(2));
+    const key = mockedCreateGeneralItemCartTossTicket.mock.calls[0][1];
+    expect(mockedCreateGeneralItemCartTossTicket.mock.calls[1][1]).toBe(key);
+    first.unmount();
+    render(<CartDeliveryOrderClient quote={baseQuote} />);
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(3));
+    expect(mockedCreateGeneralItemCartTossTicket.mock.calls[2][1]).toBe(key);
+    await user.type(screen.getAllByLabelText(/^수령인/)[0], "다른 수령인");
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(4));
+    expect(mockedCreateGeneralItemCartTossTicket.mock.calls[3][1]).not.toBe(key);
+  });
+
+  it("uses a new key after a confirmed expired attempt", async () => {
+    const user = userEvent.setup();
+    mockedCreateGeneralItemCartTossTicket.mockResolvedValue({ success: false, error: "만료", retryWithNewKey: true });
+    render(<CartDeliveryOrderClient quote={baseQuote} />);
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(1));
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() => expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledTimes(2));
+    expect(mockedCreateGeneralItemCartTossTicket.mock.calls[1][1]).not.toBe(
+      mockedCreateGeneralItemCartTossTicket.mock.calls[0][1],
+    );
   });
 
   it("fills the address book form postal code and base address from Kakao postcode search", async () => {
