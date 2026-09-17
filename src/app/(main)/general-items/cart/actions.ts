@@ -98,15 +98,6 @@ async function persistCartTokenFromResponse(data: unknown): Promise<void> {
   cookieStore.delete({ name: CART_COMPLETED_COOKIE, path: "/" });
 }
 
-async function hasCompletedCartMarker(): Promise<boolean> {
-  const cookieStore = await cookies();
-  return Boolean(cookieStore.get(CART_COMPLETED_COOKIE)?.value);
-}
-
-async function shouldSkipAuthenticatedCartRestore(options?: RequestInit): Promise<boolean> {
-  return hasAuthWithoutCartToken(options) && (await hasCompletedCartMarker());
-}
-
 function revalidateCartPaths() {
   revalidatePath(CART_PATH);
   revalidatePath(CART_ORDER_PATH);
@@ -133,10 +124,6 @@ export async function fetchCurrentCart(): Promise<ActionResult<CartResponse>> {
       return { success: true, data: EMPTY_CART };
     }
 
-    if (await shouldSkipAuthenticatedCartRestore(options)) {
-      return { success: true, data: EMPTY_CART };
-    }
-
     await ensureAuthenticatedCart(options);
     const response = await getCurrent(options);
     await persistCartTokenFromResponse(response.data);
@@ -159,10 +146,6 @@ export async function fetchCartQuote(): Promise<ActionResult<CartQuoteResponse>>
   try {
     const options = await buildIdentifiedCartOptions();
     if (!options) {
-      return { success: true, data: EMPTY_QUOTE };
-    }
-
-    if (await shouldSkipAuthenticatedCartRestore(options)) {
       return { success: true, data: EMPTY_QUOTE };
     }
 
