@@ -10,6 +10,7 @@ import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { getFulfillmentMethodLabel, getProductTypeLabel, getSaleTimingLabel } from "@/lib/order-classification";
 import { Download, Eye, FileCheck2, FileUp, Search, Truck } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
 import AdminHeader from "../../_components/AdminHeader";
@@ -433,6 +434,11 @@ export default function AdminOrdersContent({
           </div>
         </section>
 
+        {enableGeneralItemActions && (
+          <Link href="/admin/general-item-orders/notifications" className="mb-4 inline-block typo-medium-14 text-amber-700 underline">
+            비회원 안내 실패·발송 현황
+          </Link>
+        )}
         {enableGeneralItemActions && (
           <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

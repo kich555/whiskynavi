@@ -12,6 +12,7 @@ import { useSidebar } from "../../_components/AdminLayoutClient";
 
 interface AdminOrderDetailContentProps {
   order: OrderResponse;
+  guestNotificationSection?: React.ReactNode;
 }
 
 function getOrderSourceLabel(order: OrderResponse) {
@@ -67,7 +68,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function AdminOrderDetailContent({ order }: AdminOrderDetailContentProps) {
+export default function AdminOrderDetailContent({ order, guestNotificationSection }: AdminOrderDetailContentProps) {
   const router = useRouter();
   const { toggle } = useSidebar();
   const statusLabel = order.orderStatus ? (ORDER_STATUS_LABEL[order.orderStatus] ?? order.orderStatus) : "-";
@@ -131,6 +132,8 @@ export default function AdminOrderDetailContent({ order }: AdminOrderDetailConte
             </div>
           </Section>
         </div>
+
+        {guestNotificationSection}
 
         <Section title="상품 라인">
           {lineItems.length > 0 ? (
