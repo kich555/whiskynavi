@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { formatCartCurrency, getValidCartItems } from "../_lib/cart-utils";
 import { AddressDialog } from "./_components/AddressDialog";
 import { formatDeliveryAddress, formatOrderDeliveryAddress, getDefaultAddress } from "./_lib/address-utils";
+import { forgetCheckoutAttempt, getCheckoutAttempt, type CheckoutAttempt } from "./_lib/checkout-attempt";
 import { loadKakaoPostcodeScript, resolvePostcodeAddress } from "./_lib/kakao-postcode";
 import { requestTossPayment } from "./_lib/toss-payments";
 import { createGeneralItemCartTossTicket, type GeneralItemCartDeliveryOrderInput } from "./actions";
@@ -35,14 +36,6 @@ type OrderFormState = {
   guestEmail: string;
 };
 
-function createAttemptKey() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-
-  return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
-}
-
 export default function CartDeliveryOrderClient({
   quote,
   currentUser,
@@ -50,7 +43,8 @@ export default function CartDeliveryOrderClient({
 }: CartDeliveryOrderClientProps) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-  const attemptKeyRef = useRef("");
+  const attemptRef = useRef<CheckoutAttempt | null>(null);
+  const submittingRef = useRef(false);
   const orderAddressDetailInputRef = useRef<HTMLInputElement>(null);
   const openedForSameAsOrderer = useRef(false);
   const [isSameAsOrderer, setIsSameAsOrderer] = useState(false);
@@ -70,12 +64,6 @@ export default function CartDeliveryOrderClient({
   const hasOrdererInfo = Boolean(currentUser);
   const hasAddresses = addresses.length > 0;
   const items = getValidCartItems(quote);
-
-  const ensureAttemptKey = () => {
-    if (attemptKeyRef.current) return attemptKeyRef.current;
-    attemptKeyRef.current = createAttemptKey();
-    return attemptKeyRef.current;
-  };
 
   const updateField = (field: keyof typeof form) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -177,23 +165,49 @@ export default function CartDeliveryOrderClient({
   });
 
   const handleTossPayment = () => {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
     const input = buildInput();
-    const idempotencyKey = ensureAttemptKey();
 
     startTransition(async () => {
       try {
-        const result = await createGeneralItemCartTossTicket(input, idempotencyKey);
+        const attempt = await getCheckoutAttempt(
+          {
+            userId: currentUser?.id ?? null,
+            cartId: quote.cartId,
+            items: items
+              .map((item) => ({ id: item.cartItemId, saleId: item.saleAnnouncementId, quantity: item.quantity }))
+              .sort((a, b) => (a.id ?? 0) - (b.id ?? 0)),
+            input: {
+              ...input,
+              receiverName: input.receiverName.trim(),
+              receiverPhone: input.receiverPhone.replace(/\D/g, ""),
+              deliveryAddress: input.deliveryAddress.trim(),
+              deliveryMemo: input.deliveryMemo?.trim() || undefined,
+              orderNote: input.orderNote?.trim() || undefined,
+              guestEmail: input.guestEmail.trim(),
+            },
+          },
+          attemptRef.current,
+        );
+        attemptRef.current = attempt;
+        const result = await createGeneralItemCartTossTicket(input, attempt.key);
 
         if (!result.success || !result.data?.ticket) {
-          attemptKeyRef.current = "";
+          if (result.retryWithNewKey) {
+            forgetCheckoutAttempt(attempt);
+            attemptRef.current = null;
+          }
           toast.error(result.error ?? "토스 결제 준비에 실패했습니다.");
           return;
         }
 
         await requestTossPayment(result.data.ticket, input);
       } catch (paymentError) {
-        attemptKeyRef.current = "";
+        // 통신 오류나 결제창 닫기만으로 새 주문 시도를 만들지 않는다.
         toast.error(paymentError instanceof Error ? paymentError.message : "토스 결제를 시작하지 못했습니다.");
+      } finally {
+        submittingRef.current = false;
       }
     });
   };
