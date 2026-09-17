@@ -6956,6 +6956,56 @@ export interface UsernameRequest {
   username: string;
 }
 
+/**
+ * 관리자 전용 게시글 작성/삭제 이력. 닉네임은 조회 시점의 값입니다.
+ */
+export interface AdminBoardPostHistoryResponse {
+  /** 게시글 식별자 */
+  postId: number;
+  /** 게시판 식별자 */
+  boardId: number;
+  /** 현재 게시판 이름 */
+  boardName?: string;
+  /** 게시판 슬러그 */
+  boardSlug?: string;
+  /** 작성자 식별자. 닉네임 변경과 무관하게 작성 이력을 추적합니다. */
+  authorId: number;
+  /** 작성자의 현재 닉네임. 계정을 조회할 수 없으면 null입니다. */
+  authorNickname?: string;
+  /** 현재 보존된 게시글 제목 */
+  title: string;
+  /** 작성 일시 (한국 표준시) */
+  createdAt?: string;
+  /** 최종 수정 일시 (한국 표준시) */
+  updatedAt?: string;
+  /** 삭제 여부 */
+  deleted: boolean;
+  /** 삭제 일시 (한국 표준시) */
+  deletedAt?: string;
+  /** 삭제자 식별자 */
+  deletedBy?: number;
+  /** 삭제자의 현재 닉네임. 계정을 조회할 수 없으면 null입니다. */
+  deletedByNickname?: string;
+  /** 삭제 주체. ADMIN은 관리자 삭제, USER는 작성자 삭제입니다. 과거 기록은 null일 수 있습니다. */
+  deletedByRole?: string;
+  /** 관리자가 입력한 삭제 사유 */
+  deleteReason?: string;
+}
+
+export interface PagedModelAdminBoardPostHistoryResponse {
+  content?: AdminBoardPostHistoryResponse[];
+  page?: PageMetadata;
+}
+
+/**
+ * 관리자 전용 게시글 상세. 활성 글과 삭제 글 모두 조회하며 조회수를 변경하지 않습니다.
+ */
+export interface AdminBoardPostHistoryDetailResponse {
+  post: AdminBoardPostHistoryResponse;
+  /** 보존된 본문 HTML. 렌더링 시 정화가 필요합니다. */
+  content: string;
+}
+
 export type GetApiV2AdminBannersPublishedParams = {
 /**
  * @minimum 0
@@ -12723,6 +12773,57 @@ export type PutApiUsersMeNicknameBody = {
    */
   nickname: string;
 };
+
+export type GetApiV2AdminBoardsPostHistoryParams = {
+/**
+ * ADMIN_DELETED: 관리자 삭제 기록, ALL: 활성·삭제를 포함한 전체 작성 이력
+ */
+view?: GetApiV2AdminBoardsPostHistoryView;
+/**
+ * @minimum 1
+ */
+authorId?: number;
+/**
+ * 이 관리자의 삭제 기록만 조회합니다. 지정하면 view와 무관하게 관리자 삭제로 제한됩니다.
+ * @minimum 1
+ */
+deletedBy?: number;
+/**
+ * 현재 작성자 닉네임 부분 검색
+ * @minLength 0
+ * @maxLength 100
+ */
+authorNickname?: string;
+/**
+ * 현재 삭제 관리자 닉네임 부분 검색. 지정하면 관리자 삭제로 제한됩니다.
+ * @minLength 0
+ * @maxLength 100
+ */
+deletedByNickname?: string;
+/**
+ * 게시글 제목 부분 검색
+ * @minLength 0
+ * @maxLength 100
+ */
+keyword?: string;
+/**
+ * @minimum 0
+ */
+page?: number;
+/**
+ * @minimum 1
+ * @maximum 100
+ */
+size?: number;
+};
+
+export type GetApiV2AdminBoardsPostHistoryView = typeof GetApiV2AdminBoardsPostHistoryView[keyof typeof GetApiV2AdminBoardsPostHistoryView];
+
+
+export const GetApiV2AdminBoardsPostHistoryView = {
+  ADMIN_DELETED: 'ADMIN_DELETED',
+  ALL: 'ALL',
+} as const;
 
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
@@ -28499,6 +28600,87 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 관리자 삭제 기록 또는 전체 작성 이력을 조회합니다. 닉네임/제목 검색과 작성자/삭제 관리자별 추적을 지원합니다. 삭제 기록은 삭제 최신순, 작성 이력은 작성 최신순입니다.
+ * @summary 게시판 관리기록 조회 2.0
+ */
+export type getApiV2AdminBoardsPostHistoryResponse200 = {
+  data: PagedModelAdminBoardPostHistoryResponse
+  status: 200
+}
+    
+export type getApiV2AdminBoardsPostHistoryResponseSuccess = (getApiV2AdminBoardsPostHistoryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBoardsPostHistoryResponse = (getApiV2AdminBoardsPostHistoryResponseSuccess)
+
+export const getGetApiV2AdminBoardsPostHistoryUrl = (params?: GetApiV2AdminBoardsPostHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/boards/post-history?${stringifiedParams}` : `/api/2.0/admin/boards/post-history`
+}
+
+export const getApiV2AdminBoardsPostHistory = async (params?: GetApiV2AdminBoardsPostHistoryParams, options?: RequestInit): Promise<getApiV2AdminBoardsPostHistoryResponse> => {
+  
+  return customFetch<getApiV2AdminBoardsPostHistoryResponse>(getGetApiV2AdminBoardsPostHistoryUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 숨김 게시판 및 삭제된 글을 포함한 게시글의 보존 본문과 감사 정보를 관리자만 조회합니다. 조회수는 증가시키지 않습니다.
+ * @summary 관리기록 게시글 상세 조회 2.0
+ */
+export type getApiV2AdminBoardsPostHistoryPostidResponse200 = {
+  data: AdminBoardPostHistoryDetailResponse
+  status: 200
+}
+    
+export type getApiV2AdminBoardsPostHistoryPostidResponseSuccess = (getApiV2AdminBoardsPostHistoryPostidResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminBoardsPostHistoryPostidResponse = (getApiV2AdminBoardsPostHistoryPostidResponseSuccess)
+
+export const getGetApiV2AdminBoardsPostHistoryPostidUrl = (postId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/boards/post-history/${postId}`
+}
+
+export const getApiV2AdminBoardsPostHistoryPostid = async (postId: number, options?: RequestInit): Promise<getApiV2AdminBoardsPostHistoryPostidResponse> => {
+  
+  return customFetch<getApiV2AdminBoardsPostHistoryPostidResponse>(getGetApiV2AdminBoardsPostHistoryPostidUrl(postId),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
