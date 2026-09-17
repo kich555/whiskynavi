@@ -1,7 +1,19 @@
+import type { GetApiV2AdminBoardsPostHistoryStatus } from "@/apis/generated/api";
+
 export const HISTORY_PATH = "/admin/board-management-history";
+
+export const HISTORY_STATUS_OPTIONS = [
+  { value: "ALL", label: "전체" },
+  { value: "ACTIVE", label: "게시 중" },
+  { value: "DELETED", label: "삭제 전체" },
+  { value: "USER_DELETED", label: "작성자 삭제" },
+  { value: "ADMIN_DELETED", label: "관리자 삭제" },
+  { value: "UNKNOWN_DELETED", label: "삭제 주체 미상" },
+] satisfies { value: GetApiV2AdminBoardsPostHistoryStatus; label: string }[];
 
 export interface HistoryFilters {
   mode: "deleted" | "posts";
+  status?: GetApiV2AdminBoardsPostHistoryStatus;
   page: string;
   limit: string;
   authorId?: string;
@@ -23,10 +35,12 @@ export function normalizeHistoryFilters(params: SearchParams): HistoryFilters {
   const value = (key: string) => (typeof params[key] === "string" ? (params[key] as string) : undefined);
   const search = (key: string) => value(key)?.trim().slice(0, 100) || undefined;
   const mode = value("mode") === "posts" ? "posts" : "deleted";
+  const status = HISTORY_STATUS_OPTIONS.find((option) => option.value === value("status"))?.value;
   const rawPage = positiveInteger(value("page"));
   const page = rawPage && Number(rawPage) <= 2147483647 ? rawPage : "1";
   return {
     mode,
+    status: mode === "posts" && status !== "ALL" ? status : undefined,
     page,
     limit: ["10", "20", "50", "100"].includes(value("limit") ?? "") ? value("limit")! : "20",
     authorId: positiveInteger(value("authorId")),

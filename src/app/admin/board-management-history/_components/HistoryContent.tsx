@@ -3,6 +3,7 @@ import Link from "next/link";
 import {
   formatHistoryDate,
   HISTORY_PATH,
+  HISTORY_STATUS_OPTIONS,
   historyDetailHref,
   historyHref,
   historyNickname,
@@ -30,7 +31,12 @@ export default function HistoryContent({ filters, records, total }: Props) {
     : undefined;
   const tabClass = "typo-bold-14 rounded-lg px-4 py-3 focus-visible:outline-2 focus-visible:outline-amber-600";
   const hasFilters = Boolean(
-    filters.authorId || filters.deletedBy || filters.authorNickname || filters.deletedByNickname || filters.keyword,
+    filters.status ||
+    filters.authorId ||
+    filters.deletedBy ||
+    filters.authorNickname ||
+    filters.deletedByNickname ||
+    filters.keyword,
   );
 
   return (
@@ -57,7 +63,7 @@ export default function HistoryContent({ filters, records, total }: Props) {
         <p className="typo-regular-14 mt-2 leading-relaxed text-gray-600">
           {isDeleted
             ? "삭제 사유를 확인하고 작성자·관리자의 활동을 이어서 살펴보세요."
-            : "활성 글과 삭제 글을 함께 조회합니다. 작성자 닉네임을 선택하면 해당 사용자의 전체 작성 이력을 볼 수 있습니다."}
+            : "삭제 상태별로 게시글을 조회할 수 있습니다. 작성자 닉네임을 선택하면 해당 사용자의 전체 작성 이력을 볼 수 있습니다."}
         </p>
       </div>
 
@@ -133,6 +139,22 @@ export default function HistoryContent({ filters, records, total }: Props) {
               />
             </label>
           )}
+          {!isDeleted && (
+            <label className="typo-medium-12 space-y-2 text-gray-600">
+              <span>삭제 상태</span>
+              <select
+                name="status"
+                defaultValue={filters.status ?? "ALL"}
+                className="typo-regular-14 block w-full rounded-lg border border-gray-300 px-3 py-2.5 text-gray-900"
+              >
+                {HISTORY_STATUS_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          )}
           <label className="typo-medium-12 space-y-2 text-gray-600">
             <span>페이지당 표시</span>
             <select
@@ -181,7 +203,7 @@ export default function HistoryContent({ filters, records, total }: Props) {
           </p>
           <p className="typo-regular-14 mt-3 text-gray-500">
             {hasFilters
-              ? "닉네임이나 제목을 바꾸거나 검색 조건을 초기화해 주세요."
+              ? "삭제 상태·닉네임·제목 조건을 바꾸거나 검색 조건을 초기화해 주세요."
               : "게시글이 등록되거나 관리자가 삭제하면 이곳에서 확인할 수 있습니다."}
           </p>
         </div>

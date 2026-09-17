@@ -16,6 +16,7 @@ export default async function BoardManagementHistoryPage({ searchParams }: Props
   const response = await getApiV2AdminBoardsPostHistory(
     {
       view: filters.mode === "posts" ? "ALL" : "ADMIN_DELETED",
+      status: filters.status,
       page: Number(filters.page) - 1,
       size: Number(filters.limit),
       authorId: filters.authorId ? Number(filters.authorId) : undefined,

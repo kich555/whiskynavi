@@ -7036,6 +7036,10 @@ export type GetApiV2AdminBoardsPostHistoryParams = {
  */
 view?: GetApiV2AdminBoardsPostHistoryView;
 /**
+ * 현재 게시/삭제 상태: ALL(전체), ACTIVE(게시 중), DELETED(삭제 전체), USER_DELETED(작성자 삭제), ADMIN_DELETED(관리자 삭제), UNKNOWN_DELETED(삭제 주체 미상). view 및 인물 조건과 함께 적용됩니다.
+ */
+status?: GetApiV2AdminBoardsPostHistoryStatus;
+/**
  * @minimum 1
  */
 authorId?: number;
@@ -7079,6 +7083,18 @@ export type GetApiV2AdminBoardsPostHistoryView = typeof GetApiV2AdminBoardsPostH
 export const GetApiV2AdminBoardsPostHistoryView = {
   ADMIN_DELETED: 'ADMIN_DELETED',
   ALL: 'ALL',
+} as const;
+
+export type GetApiV2AdminBoardsPostHistoryStatus = typeof GetApiV2AdminBoardsPostHistoryStatus[keyof typeof GetApiV2AdminBoardsPostHistoryStatus];
+
+
+export const GetApiV2AdminBoardsPostHistoryStatus = {
+  ALL: 'ALL',
+  ACTIVE: 'ACTIVE',
+  DELETED: 'DELETED',
+  USER_DELETED: 'USER_DELETED',
+  ADMIN_DELETED: 'ADMIN_DELETED',
+  UNKNOWN_DELETED: 'UNKNOWN_DELETED',
 } as const;
 
 export type GetApiV2AdminBottleSeriesParams = {

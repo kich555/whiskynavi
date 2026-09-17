@@ -20,11 +20,33 @@ describe("관리기록 서버 조회", () => {
 
   it("생성된 관리자 API에 인증·정확한 작성자 필터·0부터 시작하는 페이지를 전달한다", async () => {
     await BoardManagementHistoryPage({
-      searchParams: Promise.resolve({ mode: "posts", authorId: "12", deletedBy: "3", page: "2", limit: "10" }),
+      searchParams: Promise.resolve({
+        mode: "posts",
+        status: "USER_DELETED",
+        authorId: "12",
+        deletedBy: "3",
+        page: "2",
+        limit: "10",
+      }),
     });
     expect(getApiV2AdminBoardsPostHistory).toHaveBeenCalledWith(
-      expect.objectContaining({ view: "ALL", authorId: 12, deletedBy: undefined, page: 1, size: 10 }),
+      expect.objectContaining({
+        view: "ALL",
+        status: "USER_DELETED",
+        authorId: 12,
+        deletedBy: undefined,
+        page: 1,
+        size: 10,
+      }),
       { headers: { Authorization: "Bearer admin-token" } },
+    );
+  });
+
+  it("관리자 삭제 기록에 작성 이력의 상태 필터를 전달하지 않는다", async () => {
+    await BoardManagementHistoryPage({ searchParams: Promise.resolve({ mode: "deleted", status: "ACTIVE" }) });
+    expect(getApiV2AdminBoardsPostHistory).toHaveBeenCalledWith(
+      expect.objectContaining({ view: "ADMIN_DELETED", status: undefined }),
+      expect.anything(),
     );
   });
 
