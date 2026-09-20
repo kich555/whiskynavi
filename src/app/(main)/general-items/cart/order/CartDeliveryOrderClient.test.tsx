@@ -71,6 +71,27 @@ describe("CartDeliveryOrderClient", () => {
     delete (window as MockPostcodeWindow).daum;
   });
 
+  it("무형서비스 주문은 배송지 없이 연락처로 결제를 준비한다", async () => {
+    const user = userEvent.setup();
+    mockedCreateGeneralItemCartTossTicket.mockResolvedValue({ success: false, error: "결제 준비 테스트" });
+    render(
+      <CartDeliveryOrderClient quote={{ ...baseQuote, serviceProduct: true, shippingFee: 0, totalPrice: 20000 }} />,
+    );
+    expect(screen.getByText("이용권 주문서")).toBeInTheDocument();
+    expect(screen.queryByText("배송 주소")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("기본 주소")).not.toBeInTheDocument();
+    await user.type(screen.getByRole("textbox", { name: /^구매자 필수/ }), "홍길동");
+    await user.type(screen.getByLabelText(/구매자 연락처/), "01012345678");
+    await user.type(screen.getByLabelText(/주문 안내 이메일/), "guest@example.com");
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() =>
+      expect(mockedCreateGeneralItemCartTossTicket).toHaveBeenCalledWith(
+        expect.objectContaining({ deliveryAddress: "", receiverName: "홍길동" }),
+        expect.any(String),
+      ),
+    );
+  });
+
   it("renders cart delivery order title, total price, and available payment buttons", () => {
     render(<CartDeliveryOrderClient quote={baseQuote} />);
 

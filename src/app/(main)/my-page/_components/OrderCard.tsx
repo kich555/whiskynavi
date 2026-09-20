@@ -32,7 +32,9 @@ export default function OrderCard({ order, onClick }: OrderCardProps) {
         </div>
         {status ? (
           <span className={`typo-bold-12 md:typo-medium-14 px-2 py-0.5 md:px-3 md:py-1 ${status.colorClass}`}>
-            {status.label}
+            {order.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+              ? "결제 완료"
+              : status.label}
           </span>
         ) : null}
       </div>

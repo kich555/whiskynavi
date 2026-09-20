@@ -39,7 +39,7 @@ export type GeneralItemCartDeliveryOrderInput = {
 const orderInputSchema = z.object({
   receiverName: z.string().trim().min(1, "수령인 이름을 입력해주세요.").max(100),
   receiverPhone: z.string().trim().min(1, "수령인 연락처를 입력해주세요.").max(20),
-  deliveryAddress: z.string().trim().min(1, "배송 주소를 입력해주세요.").max(500),
+  deliveryAddress: z.string().trim().max(500),
   deliveryMemo: z.string().trim().max(500).optional(),
   orderNote: z.string().trim().max(500).optional(),
   guestEmail: z
