@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserOrderResponse } from "@/apis/generated/api";
+import ServiceEntitlementPanel from "@/components/orders/ServiceEntitlementPanel";
 import { Button } from "@/components/ui/button";
 import { formatOrderClassification } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
@@ -52,7 +53,11 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
           <div className={`mb-4 border p-4 sm:mb-6 sm:p-6 ${status.colorClass}`}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div>
-                <p className="typo-bold-20 mb-1 sm:text-2xl">{status.label}</p>
+                <p className="typo-bold-20 mb-1 sm:text-2xl">
+                  {order.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+                    ? "결제 완료"
+                    : status.label}
+                </p>
                 <p className="typo-medium-14 text-white/60">{formatDate(order.createdAt)}</p>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -83,8 +88,14 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                   value={displayNames.primaryName}
                 />
                 {displayNames.secondaryName && <InfoRow label="보틀명" value={displayNames.secondaryName} />}
-                <InfoRow label="신청 수량" value={`${order.requestedQuantity ?? 0}병`} />
-                <InfoRow label="배정 수량" value={`${order.approvedQuantity ?? 0}병`} />
+                <InfoRow
+                  label="신청 수량"
+                  value={`${order.requestedQuantity ?? 0}${order.fulfillmentMethod === "SERVICE" ? "장" : "병"}`}
+                />
+                <InfoRow
+                  label="배정 수량"
+                  value={`${order.approvedQuantity ?? 0}${order.fulfillmentMethod === "SERVICE" ? "장" : "병"}`}
+                />
                 <InfoRow label="단가" value={formatCurrency(order.unitPrice)} />
                 <InfoRow label="총 금액" value={formatCurrency(order.totalPrice)} bold />
               </div>
@@ -117,6 +128,14 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                   {order.payment.paidAt && <InfoRow label="결제일" value={formatDate(order.payment.paidAt)} />}
                 </div>
               </div>
+            )}
+
+            {order.fulfillmentMethod === "SERVICE" && order.id && (
+              <ServiceEntitlementPanel
+                key={`${order.id}-${order.orderStatus}`}
+                orderId={order.id}
+                orderStatus={order.orderStatus}
+              />
             )}
 
             {order.delivery && (

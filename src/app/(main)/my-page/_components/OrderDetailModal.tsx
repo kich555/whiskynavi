@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserOrderResponse } from "@/apis/generated/api";
+import ServiceEntitlementPanel from "@/components/orders/ServiceEntitlementPanel";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatOrderClassification } from "@/lib/order-classification";
@@ -56,7 +57,11 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
               <p className="typo-medium-14 text-gray-500">{formatDate(order.createdAt)}</p>
             </div>
             {status ? (
-              <span className={`typo-bold-14 rounded px-3 py-1 ${status.colorClass}`}>{status.label}</span>
+              <span className={`typo-bold-14 rounded px-3 py-1 ${status.colorClass}`}>
+                {order.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+                  ? "결제 완료"
+                  : status.label}
+              </span>
             ) : null}
           </div>
 
@@ -72,11 +77,17 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
               <DetailRow label="주문 분류" value={orderClassification} />
               <div className="flex justify-between">
                 <span className="text-gray-500">신청 수량</span>
-                <span className="typo-medium-14">{order.requestedQuantity}병</span>
+                <span className="typo-medium-14">
+                  {order.requestedQuantity}
+                  {order.fulfillmentMethod === "SERVICE" ? "장" : "병"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">배정 수량</span>
-                <span className="typo-medium-14">{order.approvedQuantity}병</span>
+                <span className="typo-medium-14">
+                  {order.approvedQuantity}
+                  {order.fulfillmentMethod === "SERVICE" ? "장" : "병"}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">단가</span>
@@ -100,6 +111,14 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
                 {order.payment.paidAt && <DetailRow label="결제일" value={formatDate(order.payment.paidAt)} />}
               </div>
             </div>
+          )}
+
+          {order.fulfillmentMethod === "SERVICE" && order.id && (
+            <ServiceEntitlementPanel
+              key={`${order.id}-${order.orderStatus}`}
+              orderId={order.id}
+              orderStatus={order.orderStatus}
+            />
           )}
 
           {/* 배송 정보 */}

@@ -5,6 +5,8 @@ import { parsePositiveInt } from "@/lib/page-response";
 import { notFound } from "next/navigation";
 import AdminOrderDetailContent from "../../orders/_components/AdminOrderDetailContent";
 import GuestNotificationPanel from "../_components/GuestNotificationPanel";
+import ServiceEntitlementAdminPanel from "../_components/ServiceEntitlementAdminPanel";
+import { loadAdminEntitlements } from "../entitlement-actions";
 import { loadGuestNotificationHistory, loadGuestNotifications } from "../notification-actions";
 
 interface AdminGeneralItemOrderDetailPageProps {
@@ -36,7 +38,7 @@ export default async function AdminGeneralItemOrderDetailPage({
   const guestGeneralOrder =
     !order.userId &&
     order.productType === "ITEM" &&
-    order.fulfillmentMethod === "DIRECT_DELIVERY" &&
+    (order.fulfillmentMethod === "DIRECT_DELIVERY" || order.fulfillmentMethod === "SERVICE") &&
     order.saleTiming === "IMMEDIATE";
   let guestNotificationSection;
   if (guestGeneralOrder) {
@@ -47,5 +49,15 @@ export default async function AdminGeneralItemOrderDetailPage({
     ]);
     guestNotificationSection = <GuestNotificationPanel orderId={id} rows={rows} history={history} />;
   }
-  return <AdminOrderDetailContent order={order} guestNotificationSection={guestNotificationSection} />;
+  const entitlementSection =
+    order.fulfillmentMethod === "SERVICE" ? (
+      <ServiceEntitlementAdminPanel orderId={id} rows={await loadAdminEntitlements(id)} />
+    ) : undefined;
+  return (
+    <AdminOrderDetailContent
+      order={order}
+      guestNotificationSection={guestNotificationSection}
+      entitlementSection={entitlementSection}
+    />
+  );
 }

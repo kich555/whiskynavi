@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserOrderResponse } from "@/apis/generated/api";
+import ServiceEntitlementPanel from "@/components/orders/ServiceEntitlementPanel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -54,7 +55,11 @@ function GuestOrderDetail({
           <p className="typo-medium-14 text-gray-400">주문번호</p>
           <h2 className="typo-bold-20 mt-1 text-white">{order.orderNumber}</h2>
         </div>
-        <span className={`typo-bold-14 w-fit border px-3 py-1 ${status.colorClass}`}>{status.label}</span>
+        <span className={`typo-bold-14 w-fit border px-3 py-1 ${status.colorClass}`}>
+          {order.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+            ? "결제 완료"
+            : status.label}
+        </span>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -71,20 +76,31 @@ function GuestOrderDetail({
           </dl>
         </div>
 
-        <div>
-          <h3 className="typo-bold-18 mb-4 text-white">배송 정보</h3>
-          <dl className="space-y-3">
-            <InfoRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, delivery)} />
-            <InfoRow label="수령인" value={delivery?.receiverName} />
-            <InfoRow label="연락처" value={delivery?.receiverPhone} />
-            <InfoRow label="주소" value={delivery?.address} />
-            <InfoRow label="배송사" value={delivery?.carrierName || "CJ대한통운"} />
-            <InfoRow label="운송장번호" value={delivery?.trackingNumber || "배송 준비 중"} />
-            <InfoRow label="발송일시" value={formatDateTime(delivery?.shippedAt)} />
-            <InfoRow label="배송완료일시" value={formatDateTime(delivery?.deliveredAt)} />
-          </dl>
-        </div>
+        {order.fulfillmentMethod !== "SERVICE" && (
+          <div>
+            <h3 className="typo-bold-18 mb-4 text-white">배송 정보</h3>
+            <dl className="space-y-3">
+              <InfoRow label="배송 진행" value={getDeliveryProgressLabel(order.orderStatus, delivery)} />
+              <InfoRow label="수령인" value={delivery?.receiverName} />
+              <InfoRow label="연락처" value={delivery?.receiverPhone} />
+              <InfoRow label="주소" value={delivery?.address} />
+              <InfoRow label="배송사" value={delivery?.carrierName || "CJ대한통운"} />
+              <InfoRow label="운송장번호" value={delivery?.trackingNumber || "배송 준비 중"} />
+              <InfoRow label="발송일시" value={formatDateTime(delivery?.shippedAt)} />
+              <InfoRow label="배송완료일시" value={formatDateTime(delivery?.deliveredAt)} />
+            </dl>
+          </div>
+        )}
       </div>
+
+      {order.fulfillmentMethod === "SERVICE" && order.id && (
+        <ServiceEntitlementPanel
+          key={`${order.id}-${order.orderStatus}`}
+          orderId={order.id}
+          orderStatus={order.orderStatus}
+          guestOrderToken={guestOrderToken}
+        />
+      )}
 
       {canCancel && (
         <div className="mt-8 border-t border-white/10 pt-6">

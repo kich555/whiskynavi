@@ -64,3 +64,6 @@
 
 - 관리자 그룹 잡동사니 라우트는 [admin/misc.md](./misc.md) 참고
 - 코드 기반 세부 구조 확인: `graphify query "admin layout dashboard 인증 통계"`, `codegraph_context` (대상: AdminLayoutClient, DashboardContent)
+
+
+전용 이용권 관리는 일반상품 메뉴의 `/admin/service-entitlements`에서 제공한다. 전체 검색·상태 필터·구매자 및 사용 기록 확인·개별 사용 완료 처리는 [이용권 관리](./service-entitlements.md)를 참고한다.

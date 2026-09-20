@@ -39,7 +39,7 @@ export default async function GeneralItemsPage({ searchParams }: GeneralItemsPag
       <Hero
         backgroundText="ITEMS"
         title="일반상품 판매공고"
-        subtitle="배송 주문 가능한 일반상품 판매공고를 확인하세요."
+        subtitle="실물 상품과 티켓·무형서비스 판매공고를 확인하세요."
       />
 
       <main className="mx-auto max-w-[1440px] px-4 pt-3 pb-12 lg:px-10 lg:pt-2">

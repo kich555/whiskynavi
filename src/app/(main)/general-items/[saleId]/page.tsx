@@ -93,7 +93,11 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
           </div>
         </section>
 
-        <GeneralItemSalesPolicy />
+        <GeneralItemSalesPolicy
+          serviceProduct={sale.serviceProduct}
+          validFrom={sale.serviceValidFrom}
+          validUntil={sale.serviceValidUntil}
+        />
       </div>
     </main>
   );

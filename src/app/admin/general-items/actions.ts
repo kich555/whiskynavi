@@ -53,6 +53,9 @@ const SALE_FORM_FIELD_NAMES = [
   "saleStatus",
   "saleStartAt",
   "saleEndAt",
+  "serviceValidFrom",
+  "serviceValidUntil",
+  "serviceProduct",
 ] as const;
 
 function extractValues(formData: FormData, fieldNames: readonly string[]) {
@@ -116,6 +119,9 @@ const saleFormSchema = z.object({
   saleStatus: saleStatusSchema.catch("OPEN"),
   saleStartAt: optionalText,
   saleEndAt: optionalText,
+  serviceProduct: z.boolean().default(false),
+  serviceValidFrom: optionalText,
+  serviceValidUntil: optionalText,
 });
 
 function parseExtraInfos(raw: string | undefined): PostApiAdminItemsBodyExtraInfos | undefined {
@@ -314,6 +320,9 @@ export async function createGeneralItemSaleFormAction(
     saleStatus: formData.get("saleStatus") ?? "OPEN",
     saleStartAt: formData.get("saleStartAt") ?? "",
     saleEndAt: formData.get("saleEndAt") ?? "",
+    serviceProduct: formData.get("serviceProduct") === "true",
+    serviceValidFrom: formData.get("serviceValidFrom") ?? "",
+    serviceValidUntil: formData.get("serviceValidUntil") ?? "",
   });
 
   if (!parsed.success) {
@@ -339,6 +348,9 @@ export async function createGeneralItemSaleFormAction(
         saleStatus: parsed.data.saleStatus,
         saleStartAt: parsed.data.saleStartAt,
         saleEndAt: parsed.data.saleEndAt,
+        serviceProduct: parsed.data.serviceProduct,
+        serviceValidFrom: parsed.data.serviceProduct ? parsed.data.serviceValidFrom : undefined,
+        serviceValidUntil: parsed.data.serviceProduct ? parsed.data.serviceValidUntil : undefined,
         orderableRoles: orderableRoles.length > 0 ? orderableRoles : undefined,
       },
       withToken(token),

@@ -26,6 +26,7 @@ const GeneralItemSaleCard = ({ sale, imageUrl }: { sale: UserSaleAnnouncementRes
 
       <div className="mb-5 flex items-start justify-between gap-4">
         <div className="min-w-0">
+          {sale.serviceProduct && <p className="typo-medium-12 mb-2 text-amber-300">티켓·무형서비스 · 배송 없음</p>}
           <h2 className="typo-bold-20 line-clamp-2 text-white">{itemTitle}</h2>
         </div>
         <Badge className={`shrink-0 border-transparent text-white ${isSoldOut ? "bg-gray-600" : "bg-green-700"}`}>

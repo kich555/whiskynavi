@@ -6,6 +6,7 @@ const PRODUCT_TYPE_LABEL: Record<string, string> = {
 const FULFILLMENT_METHOD_LABEL: Record<string, string> = {
   DIRECT_DELIVERY: "직배송",
   PICKUP: "픽업",
+  SERVICE: "이용권",
 };
 
 const SALE_TIMING_LABEL: Record<string, string> = {
@@ -33,7 +34,7 @@ export function formatOrderClassification(input: {
   const labels = [
     getProductTypeLabel(input.productType),
     getFulfillmentMethodLabel(input.fulfillmentMethod),
-    getSaleTimingLabel(input.saleTiming),
+    input.fulfillmentMethod === "SERVICE" ? "무형서비스" : getSaleTimingLabel(input.saleTiming),
   ].filter((label) => label !== "-");
 
   return labels.length > 0 ? labels.join(" · ") : "-";

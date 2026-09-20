@@ -23,7 +23,10 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
     size,
     sort: ["createdAt,desc"],
     productType: "ITEM",
-    fulfillmentMethod: "DIRECT_DELIVERY",
+    fulfillmentMethod:
+      params.fulfillmentMethod === "SERVICE" || params.fulfillmentMethod === "DIRECT_DELIVERY"
+        ? params.fulfillmentMethod
+        : undefined,
     saleTiming: "IMMEDIATE",
     orderStatus: emptyToUndefined(params.orderStatus) as GetApiAdminOrdersParams["orderStatus"],
     paymentMethod: emptyToUndefined(params.paymentMethod),
@@ -44,7 +47,10 @@ export default async function AdminGeneralItemOrdersPage({ searchParams }: Admin
         limit: String(size),
         keyword: query.keyword,
         productType: "ITEM",
-        fulfillmentMethod: "DIRECT_DELIVERY",
+        fulfillmentMethod:
+          params.fulfillmentMethod === "SERVICE" || params.fulfillmentMethod === "DIRECT_DELIVERY"
+            ? params.fulfillmentMethod
+            : undefined,
         saleTiming: "IMMEDIATE",
         orderStatus: query.orderStatus,
         paymentMethod: query.paymentMethod,

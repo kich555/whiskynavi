@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { formatOrderClassification, getProductTypeLabel } from "@/lib/order-classification";
 import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
@@ -13,6 +14,7 @@ import { useSidebar } from "../../_components/AdminLayoutClient";
 interface AdminOrderDetailContentProps {
   order: OrderResponse;
   guestNotificationSection?: React.ReactNode;
+  entitlementSection?: React.ReactNode;
 }
 
 function getOrderSourceLabel(order: OrderResponse) {
@@ -52,7 +54,7 @@ function DetailField({ label, value }: { label: string; value?: string | number 
   return (
     <div>
       <p className="typo-medium-12 text-gray-500">{label}</p>
-      <p className="mt-1 typo-medium-14 break-words text-gray-900">{value ?? "-"}</p>
+      <p className="typo-medium-14 mt-1 break-words text-gray-900">{value ?? "-"}</p>
     </div>
   );
 }
@@ -68,7 +70,11 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-export default function AdminOrderDetailContent({ order, guestNotificationSection }: AdminOrderDetailContentProps) {
+export default function AdminOrderDetailContent({
+  order,
+  guestNotificationSection,
+  entitlementSection,
+}: AdminOrderDetailContentProps) {
   const router = useRouter();
   const { toggle } = useSidebar();
   const statusLabel = order.orderStatus ? (ORDER_STATUS_LABEL[order.orderStatus] ?? order.orderStatus) : "-";
@@ -89,7 +95,11 @@ export default function AdminOrderDetailContent({ order, guestNotificationSectio
             <ArrowLeft className="size-4" />
             주문 목록으로 돌아가기
           </Button>
-          <span className={`rounded-full px-3 py-1 typo-medium-14 ${statusColor}`}>{statusLabel}</span>
+          <span className={`typo-medium-14 rounded-full px-3 py-1 ${statusColor}`}>
+            {order.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+              ? "결제 완료"
+              : statusLabel}
+          </span>
         </div>
 
         <Section title="주문 정보">
@@ -133,13 +143,22 @@ export default function AdminOrderDetailContent({ order, guestNotificationSectio
           </Section>
         </div>
 
+        {entitlementSection}
+        {order.fulfillmentMethod === "SERVICE" && !entitlementSection && order.id && (
+          <Link
+            href={`/admin/general-item-orders/${order.id}`}
+            className="typo-bold-16 block rounded border p-4 text-amber-700"
+          >
+            이용권 조회·사용 처리
+          </Link>
+        )}
         {guestNotificationSection}
 
         <Section title="상품 라인">
           {lineItems.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[860px] typo-medium-14">
-                <thead className="bg-gray-50 typo-medium-12 text-gray-600">
+              <table className="typo-medium-14 w-full min-w-[860px]">
+                <thead className="typo-medium-12 bg-gray-50 text-gray-600">
                   <tr>
                     <th className="px-3 py-2 text-left">상품명</th>
                     <th className="px-3 py-2 text-left">판매공고</th>
@@ -177,25 +196,27 @@ export default function AdminOrderDetailContent({ order, guestNotificationSectio
         </Section>
 
         <div className="grid gap-6 xl:grid-cols-2">
-          <Section title="배송 정보">
-            <div className="grid gap-6 md:grid-cols-2">
-              <DetailField label="수령인" value={order.delivery?.receiverName} />
-              <DetailField label="수령인 연락처" value={order.delivery?.receiverPhone} />
-              <div className="md:col-span-2">
-                <DetailField label="주소" value={order.delivery?.address} />
+          {order.fulfillmentMethod !== "SERVICE" && (
+            <Section title="배송 정보">
+              <div className="grid gap-6 md:grid-cols-2">
+                <DetailField label="수령인" value={order.delivery?.receiverName} />
+                <DetailField label="수령인 연락처" value={order.delivery?.receiverPhone} />
+                <div className="md:col-span-2">
+                  <DetailField label="주소" value={order.delivery?.address} />
+                </div>
+                <DetailField label="배송사" value={order.delivery?.carrierName} />
+                <DetailField label="운송장번호" value={order.delivery?.trackingNumber} />
+                <DetailField label="발송일" value={formatDateTime(order.delivery?.shippedAt)} />
+                <DetailField label="배송 완료일" value={formatDateTime(order.delivery?.deliveredAt)} />
+                <div className="md:col-span-2">
+                  <DetailField label="배송 메모" value={order.delivery?.deliveryMemo} />
+                </div>
               </div>
-              <DetailField label="배송사" value={order.delivery?.carrierName} />
-              <DetailField label="운송장번호" value={order.delivery?.trackingNumber} />
-              <DetailField label="발송일" value={formatDateTime(order.delivery?.shippedAt)} />
-              <DetailField label="배송 완료일" value={formatDateTime(order.delivery?.deliveredAt)} />
-              <div className="md:col-span-2">
-                <DetailField label="배송 메모" value={order.delivery?.deliveryMemo} />
-              </div>
-            </div>
-          </Section>
+            </Section>
+          )}
 
           <Section title="금액 요약">
-            <div className="space-y-3 typo-medium-14">
+            <div className="typo-medium-14 space-y-3">
               <div className="flex justify-between gap-4">
                 <span className="text-gray-500">상품 합계</span>
                 <span className="font-medium text-gray-900">{formatCurrency(priceSummary.itemsTotalPrice)}</span>
@@ -212,8 +233,12 @@ export default function AdminOrderDetailContent({ order, guestNotificationSectio
                 <span className="font-bold text-gray-900">최종 금액</span>
                 <span className="font-bold text-gray-900">{formatCurrency(priceSummary.totalPrice)}</span>
               </div>
-              <div className="pt-2 typo-medium-12 text-gray-500">
-                {priceSummary.freeShippingApplied ? "무료배송 적용" : "무료배송 미적용"}
+              <div className="typo-medium-12 pt-2 text-gray-500">
+                {order.fulfillmentMethod === "SERVICE"
+                  ? "배송 없는 상품"
+                  : priceSummary.freeShippingApplied
+                    ? "무료배송 적용"
+                    : "무료배송 미적용"}
                 {priceSummary.freeShippingThreshold != null && (
                   <span> · 기준 {formatCurrency(priceSummary.freeShippingThreshold)}</span>
                 )}

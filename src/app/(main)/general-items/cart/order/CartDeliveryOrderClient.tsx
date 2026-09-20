@@ -64,6 +64,7 @@ export default function CartDeliveryOrderClient({
   const hasOrdererInfo = Boolean(currentUser);
   const hasAddresses = addresses.length > 0;
   const items = getValidCartItems(quote);
+  const serviceProduct = quote.serviceProduct === true;
 
   const updateField = (field: keyof typeof form) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((current) => ({ ...current, [field]: event.target.value }));
@@ -158,8 +159,8 @@ export default function CartDeliveryOrderClient({
   const buildInput = (): GeneralItemCartDeliveryOrderInput => ({
     receiverName: form.receiverName,
     receiverPhone: form.receiverPhone,
-    deliveryAddress: formatOrderDeliveryAddress(form),
-    deliveryMemo: form.deliveryMemo,
+    deliveryAddress: serviceProduct ? "" : formatOrderDeliveryAddress(form),
+    deliveryMemo: serviceProduct ? undefined : form.deliveryMemo,
     orderNote: form.orderNote,
     guestEmail: form.guestEmail,
   });
@@ -216,7 +217,9 @@ export default function CartDeliveryOrderClient({
     return (
       <div className="mx-auto max-w-3xl px-4 py-10 md:py-16">
         <div className="border border-white/10 bg-white/5 p-6 text-center">
-          <p className="typo-medium-14 text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
+          <p className="typo-medium-14 text-amber-300">
+            {serviceProduct ? "티켓·무형서비스 주문" : "일반상품 배송 주문"}
+          </p>
           <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">장바구니에 담긴 상품이 없습니다.</h1>
           <p className="typo-medium-14 mt-4 text-gray-400">주문할 상품을 장바구니에 담은 뒤 다시 진행해 주세요.</p>
           <Button asChild className="mt-6 bg-amber-600 hover:bg-amber-700">
@@ -239,8 +242,12 @@ export default function CartDeliveryOrderClient({
               <ArrowLeft size={18} />
               뒤로가기
             </Button>
-            <p className="typo-medium-14 text-amber-300">GENERAL / ITEM 장바구니 배송 주문</p>
-            <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">장바구니 배송 주문서</h1>
+            <p className="typo-medium-14 text-amber-300">
+              {serviceProduct ? "티켓·무형서비스 주문" : "일반상품 배송 주문"}
+            </p>
+            <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">
+              {serviceProduct ? "이용권 주문서" : "장바구니 배송 주문서"}
+            </h1>
           </div>
 
           <div className="grid gap-5">
@@ -266,7 +273,7 @@ export default function CartDeliveryOrderClient({
                   required
                   requiredClassName="text-amber-400"
                 >
-                  수령인
+                  {serviceProduct ? "구매자" : "수령인"}
                 </Label>
                 <Input
                   id="receiverName"
@@ -285,7 +292,7 @@ export default function CartDeliveryOrderClient({
                   required
                   requiredClassName="text-amber-400"
                 >
-                  수령인 연락처
+                  {serviceProduct ? "구매자 연락처" : "수령인 연락처"}
                 </Label>
                 <Input
                   id="receiverPhone"
@@ -318,136 +325,146 @@ export default function CartDeliveryOrderClient({
               />
             </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between gap-3">
-                <span className="typo-medium-14 block text-gray-200">배송 주소</span>
-                <div className="flex flex-wrap justify-end gap-2">
-                  {hasOrdererInfo && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setIsAddressDialogOpen(true)}
-                      className="border-white/20 bg-transparent text-gray-300 hover:bg-white/10 hover:text-white"
-                    >
-                      <Plus aria-hidden="true" />
-                      주소 추가
-                    </Button>
-                  )}
-                </div>
-              </div>
-              {hasOrdererInfo && (
-                <div className="mb-3">
-                  <select
-                    aria-label="배송지 주소록"
-                    defaultValue=""
-                    onChange={handleAddressSelect}
-                    className="typo-medium-14 h-10 w-full border border-white/15 bg-black/20 px-3 text-white outline-none focus:border-amber-400"
-                  >
-                    <option value="" className="bg-[#1d2429] text-gray-300">
-                      주소록에서 선택
-                    </option>
-                    {addresses.map((address) => (
-                      <option
-                        key={address.id ?? `${address.addressName}-${address.address}`}
-                        value={address.id}
-                        className="bg-[#1d2429]"
+            {!serviceProduct && (
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className="typo-medium-14 block text-gray-200">배송 주소</span>
+                  <div className="flex flex-wrap justify-end gap-2">
+                    {hasOrdererInfo && (
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setIsAddressDialogOpen(true)}
+                        className="border-white/20 bg-transparent text-gray-300 hover:bg-white/10 hover:text-white"
                       >
-                        {address.defaultAddress ? "[기본] " : ""}
-                        {address.addressName || formatDeliveryAddress(address)}
-                      </option>
-                    ))}
-                  </select>
-                  {!hasAddresses && (
-                    <p className="typo-medium-12 mt-2 text-amber-200">
-                      등록된 배송지가 없습니다. 주소 추가로 기본 배송지를 등록해 주세요.
-                    </p>
-                  )}
+                        <Plus aria-hidden="true" />
+                        주소 추가
+                      </Button>
+                    )}
+                  </div>
                 </div>
-              )}
-              <div className="border-y border-white/10 py-4">
-                <div className="typo-semibold-12 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">1</span>
-                  <span className="text-amber-200">주소 검색</span>
-                  <span className="h-px min-w-8 flex-1 bg-white/10" aria-hidden="true" />
-                  <span className="inline-flex h-6 w-6 items-center justify-center bg-white/10 text-gray-300">2</span>
-                  <span className="text-gray-300">상세 주소 입력</span>
-                </div>
-
-                <div className="mt-4 grid gap-3">
-                  <div className="grid gap-3 md:grid-cols-[170px_1fr] md:items-end">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={handleOrderPostcodeSearch}
-                      className="h-9 border-amber-500/60 bg-amber-600 text-black hover:bg-amber-500 hover:text-black"
+                {hasOrdererInfo && (
+                  <div className="mb-3">
+                    <select
+                      aria-label="배송지 주소록"
+                      defaultValue=""
+                      onChange={handleAddressSelect}
+                      className="typo-medium-14 h-10 w-full border border-white/15 bg-black/20 px-3 text-white outline-none focus:border-amber-400"
                     >
-                      <Search aria-hidden="true" />
-                      배송 주소 검색
-                    </Button>
+                      <option value="" className="bg-[#1d2429] text-gray-300">
+                        주소록에서 선택
+                      </option>
+                      {addresses.map((address) => (
+                        <option
+                          key={address.id ?? `${address.addressName}-${address.address}`}
+                          value={address.id}
+                          className="bg-[#1d2429]"
+                        >
+                          {address.defaultAddress ? "[기본] " : ""}
+                          {address.addressName || formatDeliveryAddress(address)}
+                        </option>
+                      ))}
+                    </select>
+                    {!hasAddresses && (
+                      <p className="typo-medium-12 mt-2 text-amber-200">
+                        등록된 배송지가 없습니다. 주소 추가로 기본 배송지를 등록해 주세요.
+                      </p>
+                    )}
+                  </div>
+                )}
+                <div className="border-y border-white/10 py-4">
+                  <div className="typo-semibold-12 flex flex-wrap items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center bg-amber-500 text-black">1</span>
+                    <span className="text-amber-200">주소 검색</span>
+                    <span className="h-px min-w-8 flex-1 bg-white/10" aria-hidden="true" />
+                    <span className="inline-flex h-6 w-6 items-center justify-center bg-white/10 text-gray-300">2</span>
+                    <span className="text-gray-300">상세 주소 입력</span>
+                  </div>
+
+                  <div className="mt-4 grid gap-3">
+                    <div className="grid gap-3 md:grid-cols-[170px_1fr] md:items-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={handleOrderPostcodeSearch}
+                        className="h-9 border-amber-500/60 bg-amber-600 text-black hover:bg-amber-500 hover:text-black"
+                      >
+                        <Search aria-hidden="true" />
+                        배송 주소 검색
+                      </Button>
+                      <div>
+                        <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryPostalCode">
+                          우편번호
+                        </Label>
+                        <Input
+                          id="deliveryPostalCode"
+                          readOnly
+                          value={form.deliveryPostalCode}
+                          placeholder="04524"
+                          className="border-white/15 bg-black/20 text-white read-only:cursor-default"
+                        />
+                      </div>
+                    </div>
+
                     <div>
-                      <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryPostalCode">
-                        우편번호
+                      <Label
+                        className="typo-medium-14 mb-2 text-gray-200"
+                        htmlFor="deliveryBaseAddress"
+                        required
+                        requiredClassName="text-amber-400"
+                      >
+                        기본 주소
                       </Label>
                       <Input
-                        id="deliveryPostalCode"
+                        id="deliveryBaseAddress"
                         readOnly
-                        value={form.deliveryPostalCode}
-                        placeholder="04524"
+                        required
+                        value={form.deliveryBaseAddress}
+                        placeholder="주소 검색으로 기본 주소를 선택해 주세요."
                         className="border-white/15 bg-black/20 text-white read-only:cursor-default"
                       />
                     </div>
-                  </div>
 
-                  <div>
-                    <Label
-                      className="typo-medium-14 mb-2 text-gray-200"
-                      htmlFor="deliveryBaseAddress"
-                      required
-                      requiredClassName="text-amber-400"
-                    >
-                      기본 주소
-                    </Label>
-                    <Input
-                      id="deliveryBaseAddress"
-                      readOnly
-                      required
-                      value={form.deliveryBaseAddress}
-                      placeholder="주소 검색으로 기본 주소를 선택해 주세요."
-                      className="border-white/15 bg-black/20 text-white read-only:cursor-default"
-                    />
-                  </div>
-
-                  <div className="border-t border-white/10 pt-3">
-                    <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryAddressDetail">
-                      상세 주소
-                    </Label>
-                    <Input
-                      id="deliveryAddressDetail"
-                      ref={orderAddressDetailInputRef}
-                      value={form.deliveryAddressDetail}
-                      onChange={updateField("deliveryAddressDetail")}
-                      placeholder="동, 호수, 건물명 등"
-                      className="border-white/15 bg-black/20 text-white"
-                    />
+                    <div className="border-t border-white/10 pt-3">
+                      <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryAddressDetail">
+                        상세 주소
+                      </Label>
+                      <Input
+                        id="deliveryAddressDetail"
+                        ref={orderAddressDetailInputRef}
+                        value={form.deliveryAddressDetail}
+                        onChange={updateField("deliveryAddressDetail")}
+                        placeholder="동, 호수, 건물명 등"
+                        className="border-white/15 bg-black/20 text-white"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            )}
+            {serviceProduct && (
+              <p className="typo-medium-14 border border-amber-400/30 p-4 leading-6 text-amber-100">
+                배송이 없는 상품입니다. 결제 후 주문 상세에서 수량별 이용권과 이용 기간을 확인할 수 있습니다. 실물
+                상품과는 별도로 결제해 주세요.
+              </p>
+            )}
 
             <div className="grid gap-5 md:grid-cols-2">
-              <div>
-                <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryMemo">
-                  배송 메모
-                </Label>
-                <Textarea
-                  id="deliveryMemo"
-                  value={form.deliveryMemo}
-                  onChange={updateField("deliveryMemo")}
-                  placeholder="문 앞에 놓아주세요"
-                  className="min-h-24 border-white/15 bg-black/20 text-white"
-                />
-              </div>
+              {!serviceProduct && (
+                <div>
+                  <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="deliveryMemo">
+                    배송 메모
+                  </Label>
+                  <Textarea
+                    id="deliveryMemo"
+                    value={form.deliveryMemo}
+                    onChange={updateField("deliveryMemo")}
+                    placeholder="문 앞에 놓아주세요"
+                    className="min-h-24 border-white/15 bg-black/20 text-white"
+                  />
+                </div>
+              )}
 
               <div>
                 <Label className="typo-medium-14 mb-2 text-gray-200" htmlFor="orderNote">
@@ -518,8 +535,7 @@ export default function CartDeliveryOrderClient({
             </div>
           </dl>
           <p className="typo-medium-12 mt-5 leading-5 text-gray-400">
-            최종 금액과 주문 가능 여부는 서버 검증 결과를 기준으로 확정됩니다. 같은 주문 시도에서는 멱등키가 유지되어
-            중복 주문을 줄입니다.
+            결제 전 상품과 최종 금액을 확인해 주세요. 결제 결과가 확인되지 않으면 주문 내역을 먼저 확인해 주세요.
           </p>
         </aside>
       </div>
