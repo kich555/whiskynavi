@@ -2,6 +2,7 @@ import type { UserBottleReservationNoticePublicResponse } from "@/apis/generated
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { formatCurrency } from "@/lib/formatters";
+import { getNoticeStatus } from "../_lib/utils";
 
 type ReservationStatus = "active" | "ended";
 
@@ -17,6 +18,12 @@ const formatDate = (dateStr?: string): string => {
 
 export default function ReservationCard({ notice, status }: ReservationCardProps) {
   const isActive = status === "active";
+  // 회원별 가능 시각은 상태 배지에만 반영한다.
+  const badgeStatus = isActive
+    ? getNoticeStatus({ ...notice, reservationStartAt: notice.earliestReservableAt ?? notice.reservationStartAt })
+    : "closed";
+  const badgeClassName =
+    badgeStatus === "pending" ? "bg-orange-600" : badgeStatus === "active" ? "bg-blue-600" : "bg-gray-600";
 
   return (
     <div className="group cursor-pointer border border-white/10 p-2.5 pb-1.5 text-left transition-colors hover:bg-white/5 sm:p-4 sm:pb-2">
@@ -42,8 +49,8 @@ export default function ReservationCard({ notice, status }: ReservationCardProps
               <p className="typo-medium-12 mt-1 line-clamp-2 text-gray-400">{notice.bottleName ?? "-"}</p>
             </h3>
           </div>
-          <Badge className={`shrink-0 border-transparent text-white ${isActive ? "bg-blue-600" : "bg-gray-600"}`}>
-            {isActive ? "진행 중" : "종료"}
+          <Badge className={`shrink-0 border-transparent text-white ${badgeClassName}`}>
+            {badgeStatus === "pending" ? "예약 대기 중" : badgeStatus === "active" ? "진행 중" : "종료"}
           </Badge>
         </div>
         <div className="mt-2 flex items-center justify-between">
