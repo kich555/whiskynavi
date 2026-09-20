@@ -144,6 +144,12 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         icon: ShoppingCart,
         href: "/admin/general-item-orders",
       },
+      {
+        id: "shipment-notifications",
+        label: "출고 알림 관리",
+        icon: ShoppingCart,
+        href: "/admin/general-item-orders/shipment-notifications",
+      },
       { id: "service-entitlements", label: "이용권 관리", icon: Ticket, href: "/admin/service-entitlements" },
       {
         id: "shipping-policy",
