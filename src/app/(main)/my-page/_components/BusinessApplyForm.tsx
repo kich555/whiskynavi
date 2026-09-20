@@ -10,8 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { addYears, format, isValid, parse } from "date-fns";
 import { ko } from "date-fns/locale";
 import { CalendarDays, Loader2, Upload } from "lucide-react";
-import { useActionState, useEffect, useRef, useState } from "react";
-import { submitBusinessApplication } from "../actions";
+import { useRouter } from "next/navigation";
+import { useRef, useState, useTransition } from "react";
+import type { BusinessApplicationActionResult } from "../_lib/business-application";
+import { getBusinessDocumentError } from "../_lib/business-document";
+import { submitBusinessApplication } from "../_lib/submit-business-application";
 
 const parseOpeningDate = (value: string): Date | undefined => {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;
@@ -36,8 +39,11 @@ const formatOpeningDateInput = (value: string, inputType?: string): string => {
 };
 
 export default function BusinessApplyForm({ onClose }: { onClose?: () => void }) {
-  const [state, formAction, pending] = useActionState(submitBusinessApplication, { success: false });
+  const router = useRouter();
+  const [state, setState] = useState<BusinessApplicationActionResult>({ success: false });
+  const [pending, startTransition] = useTransition();
   const [fileName, setFileName] = useState<string | null>(null);
+  const [documentError, setDocumentError] = useState<string | null>(null);
   const [openingDate, setOpeningDate] = useState<Date>();
   const [openingDateInput, setOpeningDateInput] = useState("");
   const [calendarOpen, setCalendarOpen] = useState(false);
@@ -55,14 +61,26 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
     setCalendarMonth((month) => addYears(month, amount));
   };
 
-  useEffect(() => {
-    if (state.success) {
-      onClose?.();
-    }
-  }, [onClose, state.success]);
-
   return (
-    <form action={formAction} className="space-y-4 md:space-y-6">
+    <form
+      onSubmit={(event) => {
+        event.preventDefault();
+        if (pending) return;
+        const error = getBusinessDocumentError(fileInputRef.current?.files?.[0]);
+        setDocumentError(error);
+        if (error) return;
+        const formData = new FormData(event.currentTarget);
+        startTransition(async () => {
+          const result = await submitBusinessApplication(formData);
+          setState(result);
+          if (result.success) {
+            router.refresh();
+            onClose?.();
+          }
+        });
+      }}
+      className="space-y-4 md:space-y-6"
+    >
       <div>
         <Label htmlFor="businessName" className="typo-bold-14 mb-2 block text-gray-900">
           사업자 이름 *
@@ -230,9 +248,12 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
             name="document"
             type="file"
             accept=".pdf,.jpg,.jpeg,.png"
+            aria-invalid={Boolean(documentError)}
+            aria-describedby="business-document-help business-document-error"
             onChange={(e) => {
               const file = e.target.files?.[0];
               setFileName(file?.name ?? null);
+              setDocumentError(getBusinessDocumentError(file));
             }}
             className="hidden"
           />
@@ -246,10 +267,15 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
             ) : (
               <div className="space-y-1">
                 <p className="typo-medium-14 text-gray-900">파일을 선택하세요</p>
-                <p className="typo-medium-12 text-gray-500">PDF, JPG, PNG (최대 10MB)</p>
               </div>
             )}
           </label>
+          <p id="business-document-help" className="typo-medium-12 mt-2 text-gray-500">
+            PDF, JPG, PNG (최대 10MB)
+          </p>
+        </div>
+        <div id="business-document-error" className="mt-2">
+          <FormMessage message={documentError} />
         </div>
       </div>
 
@@ -261,7 +287,7 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
       <div className="flex gap-3 pt-4">
         <button
           type="submit"
-          disabled={pending}
+          disabled={pending || Boolean(documentError)}
           className="flex-1 bg-gray-900 px-6 py-3 font-semibold text-white transition-colors hover:bg-gray-800 disabled:opacity-50"
         >
           {pending ? (

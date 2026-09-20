@@ -4,7 +4,6 @@ import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   patchApiOrdersOrderidCancel,
   patchApiV2OrdersOrderidReceipt,
-  postApiUsersBusinessesApplications,
   postApiUsersBusinessesApplicationsApplicationidCancel,
   postApiUsersMeEmailVerificationSend,
   postApiUsersMeEmailVerificationVerify,
@@ -18,6 +17,11 @@ import { getAuthToken } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import { z } from "zod";
+import {
+  getStructuredApiErrorDetails,
+  type BusinessApplicationActionResult,
+  type BusinessApplicationErrorDetails,
+} from "./_lib/business-application";
 
 const changePasswordSchema = z
   .object({
@@ -72,14 +76,6 @@ const cancelOrderSchema = z.object({
   orderId: z.number().positive(),
   reason: z.string().max(500).optional(),
 });
-
-const isValidDateString = (value: string): boolean => {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-
-  const [year, month, day] = value.split("-").map(Number);
-  const date = new Date(year, month - 1, day);
-  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
-};
 
 export async function cancelOrder(orderId: number, reason?: string): Promise<{ success: boolean; error?: string }> {
   try {
@@ -288,80 +284,6 @@ export async function updateProfile(_prevState: UpdateProfileState, formData: Fo
   }
 }
 
-const businessApplySchema = z.object({
-  businessName: z.string().min(1, "사업자 이름을 입력해주세요."),
-  contact: z.string().min(1, "연락처를 입력해주세요."),
-  businessRegistrationNumber: z.string().min(1, "사업자 등록번호를 입력해주세요."),
-  businessType: z.enum(["HOUSEHOLD", "ENTERTAINMENT"], {
-    message: "사업자 구분을 선택해주세요.",
-  }),
-  pickupAddress: z.string().optional().default(""),
-  openingDate: z.string().min(1, "개업일을 입력해주세요.").refine(isValidDateString, {
-    message: "개업일은 yyyy-MM-dd 형식의 올바른 날짜여야 합니다.",
-  }),
-  representativeName: z.string().min(1, "대표자 이름을 입력해주세요."),
-});
-
-const BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE =
-  "국세청 사업자 검증에 실패했습니다. 입력하신 사업자등록번호, 개업일자, 대표자명을 다시 확인해주세요.";
-
-const BUSINESS_APPLICATION_NOT_FOUND_MESSAGE =
-  "사업자 등록 신청 페이지에 연결할 수 없습니다. 서비스가 업데이트 중이거나 신청 주소가 변경되었을 수 있습니다. 잠시 후 다시 시도하고, 계속되면 고객센터에 문의해주세요.";
-
-const BUSINESS_APPLICATION_FORBIDDEN_MESSAGE =
-  "현재 계정으로는 사업자 등록을 신청할 수 없습니다. 로그인 계정의 상태와 본인 인증 여부를 확인한 뒤 다시 시도해주세요.";
-
-const BUSINESS_APPLICATION_CONFLICT_MESSAGE =
-  "동일한 사업자등록번호로 접수되었거나 이미 처리 중인 신청이 있습니다. 마이페이지의 사업자 신청 내역을 확인해주세요.";
-
-export interface BusinessApplicationActionResult {
-  success: boolean;
-  error?: string;
-  hint?: string;
-  code?: string;
-  requestId?: string;
-}
-
-type BusinessApplicationErrorDetails = Omit<BusinessApplicationActionResult, "success">;
-
-const getStructuredApiErrorDetails = (error: ApiError): BusinessApplicationErrorDetails => ({
-  error: error.userMessage,
-  ...(error.hint ? { hint: error.hint } : {}),
-  ...(error.code ? { code: error.code } : {}),
-  ...(error.requestId ? { requestId: error.requestId } : {}),
-});
-
-const getBusinessApplicationErrorDetails = (error: unknown): BusinessApplicationErrorDetails => {
-  if (error instanceof ApiError) {
-    if (error.code) return getStructuredApiErrorDetails(error);
-
-    if (error.status === 400 && error.userMessage.startsWith("사업자 등록 신청 검증에 실패했습니다.")) {
-      return { error: BUSINESS_VERIFICATION_INPUT_REVIEW_MESSAGE };
-    }
-
-    if (error.status === 403) return { error: BUSINESS_APPLICATION_FORBIDDEN_MESSAGE };
-    if (error.status === 404) return { error: BUSINESS_APPLICATION_NOT_FOUND_MESSAGE };
-    if (error.status === 409) return { error: BUSINESS_APPLICATION_CONFLICT_MESSAGE };
-    if (error.status === 413) {
-      return { error: "첨부 파일이 너무 큽니다. 사업자 등록증은 10MB 이하로 업로드해주세요." };
-    }
-    if (error.status === 415) {
-      return { error: "첨부 파일 형식을 지원하지 않습니다. PDF, JPG 또는 PNG 파일을 선택해주세요." };
-    }
-    if (error.status === 429) {
-      return { error: "사업자 등록 신청 요청이 너무 많습니다. 잠시 후 다시 제출해주세요." };
-    }
-    if (error.status >= 500) {
-      return {
-        error:
-          "사업자 등록 신청을 처리하는 서버에 일시적인 문제가 발생했습니다. 입력 내용은 유지한 채 잠시 후 다시 시도해주세요.",
-      };
-    }
-  }
-
-  return { error: getUserErrorMessage(error, "사업자 등록 신청에 실패했습니다.") };
-};
-
 const getBusinessApplicationCancelErrorDetails = (error: unknown): BusinessApplicationErrorDetails => {
   if (error instanceof ApiError) {
     if (error.code) return getStructuredApiErrorDetails(error);
@@ -379,66 +301,6 @@ const getBusinessApplicationCancelErrorDetails = (error: unknown): BusinessAppli
 
   return { error: getUserErrorMessage(error, "사업자 등록 취소에 실패했습니다.") };
 };
-
-export async function submitBusinessApplication(
-  _prevState: BusinessApplicationActionResult,
-  formData: FormData,
-): Promise<BusinessApplicationActionResult> {
-  try {
-    const token = await getAuthToken();
-    if (!token) {
-      return { success: false, error: "로그인이 필요합니다." };
-    }
-
-    const parsed = businessApplySchema.safeParse({
-      businessName: formData.get("businessName"),
-      contact: formData.get("contact"),
-      businessRegistrationNumber: formData.get("businessRegistrationNumber"),
-      businessType: formData.get("businessType"),
-      pickupAddress: formData.get("pickupAddress"),
-      openingDate: formData.get("openingDate"),
-      representativeName: formData.get("representativeName"),
-    });
-
-    if (!parsed.success) {
-      return { success: false, error: parsed.error.issues[0].message };
-    }
-
-    const document = formData.get("document") as File | null;
-    if (!document || document.size === 0) {
-      return { success: false, error: "사업자 등록증을 첨부해주세요." };
-    }
-
-    if (document.size > 10 * 1024 * 1024) {
-      return { success: false, error: "파일 크기는 10MB 이하여야 합니다." };
-    }
-
-    await postApiUsersBusinessesApplications(
-      { document },
-      {
-        businessName: parsed.data.businessName,
-        contact: parsed.data.contact,
-        businessRegistrationNumber: parsed.data.businessRegistrationNumber,
-        businessType: parsed.data.businessType,
-        pickupAddress: parsed.data.pickupAddress || "",
-        openingDate: parsed.data.openingDate,
-        representativeName: parsed.data.representativeName,
-      } as Parameters<typeof postApiUsersBusinessesApplications>[1] & {
-        businessType: "HOUSEHOLD" | "ENTERTAINMENT";
-      },
-      withToken(token),
-    );
-
-    revalidatePath("/my-page");
-    return { success: true };
-  } catch (error) {
-    if (isRedirectError(error)) throw error;
-    return {
-      success: false,
-      ...getBusinessApplicationErrorDetails(error),
-    };
-  }
-}
 
 export async function cancelBusinessApplication(applicationId: number): Promise<BusinessApplicationActionResult> {
   try {
