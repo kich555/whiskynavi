@@ -2,6 +2,7 @@ import { getApiAdminOrdersOrderid } from "@/apis/generated/api";
 import { withToken } from "@/apis/mutator";
 import { getAuthToken } from "@/lib/auth";
 import { parsePositiveInt } from "@/lib/page-response";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminOrderDetailContent from "../../orders/_components/AdminOrderDetailContent";
 import GuestNotificationPanel from "../_components/GuestNotificationPanel";
@@ -56,7 +57,19 @@ export default async function AdminGeneralItemOrderDetailPage({
   return (
     <AdminOrderDetailContent
       order={order}
-      guestNotificationSection={guestNotificationSection}
+      guestNotificationSection={
+        <>
+          {order.fulfillmentMethod === "DIRECT_DELIVERY" && (
+            <Link
+              className="typo-medium-14 block rounded-lg border bg-white p-4 text-amber-700 underline"
+              href={`/admin/general-item-orders/shipment-notifications?orderId=${id}`}
+            >
+              출고 알림 발송 현황·재발송
+            </Link>
+          )}
+          {guestNotificationSection}
+        </>
+      }
       entitlementSection={entitlementSection}
     />
   );
