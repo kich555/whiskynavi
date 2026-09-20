@@ -9,7 +9,7 @@ import { getAuthToken } from "@/lib/auth";
 import { fetchCartQuote } from "../actions";
 import CartDeliveryOrderClient from "./CartDeliveryOrderClient";
 
-const EMPTY_QUOTE = { items: [], itemsTotalPrice: 0, shippingFee: 0, totalPrice: 0 };
+const EMPTY_QUOTE = { serviceProduct: false, items: [], itemsTotalPrice: 0, shippingFee: 0, totalPrice: 0 };
 
 export default async function GeneralItemCartDeliveryOrderPage() {
   const quoteResult = await fetchCartQuote();
@@ -24,7 +24,7 @@ export default async function GeneralItemCartDeliveryOrderPage() {
     const options = withToken(token);
     const [userResult, addressResult] = await Promise.allSettled([
       getApiUsersMe(options),
-      getApiUsersMeDeliveryAddresses(options),
+      quote.serviceProduct ? Promise.resolve({ data: [] }) : getApiUsersMeDeliveryAddresses(options),
     ]);
 
     if (userResult.status === "fulfilled") {

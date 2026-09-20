@@ -1585,6 +1585,7 @@ export type AdminOrderResponseFulfillmentMethod = typeof AdminOrderResponseFulfi
 
 export const AdminOrderResponseFulfillmentMethod = {
   DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  SERVICE: 'SERVICE',
   PICKUP: 'PICKUP',
 } as const;
 
@@ -1931,6 +1932,10 @@ export interface AdminSaleAnnouncementResponse {
   saleStatus?: AdminSaleAnnouncementResponseSaleStatus;
   /** 판매 유형 */
   saleType?: AdminSaleAnnouncementResponseSaleType;
+  /** 배송 없는 티켓·무형서비스 여부 */
+  serviceProduct?: boolean;
+  serviceValidFrom?: string;
+  serviceValidUntil?: string;
   /** 판매 공고 제목 */
   title?: string;
   /** 총 판매 가능 수량 */
@@ -3082,7 +3087,7 @@ export interface CartGeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress: string;
+  deliveryAddress?: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -3144,6 +3149,7 @@ export interface CartQuoteResponse {
   freeShippingThreshold?: number;
   items?: CartItemResponse[];
   itemsTotalPrice?: number;
+  serviceProduct?: boolean;
   shippingFee?: number;
   totalPrice?: number;
 }
@@ -3500,7 +3506,7 @@ export interface GeneralItemDeliveryOrderRequest {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress: string;
+  deliveryAddress?: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -3553,6 +3559,9 @@ export const UserOrderTicketResponseStatus = {
   EXPIRED: 'EXPIRED',
 } as const;
 
+/**
+ * 토스 결제 시작에 필요한 주문 티켓 정보
+ */
 export interface UserOrderTicketResponse {
   /** 결제 요청 금액 */
   amount?: number;
@@ -3595,6 +3604,42 @@ export interface GeneralItemDeliveryTossConfirmRequest {
    * @minLength 1
    */
   pgOrderId: string;
+}
+
+export interface GuestNotificationActionRequest {
+  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
+  identityConfirmed?: boolean;
+  /**
+   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+}
+
+export interface GuestNotificationAuditResponse {
+  action?: string;
+  actorId?: number;
+  createdAt?: string;
+  id?: number;
+  notificationId?: number;
+  orderId?: number;
+  reason?: string;
+}
+
+export interface GuestNotificationResponse {
+  attemptCount?: number;
+  channel?: string;
+  createdAt?: string;
+  expiresAt?: string;
+  id?: number;
+  lastError?: string;
+  maskedRecipient?: string;
+  nextAttemptAt?: string;
+  orderId?: number;
+  retryable?: boolean;
+  sentAt?: string;
+  status?: string;
 }
 
 export interface GuestOrderCancelRequest {
@@ -5151,6 +5196,7 @@ export type UserOrderResponseFulfillmentMethod = typeof UserOrderResponseFulfill
 
 export const UserOrderResponseFulfillmentMethod = {
   DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  SERVICE: 'SERVICE',
   PICKUP: 'PICKUP',
 } as const;
 
@@ -5453,6 +5499,10 @@ export interface UserSaleAnnouncementResponse {
   saleStatus?: UserSaleAnnouncementResponseSaleStatus;
   /** 판매 유형 */
   saleType?: UserSaleAnnouncementResponseSaleType;
+  /** 배송 없는 티켓·무형서비스 여부 */
+  serviceProduct?: boolean;
+  serviceValidFrom?: string;
+  serviceValidUntil?: string;
   /** 판매 공고 제목 */
   title?: string;
   /** 총 판매 가능 수량 */
@@ -5853,6 +5903,12 @@ export interface SaleAnnouncementCreateRequest {
   saleStatus?: SaleAnnouncementCreateRequestSaleStatus;
   /** 판매 유형 */
   saleType: SaleAnnouncementCreateRequestSaleType;
+  /** 배송 없는 티켓·무형서비스 여부. 생성 후 변경 불가 */
+  serviceProduct?: boolean;
+  /** 이용 시작 시각 (한국 시간). 생성 후 변경 불가 */
+  serviceValidFrom?: string;
+  /** 이용 종료 시각 (한국 시간, 해당 시각부터 만료). 무형서비스 필수, 생성 후 변경 불가 */
+  serviceValidUntil?: string;
   /**
    * 판매 공고 제목
    * @minLength 0
@@ -7006,40 +7062,109 @@ export interface UsernameRequest {
   username: string;
 }
 
-export interface GuestNotificationActionRequest {
+export interface ServiceEntitlementCustomerUseRequest {
+  entitlementId: number;
   /**
-   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
    * @minLength 0
    * @maxLength 200
    */
+  guestOrderToken?: string;
+  orderId: number;
+}
+
+export interface ServiceEntitlementLookupRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  guestOrderToken?: string;
+  orderId: number;
+}
+
+/**
+ * 이용권 상태
+ */
+export type UserServiceEntitlementResponseStatus = typeof UserServiceEntitlementResponseStatus[keyof typeof UserServiceEntitlementResponseStatus];
+
+
+export const UserServiceEntitlementResponseStatus = {
+  AVAILABLE: 'AVAILABLE',
+  USED: 'USED',
+  CANCELED: 'CANCELED',
+  EXPIRED: 'EXPIRED',
+  SUSPENDED: 'SUSPENDED',
+  NOT_YET_VALID: 'NOT_YET_VALID',
+} as const;
+
+export interface UserServiceEntitlementResponse {
+  id?: number;
+  itemName?: string;
+  orderItemId?: number;
+  /** 이용권 상태 */
+  status?: UserServiceEntitlementResponseStatus;
+  unitNumber?: number;
+  usedAt?: string;
+  validFrom?: string;
+  validUntil?: string;
+}
+
+export interface ServiceEntitlementUseRequest {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
   reason: string;
-  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
-  identityConfirmed?: boolean;
 }
 
-export interface GuestNotificationAuditResponse {
+export interface AdminServiceEntitlementEntryResponse {
+  customerName?: string;
+  customerPhone?: string;
   id?: number;
+  issuedAt?: string;
+  itemName?: string;
   orderId?: number;
-  notificationId?: number;
-  action?: string;
-  actorId?: number;
-  reason?: string;
-  createdAt?: string;
-}
-
-export interface GuestNotificationResponse {
-  id?: number;
-  orderId?: number;
-  channel?: string;
+  orderNumber?: string;
   status?: string;
-  maskedRecipient?: string;
-  attemptCount?: number;
-  nextAttemptAt?: string;
-  expiresAt?: string;
-  lastError?: string;
-  createdAt?: string;
-  sentAt?: string;
-  retryable?: boolean;
+  unitNumber?: number;
+  useReason?: string;
+  usedAt?: string;
+  usedBy?: number;
+  userId?: number;
+  validFrom?: string;
+  validUntil?: string;
+}
+
+export interface AdminServiceEntitlementSearchResponse {
+  hasMore?: boolean;
+  items?: AdminServiceEntitlementEntryResponse[];
+  nextBeforeId?: number;
+}
+
+/**
+ * 이용권 상태
+ */
+export type AdminServiceEntitlementResponseStatus = typeof AdminServiceEntitlementResponseStatus[keyof typeof AdminServiceEntitlementResponseStatus];
+
+
+export const AdminServiceEntitlementResponseStatus = {
+  AVAILABLE: 'AVAILABLE',
+  USED: 'USED',
+  CANCELED: 'CANCELED',
+  EXPIRED: 'EXPIRED',
+  SUSPENDED: 'SUSPENDED',
+  NOT_YET_VALID: 'NOT_YET_VALID',
+} as const;
+
+export interface AdminServiceEntitlementResponse {
+  id?: number;
+  itemName?: string;
+  orderItemId?: number;
+  /** 이용권 상태 */
+  status?: AdminServiceEntitlementResponseStatus;
+  unitNumber?: number;
+  usedAt?: string;
+  validFrom?: string;
+  validUntil?: string;
 }
 
 export type GetApiV2AdminBannersPublishedParams = {
@@ -7498,6 +7623,12 @@ export const GetApiV2AdminBottlesBottleidReservationsSortDirection = {
   DESC: 'DESC',
 } as const;
 
+export type GetApiV2AdminGuestNotificationsParams = {
+orderId?: number;
+failedOnly?: boolean;
+beforeId?: number;
+};
+
 /**
  * 관리자 1대1 문의 답변 수정 요청
  */
@@ -7509,6 +7640,32 @@ export type PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody = {
   content: string;
   /** 답변 이미지 포함 여부 */
   hasImage?: boolean;
+};
+
+export type GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams = {
+beforeId?: number;
+};
+
+export type PostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody = {
+  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
+  identityConfirmed?: boolean;
+  /**
+   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+};
+
+export type PostApiV2AdminOrdersOrderIdGuestTokenReissueBody = {
+  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
+  identityConfirmed?: boolean;
+  /**
+   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
 };
 
 export type Create2Body = {
@@ -10143,6 +10300,7 @@ export type GetApiAdminOrdersFulfillmentMethod = typeof GetApiAdminOrdersFulfill
 
 export const GetApiAdminOrdersFulfillmentMethod = {
   DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  SERVICE: 'SERVICE',
   PICKUP: 'PICKUP',
 } as const;
 
@@ -10255,6 +10413,7 @@ export type GetApiAdminOrdersDeliveryExportFulfillmentMethod = typeof GetApiAdmi
 
 export const GetApiAdminOrdersDeliveryExportFulfillmentMethod = {
   DIRECT_DELIVERY: 'DIRECT_DELIVERY',
+  SERVICE: 'SERVICE',
   PICKUP: 'PICKUP',
 } as const;
 
@@ -10860,6 +11019,12 @@ export type PostApiAdminSalesBody = {
   saleStatus?: PostApiAdminSalesBodySaleStatus;
   /** 판매 유형 */
   saleType: PostApiAdminSalesBodySaleType;
+  /** 배송 없는 티켓·무형서비스 여부. 생성 후 변경 불가 */
+  serviceProduct?: boolean;
+  /** 이용 시작 시각 (한국 시간). 생성 후 변경 불가 */
+  serviceValidFrom?: string;
+  /** 이용 종료 시각 (한국 시간, 해당 시각부터 만료). 무형서비스 필수, 생성 후 변경 불가 */
+  serviceValidUntil?: string;
   /**
    * 판매 공고 제목
    * @minLength 0
@@ -12085,7 +12250,7 @@ export type PostApiOrdersGeneralItemsDeliveryCartTossTicketsBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress: string;
+  deliveryAddress?: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -12139,7 +12304,7 @@ export type PostApiOrdersGeneralItemsDeliveryTossTicketsBody = {
    * @minLength 0
    * @maxLength 500
    */
-  deliveryAddress: string;
+  deliveryAddress?: string;
   /**
    * 배송 메모
    * @minLength 0
@@ -12877,37 +13042,68 @@ export type PutApiUsersMeNicknameBody = {
   nickname: string;
 };
 
-export type PostApiV2AdminOrdersOrderIdGuestTokenReissueBody = {
+export type PostApiV2OrdersEntitlementsUseBody = {
+  entitlementId: number;
   /**
-   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
    * @minLength 0
    * @maxLength 200
    */
-  reason: string;
-  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
-  identityConfirmed?: boolean;
+  guestOrderToken?: string;
+  orderId: number;
 };
 
-export type PostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody = {
+export type PostApiV2OrdersEntitlementsLookupBody = {
   /**
-   * 처리 사유. 조회 코드·개인정보를 기재하지 마세요.
    * @minLength 0
    * @maxLength 200
    */
+  guestOrderToken?: string;
+  orderId: number;
+};
+
+export type PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody = {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
   reason: string;
-  /** 관리자가 주문자 본인 확인을 완료했는지 여부. 재발급 시 true 필수 */
-  identityConfirmed?: boolean;
 };
 
-export type GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams = {
-beforeId?: number;
-};
-
-export type GetApiV2AdminGuestNotificationsParams = {
+export type GetApiV2AdminServiceEntitlementsParams = {
+/**
+ * @minLength 0
+ * @maxLength 100
+ */
+keyword?: string;
+/**
+ * @pattern AVAILABLE|NOT_YET_VALID|EXPIRED|USED|CANCELED|SUSPENDED
+ */
+status?: GetApiV2AdminServiceEntitlementsStatus;
+/**
+ * @exclusiveMinimum 0
+ */
+entitlementId?: number;
+/**
+ * @exclusiveMinimum 0
+ */
 orderId?: number;
-failedOnly?: boolean;
+/**
+ * @exclusiveMinimum 0
+ */
 beforeId?: number;
 };
+
+export type GetApiV2AdminServiceEntitlementsStatus = typeof GetApiV2AdminServiceEntitlementsStatus[keyof typeof GetApiV2AdminServiceEntitlementsStatus];
+
+
+export const GetApiV2AdminServiceEntitlementsStatus = {
+  AVAILABLE: 'AVAILABLE',
+  NOT_YET_VALID: 'NOT_YET_VALID',
+  EXPIRED: 'EXPIRED',
+  USED: 'USED',
+  CANCELED: 'CANCELED',
+  SUSPENDED: 'SUSPENDED',
+} as const;
 
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
@@ -13838,6 +14034,50 @@ export const getApiV2AdminDashboardStats = async ( options?: RequestInit): Promi
 
 
 /**
+ * ID 역순 최대 50건. beforeId로 이전 내역을 조회합니다. failedOnly는 재시도 중/최종 실패/만료 건입니다.
+ * @summary 비회원 주문 안내 목록
+ */
+export type getApiV2AdminGuestNotificationsResponse200 = {
+  data: GuestNotificationResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminGuestNotificationsResponseSuccess = (getApiV2AdminGuestNotificationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminGuestNotificationsResponse = (getApiV2AdminGuestNotificationsResponseSuccess)
+
+export const getGetApiV2AdminGuestNotificationsUrl = (params?: GetApiV2AdminGuestNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/guest-notifications?${stringifiedParams}` : `/api/2.0/admin/guest-notifications`
+}
+
+export const getApiV2AdminGuestNotifications = async (params?: GetApiV2AdminGuestNotificationsParams, options?: RequestInit): Promise<getApiV2AdminGuestNotificationsResponse> => {
+  
+  return customFetch<getApiV2AdminGuestNotificationsResponse>(getGetApiV2AdminGuestNotificationsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
  * 문의에 등록된 관리자 답변을 삭제하고 남은 최신 메시지를 기준으로 문의 상태를 갱신합니다.
  * @summary 1대1 문의 답변 삭제(관리자) 2.0
  */
@@ -13912,6 +14152,130 @@ export const patchApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId:
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       patchApiV2AdminInquiriesInquiryidRepliesReplyidBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 비회원 주문 안내 처리 이력
+ */
+export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse200 = {
+  data: GuestNotificationAuditResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponseSuccess = (getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse = (getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponseSuccess)
+
+export const getGetApiV2AdminOrdersOrderIdGuestNotificationHistoryUrl = (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/orders/${orderId}/guest-notification-history?${stringifiedParams}` : `/api/2.0/admin/orders/${orderId}/guest-notification-history`
+}
+
+export const getApiV2AdminOrdersOrderIdGuestNotificationHistory = async (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse> => {
+  
+  return customFetch<getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse>(getGetApiV2AdminOrdersOrderIdGuestNotificationHistoryUrl(orderId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 비회원 주문 안내 재발송 예약
+ */
+export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse202 = {
+  data: void
+  status: 202
+}
+    
+export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponseSuccess = (postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse202) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse = (postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryUrl = (orderId: number,
+    id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/guest-notifications/${id}/retry`
+}
+
+export const postApiV2AdminOrdersOrderIdGuestNotificationsIdRetry = async (orderId: number,
+    id: number,
+    postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody: PostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse>(getPostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryUrl(orderId,id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody,)
+  }
+);}
+
+
+
+/**
+ * 기존 코드와 대기 발송을 폐기하고 주문에 저장된 연락처로만 새 코드를 안내합니다. 코드 원문은 반환하지 않습니다.
+ * @summary 본인 확인 후 비회원 조회 코드 재발급
+ */
+export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponse202 = {
+  data: void
+  status: 202
+}
+    
+export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponseSuccess = (postApiV2AdminOrdersOrderIdGuestTokenReissueResponse202) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponse = (postApiV2AdminOrdersOrderIdGuestTokenReissueResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdGuestTokenReissueUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/guest-token/reissue`
+}
+
+export const postApiV2AdminOrdersOrderIdGuestTokenReissue = async (orderId: number,
+    postApiV2AdminOrdersOrderIdGuestTokenReissueBody: PostApiV2AdminOrdersOrderIdGuestTokenReissueBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdGuestTokenReissueResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdGuestTokenReissueResponse>(getPostApiV2AdminOrdersOrderIdGuestTokenReissueUrl(orderId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdGuestTokenReissueBody,)
   }
 );}
 
@@ -28773,101 +29137,139 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
 
 
 /**
- * 기존 코드와 대기 발송을 폐기하고 주문에 저장된 연락처로만 새 코드를 안내합니다. 코드 원문은 반환하지 않습니다.
- * @summary 본인 확인 후 비회원 조회 코드 재발급
+ * 회원 소유권 또는 비회원 조회 코드를 검증하며 이용 기간 내에만 사용 완료할 수 있습니다. 되돌릴 수 없습니다.
+ * @summary 회원·비회원 본인 이용권 사용 완료
  */
-export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponse202 = {
+export type postApiV2OrdersEntitlementsUseResponse204 = {
   data: void
-  status: 202
+  status: 204
 }
     
-export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponseSuccess = (postApiV2AdminOrdersOrderIdGuestTokenReissueResponse202) & {
+export type postApiV2OrdersEntitlementsUseResponseSuccess = (postApiV2OrdersEntitlementsUseResponse204) & {
   headers: Headers;
 };
 ;
 
-export type postApiV2AdminOrdersOrderIdGuestTokenReissueResponse = (postApiV2AdminOrdersOrderIdGuestTokenReissueResponseSuccess)
+export type postApiV2OrdersEntitlementsUseResponse = (postApiV2OrdersEntitlementsUseResponseSuccess)
 
-export const getPostApiV2AdminOrdersOrderIdGuestTokenReissueUrl = (orderId: number,) => {
+export const getPostApiV2OrdersEntitlementsUseUrl = () => {
 
 
   
 
-  return `/api/2.0/admin/orders/${orderId}/guest-token/reissue`
+  return `/api/2.0/orders/entitlements/use`
 }
 
-export const postApiV2AdminOrdersOrderIdGuestTokenReissue = async (orderId: number,
-    postApiV2AdminOrdersOrderIdGuestTokenReissueBody: PostApiV2AdminOrdersOrderIdGuestTokenReissueBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdGuestTokenReissueResponse> => {
+export const postApiV2OrdersEntitlementsUse = async (postApiV2OrdersEntitlementsUseBody: PostApiV2OrdersEntitlementsUseBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsUseResponse> => {
   
-  return customFetch<postApiV2AdminOrdersOrderIdGuestTokenReissueResponse>(getPostApiV2AdminOrdersOrderIdGuestTokenReissueUrl(orderId),
+  return customFetch<postApiV2OrdersEntitlementsUseResponse>(getPostApiV2OrdersEntitlementsUseUrl(),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postApiV2AdminOrdersOrderIdGuestTokenReissueBody,)
+      postApiV2OrdersEntitlementsUseBody,)
   }
 );}
 
 
 
 /**
- * @summary 비회원 주문 안내 재발송 예약
+ * 회원 소유권 또는 비회원 조회 코드를 검증합니다. 이용권 번호만으로 사용 처리할 수 없습니다.
+ * @summary 회원·비회원 주문 이용권 조회
  */
-export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse202 = {
-  data: void
-  status: 202
+export type postApiV2OrdersEntitlementsLookupResponse200 = {
+  data: UserServiceEntitlementResponse[]
+  status: 200
 }
     
-export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponseSuccess = (postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse202) & {
+export type postApiV2OrdersEntitlementsLookupResponseSuccess = (postApiV2OrdersEntitlementsLookupResponse200) & {
   headers: Headers;
 };
 ;
 
-export type postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse = (postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponseSuccess)
+export type postApiV2OrdersEntitlementsLookupResponse = (postApiV2OrdersEntitlementsLookupResponseSuccess)
 
-export const getPostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryUrl = (orderId: number,
+export const getPostApiV2OrdersEntitlementsLookupUrl = () => {
+
+
+  
+
+  return `/api/2.0/orders/entitlements/lookup`
+}
+
+export const postApiV2OrdersEntitlementsLookup = async (postApiV2OrdersEntitlementsLookupBody: PostApiV2OrdersEntitlementsLookupBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsLookupResponse> => {
+  
+  return customFetch<postApiV2OrdersEntitlementsLookupResponse>(getPostApiV2OrdersEntitlementsLookupUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2OrdersEntitlementsLookupBody,)
+  }
+);}
+
+
+
+/**
+ * 이용 기간 전·만료 후에도 사유를 기록하고 처리합니다. 결제 완료 및 미사용 상태만 허용하며 취소 처리 중인 주문은 제외합니다.
+ * @summary 관리자 이용권 사용 처리
+ */
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204 = {
+  data: void
+  status: 204
+}
+    
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl = (orderId: number,
     id: number,) => {
 
 
   
 
-  return `/api/2.0/admin/orders/${orderId}/guest-notifications/${id}/retry`
+  return `/api/2.0/admin/orders/${orderId}/entitlements/${id}/use`
 }
 
-export const postApiV2AdminOrdersOrderIdGuestNotificationsIdRetry = async (orderId: number,
+export const postApiV2AdminOrdersOrderIdEntitlementsIdUse = async (orderId: number,
     id: number,
-    postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody: PostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse> => {
+    postApiV2AdminOrdersOrderIdEntitlementsIdUseBody: PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse> => {
   
-  return customFetch<postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryResponse>(getPostApiV2AdminOrdersOrderIdGuestNotificationsIdRetryUrl(orderId,id),
+  return customFetch<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse>(getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl(orderId,id),
   {      
     ...options,
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
-      postApiV2AdminOrdersOrderIdGuestNotificationsIdRetryBody,)
+      postApiV2AdminOrdersOrderIdEntitlementsIdUseBody,)
   }
 );}
 
 
 
 /**
- * @summary 비회원 주문 안내 처리 이력
+ * 최신 이용권부터 최대 50건을 반환합니다. nextBeforeId로 다음 목록을 조회합니다. 상태는 현재 주문·결제 상태와 이용 기간을 반영합니다.
+ * @summary 관리자 전체 이용권 검색
  */
-export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse200 = {
-  data: GuestNotificationAuditResponse[]
+export type getApiV2AdminServiceEntitlementsResponse200 = {
+  data: AdminServiceEntitlementSearchResponse
   status: 200
 }
     
-export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponseSuccess = (getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse200) & {
+export type getApiV2AdminServiceEntitlementsResponseSuccess = (getApiV2AdminServiceEntitlementsResponse200) & {
   headers: Headers;
 };
 ;
 
-export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse = (getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponseSuccess)
+export type getApiV2AdminServiceEntitlementsResponse = (getApiV2AdminServiceEntitlementsResponseSuccess)
 
-export const getGetApiV2AdminOrdersOrderIdGuestNotificationHistoryUrl = (orderId: number,
-    params?: GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams,) => {
+export const getGetApiV2AdminServiceEntitlementsUrl = (params?: GetApiV2AdminServiceEntitlementsParams,) => {
   const normalizedParams = new URLSearchParams();
 
   Object.entries(params || {}).forEach(([key, value]) => {
@@ -28879,13 +29281,12 @@ export const getGetApiV2AdminOrdersOrderIdGuestNotificationHistoryUrl = (orderId
 
   const stringifiedParams = normalizedParams.toString();
 
-  return stringifiedParams.length > 0 ? `/api/2.0/admin/orders/${orderId}/guest-notification-history?${stringifiedParams}` : `/api/2.0/admin/orders/${orderId}/guest-notification-history`
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/service-entitlements?${stringifiedParams}` : `/api/2.0/admin/service-entitlements`
 }
 
-export const getApiV2AdminOrdersOrderIdGuestNotificationHistory = async (orderId: number,
-    params?: GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse> => {
+export const getApiV2AdminServiceEntitlements = async (params?: GetApiV2AdminServiceEntitlementsParams, options?: RequestInit): Promise<getApiV2AdminServiceEntitlementsResponse> => {
   
-  return customFetch<getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse>(getGetApiV2AdminOrdersOrderIdGuestNotificationHistoryUrl(orderId,params),
+  return customFetch<getApiV2AdminServiceEntitlementsResponse>(getGetApiV2AdminServiceEntitlementsUrl(params),
   {      
     ...options,
     method: 'GET'
@@ -28897,39 +29298,31 @@ export const getApiV2AdminOrdersOrderIdGuestNotificationHistory = async (orderId
 
 
 /**
- * ID 역순 최대 50건. beforeId로 이전 내역을 조회합니다. failedOnly는 재시도 중/최종 실패/만료 건입니다.
- * @summary 비회원 주문 안내 목록
+ * @summary 관리자 주문 이용권 조회
  */
-export type getApiV2AdminGuestNotificationsResponse200 = {
-  data: GuestNotificationResponse[]
+export type getApiV2AdminOrdersOrderIdEntitlementsResponse200 = {
+  data: AdminServiceEntitlementResponse[]
   status: 200
 }
     
-export type getApiV2AdminGuestNotificationsResponseSuccess = (getApiV2AdminGuestNotificationsResponse200) & {
+export type getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess = (getApiV2AdminOrdersOrderIdEntitlementsResponse200) & {
   headers: Headers;
 };
 ;
 
-export type getApiV2AdminGuestNotificationsResponse = (getApiV2AdminGuestNotificationsResponseSuccess)
+export type getApiV2AdminOrdersOrderIdEntitlementsResponse = (getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess)
 
-export const getGetApiV2AdminGuestNotificationsUrl = (params?: GetApiV2AdminGuestNotificationsParams,) => {
-  const normalizedParams = new URLSearchParams();
+export const getGetApiV2AdminOrdersOrderIdEntitlementsUrl = (orderId: number,) => {
 
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
 
-  const stringifiedParams = normalizedParams.toString();
+  
 
-  return stringifiedParams.length > 0 ? `/api/2.0/admin/guest-notifications?${stringifiedParams}` : `/api/2.0/admin/guest-notifications`
+  return `/api/2.0/admin/orders/${orderId}/entitlements`
 }
 
-export const getApiV2AdminGuestNotifications = async (params?: GetApiV2AdminGuestNotificationsParams, options?: RequestInit): Promise<getApiV2AdminGuestNotificationsResponse> => {
+export const getApiV2AdminOrdersOrderIdEntitlements = async (orderId: number, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdEntitlementsResponse> => {
   
-  return customFetch<getApiV2AdminGuestNotificationsResponse>(getGetApiV2AdminGuestNotificationsUrl(params),
+  return customFetch<getApiV2AdminOrdersOrderIdEntitlementsResponse>(getGetApiV2AdminOrdersOrderIdEntitlementsUrl(orderId),
   {      
     ...options,
     method: 'GET'

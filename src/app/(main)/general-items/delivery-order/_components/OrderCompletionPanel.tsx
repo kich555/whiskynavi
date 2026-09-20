@@ -1,6 +1,7 @@
 "use client";
 
 import type { UserGeneralItemDeliveryOrderResponse } from "@/apis/generated/api";
+import ServiceEntitlementPanel from "@/components/orders/ServiceEntitlementPanel";
 import { Button } from "@/components/ui/button";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import Link from "next/link";
@@ -45,12 +46,28 @@ export default function OrderCompletionPanel({ result }: OrderCompletionPanelPro
 
       <dl className="space-y-3">
         <InfoRow label="주문번호" value={order?.orderNumber} />
-        <InfoRow label="주문상태" value={order?.orderStatus} />
+        <InfoRow
+          label="주문상태"
+          value={
+            order?.fulfillmentMethod === "SERVICE" && order.orderStatus === "ORDER_PREPARING"
+              ? "결제 완료"
+              : order?.orderStatus
+          }
+        />
         {payment?.paymentMethod && <InfoRow label="결제수단" value={payment.paymentMethod} />}
         {payment?.paymentStatus && <InfoRow label="결제상태" value={payment.paymentStatus} />}
         {payment?.paidAmount != null && <InfoRow label="결제금액" value={formatCurrency(payment.paidAmount)} />}
         {payment?.paidAt && <InfoRow label="결제일시" value={formatDateTime(payment.paidAt)} />}
       </dl>
+
+      {order?.fulfillmentMethod === "SERVICE" && order.id && (
+        <ServiceEntitlementPanel
+          key={`${order.id}-${order.orderStatus}`}
+          orderId={order.id}
+          orderStatus={order.orderStatus}
+          guestOrderToken={result.guestOrderToken}
+        />
+      )}
 
       {result.guestOrderToken && (
         <div className="mt-6 border border-amber-400/30 bg-amber-400/10 p-4">

@@ -24,6 +24,7 @@
 | admin | [admin/general-items.md](./admin/general-items.md) | `/admin/general-items/*`, `/admin/general-item-sales/*`, `/admin/general-item-orders/*` |
 | admin | [admin/bottle-orders.md](./admin/bottle-orders.md) | `/admin/bottle-orders/*` |
 | admin | [admin/membership.md](./admin/membership.md) | `/admin/membership/*` |
+| admin | [admin/service-entitlements.md](./admin/service-entitlements.md) | `/admin/service-entitlements` |
 | admin | [admin/orders.md](./admin/orders.md) | `/admin/orders` |
 | admin | [admin/misc.md](./admin/misc.md) | `/admin/blacklist`, `/admin/youtube`, `/admin/shipping-policy`, `/admin/manual-purchases/import` |
 | main | [main/auth.md](./main/auth.md) | `/sign-in`, `/sign-up`, `/find-password`, `/nice/callback` |

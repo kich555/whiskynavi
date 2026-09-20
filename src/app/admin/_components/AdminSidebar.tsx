@@ -18,6 +18,7 @@ import {
   MessageSquare,
   Package,
   ShoppingCart,
+  Ticket,
   Truck,
   Users,
   Youtube,
@@ -143,6 +144,7 @@ const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
         icon: ShoppingCart,
         href: "/admin/general-item-orders",
       },
+      { id: "service-entitlements", label: "이용권 관리", icon: Ticket, href: "/admin/service-entitlements" },
       {
         id: "shipping-policy",
         label: "배송비 정책",
