@@ -5949,6 +5949,8 @@ export const SaleAnnouncementUpdateRequestSaleStatus = {
 export interface SaleAnnouncementUpdateRequest {
   /** 현재 판매 가능 수량 */
   availableQuantity?: number;
+  /** 일반 품목 수량 수정 시 필수. 관리자가 조회했던 잔여 수량이며 현재 값과 다르면 수정이 거부됩니다. */
+  expectedAvailableQuantity?: number;
   /** 1회 최대 주문 가능 수량 */
   maxOrderQuantity?: number;
   /** 주문 가능 역할 코드 목록 */
@@ -5965,6 +5967,12 @@ export interface SaleAnnouncementUpdateRequest {
   saleStartAt?: string;
   /** 판매 공고 상태 */
   saleStatus?: SaleAnnouncementUpdateRequestSaleStatus;
+  /**
+   * 일반 품목 재고 변경 사유. 수량 변경 시 필수
+   * @minLength 0
+   * @maxLength 200
+   */
+  stockAdjustmentReason?: string;
   /**
    * 판매 공고 제목
    * @minLength 0
@@ -7165,6 +7173,39 @@ export interface AdminServiceEntitlementResponse {
   usedAt?: string;
   validFrom?: string;
   validUntil?: string;
+}
+
+export interface ShipmentNotificationActionRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+}
+
+export interface ShipmentNotificationResponse {
+  attemptCount?: number;
+  channel?: string;
+  createdAt?: string;
+  expiresAt?: string;
+  id?: number;
+  lastError?: string;
+  maskedRecipient?: string;
+  nextAttemptAt?: string;
+  orderId?: number;
+  retryable?: boolean;
+  sentAt?: string;
+  status?: string;
+}
+
+export interface ShipmentNotificationAuditResponse {
+  action?: string;
+  actorId?: number;
+  createdAt?: string;
+  id?: number;
+  notificationId?: number;
+  orderId?: number;
+  reason?: string;
 }
 
 export type GetApiV2AdminBannersPublishedParams = {
@@ -13104,6 +13145,24 @@ export const GetApiV2AdminServiceEntitlementsStatus = {
   CANCELED: 'CANCELED',
   SUSPENDED: 'SUSPENDED',
 } as const;
+
+export type PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+};
+
+export type GetApiV2AdminShipmentNotificationsParams = {
+orderId?: number;
+failedOnly?: boolean;
+beforeId?: number;
+};
+
+export type GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams = {
+beforeId?: number;
+};
 
 /**
  * 서비스와 DB, Valkey, SQS가 요청을 처리할 수 있는 상태인지 확인합니다.
@@ -29323,6 +29382,135 @@ export const getGetApiV2AdminOrdersOrderIdEntitlementsUrl = (orderId: number,) =
 export const getApiV2AdminOrdersOrderIdEntitlements = async (orderId: number, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdEntitlementsResponse> => {
   
   return customFetch<getApiV2AdminOrdersOrderIdEntitlementsResponse>(getGetApiV2AdminOrdersOrderIdEntitlementsUrl(orderId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 출고 알림 재발송 예약
+ */
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202 = {
+  data: void
+  status: 202
+}
+    
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl = (orderId: number,
+    id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/shipment-notifications/${id}/retry`
+}
+
+export const postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetry = async (orderId: number,
+    id: number,
+    postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody: PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse>(getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl(orderId,id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody,)
+  }
+);}
+
+
+
+/**
+ * ID 역순 최대 50건. beforeId로 이전 내역을 조회합니다. failedOnly는 재시도 중/최종 실패/만료 건입니다.
+ * @summary 출고 알림 목록
+ */
+export type getApiV2AdminShipmentNotificationsResponse200 = {
+  data: ShipmentNotificationResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminShipmentNotificationsResponseSuccess = (getApiV2AdminShipmentNotificationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminShipmentNotificationsResponse = (getApiV2AdminShipmentNotificationsResponseSuccess)
+
+export const getGetApiV2AdminShipmentNotificationsUrl = (params?: GetApiV2AdminShipmentNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/shipment-notifications?${stringifiedParams}` : `/api/2.0/admin/shipment-notifications`
+}
+
+export const getApiV2AdminShipmentNotifications = async (params?: GetApiV2AdminShipmentNotificationsParams, options?: RequestInit): Promise<getApiV2AdminShipmentNotificationsResponse> => {
+  
+  return customFetch<getApiV2AdminShipmentNotificationsResponse>(getGetApiV2AdminShipmentNotificationsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 출고 알림 처리 이력
+ */
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200 = {
+  data: ShipmentNotificationAuditResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess)
+
+export const getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl = (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/orders/${orderId}/shipment-notification-history?${stringifiedParams}` : `/api/2.0/admin/orders/${orderId}/shipment-notification-history`
+}
+
+export const getApiV2AdminOrdersOrderIdShipmentNotificationHistory = async (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse> => {
+  
+  return customFetch<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse>(getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl(orderId,params),
   {      
     ...options,
     method: 'GET'
