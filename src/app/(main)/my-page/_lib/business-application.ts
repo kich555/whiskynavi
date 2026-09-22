@@ -1,4 +1,5 @@
 import { ApiError, getUserErrorMessage } from "@/apis/errors";
+import { taxInvoiceEmailSchema } from "@/lib/tax-invoice-email";
 import { z } from "zod";
 import { BUSINESS_DOCUMENT_SIZE_ERROR } from "./business-document";
 
@@ -11,6 +12,7 @@ const isValidDateString = (value: string): boolean => {
 };
 
 export const businessApplySchema = z.object({
+  taxInvoiceEmail: taxInvoiceEmailSchema.optional().default(""),
   businessName: z.string().min(1, "사업자 이름을 입력해주세요."),
   contact: z.string().min(1, "연락처를 입력해주세요."),
   businessRegistrationNumber: z.string().min(1, "사업자 등록번호를 입력해주세요."),

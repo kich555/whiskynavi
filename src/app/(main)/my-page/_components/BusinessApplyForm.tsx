@@ -38,7 +38,13 @@ const formatOpeningDateInput = (value: string, inputType?: string): string => {
   return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
 };
 
-export default function BusinessApplyForm({ onClose }: { onClose?: () => void }) {
+export default function BusinessApplyForm({
+  onClose,
+  memberEmail = "",
+}: {
+  onClose?: () => void;
+  memberEmail?: string;
+}) {
   const router = useRouter();
   const [state, setState] = useState<BusinessApplicationActionResult>({ success: false });
   const [pending, startTransition] = useTransition();
@@ -121,6 +127,25 @@ export default function BusinessApplyForm({ onClose }: { onClose?: () => void })
           placeholder="이메일 또는 전화번호를 입력해주세요"
           className="w-full"
         />
+      </div>
+
+      <div>
+        <Label htmlFor="taxInvoiceEmail" className="typo-bold-14 mb-2 block text-gray-900">
+          세금계산서 수신 이메일 (선택)
+        </Label>
+        <Input
+          id="taxInvoiceEmail"
+          name="taxInvoiceEmail"
+          type="email"
+          maxLength={254}
+          defaultValue={memberEmail}
+          placeholder="세금계산서를 받을 이메일을 입력해주세요"
+          aria-describedby="tax-invoice-email-help"
+          className="w-full"
+        />
+        <p id="tax-invoice-email-help" className="typo-medium-12 mt-2 text-gray-500">
+          회원 이메일이 기본으로 입력됩니다. 다른 이메일로 변경하거나 비워두실 수 있습니다.
+        </p>
       </div>
 
       <div>

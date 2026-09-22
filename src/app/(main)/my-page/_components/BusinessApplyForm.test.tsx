@@ -12,6 +12,17 @@ describe("BusinessApplyForm", () => {
     vi.resetAllMocks();
   });
 
+  it("회원 이메일을 기본 입력하고 비워도 유효한 선택 항목이다", () => {
+    render(<BusinessApplyForm memberEmail="member@example.com" />);
+    const input = screen.getByLabelText("세금계산서 수신 이메일 (선택)");
+    expect(input).toHaveValue("member@example.com");
+    expect(input).not.toBeRequired();
+    fireEvent.change(input, { target: { value: "billing@example.com" } });
+    expect(input).toHaveValue("billing@example.com");
+    fireEvent.change(input, { target: { value: "" } });
+    expect(input).toBeValid();
+  });
+
   it("사업자 등록 폼에서 픽업매장 체크를 표시하지 않는다", () => {
     render(<BusinessApplyForm />);
 

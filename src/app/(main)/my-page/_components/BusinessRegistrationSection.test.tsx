@@ -1,10 +1,14 @@
 import type { UserBusinessApplicationOverviewResponse, UserBusinessApplicationResponse } from "@/apis/generated/api";
-import { render, screen } from "@testing-library/react";
+import { useIsDesktop } from "@/hooks/use-media-query";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { overlay } from "overlay-kit";
 import { describe, expect, it, vi } from "vitest";
 import BusinessRegistrationSection from "./BusinessRegistrationSection";
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: vi.fn() }) }));
+
 vi.mock("@/hooks/use-media-query", () => ({
-  useIsDesktop: () => true,
+  useIsDesktop: vi.fn(() => true),
 }));
 
 vi.mock("overlay-kit", () => ({
@@ -39,6 +43,16 @@ const overview = (
 });
 
 describe("BusinessRegistrationSection", () => {
+  it.each([true, false])("데스크톱 여부 %s에서 신청 폼에 회원 이메일을 전달한다", async (desktop) => {
+    vi.mocked(useIsDesktop).mockReturnValue(desktop);
+    vi.mocked(overlay.open).mockClear();
+    render(<BusinessRegistrationSection businessApplicationOverview={null} memberEmail="member@example.com" />);
+    fireEvent.click(screen.getByRole("button", { name: "사업자 등록하기" }));
+    const renderOverlay = vi.mocked(overlay.open).mock.calls[0][0];
+    render(await renderOverlay({ isOpen: true, close: vi.fn(), unmount: vi.fn(), overlayId: "business-apply" }));
+    expect(screen.getByLabelText("세금계산서 수신 이메일 (선택)")).toHaveValue("member@example.com");
+  });
+
   it("심사 중 신청이 있어도 새 사업자 등록 버튼을 표시한다", () => {
     render(<BusinessRegistrationSection businessApplicationOverview={overview([pendingApplication])} />);
 

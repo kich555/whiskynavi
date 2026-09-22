@@ -728,6 +728,7 @@ export interface AdminBusinessApplicationResponse {
   rejectReason?: string;
   representativeName?: string;
   status?: AdminBusinessApplicationResponseStatus;
+  taxInvoiceEmail?: string;
   taxType?: string;
   taxTypeCode?: string;
   updatedAt?: string;
@@ -793,6 +794,12 @@ export interface AdminBusinessUpdateRequest {
    * @maxLength 20
    */
   storeManagerPhone?: string;
+  /**
+   * 세금계산서 수신 이메일입니다. null이면 기존 값을 유지하고, 빈 값이면 삭제합니다.
+   * @minLength 0
+   * @maxLength 254
+   */
+  taxInvoiceEmail?: string;
 }
 
 export type AdminBusinessUserDetailResponseBusinessType = typeof AdminBusinessUserDetailResponseBusinessType[keyof typeof AdminBusinessUserDetailResponseBusinessType];
@@ -845,6 +852,7 @@ export interface AdminBusinessUserDetailResponse {
   roles?: AdminBusinessUserDetailResponseRolesItem[];
   storeManagerName?: string;
   storeManagerPhone?: string;
+  taxInvoiceEmail?: string;
   userId?: number;
   userStatus?: string;
   username?: string;
@@ -1942,6 +1950,57 @@ export interface AdminSaleAnnouncementResponse {
   totalQuantity?: number;
   /** 수정 시각 */
   updatedAt?: string;
+}
+
+export interface AdminServiceEntitlementEntryResponse {
+  customerName?: string;
+  customerPhone?: string;
+  id?: number;
+  issuedAt?: string;
+  itemName?: string;
+  orderId?: number;
+  orderNumber?: string;
+  status?: string;
+  unitNumber?: number;
+  useReason?: string;
+  usedAt?: string;
+  usedBy?: number;
+  userId?: number;
+  validFrom?: string;
+  validUntil?: string;
+}
+
+/**
+ * 이용권 상태
+ */
+export type AdminServiceEntitlementResponseStatus = typeof AdminServiceEntitlementResponseStatus[keyof typeof AdminServiceEntitlementResponseStatus];
+
+
+export const AdminServiceEntitlementResponseStatus = {
+  AVAILABLE: 'AVAILABLE',
+  USED: 'USED',
+  CANCELED: 'CANCELED',
+  EXPIRED: 'EXPIRED',
+  SUSPENDED: 'SUSPENDED',
+  NOT_YET_VALID: 'NOT_YET_VALID',
+} as const;
+
+export interface AdminServiceEntitlementResponse {
+  id?: number;
+  itemName?: string;
+  orderItemId?: number;
+  /** 이용권 상태 */
+  status?: AdminServiceEntitlementResponseStatus;
+  unitNumber?: number;
+  usedAt?: string;
+  validFrom?: string;
+  validUntil?: string;
+}
+
+export interface AdminServiceEntitlementSearchResponse {
+  hasMore?: boolean;
+  items?: AdminServiceEntitlementEntryResponse[];
+  nextBeforeId?: number;
 }
 
 /**
@@ -3559,9 +3618,6 @@ export const UserOrderTicketResponseStatus = {
   EXPIRED: 'EXPIRED',
 } as const;
 
-/**
- * 토스 결제 시작에 필요한 주문 티켓 정보
- */
 export interface UserOrderTicketResponse {
   /** 결제 요청 금액 */
   amount?: number;
@@ -5020,6 +5076,7 @@ export interface UserBusinessApplicationResponse {
   rejectReason?: string;
   representativeName?: string;
   status?: UserBusinessApplicationResponseStatus;
+  taxInvoiceEmail?: string;
   taxType?: string;
   taxTypeCode?: string;
   updatedAt?: string;
@@ -5989,6 +6046,66 @@ export interface SeriesSummary {
   title?: string;
 }
 
+export interface ServiceEntitlementCustomerUseRequest {
+  entitlementId: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  guestOrderToken?: string;
+  orderId: number;
+}
+
+export interface ServiceEntitlementLookupRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  guestOrderToken?: string;
+  orderId: number;
+}
+
+export interface ServiceEntitlementUseRequest {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+}
+
+export interface ShipmentNotificationActionRequest {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+}
+
+export interface ShipmentNotificationAuditResponse {
+  action?: string;
+  actorId?: number;
+  createdAt?: string;
+  id?: number;
+  notificationId?: number;
+  orderId?: number;
+  reason?: string;
+}
+
+export interface ShipmentNotificationResponse {
+  attemptCount?: number;
+  channel?: string;
+  createdAt?: string;
+  expiresAt?: string;
+  id?: number;
+  lastError?: string;
+  maskedRecipient?: string;
+  nextAttemptAt?: string;
+  orderId?: number;
+  retryable?: boolean;
+  sentAt?: string;
+  status?: string;
+}
+
 export interface ShippingPolicyResponse {
   baseShippingFee?: number;
   enabled?: boolean;
@@ -6808,6 +6925,7 @@ export interface UserBusinessApplicationSubmitResponse {
   pickupAddress?: string;
   representativeName?: string;
   status?: UserBusinessApplicationSubmitResponseStatus;
+  taxInvoiceEmail?: string;
   taxType?: string;
   taxTypeCode?: string;
   updatedAt?: string;
@@ -7050,46 +7168,6 @@ export interface UserReservationBusinessDeliveryResponse {
 }
 
 /**
- * 사용자명 중복 여부 응답
- */
-export interface UsernameAvailabilityResponse {
-  /** true이면 가입 가능한 사용자명입니다. */
-  available?: boolean;
-}
-
-/**
- * 사용자명 중복 확인 요청
- */
-export interface UsernameRequest {
-  /**
-   * 중복 확인할 사용자명
-   * @minLength 2
-   * @maxLength 16
-   * @pattern ^[가-힣A-Za-z0-9]{2,16}$
-   */
-  username: string;
-}
-
-export interface ServiceEntitlementCustomerUseRequest {
-  entitlementId: number;
-  /**
-   * @minLength 0
-   * @maxLength 200
-   */
-  guestOrderToken?: string;
-  orderId: number;
-}
-
-export interface ServiceEntitlementLookupRequest {
-  /**
-   * @minLength 0
-   * @maxLength 200
-   */
-  guestOrderToken?: string;
-  orderId: number;
-}
-
-/**
  * 이용권 상태
  */
 export type UserServiceEntitlementResponseStatus = typeof UserServiceEntitlementResponseStatus[keyof typeof UserServiceEntitlementResponseStatus];
@@ -7116,96 +7194,25 @@ export interface UserServiceEntitlementResponse {
   validUntil?: string;
 }
 
-export interface ServiceEntitlementUseRequest {
-  /**
-   * @minLength 0
-   * @maxLength 500
-   */
-  reason: string;
-}
-
-export interface AdminServiceEntitlementEntryResponse {
-  customerName?: string;
-  customerPhone?: string;
-  id?: number;
-  issuedAt?: string;
-  itemName?: string;
-  orderId?: number;
-  orderNumber?: string;
-  status?: string;
-  unitNumber?: number;
-  useReason?: string;
-  usedAt?: string;
-  usedBy?: number;
-  userId?: number;
-  validFrom?: string;
-  validUntil?: string;
-}
-
-export interface AdminServiceEntitlementSearchResponse {
-  hasMore?: boolean;
-  items?: AdminServiceEntitlementEntryResponse[];
-  nextBeforeId?: number;
+/**
+ * 사용자명 중복 여부 응답
+ */
+export interface UsernameAvailabilityResponse {
+  /** true이면 가입 가능한 사용자명입니다. */
+  available?: boolean;
 }
 
 /**
- * 이용권 상태
+ * 사용자명 중복 확인 요청
  */
-export type AdminServiceEntitlementResponseStatus = typeof AdminServiceEntitlementResponseStatus[keyof typeof AdminServiceEntitlementResponseStatus];
-
-
-export const AdminServiceEntitlementResponseStatus = {
-  AVAILABLE: 'AVAILABLE',
-  USED: 'USED',
-  CANCELED: 'CANCELED',
-  EXPIRED: 'EXPIRED',
-  SUSPENDED: 'SUSPENDED',
-  NOT_YET_VALID: 'NOT_YET_VALID',
-} as const;
-
-export interface AdminServiceEntitlementResponse {
-  id?: number;
-  itemName?: string;
-  orderItemId?: number;
-  /** 이용권 상태 */
-  status?: AdminServiceEntitlementResponseStatus;
-  unitNumber?: number;
-  usedAt?: string;
-  validFrom?: string;
-  validUntil?: string;
-}
-
-export interface ShipmentNotificationActionRequest {
+export interface UsernameRequest {
   /**
-   * @minLength 0
-   * @maxLength 200
+   * 중복 확인할 사용자명
+   * @minLength 2
+   * @maxLength 16
+   * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
-  reason: string;
-}
-
-export interface ShipmentNotificationResponse {
-  attemptCount?: number;
-  channel?: string;
-  createdAt?: string;
-  expiresAt?: string;
-  id?: number;
-  lastError?: string;
-  maskedRecipient?: string;
-  nextAttemptAt?: string;
-  orderId?: number;
-  retryable?: boolean;
-  sentAt?: string;
-  status?: string;
-}
-
-export interface ShipmentNotificationAuditResponse {
-  action?: string;
-  actorId?: number;
-  createdAt?: string;
-  id?: number;
-  notificationId?: number;
-  orderId?: number;
-  reason?: string;
+  username: string;
 }
 
 export type GetApiV2AdminBannersPublishedParams = {
@@ -7683,6 +7690,14 @@ export type PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody = {
   hasImage?: boolean;
 };
 
+export type PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody = {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+};
+
 export type GetApiV2AdminOrdersOrderIdGuestNotificationHistoryParams = {
 beforeId?: number;
 };
@@ -7707,6 +7722,60 @@ export type PostApiV2AdminOrdersOrderIdGuestTokenReissueBody = {
    * @maxLength 200
    */
   reason: string;
+};
+
+export type GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams = {
+beforeId?: number;
+};
+
+export type PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  reason: string;
+};
+
+export type GetApiV2AdminServiceEntitlementsParams = {
+/**
+ * @minLength 0
+ * @maxLength 100
+ */
+keyword?: string;
+/**
+ * @pattern AVAILABLE|NOT_YET_VALID|EXPIRED|USED|CANCELED|SUSPENDED
+ */
+status?: GetApiV2AdminServiceEntitlementsStatus;
+/**
+ * @exclusiveMinimum 0
+ */
+entitlementId?: number;
+/**
+ * @exclusiveMinimum 0
+ */
+orderId?: number;
+/**
+ * @exclusiveMinimum 0
+ */
+beforeId?: number;
+};
+
+export type GetApiV2AdminServiceEntitlementsStatus = typeof GetApiV2AdminServiceEntitlementsStatus[keyof typeof GetApiV2AdminServiceEntitlementsStatus];
+
+
+export const GetApiV2AdminServiceEntitlementsStatus = {
+  AVAILABLE: 'AVAILABLE',
+  NOT_YET_VALID: 'NOT_YET_VALID',
+  EXPIRED: 'EXPIRED',
+  USED: 'USED',
+  CANCELED: 'CANCELED',
+  SUSPENDED: 'SUSPENDED',
+} as const;
+
+export type GetApiV2AdminShipmentNotificationsParams = {
+orderId?: number;
+failedOnly?: boolean;
+beforeId?: number;
 };
 
 export type Create2Body = {
@@ -8563,6 +8632,25 @@ export const GetApiV2OrdersSort = {
   CREATED_AT: 'CREATED_AT',
   BOTTLED_DATE: 'BOTTLED_DATE',
 } as const;
+
+export type PostApiV2OrdersEntitlementsLookupBody = {
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  guestOrderToken?: string;
+  orderId: number;
+};
+
+export type PostApiV2OrdersEntitlementsUseBody = {
+  entitlementId: number;
+  /**
+   * @minLength 0
+   * @maxLength 200
+   */
+  guestOrderToken?: string;
+  orderId: number;
+};
 
 export type GetApiV2TalesComicsParams = {
 page?: number;
@@ -9733,6 +9821,12 @@ export type PatchApiAdminBusinessesBusinessesBusinessidBody = {
    * @maxLength 20
    */
   storeManagerPhone?: string;
+  /**
+   * 세금계산서 수신 이메일입니다. null이면 기존 값을 유지하고, 빈 값이면 삭제합니다.
+   * @minLength 0
+   * @maxLength 254
+   */
+  taxInvoiceEmail?: string;
 };
 
 export type GetApiAdminBusinessesMembersParams = {
@@ -9855,6 +9949,12 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
    * @maxLength 20
    */
   storeManagerPhone?: string;
+  /**
+   * 세금계산서 수신 이메일입니다. null이면 기존 값을 유지하고, 빈 값이면 삭제합니다.
+   * @minLength 0
+   * @maxLength 254
+   */
+  taxInvoiceEmail?: string;
 };
 
 export type PostApiAdminDevBizmTestMessagesBodyMessageType = typeof PostApiAdminDevBizmTestMessagesBodyMessageType[keyof typeof PostApiAdminDevBizmTestMessagesBodyMessageType];
@@ -11106,6 +11206,8 @@ export const PatchApiAdminSalesSaleidBodySaleStatus = {
 export type PatchApiAdminSalesSaleidBody = {
   /** 현재 판매 가능 수량 */
   availableQuantity?: number;
+  /** 일반 품목 수량 수정 시 필수. 관리자가 조회했던 잔여 수량이며 현재 값과 다르면 수정이 거부됩니다. */
+  expectedAvailableQuantity?: number;
   /** 1회 최대 주문 가능 수량 */
   maxOrderQuantity?: number;
   /** 주문 가능 역할 코드 목록 */
@@ -11122,6 +11224,12 @@ export type PatchApiAdminSalesSaleidBody = {
   saleStartAt?: string;
   /** 판매 공고 상태 */
   saleStatus?: PatchApiAdminSalesSaleidBodySaleStatus;
+  /**
+   * 일반 품목 재고 변경 사유. 수량 변경 시 필수
+   * @minLength 0
+   * @maxLength 200
+   */
+  stockAdjustmentReason?: string;
   /**
    * 판매 공고 제목
    * @minLength 0
@@ -12628,6 +12736,12 @@ export type PostApiUsersBusinessesApplicationsParams = {
 businessName: string;
 pickupAddress: string;
 contact: string;
+/**
+ * 세금계산서 수신 이메일 (선택). 빈 값 또는 미입력 시 저장하지 않습니다.
+ * @minLength 0
+ * @maxLength 254
+ */
+taxInvoiceEmail?: string;
 businessRegistrationNumber: string;
 businessType?: PostApiUsersBusinessesApplicationsBusinessType;
 openingDate: string;
@@ -13081,87 +13195,6 @@ export type PutApiUsersMeNicknameBody = {
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
   nickname: string;
-};
-
-export type PostApiV2OrdersEntitlementsUseBody = {
-  entitlementId: number;
-  /**
-   * @minLength 0
-   * @maxLength 200
-   */
-  guestOrderToken?: string;
-  orderId: number;
-};
-
-export type PostApiV2OrdersEntitlementsLookupBody = {
-  /**
-   * @minLength 0
-   * @maxLength 200
-   */
-  guestOrderToken?: string;
-  orderId: number;
-};
-
-export type PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody = {
-  /**
-   * @minLength 0
-   * @maxLength 500
-   */
-  reason: string;
-};
-
-export type GetApiV2AdminServiceEntitlementsParams = {
-/**
- * @minLength 0
- * @maxLength 100
- */
-keyword?: string;
-/**
- * @pattern AVAILABLE|NOT_YET_VALID|EXPIRED|USED|CANCELED|SUSPENDED
- */
-status?: GetApiV2AdminServiceEntitlementsStatus;
-/**
- * @exclusiveMinimum 0
- */
-entitlementId?: number;
-/**
- * @exclusiveMinimum 0
- */
-orderId?: number;
-/**
- * @exclusiveMinimum 0
- */
-beforeId?: number;
-};
-
-export type GetApiV2AdminServiceEntitlementsStatus = typeof GetApiV2AdminServiceEntitlementsStatus[keyof typeof GetApiV2AdminServiceEntitlementsStatus];
-
-
-export const GetApiV2AdminServiceEntitlementsStatus = {
-  AVAILABLE: 'AVAILABLE',
-  NOT_YET_VALID: 'NOT_YET_VALID',
-  EXPIRED: 'EXPIRED',
-  USED: 'USED',
-  CANCELED: 'CANCELED',
-  SUSPENDED: 'SUSPENDED',
-} as const;
-
-export type PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody = {
-  /**
-   * @minLength 0
-   * @maxLength 200
-   */
-  reason: string;
-};
-
-export type GetApiV2AdminShipmentNotificationsParams = {
-orderId?: number;
-failedOnly?: boolean;
-beforeId?: number;
-};
-
-export type GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams = {
-beforeId?: number;
 };
 
 /**
@@ -14217,6 +14250,83 @@ export const patchApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId:
 
 
 /**
+ * @summary 관리자 주문 이용권 조회
+ */
+export type getApiV2AdminOrdersOrderIdEntitlementsResponse200 = {
+  data: AdminServiceEntitlementResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess = (getApiV2AdminOrdersOrderIdEntitlementsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminOrdersOrderIdEntitlementsResponse = (getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess)
+
+export const getGetApiV2AdminOrdersOrderIdEntitlementsUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/entitlements`
+}
+
+export const getApiV2AdminOrdersOrderIdEntitlements = async (orderId: number, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdEntitlementsResponse> => {
+  
+  return customFetch<getApiV2AdminOrdersOrderIdEntitlementsResponse>(getGetApiV2AdminOrdersOrderIdEntitlementsUrl(orderId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * 이용 기간 전·만료 후에도 사유를 기록하고 처리합니다. 결제 완료 및 미사용 상태만 허용하며 취소 처리 중인 주문은 제외합니다.
+ * @summary 관리자 이용권 사용 처리
+ */
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204 = {
+  data: void
+  status: 204
+}
+    
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl = (orderId: number,
+    id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/entitlements/${id}/use`
+}
+
+export const postApiV2AdminOrdersOrderIdEntitlementsIdUse = async (orderId: number,
+    id: number,
+    postApiV2AdminOrdersOrderIdEntitlementsIdUseBody: PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse>(getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl(orderId,id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdEntitlementsIdUseBody,)
+  }
+);}
+
+
+
+/**
  * @summary 비회원 주문 안내 처리 이력
  */
 export type getApiV2AdminOrdersOrderIdGuestNotificationHistoryResponse200 = {
@@ -14335,6 +14445,179 @@ export const postApiV2AdminOrdersOrderIdGuestTokenReissue = async (orderId: numb
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiV2AdminOrdersOrderIdGuestTokenReissueBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 출고 알림 처리 이력
+ */
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200 = {
+  data: ShipmentNotificationAuditResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess)
+
+export const getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl = (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/orders/${orderId}/shipment-notification-history?${stringifiedParams}` : `/api/2.0/admin/orders/${orderId}/shipment-notification-history`
+}
+
+export const getApiV2AdminOrdersOrderIdShipmentNotificationHistory = async (orderId: number,
+    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse> => {
+  
+  return customFetch<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse>(getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl(orderId,params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 출고 알림 재발송 예약
+ */
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202 = {
+  data: void
+  status: 202
+}
+    
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl = (orderId: number,
+    id: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/shipment-notifications/${id}/retry`
+}
+
+export const postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetry = async (orderId: number,
+    id: number,
+    postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody: PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse>(getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl(orderId,id),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody,)
+  }
+);}
+
+
+
+/**
+ * 최신 이용권부터 최대 50건을 반환합니다. nextBeforeId로 다음 목록을 조회합니다. 상태는 현재 주문·결제 상태와 이용 기간을 반영합니다.
+ * @summary 관리자 전체 이용권 검색
+ */
+export type getApiV2AdminServiceEntitlementsResponse200 = {
+  data: AdminServiceEntitlementSearchResponse
+  status: 200
+}
+    
+export type getApiV2AdminServiceEntitlementsResponseSuccess = (getApiV2AdminServiceEntitlementsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminServiceEntitlementsResponse = (getApiV2AdminServiceEntitlementsResponseSuccess)
+
+export const getGetApiV2AdminServiceEntitlementsUrl = (params?: GetApiV2AdminServiceEntitlementsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/service-entitlements?${stringifiedParams}` : `/api/2.0/admin/service-entitlements`
+}
+
+export const getApiV2AdminServiceEntitlements = async (params?: GetApiV2AdminServiceEntitlementsParams, options?: RequestInit): Promise<getApiV2AdminServiceEntitlementsResponse> => {
+  
+  return customFetch<getApiV2AdminServiceEntitlementsResponse>(getGetApiV2AdminServiceEntitlementsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * ID 역순 최대 50건. beforeId로 이전 내역을 조회합니다. failedOnly는 재시도 중/최종 실패/만료 건입니다.
+ * @summary 출고 알림 목록
+ */
+export type getApiV2AdminShipmentNotificationsResponse200 = {
+  data: ShipmentNotificationResponse[]
+  status: 200
+}
+    
+export type getApiV2AdminShipmentNotificationsResponseSuccess = (getApiV2AdminShipmentNotificationsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminShipmentNotificationsResponse = (getApiV2AdminShipmentNotificationsResponseSuccess)
+
+export const getGetApiV2AdminShipmentNotificationsUrl = (params?: GetApiV2AdminShipmentNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/2.0/admin/shipment-notifications?${stringifiedParams}` : `/api/2.0/admin/shipment-notifications`
+}
+
+export const getApiV2AdminShipmentNotifications = async (params?: GetApiV2AdminShipmentNotificationsParams, options?: RequestInit): Promise<getApiV2AdminShipmentNotificationsResponse> => {
+  
+  return customFetch<getApiV2AdminShipmentNotificationsResponse>(getGetApiV2AdminShipmentNotificationsUrl(params),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
   }
 );}
 
@@ -16279,6 +16562,82 @@ export const getApiV2Orders = async (params?: GetApiV2OrdersParams, options?: Re
     method: 'GET'
     
     
+  }
+);}
+
+
+
+/**
+ * 회원 소유권 또는 비회원 조회 코드를 검증합니다. 이용권 번호만으로 사용 처리할 수 없습니다.
+ * @summary 회원·비회원 주문 이용권 조회
+ */
+export type postApiV2OrdersEntitlementsLookupResponse200 = {
+  data: UserServiceEntitlementResponse[]
+  status: 200
+}
+    
+export type postApiV2OrdersEntitlementsLookupResponseSuccess = (postApiV2OrdersEntitlementsLookupResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2OrdersEntitlementsLookupResponse = (postApiV2OrdersEntitlementsLookupResponseSuccess)
+
+export const getPostApiV2OrdersEntitlementsLookupUrl = () => {
+
+
+  
+
+  return `/api/2.0/orders/entitlements/lookup`
+}
+
+export const postApiV2OrdersEntitlementsLookup = async (postApiV2OrdersEntitlementsLookupBody: PostApiV2OrdersEntitlementsLookupBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsLookupResponse> => {
+  
+  return customFetch<postApiV2OrdersEntitlementsLookupResponse>(getPostApiV2OrdersEntitlementsLookupUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2OrdersEntitlementsLookupBody,)
+  }
+);}
+
+
+
+/**
+ * 회원 소유권 또는 비회원 조회 코드를 검증하며 이용 기간 내에만 사용 완료할 수 있습니다. 되돌릴 수 없습니다.
+ * @summary 회원·비회원 본인 이용권 사용 완료
+ */
+export type postApiV2OrdersEntitlementsUseResponse204 = {
+  data: void
+  status: 204
+}
+    
+export type postApiV2OrdersEntitlementsUseResponseSuccess = (postApiV2OrdersEntitlementsUseResponse204) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2OrdersEntitlementsUseResponse = (postApiV2OrdersEntitlementsUseResponseSuccess)
+
+export const getPostApiV2OrdersEntitlementsUseUrl = () => {
+
+
+  
+
+  return `/api/2.0/orders/entitlements/use`
+}
+
+export const postApiV2OrdersEntitlementsUse = async (postApiV2OrdersEntitlementsUseBody: PostApiV2OrdersEntitlementsUseBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsUseResponse> => {
+  
+  return customFetch<postApiV2OrdersEntitlementsUseResponse>(getPostApiV2OrdersEntitlementsUseUrl(),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2OrdersEntitlementsUseBody,)
   }
 );}
 
@@ -29188,332 +29547,6 @@ export const deleteApiUsersMeSocialLinksProvider = async (provider: string, opti
   {      
     ...options,
     method: 'DELETE'
-    
-    
-  }
-);}
-
-
-
-/**
- * 회원 소유권 또는 비회원 조회 코드를 검증하며 이용 기간 내에만 사용 완료할 수 있습니다. 되돌릴 수 없습니다.
- * @summary 회원·비회원 본인 이용권 사용 완료
- */
-export type postApiV2OrdersEntitlementsUseResponse204 = {
-  data: void
-  status: 204
-}
-    
-export type postApiV2OrdersEntitlementsUseResponseSuccess = (postApiV2OrdersEntitlementsUseResponse204) & {
-  headers: Headers;
-};
-;
-
-export type postApiV2OrdersEntitlementsUseResponse = (postApiV2OrdersEntitlementsUseResponseSuccess)
-
-export const getPostApiV2OrdersEntitlementsUseUrl = () => {
-
-
-  
-
-  return `/api/2.0/orders/entitlements/use`
-}
-
-export const postApiV2OrdersEntitlementsUse = async (postApiV2OrdersEntitlementsUseBody: PostApiV2OrdersEntitlementsUseBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsUseResponse> => {
-  
-  return customFetch<postApiV2OrdersEntitlementsUseResponse>(getPostApiV2OrdersEntitlementsUseUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiV2OrdersEntitlementsUseBody,)
-  }
-);}
-
-
-
-/**
- * 회원 소유권 또는 비회원 조회 코드를 검증합니다. 이용권 번호만으로 사용 처리할 수 없습니다.
- * @summary 회원·비회원 주문 이용권 조회
- */
-export type postApiV2OrdersEntitlementsLookupResponse200 = {
-  data: UserServiceEntitlementResponse[]
-  status: 200
-}
-    
-export type postApiV2OrdersEntitlementsLookupResponseSuccess = (postApiV2OrdersEntitlementsLookupResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiV2OrdersEntitlementsLookupResponse = (postApiV2OrdersEntitlementsLookupResponseSuccess)
-
-export const getPostApiV2OrdersEntitlementsLookupUrl = () => {
-
-
-  
-
-  return `/api/2.0/orders/entitlements/lookup`
-}
-
-export const postApiV2OrdersEntitlementsLookup = async (postApiV2OrdersEntitlementsLookupBody: PostApiV2OrdersEntitlementsLookupBody, options?: RequestInit): Promise<postApiV2OrdersEntitlementsLookupResponse> => {
-  
-  return customFetch<postApiV2OrdersEntitlementsLookupResponse>(getPostApiV2OrdersEntitlementsLookupUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiV2OrdersEntitlementsLookupBody,)
-  }
-);}
-
-
-
-/**
- * 이용 기간 전·만료 후에도 사유를 기록하고 처리합니다. 결제 완료 및 미사용 상태만 허용하며 취소 처리 중인 주문은 제외합니다.
- * @summary 관리자 이용권 사용 처리
- */
-export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204 = {
-  data: void
-  status: 204
-}
-    
-export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse204) & {
-  headers: Headers;
-};
-;
-
-export type postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse = (postApiV2AdminOrdersOrderIdEntitlementsIdUseResponseSuccess)
-
-export const getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl = (orderId: number,
-    id: number,) => {
-
-
-  
-
-  return `/api/2.0/admin/orders/${orderId}/entitlements/${id}/use`
-}
-
-export const postApiV2AdminOrdersOrderIdEntitlementsIdUse = async (orderId: number,
-    id: number,
-    postApiV2AdminOrdersOrderIdEntitlementsIdUseBody: PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse> => {
-  
-  return customFetch<postApiV2AdminOrdersOrderIdEntitlementsIdUseResponse>(getPostApiV2AdminOrdersOrderIdEntitlementsIdUseUrl(orderId,id),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiV2AdminOrdersOrderIdEntitlementsIdUseBody,)
-  }
-);}
-
-
-
-/**
- * 최신 이용권부터 최대 50건을 반환합니다. nextBeforeId로 다음 목록을 조회합니다. 상태는 현재 주문·결제 상태와 이용 기간을 반영합니다.
- * @summary 관리자 전체 이용권 검색
- */
-export type getApiV2AdminServiceEntitlementsResponse200 = {
-  data: AdminServiceEntitlementSearchResponse
-  status: 200
-}
-    
-export type getApiV2AdminServiceEntitlementsResponseSuccess = (getApiV2AdminServiceEntitlementsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminServiceEntitlementsResponse = (getApiV2AdminServiceEntitlementsResponseSuccess)
-
-export const getGetApiV2AdminServiceEntitlementsUrl = (params?: GetApiV2AdminServiceEntitlementsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/2.0/admin/service-entitlements?${stringifiedParams}` : `/api/2.0/admin/service-entitlements`
-}
-
-export const getApiV2AdminServiceEntitlements = async (params?: GetApiV2AdminServiceEntitlementsParams, options?: RequestInit): Promise<getApiV2AdminServiceEntitlementsResponse> => {
-  
-  return customFetch<getApiV2AdminServiceEntitlementsResponse>(getGetApiV2AdminServiceEntitlementsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 관리자 주문 이용권 조회
- */
-export type getApiV2AdminOrdersOrderIdEntitlementsResponse200 = {
-  data: AdminServiceEntitlementResponse[]
-  status: 200
-}
-    
-export type getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess = (getApiV2AdminOrdersOrderIdEntitlementsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminOrdersOrderIdEntitlementsResponse = (getApiV2AdminOrdersOrderIdEntitlementsResponseSuccess)
-
-export const getGetApiV2AdminOrdersOrderIdEntitlementsUrl = (orderId: number,) => {
-
-
-  
-
-  return `/api/2.0/admin/orders/${orderId}/entitlements`
-}
-
-export const getApiV2AdminOrdersOrderIdEntitlements = async (orderId: number, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdEntitlementsResponse> => {
-  
-  return customFetch<getApiV2AdminOrdersOrderIdEntitlementsResponse>(getGetApiV2AdminOrdersOrderIdEntitlementsUrl(orderId),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 출고 알림 재발송 예약
- */
-export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202 = {
-  data: void
-  status: 202
-}
-    
-export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse202) & {
-  headers: Headers;
-};
-;
-
-export type postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse = (postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponseSuccess)
-
-export const getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl = (orderId: number,
-    id: number,) => {
-
-
-  
-
-  return `/api/2.0/admin/orders/${orderId}/shipment-notifications/${id}/retry`
-}
-
-export const postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetry = async (orderId: number,
-    id: number,
-    postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody: PostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse> => {
-  
-  return customFetch<postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryResponse>(getPostApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryUrl(orderId,id),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiV2AdminOrdersOrderIdShipmentNotificationsIdRetryBody,)
-  }
-);}
-
-
-
-/**
- * ID 역순 최대 50건. beforeId로 이전 내역을 조회합니다. failedOnly는 재시도 중/최종 실패/만료 건입니다.
- * @summary 출고 알림 목록
- */
-export type getApiV2AdminShipmentNotificationsResponse200 = {
-  data: ShipmentNotificationResponse[]
-  status: 200
-}
-    
-export type getApiV2AdminShipmentNotificationsResponseSuccess = (getApiV2AdminShipmentNotificationsResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminShipmentNotificationsResponse = (getApiV2AdminShipmentNotificationsResponseSuccess)
-
-export const getGetApiV2AdminShipmentNotificationsUrl = (params?: GetApiV2AdminShipmentNotificationsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/2.0/admin/shipment-notifications?${stringifiedParams}` : `/api/2.0/admin/shipment-notifications`
-}
-
-export const getApiV2AdminShipmentNotifications = async (params?: GetApiV2AdminShipmentNotificationsParams, options?: RequestInit): Promise<getApiV2AdminShipmentNotificationsResponse> => {
-  
-  return customFetch<getApiV2AdminShipmentNotificationsResponse>(getGetApiV2AdminShipmentNotificationsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-);}
-
-
-
-/**
- * @summary 출고 알림 처리 이력
- */
-export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200 = {
-  data: ShipmentNotificationAuditResponse[]
-  status: 200
-}
-    
-export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse200) & {
-  headers: Headers;
-};
-;
-
-export type getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse = (getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponseSuccess)
-
-export const getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl = (orderId: number,
-    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
-    }
-  });
-
-  const stringifiedParams = normalizedParams.toString();
-
-  return stringifiedParams.length > 0 ? `/api/2.0/admin/orders/${orderId}/shipment-notification-history?${stringifiedParams}` : `/api/2.0/admin/orders/${orderId}/shipment-notification-history`
-}
-
-export const getApiV2AdminOrdersOrderIdShipmentNotificationHistory = async (orderId: number,
-    params?: GetApiV2AdminOrdersOrderIdShipmentNotificationHistoryParams, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse> => {
-  
-  return customFetch<getApiV2AdminOrdersOrderIdShipmentNotificationHistoryResponse>(getGetApiV2AdminOrdersOrderIdShipmentNotificationHistoryUrl(orderId,params),
-  {      
-    ...options,
-    method: 'GET'
     
     
   }
