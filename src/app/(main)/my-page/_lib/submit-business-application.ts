@@ -20,6 +20,7 @@ export async function submitBusinessApplication(formData: FormData): Promise<Bus
     const parsed = businessApplySchema.safeParse({
       businessName: formData.get("businessName"),
       contact: formData.get("contact"),
+      taxInvoiceEmail: formData.get("taxInvoiceEmail") ?? "",
       businessRegistrationNumber: formData.get("businessRegistrationNumber"),
       businessType: formData.get("businessType"),
       pickupAddress: formData.get("pickupAddress"),
@@ -42,6 +43,7 @@ export async function submitBusinessApplication(formData: FormData): Promise<Bus
       {
         businessName: parsed.data.businessName,
         contact: parsed.data.contact,
+        taxInvoiceEmail: parsed.data.taxInvoiceEmail,
         businessRegistrationNumber: parsed.data.businessRegistrationNumber,
         businessType: parsed.data.businessType,
         pickupAddress: parsed.data.pickupAddress || "",

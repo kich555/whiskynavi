@@ -1,8 +1,8 @@
 "use client";
 
 import type { AdminBusinessApplicationAuditLogResponse, AdminBusinessApplicationResponse } from "@/apis/generated/api";
-import { formatDate } from "@/lib/formatters";
 import { Badge } from "@/components/ui/badge";
+import { formatDate } from "@/lib/formatters";
 import { ArrowLeft, CheckCircle, XCircle } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { overlay } from "overlay-kit";
@@ -35,7 +35,6 @@ const formatBusinessType = (application: AdminBusinessApplicationResponse & { bu
   if (!businessType) return "-";
   return BUSINESS_TYPE_LABEL[businessType] ?? businessType;
 };
-
 
 interface BusinessApplicationDetailContentProps {
   application: AdminBusinessApplicationResponse;
@@ -165,6 +164,10 @@ export default function BusinessApplicationDetailContent({
                 <p className="typo-medium-14 text-gray-900">{application.contact ?? "-"}</p>
               </div>
               <div>
+                <p className="typo-medium-12 text-gray-500">세금계산서 수신 이메일</p>
+                <p className="typo-medium-14 break-all text-gray-900">{application.taxInvoiceEmail ?? "-"}</p>
+              </div>
+              <div>
                 <p className="typo-medium-12 text-gray-500">개업일</p>
                 <p className="typo-medium-14 text-gray-900">{application.openingDate ?? "-"}</p>
               </div>
@@ -213,8 +216,10 @@ export default function BusinessApplicationDetailContent({
                       </div>
                       <span className="typo-medium-12 text-gray-400">{formatDate(log.createdAt)}</span>
                     </div>
-                    {log.actorUsername && <p className="mt-1 typo-medium-12 text-gray-500">처리자: {log.actorUsername}</p>}
-                    {log.memo && <p className="mt-1 typo-medium-12 text-gray-500">메모: {log.memo}</p>}
+                    {log.actorUsername && (
+                      <p className="typo-medium-12 mt-1 text-gray-500">처리자: {log.actorUsername}</p>
+                    )}
+                    {log.memo && <p className="typo-medium-12 mt-1 text-gray-500">메모: {log.memo}</p>}
                   </div>
                 ))}
               </div>

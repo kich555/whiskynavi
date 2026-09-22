@@ -1,7 +1,14 @@
 import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { updateBusinessAction } from "../actions";
 import BusinessMemberDetailContent from "./BusinessMemberDetailContent";
+
+vi.mock("../actions", () => ({
+  updateBusinessAction: vi.fn(),
+  grantBusinessRoleAction: vi.fn(),
+  revokeBusinessRoleAction: vi.fn(),
+}));
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
@@ -39,6 +46,32 @@ afterEach(() => {
 });
 
 describe("BusinessMemberDetailContent", () => {
+  it.each(["billing@example.com", ""])("관리자가 세금계산서 이메일을 변경하거나 비울 수 있다: %s", async (email) => {
+    vi.mocked(updateBusinessAction).mockReset().mockResolvedValue({ success: true });
+    const user = userEvent.setup();
+    render(<BusinessMemberDetailContent member={{ ...mockMember, taxInvoiceEmail: "old@example.com" }} />);
+    expect(screen.getByText("old@example.com")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "수정" }));
+    const input = screen.getByLabelText("세금계산서 수신 이메일 (선택)");
+    await user.clear(input);
+    if (email) await user.type(input, email);
+    await user.click(screen.getByRole("button", { name: "저장" }));
+    expect(updateBusinessAction).toHaveBeenCalledWith(100, expect.objectContaining({ taxInvoiceEmail: email }));
+    expect(screen.getByText("사업자 정보가 수정되었습니다.")).toBeInTheDocument();
+  });
+
+  it("잘못된 이메일은 저장하지 않고 입력을 유지한다", async () => {
+    vi.mocked(updateBusinessAction).mockReset();
+    const user = userEvent.setup();
+    render(<BusinessMemberDetailContent member={mockMember} />);
+    await user.click(screen.getByRole("button", { name: "수정" }));
+    await user.type(screen.getByLabelText("세금계산서 수신 이메일 (선택)"), "invalid");
+    await user.click(screen.getByRole("button", { name: "저장" }));
+    expect(updateBusinessAction).not.toHaveBeenCalled();
+    expect(screen.getByText("올바른 세금계산서 수신 이메일을 입력해주세요.")).toBeInTheDocument();
+    expect(screen.getByLabelText("세금계산서 수신 이메일 (선택)")).toHaveValue("invalid");
+  });
+
   it("renders page title", () => {
     render(<BusinessMemberDetailContent member={mockMember} />);
     expect(screen.getByText("업장 상세")).toBeInTheDocument();

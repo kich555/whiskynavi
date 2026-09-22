@@ -86,7 +86,10 @@ export default function MyPageClient({
         </div>
 
         {/* 사업자 등록 섹션 */}
-        <BusinessRegistrationSection businessApplicationOverview={businessApplicationOverview} />
+        <BusinessRegistrationSection
+          businessApplicationOverview={businessApplicationOverview}
+          memberEmail={user.email}
+        />
         {/* FAQ Section */}
         <FaqSection />
       </div>

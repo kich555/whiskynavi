@@ -26,6 +26,36 @@ describe("submitBusinessApplication", () => {
     vi.resetAllMocks();
     vi.mocked(getSession).mockResolvedValue({ user: { id: "test-user" }, accessToken: "token", expires: "2099-01-01" });
   });
+  it.each(["", "billing@example.com"])("선택 이메일 %s를 신청 API에 전달한다", async (email) => {
+    const form = createBusinessApplicationFormData();
+    form.set("taxInvoiceEmail", email);
+    await expect(submitBusinessApplication(form)).resolves.toEqual({ success: true });
+    expect(mockedSubmitBusinessApplication).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ taxInvoiceEmail: email }),
+      expect.anything(),
+    );
+  });
+
+  it.each(["wrong-email", "a".repeat(250) + "@example.com"])(
+    "잘못된 이메일은 API 호출 전에 거부한다",
+    async (email) => {
+      const form = createBusinessApplicationFormData();
+      form.set("taxInvoiceEmail", email);
+      expect((await submitBusinessApplication(form)).success).toBe(false);
+      expect(mockedSubmitBusinessApplication).not.toHaveBeenCalled();
+    },
+  );
+
+  it("로그인이 만료되면 이메일을 포함한 신청을 전송하지 않는다", async () => {
+    vi.mocked(getSession).mockResolvedValue(null);
+    await expect(submitBusinessApplication(createBusinessApplicationFormData())).resolves.toEqual({
+      success: false,
+      error: "로그인이 필요합니다.",
+    });
+    expect(mockedSubmitBusinessApplication).not.toHaveBeenCalled();
+  });
+
   it("10MB 초과 파일은 사업자 신청 API를 호출하기 전에 거부한다", async () => {
     const formData = createBusinessApplicationFormData();
     formData.set("document", new File([new Uint8Array(10 * 1024 * 1024 + 1)], "large.pdf"));

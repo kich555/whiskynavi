@@ -12,6 +12,7 @@ import BusinessApplyForm from "./BusinessApplyForm";
 import BusinessApplyHistory from "./BusinessApplyHistory";
 
 interface BusinessRegistrationSectionProps {
+  memberEmail?: string;
   businessApplicationOverview: UserBusinessApplicationOverviewResponse | null;
 }
 
@@ -46,7 +47,10 @@ const getStatusIcon = (status?: string) => {
   return <XCircle className="mt-0.5 shrink-0 text-red-400" size={18} />;
 };
 
-export default function BusinessRegistrationSection({ businessApplicationOverview }: BusinessRegistrationSectionProps) {
+export default function BusinessRegistrationSection({
+  businessApplicationOverview,
+  memberEmail,
+}: BusinessRegistrationSectionProps) {
   const isDesktop = useIsDesktop();
   const [isPending, startTransition] = useTransition();
   const latestBusinessApplication = businessApplicationOverview?.latestApplication ?? null;
@@ -71,7 +75,7 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
               <DialogHeader>
                 <DialogTitle>사업자 등록하기</DialogTitle>
               </DialogHeader>
-              <BusinessApplyForm onClose={close} />
+              <BusinessApplyForm onClose={close} memberEmail={memberEmail} />
             </DialogContent>
           </Dialog>
         );
@@ -83,7 +87,7 @@ export default function BusinessRegistrationSection({ businessApplicationOvervie
                 <DrawerTitle>사업자 등록하기</DrawerTitle>
               </DrawerHeader>
               <div className="overflow-y-auto px-4 pb-4">
-                <BusinessApplyForm onClose={close} />
+                <BusinessApplyForm onClose={close} memberEmail={memberEmail} />
               </div>
             </DrawerContent>
           </Drawer>

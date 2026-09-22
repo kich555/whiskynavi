@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { formatDate } from "@/lib/formatters";
+import { taxInvoiceEmailSchema } from "@/lib/tax-invoice-email";
 import { ArrowLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -84,6 +85,7 @@ type BusinessEditForm = {
   businessRegistrationNumber: string;
   businessType: PatchApiAdminBusinessesBusinessesBusinessidBodyBusinessType;
   contact: string;
+  taxInvoiceEmail: string;
   pickupAddress: string;
   reservationConfirmationSmsEnabled: boolean;
   reservationPickupSmsEnabled: boolean;
@@ -110,6 +112,7 @@ const createInitialForm = (member: AdminBusinessUserDetailResponse): BusinessEdi
   businessRegistrationNumber: member.businessRegistrationNumber ?? "",
   businessType: member.businessType ?? "HOUSEHOLD",
   contact: member.contact ?? "",
+  taxInvoiceEmail: member.taxInvoiceEmail ?? "",
   pickupAddress: member.pickupAddress ?? "",
   reservationConfirmationSmsEnabled: member.reservationConfirmationSmsEnabled ?? true,
   reservationPickupSmsEnabled: member.reservationPickupSmsEnabled ?? true,
@@ -209,6 +212,11 @@ export default function BusinessMemberDetailContent({
   };
 
   const handleSave = async () => {
+    const email = taxInvoiceEmailSchema.safeParse(form.taxInvoiceEmail);
+    if (!email.success) {
+      setMessage({ text: email.error.issues[0].message, variant: "error" });
+      return;
+    }
     setIsPending(true);
     setMessage(null);
 
@@ -221,6 +229,7 @@ export default function BusinessMemberDetailContent({
         businessRegistrationNumber: form.businessRegistrationNumber,
         businessType: form.businessType,
         contact: form.contact,
+        taxInvoiceEmail: email.data,
         pickupAddress: form.pickupAddress,
         reservationConfirmationSmsEnabled: form.reservationConfirmationSmsEnabled,
         reservationPickupSmsEnabled: form.reservationPickupSmsEnabled,
@@ -365,10 +374,10 @@ export default function BusinessMemberDetailContent({
             <div className="space-y-6 p-6">
               {/* 기본 사업자 식별 정보는 가장 먼저 확인할 수 있게 상단에 모은다. */}
               <section>
-                <h4 className="mb-3 typo-semibold-14 text-gray-900">기본 정보</h4>
+                <h4 className="typo-semibold-14 mb-3 text-gray-900">기본 정보</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="businessName" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="businessName" className="typo-medium-12 mb-1 text-gray-500">
                       업체명
                     </Label>
                     {isEditing ? (
@@ -383,7 +392,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="businessRegistrationNumber" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="businessRegistrationNumber" className="typo-medium-12 mb-1 text-gray-500">
                       사업자등록번호
                     </Label>
                     {isEditing ? (
@@ -398,7 +407,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="businessType" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="businessType" className="typo-medium-12 mb-1 text-gray-500">
                       사업자 구분
                     </Label>
                     {isEditing ? (
@@ -411,7 +420,7 @@ export default function BusinessMemberDetailContent({
                           }
                         }}
                         disabled={isPending}
-                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 h-9 w-full rounded-md border bg-transparent px-3 py-1 typo-medium-14 outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
+                        className="border-input focus-visible:border-ring focus-visible:ring-ring/50 typo-medium-14 h-9 w-full rounded-md border bg-transparent px-3 py-1 outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50"
                       >
                         <option value="HOUSEHOLD">가정용</option>
                         <option value="ENTERTAINMENT">유흥용</option>
@@ -421,7 +430,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="contact" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="contact" className="typo-medium-12 mb-1 text-gray-500">
                       대표 연락처
                     </Label>
                     {isEditing ? (
@@ -435,8 +444,25 @@ export default function BusinessMemberDetailContent({
                       <p className="typo-medium-14 text-gray-900">{member.contact ?? "-"}</p>
                     )}
                   </div>
+                  <div>
+                    <Label htmlFor="taxInvoiceEmail" className="typo-medium-12 mb-1 text-gray-500">
+                      세금계산서 수신 이메일 (선택)
+                    </Label>
+                    {isEditing ? (
+                      <Input
+                        id="taxInvoiceEmail"
+                        type="email"
+                        maxLength={254}
+                        value={form.taxInvoiceEmail}
+                        onChange={(event) => handleChange("taxInvoiceEmail", event.target.value)}
+                        disabled={isPending}
+                      />
+                    ) : (
+                      <p className="typo-medium-14 break-all text-gray-900">{member.taxInvoiceEmail ?? "-"}</p>
+                    )}
+                  </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="pickupAddress" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="pickupAddress" className="typo-medium-12 mb-1 text-gray-500">
                       픽업 주소
                     </Label>
                     {isEditing ? (
@@ -455,10 +481,10 @@ export default function BusinessMemberDetailContent({
 
               {/* 담당자와 정산 계좌는 운영 확인 순서에 맞춰 기본 정보 아래에 분리한다. */}
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 typo-semibold-14 text-gray-900">운영 담당자</h4>
+                <h4 className="typo-semibold-14 mb-3 text-gray-900">운영 담당자</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="storeManagerName" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="storeManagerName" className="typo-medium-12 mb-1 text-gray-500">
                       담당자명
                     </Label>
                     {isEditing ? (
@@ -473,7 +499,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="storeManagerPhone" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="storeManagerPhone" className="typo-medium-12 mb-1 text-gray-500">
                       담당자 전화번호
                     </Label>
                     {isEditing ? (
@@ -491,19 +517,17 @@ export default function BusinessMemberDetailContent({
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 typo-semibold-14 text-gray-900">알림 설정</h4>
+                <h4 className="typo-semibold-14 mb-3 text-gray-900">알림 설정</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                   <div>
-                    <Label htmlFor="reservationConfirmationSmsEnabled" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="reservationConfirmationSmsEnabled" className="typo-medium-12 mb-1 text-gray-500">
                       예약 확정/할당 결제 안내 문자
                     </Label>
                     {isEditing ? (
                       <Switch
                         id="reservationConfirmationSmsEnabled"
                         checked={form.reservationConfirmationSmsEnabled}
-                        onCheckedChange={(checked) =>
-                          handleBooleanChange("reservationConfirmationSmsEnabled", checked)
-                        }
+                        onCheckedChange={(checked) => handleBooleanChange("reservationConfirmationSmsEnabled", checked)}
                         disabled={isPending}
                         aria-label="예약 확정/할당 결제 안내 문자"
                       />
@@ -514,7 +538,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="reservationPickupSmsEnabled" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="reservationPickupSmsEnabled" className="typo-medium-12 mb-1 text-gray-500">
                       픽업 안내 문자
                     </Label>
                     {isEditing ? (
@@ -535,10 +559,10 @@ export default function BusinessMemberDetailContent({
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 typo-semibold-14 text-gray-900">정산 계좌</h4>
+                <h4 className="typo-semibold-14 mb-3 text-gray-900">정산 계좌</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   <div>
-                    <Label htmlFor="bankName" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="bankName" className="typo-medium-12 mb-1 text-gray-500">
                       은행명
                     </Label>
                     {isEditing ? (
@@ -553,7 +577,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="accountHolderName" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="accountHolderName" className="typo-medium-12 mb-1 text-gray-500">
                       예금주명
                     </Label>
                     {isEditing ? (
@@ -568,7 +592,7 @@ export default function BusinessMemberDetailContent({
                     )}
                   </div>
                   <div>
-                    <Label htmlFor="accountNumber" className="mb-1 typo-medium-12 text-gray-500">
+                    <Label htmlFor="accountNumber" className="typo-medium-12 mb-1 text-gray-500">
                       계좌번호
                     </Label>
                     {isEditing ? (
@@ -586,7 +610,7 @@ export default function BusinessMemberDetailContent({
               </section>
 
               <section className="border-t border-gray-100 pt-6">
-                <h4 className="mb-3 typo-semibold-14 text-gray-900">문서 및 변경 이력</h4>
+                <h4 className="typo-semibold-14 mb-3 text-gray-900">문서 및 변경 이력</h4>
                 <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
                   {member.documentDownloadUrl && (
                     <div>
@@ -599,7 +623,7 @@ export default function BusinessMemberDetailContent({
                       >
                         {member.documentOriginalFilename ?? "다운로드"}
                       </a>
-                      <p className="mt-1 typo-medium-12 text-gray-500">
+                      <p className="typo-medium-12 mt-1 text-gray-500">
                         {documentDownloadRemainingSeconds > 0
                           ? `남은 시간 ${formatRemainingTime(documentDownloadRemainingSeconds)}`
                           : "다운로드 주소가 만료되었습니다."}
