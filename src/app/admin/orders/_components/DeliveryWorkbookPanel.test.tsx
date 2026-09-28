@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { exportAdminDeliveryWorkbook, uploadAdminDeliveryWorkbook } from "../actions";
@@ -78,5 +78,27 @@ describe("출고 엑셀", () => {
     expect(screen.getByText("ORD-ERROR")).toBeInTheDocument();
     expect(screen.queryByText("ORD-OK")).not.toBeInTheDocument();
     expect(screen.queryByText("ORD-SKIP")).not.toBeInTheDocument();
+  });
+  it("검증 중에는 검증 버튼에 진행 상태를 표시하고 중복 작업을 막는다", async () => {
+    const user = userEvent.setup();
+    let resolveUpload!: (value: Awaited<ReturnType<typeof uploadAdminDeliveryWorkbook>>) => void;
+    vi.mocked(uploadAdminDeliveryWorkbook).mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveUpload = resolve;
+        }),
+    );
+    render(<DeliveryWorkbookPanel filters={{}} />);
+    await user.upload(screen.getByLabelText(/작성한 출고 엑셀/), new File(["xlsx"], "송장-작성완료.xlsx"));
+    expect(screen.getByRole("status")).toHaveTextContent("송장-작성완료.xlsx");
+    await user.click(screen.getByRole("button", { name: "엑셀 검증" }));
+    expect(screen.getByRole("button", { name: "검증 중…" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "파일 변경" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "출고 엑셀 다운로드" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "검증 후 발송 처리" })).toBeDisabled();
+    await act(async () => resolveUpload({ success: true, data: { dryRun: true, successCount: 0, skippedCount: 1 } }));
+    expect(screen.getByText("발송 가능한 주문이 없습니다. 아래 검증 결과를 확인하세요.")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "검증 후 발송 처리" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "파일 변경" })).toBeEnabled();
   });
 });
