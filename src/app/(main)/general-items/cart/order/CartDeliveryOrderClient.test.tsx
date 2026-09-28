@@ -2,6 +2,7 @@ import type { UserDeliveryAddressResponse } from "@/apis/generated/api";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { createGeneralItemTossTicket } from "../../delivery-order/actions";
 import { createGeneralItemCartTossTicket } from "./actions";
 import CartDeliveryOrderClient from "./CartDeliveryOrderClient";
 
@@ -16,6 +17,7 @@ vi.mock("./actions", () => ({
 }));
 
 vi.mock("../../delivery-order/actions", () => ({
+  createGeneralItemTossTicket: vi.fn(),
   createDeliveryAddress: vi.fn(),
   createDeliveryAddressFormAction: vi.fn(),
 }));
@@ -90,6 +92,27 @@ describe("CartDeliveryOrderClient", () => {
         expect.any(String),
       ),
     );
+  });
+
+  it("바로 주문은 선택 상품·수량으로 단일 상품 결제를 준비한다", async () => {
+    const user = userEvent.setup();
+    vi.mocked(createGeneralItemTossTicket).mockResolvedValue({ success: false, error: "결제 준비 테스트" });
+    mockKakaoPostcode({ zonecode: "04524", address: "서울 중구 세종대로 110" });
+    render(<CartDeliveryOrderClient quote={baseQuote} purchase={{ kind: "direct", saleId: 42, quantity: 2 }} />);
+    expect(screen.getByText("바로 주문")).toBeInTheDocument();
+    await user.type(screen.getAllByLabelText(/^수령인/)[0], "홍길동");
+    await user.type(screen.getByLabelText(/^수령인 연락처/), "01012345678");
+    await user.type(screen.getByLabelText(/^주문 안내 이메일/), "guest@example.com");
+    await user.click(screen.getByRole("button", { name: "배송 주소 검색" }));
+    await user.type(screen.getByLabelText("상세 주소"), "101호");
+    await user.click(screen.getByRole("button", { name: "결제" }));
+    await waitFor(() =>
+      expect(createGeneralItemTossTicket).toHaveBeenCalledWith(
+        expect.objectContaining({ saleAnnouncementId: 42, requestedQuantity: 2 }),
+        expect.any(String),
+      ),
+    );
+    expect(createGeneralItemCartTossTicket).not.toHaveBeenCalled();
   });
 
   it("renders cart delivery order title, total price, and available payment buttons", () => {

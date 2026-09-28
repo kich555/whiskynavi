@@ -1,4 +1,4 @@
-import { getApiItemsId, getApiSalesSaleid } from "@/apis/generated/api";
+import { getApiItemsId, getApiSalesSaleid, getApiV2ShippingPolicy } from "@/apis/generated/api";
 import { Badge } from "@/components/ui/badge";
 import { ImageWithFallback } from "@/components/ui/ImageWithFallback";
 import { formatCurrency } from "@/lib/formatters";
@@ -29,6 +29,8 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
           .then((r) => r.data)
           .catch(() => null)
       : null;
+
+  const shippingPolicy = sale.serviceProduct ? undefined : (await getApiV2ShippingPolicy({ cache: "no-store" })).data;
 
   const title = sale.title || sale.itemName || item?.name || "일반상품";
   const itemName = sale.itemName || item?.name || title;
@@ -94,6 +96,7 @@ export default async function GeneralItemSaleDetailPage({ params }: GeneralItemS
         </section>
 
         <GeneralItemSalesPolicy
+          shippingPolicy={shippingPolicy}
           serviceProduct={sale.serviceProduct}
           validFrom={sale.serviceValidFrom}
           validUntil={sale.serviceValidUntil}

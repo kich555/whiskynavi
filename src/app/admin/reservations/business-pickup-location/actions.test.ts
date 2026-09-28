@@ -34,6 +34,10 @@ describe("business pickup setting actions", () => {
       data: {
         assignmentType: "ADMIN_DESIGNATED",
         businessId: 30,
+        businessName: null,
+        contact: null,
+        pickupAddress: null,
+        updatedAt: null,
       },
       status: 200,
       headers: new Headers(),

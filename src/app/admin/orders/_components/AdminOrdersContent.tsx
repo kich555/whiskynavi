@@ -69,6 +69,7 @@ const PAYMENT_STATUS_OPTIONS = [
   { value: "", label: "전체 결제상태" },
   { value: "DONE", label: "결제 완료" },
   { value: "CANCELED", label: "결제 취소" },
+  { value: "PARTIAL_CANCELED", label: "부분 환불" },
 ];
 
 const FULFILLMENT_METHOD_OPTIONS = [

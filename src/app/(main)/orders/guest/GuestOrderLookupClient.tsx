@@ -43,7 +43,7 @@ function GuestOrderDetail({
 }) {
   const [reason, setReason] = useState("");
   const status = getGeneralItemOrderStatusConfig(order.orderStatus);
-  const canCancel = canRequestDeliveryOrderCancel(order.orderStatus);
+  const canCancel = !order.afterSaleManaged && canRequestDeliveryOrderCancel(order.orderStatus);
   const delivery = order.delivery;
   const payment = order.payment;
   const orderClassification = formatOrderClassification(order);
@@ -72,6 +72,9 @@ function GuestOrderDetail({
             <InfoRow label="총 금액" value={formatCurrency(order.totalPrice)} />
             <InfoRow label="결제수단" value={payment?.paymentMethod} />
             <InfoRow label="결제상태" value={payment?.paymentStatus} />
+            {payment?.refundedAmount != null && (
+              <InfoRow label="누적 환불액" value={formatCurrency(payment.refundedAmount)} />
+            )}
             <InfoRow label="주문 메모" value={order.orderNote} />
           </dl>
         </div>

@@ -53,7 +53,14 @@ describe("ManualPurchaseOrdersSection", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.confirm = vi.fn(() => true);
-    mockedUseRouter.mockReturnValue({ refresh } as ReturnType<typeof useRouter>);
+    mockedUseRouter.mockReturnValue({
+      refresh,
+      back: vi.fn(),
+      forward: vi.fn(),
+      push: vi.fn(),
+      replace: vi.fn(),
+      prefetch: vi.fn(),
+    });
     mockedAction.mockResolvedValue({ success: true, updatedCount: 2 });
   });
 

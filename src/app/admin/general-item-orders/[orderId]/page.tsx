@@ -5,8 +5,10 @@ import { parsePositiveInt } from "@/lib/page-response";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import AdminOrderDetailContent from "../../orders/_components/AdminOrderDetailContent";
+import AfterSalePanel from "../_components/AfterSalePanel";
 import GuestNotificationPanel from "../_components/GuestNotificationPanel";
 import ServiceEntitlementAdminPanel from "../_components/ServiceEntitlementAdminPanel";
+import { loadAfterSales } from "../after-sale-actions";
 import { loadAdminEntitlements } from "../entitlement-actions";
 import { loadGuestNotificationHistory, loadGuestNotifications } from "../notification-actions";
 
@@ -54,6 +56,12 @@ export default async function AdminGeneralItemOrderDetailPage({
     order.fulfillmentMethod === "SERVICE" ? (
       <ServiceEntitlementAdminPanel orderId={id} rows={await loadAdminEntitlements(id)} />
     ) : undefined;
+  const afterSaleSection =
+    order.productType === "ITEM" &&
+    order.fulfillmentMethod === "DIRECT_DELIVERY" &&
+    order.saleTiming === "IMMEDIATE" ? (
+      <AfterSalePanel orderId={id} data={await loadAfterSales(id)} orderItems={order.items ?? []} />
+    ) : undefined;
   return (
     <AdminOrderDetailContent
       order={order}
@@ -71,6 +79,7 @@ export default async function AdminGeneralItemOrderDetailPage({
         </>
       }
       entitlementSection={entitlementSection}
+      afterSaleSection={afterSaleSection}
     />
   );
 }

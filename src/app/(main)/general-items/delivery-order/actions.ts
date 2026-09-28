@@ -1,6 +1,6 @@
 "use server";
 
-import { getUserErrorMessage } from "@/apis/errors";
+import { ApiError, getUserErrorMessage } from "@/apis/errors";
 import {
   getApiOrdersGuest,
   patchApiOrdersGuestOrdernumberCancel,
@@ -22,6 +22,7 @@ type ActionResult<T> = {
   success: boolean;
   data?: T;
   error?: string;
+  retryWithNewKey?: boolean;
 };
 
 export type GeneralItemDeliveryOrderInput = {
@@ -225,6 +226,10 @@ export async function createGeneralItemTossTicket(
     return {
       success: false,
       error: guideErrorMessage(error, "토스 결제 준비에 실패했습니다."),
+      ...(error instanceof ApiError &&
+      ["주문 티켓이 만료되었습니다.", "이미 종료된 주문 시도입니다."].includes(error.userMessage ?? "")
+        ? { retryWithNewKey: true }
+        : {}),
     };
   }
 }

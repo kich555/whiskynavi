@@ -15,6 +15,7 @@ interface AdminOrderDetailContentProps {
   order: OrderResponse;
   guestNotificationSection?: React.ReactNode;
   entitlementSection?: React.ReactNode;
+  afterSaleSection?: React.ReactNode;
 }
 
 function getOrderSourceLabel(order: OrderResponse) {
@@ -74,6 +75,7 @@ export default function AdminOrderDetailContent({
   order,
   guestNotificationSection,
   entitlementSection,
+  afterSaleSection,
 }: AdminOrderDetailContentProps) {
   const router = useRouter();
   const { toggle } = useSidebar();
@@ -138,12 +140,16 @@ export default function AdminOrderDetailContent({
               <DetailField label="결제수단" value={order.payment?.paymentMethod} />
               <DetailField label="결제상태" value={order.payment?.paymentStatus} />
               <DetailField label="결제 금액" value={formatCurrency(order.payment?.paidAmount)} />
+              {order.payment?.refundedAmount != null && (
+                <DetailField label="누적 환불액" value={formatCurrency(order.payment.refundedAmount)} />
+              )}
               <DetailField label="결제 완료일" value={formatDateTime(order.payment?.paidAt)} />
             </div>
           </Section>
         </div>
 
         {entitlementSection}
+        {afterSaleSection}
         {order.fulfillmentMethod === "SERVICE" && !entitlementSection && order.id && (
           <Link
             href={`/admin/general-item-orders/${order.id}`}
