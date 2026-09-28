@@ -4,24 +4,32 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect, useRef, useState, useTransition } from "react";
 import OrderCompletionPanel from "../../../../delivery-order/_components/OrderCompletionPanel";
+import { confirmGeneralItemTossPayment } from "../../../../delivery-order/actions";
 import { confirmGeneralItemCartTossPayment } from "../../actions";
 
 interface TossSuccessClientProps {
   orderId?: string;
   paymentKey?: string;
   amount?: string;
+  purchase?: "direct" | "cart";
 }
 
 type ConfirmResult = Awaited<ReturnType<typeof confirmGeneralItemCartTossPayment>>;
 
-export default function TossSuccessClient({ orderId, paymentKey, amount }: TossSuccessClientProps) {
+export default function TossSuccessClient({ orderId, paymentKey, amount, purchase = "cart" }: TossSuccessClientProps) {
   const [isPending, startTransition] = useTransition();
   const [result, setResult] = useState<ConfirmResult | null>(null);
   const autoConfirmStartedRef = useRef(false);
 
   const confirm = () => {
     startTransition(async () => {
-      setResult(await confirmGeneralItemCartTossPayment({ orderId, paymentKey, amount }));
+      setResult(
+        await (purchase === "direct" ? confirmGeneralItemTossPayment : confirmGeneralItemCartTossPayment)({
+          orderId,
+          paymentKey,
+          amount,
+        }),
+      );
     });
   };
 
@@ -56,7 +64,9 @@ export default function TossSuccessClient({ orderId, paymentKey, amount }: TossS
               variant="outline"
               className="border-white/30 bg-white/5 text-white hover:bg-white/10 hover:text-white"
             >
-              <Link href="/general-items/cart/order">주문서로 돌아가기</Link>
+              <Link href={purchase === "direct" ? "/general-items" : "/general-items/cart/order"}>
+                {purchase === "direct" ? "상품 목록으로 돌아가기" : "주문서로 돌아가기"}
+              </Link>
             </Button>
           </div>
         </div>

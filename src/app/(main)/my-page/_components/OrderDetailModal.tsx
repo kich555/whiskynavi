@@ -22,7 +22,7 @@ interface OrderDetailModalProps {
 
 export default function OrderDetailModal({ isOpen, close, order }: OrderDetailModalProps) {
   const status = order.orderStatus ? getOrderStatusConfig(order.orderStatus) : null;
-  const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
+  const canCancel = !order.afterSaleManaged && isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
   const canCompleteReceipt =
     isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
   const orderClassification = formatOrderClassification(order);
@@ -108,6 +108,9 @@ export default function OrderDetailModal({ isOpen, close, order }: OrderDetailMo
                 <DetailRow label="결제수단" value={order.payment.paymentMethod} />
                 <DetailRow label="결제상태" value={order.payment.paymentStatus} />
                 <DetailRow label="결제금액" value={formatCurrency(order.payment.paidAmount)} />
+                {order.payment.refundedAmount != null && (
+                  <DetailRow label="누적 환불액" value={formatCurrency(order.payment.refundedAmount)} />
+                )}
                 {order.payment.paidAt && <DetailRow label="결제일" value={formatDate(order.payment.paidAt)} />}
               </div>
             </div>

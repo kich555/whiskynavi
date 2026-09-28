@@ -11,6 +11,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useRef, useState, useTransition, type ChangeEvent } from "react";
 import { toast } from "sonner";
+import { createGeneralItemTossTicket } from "../../delivery-order/actions";
 import { formatCartCurrency, getValidCartItems } from "../_lib/cart-utils";
 import { AddressDialog } from "./_components/AddressDialog";
 import { formatDeliveryAddress, formatOrderDeliveryAddress, getDefaultAddress } from "./_lib/address-utils";
@@ -21,6 +22,7 @@ import { createGeneralItemCartTossTicket, type GeneralItemCartDeliveryOrderInput
 
 interface CartDeliveryOrderClientProps {
   quote: CartQuoteResponse;
+  purchase?: { kind: "direct"; saleId: number; quantity: number } | { kind: "cart" };
   currentUser?: UserSelfResponse | null;
   deliveryAddresses?: UserDeliveryAddressResponse[];
 }
@@ -38,6 +40,7 @@ type OrderFormState = {
 
 export default function CartDeliveryOrderClient({
   quote,
+  purchase = { kind: "cart" },
   currentUser,
   deliveryAddresses = [],
 }: CartDeliveryOrderClientProps) {
@@ -174,6 +177,7 @@ export default function CartDeliveryOrderClient({
       try {
         const attempt = await getCheckoutAttempt(
           {
+            purchase,
             userId: currentUser?.id ?? null,
             cartId: quote.cartId,
             items: items
@@ -192,7 +196,13 @@ export default function CartDeliveryOrderClient({
           attemptRef.current,
         );
         attemptRef.current = attempt;
-        const result = await createGeneralItemCartTossTicket(input, attempt.key);
+        const result =
+          purchase.kind === "direct"
+            ? await createGeneralItemTossTicket(
+                { ...input, saleAnnouncementId: purchase.saleId, requestedQuantity: purchase.quantity },
+                attempt.key,
+              )
+            : await createGeneralItemCartTossTicket(input, attempt.key);
 
         if (!result.success || !result.data?.ticket) {
           if (result.retryWithNewKey) {
@@ -203,7 +213,19 @@ export default function CartDeliveryOrderClient({
           return;
         }
 
-        await requestTossPayment(result.data.ticket, input);
+        const ticket = result.data.ticket;
+        if (purchase.kind === "direct" && ticket.successUrl && ticket.failUrl) {
+          const success = new URL(ticket.successUrl);
+          const fail = new URL(ticket.failUrl);
+          success.pathname = "/general-items/delivery-order/toss/success";
+          fail.pathname = "/general-items/delivery-order/toss/fail";
+          success.searchParams.set("purchase", "direct");
+          fail.searchParams.set("saleId", String(purchase.saleId));
+          fail.searchParams.set("quantity", String(purchase.quantity));
+          await requestTossPayment({ ...ticket, successUrl: success.toString(), failUrl: fail.toString() }, input);
+        } else {
+          await requestTossPayment(ticket, input);
+        }
       } catch (paymentError) {
         // 통신 오류나 결제창 닫기만으로 새 주문 시도를 만들지 않는다.
         toast.error(paymentError instanceof Error ? paymentError.message : "토스 결제를 시작하지 못했습니다.");
@@ -246,7 +268,7 @@ export default function CartDeliveryOrderClient({
               {serviceProduct ? "티켓·무형서비스 주문" : "일반상품 배송 주문"}
             </p>
             <h1 className="typo-bold-24 mt-2 text-white md:text-3xl">
-              {serviceProduct ? "이용권 주문서" : "장바구니 배송 주문서"}
+              {serviceProduct ? "이용권 주문서" : purchase.kind === "direct" ? "바로 주문" : "장바구니 배송 주문서"}
             </h1>
           </div>
 

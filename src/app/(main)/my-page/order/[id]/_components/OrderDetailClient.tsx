@@ -20,7 +20,7 @@ interface OrderDetailClientProps {
 
 export default function OrderDetailClient({ order }: OrderDetailClientProps) {
   const status = order.orderStatus ? getOrderStatusConfig(order.orderStatus) : null;
-  const canCancel = isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
+  const canCancel = !order.afterSaleManaged && isOrderCancellationAllowed(order.orderStatus, order.saleTiming);
   const canCompleteReceipt =
     isReceiptCompletionAllowed(order.orderStatus, order.fulfillmentMethod) && order.id !== undefined;
   const orderClassification = formatOrderClassification(order);
@@ -125,6 +125,9 @@ export default function OrderDetailClient({ order }: OrderDetailClientProps) {
                   <InfoRow label="결제수단" value={order.payment.paymentMethod ?? "-"} />
                   <InfoRow label="결제상태" value={order.payment.paymentStatus ?? "-"} />
                   <InfoRow label="결제금액" value={formatCurrency(order.payment.paidAmount)} />
+                  {order.payment.refundedAmount != null && (
+                    <InfoRow label="누적 환불액" value={formatCurrency(order.payment.refundedAmount)} />
+                  )}
                   {order.payment.paidAt && <InfoRow label="결제일" value={formatDate(order.payment.paidAt)} />}
                 </div>
               </div>

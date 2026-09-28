@@ -2,20 +2,13 @@ import { formatCurrency } from "@/lib/formatters";
 import { TERMS_CONTACT_EMAIL, TERMS_CONTACT_PHONE, TERMS_REPRESENTATIVE } from "@/lib/terms";
 import Link from "next/link";
 
-const BASE_SHIPPING_FEE = 3000;
-
-const deliveryPolicy = [
-  { label: "배송업체", value: "CJ대한통운" },
-  { label: "배송지역", value: "CJ대한통운 배송 가능 지역" },
-  { label: "기본 배송비", value: formatCurrency(BASE_SHIPPING_FEE) },
-  { label: "예상 배송기간", value: "결제 완료 후 통상 2~5영업일 (주말·공휴일 제외)" },
-];
-
 export default function GeneralItemSalesPolicy({
+  shippingPolicy,
   serviceProduct = false,
   validFrom,
   validUntil,
 }: {
+  shippingPolicy?: { baseShippingFee?: number; freeShippingThreshold?: number };
   serviceProduct?: boolean;
   validFrom?: string;
   validUntil?: string;
@@ -45,6 +38,23 @@ export default function GeneralItemSalesPolicy({
         </p>
       </section>
     );
+  const deliveryPolicy = [
+    { label: "배송업체", value: "CJ대한통운" },
+    { label: "배송지역", value: "CJ대한통운 배송 가능 지역 · 전국 동일 요금" },
+    {
+      label: "기본 배송비",
+      value:
+        shippingPolicy?.baseShippingFee == null ? "배송비 확인 중" : formatCurrency(shippingPolicy.baseShippingFee),
+    },
+    {
+      label: "무료배송",
+      value:
+        shippingPolicy?.freeShippingThreshold == null
+          ? "무료배송 기준 확인 중"
+          : `${formatCurrency(shippingPolicy.freeShippingThreshold)} 이상 주문 시`,
+    },
+    { label: "예상 배송기간", value: "결제 완료 후 통상 2~5영업일 (주말·공휴일 제외)" },
+  ];
   return (
     <section aria-labelledby="general-item-sales-policy" className="mt-10 border border-white/10 bg-white/5 p-5 md:p-8">
       <div className="border-b border-white/10 pb-5">
@@ -73,7 +83,7 @@ export default function GeneralItemSalesPolicy({
           주문번호, 구매자명과 신청 사유를 전달해 주세요.
         </p>
         <p className="typo-medium-12 text-gray-500">
-          무료배송 혜택 또는 추가 배송비가 적용되는 경우 주문서에 표시되는 최종 배송비가 우선합니다.
+          제주·도서산간도 동일한 배송비가 적용됩니다. 주문서에서 무료배송 적용 여부와 최종 배송비를 확인해 주세요.
         </p>
       </div>
 

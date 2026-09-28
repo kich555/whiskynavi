@@ -6,6 +6,56 @@
  * OpenAPI spec version: 1.0.0
  */
 import { customFetch } from '../mutator';
+export interface AfterSaleCaseResponse {
+  actorId?: number;
+  createdAt?: string;
+  id?: number;
+  reason?: string;
+  status?: string;
+  type?: string;
+}
+
+export interface AfterSaleEventResponse {
+  action?: string;
+  actorId?: number;
+  caseId?: number;
+  createdAt?: string;
+  id?: number;
+  orderItemId?: number;
+  quantity?: number;
+  reason?: string;
+}
+
+export interface AfterSaleItemResponse {
+  caseId?: number;
+  id?: number;
+  orderItemId?: number;
+  quantity?: number;
+  restoredQuantity?: number;
+}
+
+export interface AfterSaleRefundResponse {
+  actorId?: number;
+  amount?: number;
+  caseId?: number;
+  completedAt?: string;
+  createdAt?: string;
+  id?: number;
+  lastError?: string;
+  reason?: string;
+  requestKey?: string;
+  status?: string;
+}
+
+export interface AdminAfterSaleResponse {
+  cases?: AfterSaleCaseResponse[];
+  events?: AfterSaleEventResponse[];
+  items?: AfterSaleItemResponse[];
+  paidAmount?: number;
+  refundedAmount?: number;
+  refunds?: AfterSaleRefundResponse[];
+}
+
 /**
  * 공지 범위입니다. GLOBAL은 전체 공지, BOARD는 특정 게시판 공지입니다.
  */
@@ -17,9 +67,6 @@ export const AdminAnnouncementResponseScope = {
   BOARD: 'BOARD',
 } as const;
 
-/**
- * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
- */
 export type AdminBoardPostTypeResponseUsagesItem = typeof AdminBoardPostTypeResponseUsagesItem[keyof typeof AdminBoardPostTypeResponseUsagesItem];
 
 
@@ -61,6 +108,7 @@ export interface AdminAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입입니다. 전체 공지 또는 과거 데이터에는 null일 수 있습니다. */
   postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
@@ -99,6 +147,7 @@ export interface AdminAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입입니다. 전체 공지 또는 과거 데이터에는 null일 수 있습니다. */
   postType?: AdminBoardPostTypeResponse;
   /** 공지 정렬 우선순위입니다. pinned 여부가 같을 때 값이 클수록 먼저 노출됩니다. */
   priority?: number;
@@ -1057,18 +1106,18 @@ export const AdminDeliveryCsvRowResultOrderStatus = {
  * 관리자 배송 CSV/엑셀 주문별 처리 결과
  */
 export interface AdminDeliveryCsvRowResult {
-  /** 파일의 실제 행 번호. CSV 데이터는 2번, 엑셀 송장입력 데이터는 4번부터 시작한다. */
-  rowNumber?: number;
-  /** 주문 번호 */
-  orderNumber?: string;
-  /** 처리 성공 여부 */
-  success?: boolean;
-  /** 운송장 미입력 또는 동일 송장으로 이미 처리되어 건너뛴 주문 */
-  skipped?: boolean;
   /** 처리 결과 메시지 */
   message?: string;
+  /** 주문 번호 */
+  orderNumber?: string;
   /** 처리 후 주문 상태 */
   orderStatus?: AdminDeliveryCsvRowResultOrderStatus;
+  /** 파일의 실제 행 번호. CSV 데이터는 2번, 엑셀 송장입력 데이터는 4번부터 시작한다. */
+  rowNumber?: number;
+  /** 운송장 미입력 또는 동일 송장으로 이미 처리되어 건너뛴 주문 */
+  skipped?: boolean;
+  /** 처리 성공 여부 */
+  success?: boolean;
 }
 
 /**
@@ -1077,21 +1126,29 @@ export interface AdminDeliveryCsvRowResult {
 export interface AdminDeliveryCsvUploadResponse {
   /** 검증만 수행했는지 여부 */
   dryRun?: boolean;
-  /** 데이터 행 수 */
-  totalRows?: number;
-  /** 성공 행 수 */
-  successCount?: number;
   /** 실패 행 수 */
   failureCount?: number;
+  /** 행별 처리 결과 */
+  results?: AdminDeliveryCsvRowResult[];
   /** 건너뛴 주문 수. 엑셀 결과는 주문 단위로 집계한다. */
   skippedCount?: number;
+  /** 성공 행 수 */
+  successCount?: number;
+  /** 데이터 행 수 */
+  totalRows?: number;
   /**
    * 엑셀 업로드에만 제공되는 결과 xlsx 파일의 Base64. 재업로드 가능한 원본 양식을 보존한다.
    * @nullable
    */
   workbookBase64?: string | null;
-  /** 행별 처리 결과 */
-  results?: AdminDeliveryCsvRowResult[];
+}
+
+/**
+ * 출고 작업 엑셀 파일
+ */
+export interface AdminDeliveryWorkbookResponse {
+  /** xlsx 파일의 Base64 데이터 */
+  workbookBase64: string;
 }
 
 export interface AdminHomeBannerResponse {
@@ -1337,17 +1394,9 @@ export type AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = typeof Admin
 
 
 export const AdminManualPurchaseBulkStatusUpdateRequestOrderStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
   PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
   RECEIPT_PENDING: 'RECEIPT_PENDING',
   RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
 } as const;
 
 /**
@@ -1544,9 +1593,6 @@ export interface AdminOrderItemResponse {
   unitPrice?: number;
 }
 
-/**
- * 결제 정보
- */
 export interface AdminOrderPaymentResponse {
   /** 계좌이체 예금주 */
   bankAccountHolderName?: string;
@@ -1572,6 +1618,7 @@ export interface AdminOrderPaymentResponse {
   paymentStatus?: string;
   /** PG 또는 결제 시도에 전달한 주문 ID. 관리자 결제 대조에 사용한다. */
   pgOrderId?: string;
+  refundedAmount?: number;
 }
 
 /**
@@ -1669,6 +1716,7 @@ export const AdminOrderResponseSaleType = {
  * 주문 응답 정보
  */
 export interface AdminOrderResponse {
+  afterSaleManaged?: boolean;
   /** 승인 수량 */
   approvedQuantity?: number;
   /** 관리자가 현재 주문에서 수행할 수 있는 액션 목록 */
@@ -1679,7 +1727,9 @@ export interface AdminOrderResponse {
   cancelReason?: string;
   /** 생성 시각 */
   createdAt?: string;
+  /** 관리자 화면용 고객 정보. 관리자 응답에서 주로 사용한다. */
   customer?: AdminOrderCustomerResponse;
+  /** 배송 정보 */
   delivery?: AdminOrderDeliveryResponse;
   /** 무료배송 적용 여부 */
   freeShippingApplied?: boolean;
@@ -1718,7 +1768,9 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: AdminOrderResponseOrderStatus;
+  /** 결제 정보 */
   payment?: AdminOrderPaymentResponse;
+  /** 주문 금액 요약 */
   priceSummary?: AdminOrderPriceSummaryResponse;
   /** 판매 상품 ID */
   productId?: number;
@@ -2047,6 +2099,7 @@ export interface AdminUserOrderSummaryResponse {
   canceledTotalAmount?: number;
   /** 취소 주문을 제외한 유효 주문 총액 */
   effectiveTotalAmount?: number;
+  /** 주문 내역 목록 */
   orders?: PagedModelAdminOrderResponse;
   /** 취소 요청 중 주문 총액 */
   refundRequestedTotalAmount?: number;
@@ -2180,6 +2233,7 @@ export interface AdminUserResponse {
   status?: string;
   /** 계정 최종 수정 일시입니다. */
   updatedAt?: string;
+  /** 관리자 전용 확장 정보입니다. */
   userExt?: UserExtInfo;
   /** 회원 아이디입니다. */
   username?: string;
@@ -2214,6 +2268,80 @@ export interface AdminUserStatusUpdateRequest {
   /**
    * 적용할 새 상태 값입니다.
    * @minLength 1
+   */
+  status: string;
+}
+
+export type AfterSaleCreateRequestItemsItem = {
+  orderItemId: number;
+  /** @minimum 1 */
+  quantity?: number;
+};
+
+export interface AfterSaleCreateRequest {
+  /**
+   * @minItems 0
+   * @maxItems 100
+   */
+  items: AfterSaleCreateRequestItemsItem[];
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 1
+   * @pattern RETURN|EXCHANGE
+   */
+  type: string;
+}
+
+export interface AfterSaleItemInput {
+  orderItemId: number;
+  /** @minimum 1 */
+  quantity?: number;
+}
+
+export interface AfterSaleRefundRequest {
+  /** @minimum 1 */
+  amount: number;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  reason: string;
+  /**
+   * @minLength 36
+   * @maxLength 36
+   */
+  requestKey: string;
+}
+
+export interface AfterSaleRestoreRequest {
+  orderItemId: number;
+  /** @minimum 1 */
+  quantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 36
+   * @maxLength 36
+   */
+  requestKey: string;
+}
+
+export interface AfterSaleUpdateRequest {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 1
+   * @pattern OPEN|RECEIVED|INSPECTED|CLOSED|REJECTED
    */
   status: string;
 }
@@ -2341,6 +2469,7 @@ export interface AuthResponse {
   refreshToken?: string;
   /** 사용자 ID */
   userId?: number;
+  /** 로그인한 사용자의 상세 정보 */
   userInfo?: UserSelfResponse;
   /** 사용자 아이디 */
   username?: string;
@@ -2521,7 +2650,7 @@ export interface BottleAdminReferenceValues {
 export type BottleAdminResponseExtraInfos = {[key: string]: string};
 
 /**
- * 관리자 병 목록 조회에서 예약 상태 필터에 사용하는 값
+ * 예약 상태입니다.
  */
 export type BottleAdminResponseReservationStatus = typeof BottleAdminResponseReservationStatus[keyof typeof BottleAdminResponseReservationStatus];
 
@@ -2574,7 +2703,7 @@ export interface BottleAdminResponse {
   maltType?: string;
   /** 보틀 노출명입니다. */
   name?: string;
-  /** 관리자 병 목록 조회에서 예약 상태 필터에 사용하는 값 */
+  /** 예약 상태입니다. */
   reservationStatus?: BottleAdminResponseReservationStatus;
   /** 시리즈명입니다. */
   series?: string;
@@ -2588,9 +2717,6 @@ export interface BottleAdminResponse {
   visible?: boolean;
 }
 
-/**
- * 브랜드에 속하며 API 노출이 허용된 시리즈 목록입니다.
- */
 export interface BottleSeriesResponse {
   /**
    * 시리즈 설명입니다.
@@ -3149,6 +3275,14 @@ export interface BusinessReservationPickupSettingResponse {
   updatedAt: string | null;
 }
 
+export interface Cancel {
+  cancelAmount?: number;
+  cancelReason?: string;
+  cancelStatus?: string;
+  canceledAt?: string;
+  transactionKey?: string;
+}
+
 export interface CartGeneralItemDeliveryOrderRequest {
   /**
    * 배송 주소
@@ -3452,31 +3586,6 @@ export interface DependencyHealth {
   status?: string;
 }
 
-export type DevBizmTestMessageRequestMessageType = typeof DevBizmTestMessageRequestMessageType[keyof typeof DevBizmTestMessageRequestMessageType];
-
-
-export const DevBizmTestMessageRequestMessageType = {
-  RESERVATION_OPEN: 'RESERVATION_OPEN',
-  PAYMENT_GUIDE: 'PAYMENT_GUIDE',
-  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
-} as const;
-
-export interface DevBizmTestMessageRequest {
-  messageType: DevBizmTestMessageRequestMessageType;
-  /**
-   * @minLength 1
-   * @pattern ^[0-9+\- ]{10,20}$
-   */
-  recipientPhone: string;
-}
-
-export interface DevBizmTestMessageResponse {
-  messageId?: string;
-  messageType?: string;
-  providerMessageType?: string;
-  recipientPhone?: string;
-}
-
 /**
  * 기부자 인원수 조회 응답
  */
@@ -3653,6 +3762,7 @@ export interface UserOrderTicketResponse {
 }
 
 export interface GeneralItemDeliveryTicketResponse {
+  /** 토스 결제 시작에 필요한 주문 티켓 정보 */
   ticket?: UserOrderTicketResponse;
 }
 
@@ -3898,7 +4008,7 @@ export interface Item {
 /**
  * 추가 정보 JSON
  */
-export type ItemAdminResponseExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type ItemAdminResponseExtraInfos = {[key: string]: unknown};
 
 /**
  * 관리자 일반 상품 응답
@@ -3933,7 +4043,7 @@ export interface ItemAdminResponse {
 /**
  * 추가 정보 JSON
  */
-export type ItemCreateRequestExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type ItemCreateRequestExtraInfos = {[key: string]: unknown};
 
 /**
  * 일반 상품 생성 요청
@@ -3968,7 +4078,7 @@ export interface ItemCreateRequest {
 /**
  * 추가 정보 JSON
  */
-export type ItemPatchRequestExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type ItemPatchRequestExtraInfos = {[key: string]: unknown};
 
 /**
  * 일반 상품 수정 요청
@@ -4092,7 +4202,7 @@ export interface ItemReservationPickupWaitingPickupRequest {
 /**
  * 추가 정보 JSON
  */
-export type ItemResponseExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type ItemResponseExtraInfos = {[key: string]: unknown};
 
 /**
  * 일반 상품 응답
@@ -4651,9 +4761,6 @@ export interface PagedModelPickupLocationResponse {
   page?: PageMetadata;
 }
 
-/**
- * 이 글타입을 사용할 수 있는 영역입니다. POST는 일반 게시글용, ANNOUNCEMENT는 게시판 공지용입니다.
- */
 export type PostTypeResponseUsagesItem = typeof PostTypeResponseUsagesItem[keyof typeof PostTypeResponseUsagesItem];
 
 
@@ -4693,6 +4800,7 @@ export interface PostSummaryResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
+  /** 게시글 타입입니다. */
   postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
@@ -4730,6 +4838,7 @@ export interface UserAnnouncementSummaryResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입입니다. 전체 공지 또는 과거 데이터에는 null일 수 있습니다. */
   postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
@@ -5329,9 +5438,6 @@ export const UserOrderResponseOrderStatus = {
   CANCEL_REJECTED: 'CANCEL_REJECTED',
 } as const;
 
-/**
- * 결제 정보
- */
 export interface UserOrderPaymentResponse {
   /** 계좌이체 예금주 */
   bankAccountHolderName?: string;
@@ -5353,6 +5459,7 @@ export interface UserOrderPaymentResponse {
   paymentMethod?: string;
   /** 결제 상태 */
   paymentStatus?: string;
+  refundedAmount?: number;
 }
 
 /**
@@ -5413,6 +5520,7 @@ export const UserOrderResponseSaleType = {
  * 주문 응답 정보
  */
 export interface UserOrderResponse {
+  afterSaleManaged?: boolean;
   /** 승인 수량 */
   approvedQuantity?: number;
   /** 사업장 ID */
@@ -5421,6 +5529,7 @@ export interface UserOrderResponse {
   cancelReason?: string;
   /** 생성 시각 */
   createdAt?: string;
+  /** 배송 정보 */
   delivery?: UserOrderDeliveryResponse;
   /** 무료배송 적용 여부 */
   freeShippingApplied?: boolean;
@@ -5455,7 +5564,9 @@ ORDER_PREPARING 또는 CANCEL_REQUESTED -> ORDER_CANCELED,
 CANCEL_REJECTED 주문은 발송 처리로 SHIPPING 전환이 가능하다.
  */
   orderStatus?: UserOrderResponseOrderStatus;
+  /** 결제 정보 */
   payment?: UserOrderPaymentResponse;
+  /** 주문 금액 요약 */
   priceSummary?: UserOrderPriceSummaryResponse;
   /** 판매 상품 ID */
   productId?: number;
@@ -5604,6 +5715,7 @@ export interface PostResponse {
   hasImage?: boolean;
   /** 게시글 식별자입니다. */
   id?: number;
+  /** 게시글 타입입니다. */
   postType?: PostTypeResponse;
   /** 게시글 제목입니다. */
   title?: string;
@@ -5689,6 +5801,11 @@ export interface ProfileRequest {
    * @maxLength 300
    */
   value: string;
+}
+
+export interface PublicShippingPolicyResponse {
+  baseShippingFee?: number;
+  freeShippingThreshold?: number;
 }
 
 /**
@@ -6660,11 +6777,18 @@ export interface TalesNoticePageResponse {
   page?: PageMetadata;
 }
 
-/**
- * 이벤트 대상 결제 데이터
- */
+export type TossPaymentResponseCancelsItem = {
+  cancelAmount?: number;
+  cancelReason?: string;
+  cancelStatus?: string;
+  canceledAt?: string;
+  transactionKey?: string;
+};
+
 export interface TossPaymentResponse {
   approvedAt?: string;
+  balanceAmount?: number;
+  cancels?: TossPaymentResponseCancelsItem[];
   method?: string;
   orderId?: string;
   paymentKey?: string;
@@ -6672,11 +6796,18 @@ export interface TossPaymentResponse {
   totalAmount?: number;
 }
 
-/**
- * 이벤트 대상 결제 데이터
- */
+export type TossWebhookRequestDataCancelsItem = {
+  cancelAmount?: number;
+  cancelReason?: string;
+  cancelStatus?: string;
+  canceledAt?: string;
+  transactionKey?: string;
+};
+
 export type TossWebhookRequestData = {
   approvedAt?: string;
+  balanceAmount?: number;
+  cancels?: TossWebhookRequestDataCancelsItem[];
   method?: string;
   orderId?: string;
   paymentKey?: string;
@@ -6685,7 +6816,6 @@ export type TossWebhookRequestData = {
 };
 
 export interface TossWebhookRequest {
-  /** 이벤트 대상 결제 데이터 */
   data?: TossWebhookRequestData;
   /** 토스 웹훅 이벤트 타입 */
   eventType?: string;
@@ -6803,6 +6933,7 @@ export interface UserAnnouncementResponse {
   id?: number;
   /** 상단 고정 여부입니다. 고정 공지는 일반 공지보다 먼저 정렬됩니다. */
   pinned?: boolean;
+  /** 게시판 공지 글타입입니다. 전체 공지 또는 과거 데이터에는 null일 수 있습니다. */
   postType?: PostTypeResponse;
   /** 예약 게시 일시입니다. 사용자 응답에는 현재 노출 가능한 공지만 포함됩니다. */
   publishedAt?: string;
@@ -7013,6 +7144,7 @@ export interface UserGeneralItemDeliveryOrderResponse {
   depositDeadlineAt?: string;
   /** 비회원 주문 조회 코드. 비회원 주문의 최초 생성/결제 확정 응답에만 내려가며, 회원 주문은 null이다. */
   guestOrderToken?: string;
+  /** 주문 정보 */
   order?: UserOrderResponse;
   /** 결제 금액 */
   paidAmount?: number;
@@ -7048,6 +7180,7 @@ export interface UserItemReservationPickupBulkUpdateResponse {
 }
 
 export interface UserOrderPaymentConfirmResponse {
+  /** 주문 정보 */
   order?: UserOrderResponse;
   /** 승인 금액 */
   paidAmount?: number;
@@ -7222,14 +7355,6 @@ export interface UsernameRequest {
    * @pattern ^[가-힣A-Za-z0-9]{2,16}$
    */
   username: string;
-}
-
-/**
- * 출고 작업 엑셀 파일
- */
-export interface AdminDeliveryWorkbookResponse {
-  /** xlsx 파일의 Base64 데이터 */
-  workbookBase64: string;
 }
 
 export type GetApiV2AdminBannersPublishedParams = {
@@ -7579,17 +7704,9 @@ export type PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus =
 
 
 export const PatchApiV2AdminBottlesBottleidManualPurchasesStatusBodyOrderStatus = {
-  ORDER_REQUESTED: 'ORDER_REQUESTED',
-  PAYMENT_PENDING: 'PAYMENT_PENDING',
-  ORDER_PREPARING: 'ORDER_PREPARING',
   PAYMENT_COMPLETED: 'PAYMENT_COMPLETED',
-  SHIPPING: 'SHIPPING',
-  DELIVERY_COMPLETED: 'DELIVERY_COMPLETED',
   RECEIPT_PENDING: 'RECEIPT_PENDING',
   RECEIPT_COMPLETED: 'RECEIPT_COMPLETED',
-  ORDER_CANCELED: 'ORDER_CANCELED',
-  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
-  CANCEL_REJECTED: 'CANCEL_REJECTED',
 } as const;
 
 /**
@@ -7705,6 +7822,74 @@ export type PatchApiV2AdminInquiriesInquiryidRepliesReplyidBody = {
   content: string;
   /** 답변 이미지 포함 여부 */
   hasImage?: boolean;
+};
+
+export type PostApiV2AdminOrdersOrderIdAfterSalesBodyItemsItem = {
+  orderItemId: number;
+  /** @minimum 1 */
+  quantity?: number;
+};
+
+export type PostApiV2AdminOrdersOrderIdAfterSalesBody = {
+  /**
+   * @minItems 0
+   * @maxItems 100
+   */
+  items: PostApiV2AdminOrdersOrderIdAfterSalesBodyItemsItem[];
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 1
+   * @pattern RETURN|EXCHANGE
+   */
+  type: string;
+};
+
+export type PatchApiV2AdminOrdersOrderIdAfterSalesCaseIdBody = {
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 1
+   * @pattern OPEN|RECEIVED|INSPECTED|CLOSED|REJECTED
+   */
+  status: string;
+};
+
+export type PostApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsBody = {
+  /** @minimum 1 */
+  amount: number;
+  /**
+   * @minLength 0
+   * @maxLength 120
+   */
+  reason: string;
+  /**
+   * @minLength 36
+   * @maxLength 36
+   */
+  requestKey: string;
+};
+
+export type PostApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockBody = {
+  orderItemId: number;
+  /** @minimum 1 */
+  quantity?: number;
+  /**
+   * @minLength 0
+   * @maxLength 500
+   */
+  reason: string;
+  /**
+   * @minLength 36
+   * @maxLength 36
+   */
+  requestKey: string;
 };
 
 export type PostApiV2AdminOrdersOrderIdEntitlementsIdUseBody = {
@@ -9974,24 +10159,6 @@ export type PatchApiAdminBusinessesMembersUseridBusinessBody = {
   taxInvoiceEmail?: string;
 };
 
-export type PostApiAdminDevBizmTestMessagesBodyMessageType = typeof PostApiAdminDevBizmTestMessagesBodyMessageType[keyof typeof PostApiAdminDevBizmTestMessagesBodyMessageType];
-
-
-export const PostApiAdminDevBizmTestMessagesBodyMessageType = {
-  RESERVATION_OPEN: 'RESERVATION_OPEN',
-  PAYMENT_GUIDE: 'PAYMENT_GUIDE',
-  DELIVERY_GUIDE: 'DELIVERY_GUIDE',
-} as const;
-
-export type PostApiAdminDevBizmTestMessagesBody = {
-  messageType: PostApiAdminDevBizmTestMessagesBodyMessageType;
-  /**
-   * @minLength 1
-   * @pattern ^[0-9+\- ]{10,20}$
-   */
-  recipientPhone: string;
-};
-
 export type PostApiAdminImagesPurposeBody = {
   file: Blob;
 };
@@ -10050,7 +10217,7 @@ keyword?: string;
 /**
  * 추가 정보 JSON
  */
-export type PostApiAdminItemsBodyExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type PostApiAdminItemsBodyExtraInfos = {[key: string]: unknown};
 
 /**
  * 일반 상품 생성 요청
@@ -10293,7 +10460,7 @@ export type PostApiAdminItemsReservationsNoticesNoticeidAutoConfirmBody = {
 /**
  * 추가 정보 JSON
  */
-export type PatchApiAdminItemsIdBodyExtraInfos = {[key: string]: { [key: string]: unknown }};
+export type PatchApiAdminItemsIdBodyExtraInfos = {[key: string]: unknown};
 
 /**
  * 일반 상품 수정 요청
@@ -12715,11 +12882,18 @@ export type GetApiTaxInvoicesVatReportMonthlyPdfParams = {
 yearMonth: string;
 };
 
-/**
- * 이벤트 대상 결제 데이터
- */
+export type PostApiTossPaymentsWebhookBodyDataCancelsItem = {
+  cancelAmount?: number;
+  cancelReason?: string;
+  cancelStatus?: string;
+  canceledAt?: string;
+  transactionKey?: string;
+};
+
 export type PostApiTossPaymentsWebhookBodyData = {
   approvedAt?: string;
+  balanceAmount?: number;
+  cancels?: PostApiTossPaymentsWebhookBodyDataCancelsItem[];
   method?: string;
   orderId?: string;
   paymentKey?: string;
@@ -12728,7 +12902,6 @@ export type PostApiTossPaymentsWebhookBodyData = {
 };
 
 export type PostApiTossPaymentsWebhookBody = {
-  /** 이벤트 대상 결제 데이터 */
   data?: PostApiTossPaymentsWebhookBodyData;
   /** 토스 웹훅 이벤트 타입 */
   eventType?: string;
@@ -14276,6 +14449,201 @@ export const patchApiV2AdminInquiriesInquiryidRepliesReplyid = async (inquiryId:
 
 
 /**
+ * @summary 실물 주문 반품·교환·환불 이력
+ */
+export type getApiV2AdminOrdersOrderIdAfterSalesResponse200 = {
+  data: AdminAfterSaleResponse
+  status: 200
+}
+    
+export type getApiV2AdminOrdersOrderIdAfterSalesResponseSuccess = (getApiV2AdminOrdersOrderIdAfterSalesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2AdminOrdersOrderIdAfterSalesResponse = (getApiV2AdminOrdersOrderIdAfterSalesResponseSuccess)
+
+export const getGetApiV2AdminOrdersOrderIdAfterSalesUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/after-sales`
+}
+
+export const getApiV2AdminOrdersOrderIdAfterSales = async (orderId: number, options?: RequestInit): Promise<getApiV2AdminOrdersOrderIdAfterSalesResponse> => {
+  
+  return customFetch<getApiV2AdminOrdersOrderIdAfterSalesResponse>(getGetApiV2AdminOrdersOrderIdAfterSalesUrl(orderId),
+  {      
+    ...options,
+    method: 'GET'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 상담 반품·교환 접수 등록
+ */
+export type postApiV2AdminOrdersOrderIdAfterSalesResponse200 = {
+  data: number
+  status: 200
+}
+    
+export type postApiV2AdminOrdersOrderIdAfterSalesResponseSuccess = (postApiV2AdminOrdersOrderIdAfterSalesResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdAfterSalesResponse = (postApiV2AdminOrdersOrderIdAfterSalesResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdAfterSalesUrl = (orderId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/after-sales`
+}
+
+export const postApiV2AdminOrdersOrderIdAfterSales = async (orderId: number,
+    postApiV2AdminOrdersOrderIdAfterSalesBody: PostApiV2AdminOrdersOrderIdAfterSalesBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdAfterSalesResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdAfterSalesResponse>(getPostApiV2AdminOrdersOrderIdAfterSalesUrl(orderId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdAfterSalesBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 상담 처리 상태·이력 기록
+ */
+export type patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponseSuccess = (patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponse200) & {
+  headers: Headers;
+};
+;
+
+export type patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponse = (patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponseSuccess)
+
+export const getPatchApiV2AdminOrdersOrderIdAfterSalesCaseIdUrl = (orderId: number,
+    caseId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/after-sales/${caseId}`
+}
+
+export const patchApiV2AdminOrdersOrderIdAfterSalesCaseId = async (orderId: number,
+    caseId: number,
+    patchApiV2AdminOrdersOrderIdAfterSalesCaseIdBody: PatchApiV2AdminOrdersOrderIdAfterSalesCaseIdBody, options?: RequestInit): Promise<patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponse> => {
+  
+  return customFetch<patchApiV2AdminOrdersOrderIdAfterSalesCaseIdResponse>(getPatchApiV2AdminOrdersOrderIdAfterSalesCaseIdUrl(orderId,caseId),
+  {      
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      patchApiV2AdminOrdersOrderIdAfterSalesCaseIdBody,)
+  }
+);}
+
+
+
+/**
+ * 반품 접수 이후 회수·검수와 무관하게 실행 가능. 동일 요청 키는 동일 금액·사유에만 재사용합니다.
+ * @summary 관리자 지정 금액 토스 환불
+ */
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponseSuccess = (postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponse = (postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsUrl = (orderId: number,
+    caseId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/after-sales/${caseId}/refunds`
+}
+
+export const postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefunds = async (orderId: number,
+    caseId: number,
+    postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsBody: PostApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsResponse>(getPostApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsUrl(orderId,caseId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdAfterSalesCaseIdRefundsBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 검수한 반품 수량 재고 복구
+ */
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponseSuccess = (postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponse = (postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockUrl = (orderId: number,
+    caseId: number,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/after-sales/${caseId}/restock`
+}
+
+export const postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestock = async (orderId: number,
+    caseId: number,
+    postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockBody: PostApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockBody, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockResponse>(getPostApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockUrl(orderId,caseId),
+  {      
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      postApiV2AdminOrdersOrderIdAfterSalesCaseIdRestockBody,)
+  }
+);}
+
+
+
+/**
  * @summary 관리자 주문 이용권 조회
  */
 export type getApiV2AdminOrdersOrderIdEntitlementsResponse200 = {
@@ -14471,6 +14839,44 @@ export const postApiV2AdminOrdersOrderIdGuestTokenReissue = async (orderId: numb
     headers: { 'Content-Type': 'application/json', ...options?.headers },
     body: JSON.stringify(
       postApiV2AdminOrdersOrderIdGuestTokenReissueBody,)
+  }
+);}
+
+
+
+/**
+ * @summary 기존 환불 결과 확인·재시도
+ */
+export type postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponse200 = {
+  data: void
+  status: 200
+}
+    
+export type postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponseSuccess = (postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponse200) & {
+  headers: Headers;
+};
+;
+
+export type postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponse = (postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponseSuccess)
+
+export const getPostApiV2AdminOrdersOrderIdRefundsRequestKeyRetryUrl = (orderId: number,
+    requestKey: string,) => {
+
+
+  
+
+  return `/api/2.0/admin/orders/${orderId}/refunds/${requestKey}/retry`
+}
+
+export const postApiV2AdminOrdersOrderIdRefundsRequestKeyRetry = async (orderId: number,
+    requestKey: string, options?: RequestInit): Promise<postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponse> => {
+  
+  return customFetch<postApiV2AdminOrdersOrderIdRefundsRequestKeyRetryResponse>(getPostApiV2AdminOrdersOrderIdRefundsRequestKeyRetryUrl(orderId,requestKey),
+  {      
+    ...options,
+    method: 'POST'
+    
+    
   }
 );}
 
@@ -16699,6 +17105,42 @@ export const patchApiV2OrdersOrderidReceipt = async (orderId: number, options?: 
   {      
     ...options,
     method: 'PATCH'
+    
+    
+  }
+);}
+
+
+
+/**
+ * @summary 전국 동일 배송비 정책 조회
+ */
+export type getApiV2ShippingPolicyResponse200 = {
+  data: PublicShippingPolicyResponse
+  status: 200
+}
+    
+export type getApiV2ShippingPolicyResponseSuccess = (getApiV2ShippingPolicyResponse200) & {
+  headers: Headers;
+};
+;
+
+export type getApiV2ShippingPolicyResponse = (getApiV2ShippingPolicyResponseSuccess)
+
+export const getGetApiV2ShippingPolicyUrl = () => {
+
+
+  
+
+  return `/api/2.0/shipping-policy`
+}
+
+export const getApiV2ShippingPolicy = async ( options?: RequestInit): Promise<getApiV2ShippingPolicyResponse> => {
+  
+  return customFetch<getApiV2ShippingPolicyResponse>(getGetApiV2ShippingPolicyUrl(),
+  {      
+    ...options,
+    method: 'GET'
     
     
   }
@@ -20274,44 +20716,6 @@ export const postApiAdminBusinessesMembersUseridRolesRoleRevoke = async (userId:
 
 
 /**
- * 관리자가 개발 환경에서 고정된 예약 공고, 결제 안내 또는 배송안내 테스트 메시지를 한 건 발송합니다.
- * @summary 비즈엠 테스트 메시지 발송(개발용)
- */
-export type postApiAdminDevBizmTestMessagesResponse200 = {
-  data: DevBizmTestMessageResponse
-  status: 200
-}
-    
-export type postApiAdminDevBizmTestMessagesResponseSuccess = (postApiAdminDevBizmTestMessagesResponse200) & {
-  headers: Headers;
-};
-;
-
-export type postApiAdminDevBizmTestMessagesResponse = (postApiAdminDevBizmTestMessagesResponseSuccess)
-
-export const getPostApiAdminDevBizmTestMessagesUrl = () => {
-
-
-  
-
-  return `/api/admin/dev/bizm/test-messages`
-}
-
-export const postApiAdminDevBizmTestMessages = async (postApiAdminDevBizmTestMessagesBody: PostApiAdminDevBizmTestMessagesBody, options?: RequestInit): Promise<postApiAdminDevBizmTestMessagesResponse> => {
-  
-  return customFetch<postApiAdminDevBizmTestMessagesResponse>(getPostApiAdminDevBizmTestMessagesUrl(),
-  {      
-    ...options,
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...options?.headers },
-    body: JSON.stringify(
-      postApiAdminDevBizmTestMessagesBody,)
-  }
-);}
-
-
-
-/**
  * 관리자가 보틀, 예약 공고, 일반 상품, Whisky Tales 만화 이미지를 용도별 S3 경로에 업로드합니다. JPG/PNG/WEBP 형식, 실제 파일 구조, 크기와 해상도를 서버에서 검증합니다.
  * @summary 이미지 업로드(관리자)
  */
@@ -21439,17 +21843,17 @@ format=XLSX이면 JSON의 workbookBase64에 출고 엑셀을 반환한다. 송�
 
  * @summary 관리자 배송 대상 CSV 또는 출고 엑셀 다운로드
  */
-export type getApiAdminOrdersDeliveryExportResponse200TextCsv = {
-  data: string
-  status: 200
-}
-
 export type getApiAdminOrdersDeliveryExportResponse200ApplicationJson = {
   data: AdminDeliveryWorkbookResponse
   status: 200
 }
+
+export type getApiAdminOrdersDeliveryExportResponse200TextCsv = {
+  data: string
+  status: 200
+}
     
-export type getApiAdminOrdersDeliveryExportResponseSuccess = (getApiAdminOrdersDeliveryExportResponse200TextCsv | getApiAdminOrdersDeliveryExportResponse200ApplicationJson) & {
+export type getApiAdminOrdersDeliveryExportResponseSuccess = (getApiAdminOrdersDeliveryExportResponse200ApplicationJson | getApiAdminOrdersDeliveryExportResponse200TextCsv) & {
   headers: Headers;
 };
 ;

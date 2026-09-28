@@ -51,6 +51,8 @@ describe("UserDetailPage", () => {
     } as unknown as Awaited<ReturnType<typeof getApiAdminOrdersUsersUserid>>);
     vi.mocked(getApiV2AdminUsersUseridReservationStatistics).mockResolvedValue({
       data: { year: 2026, brandStatistics: [] },
+      status: 200,
+      headers: new Headers(),
     } as Awaited<ReturnType<typeof getApiV2AdminUsersUseridReservationStatistics>>);
   });
 
