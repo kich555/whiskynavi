@@ -9,8 +9,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   completeAdminOrderDelivery,
   exportAdminDeliveryCsv,
+  exportAdminDeliveryWorkbook,
   shipAdminOrderDelivery,
   updateAdminOrderStatus,
+  uploadAdminDeliveryWorkbook,
 } from "./actions";
 
 vi.mock("@/apis/generated/api", () => ({
@@ -77,6 +79,35 @@ describe("admin order actions", () => {
       { orderStatus: "ORDER_CANCELED", reason: "취소 승인" },
       { headers: { Authorization: "Bearer admin-token" } },
     );
+  });
+
+  it("엑셀 다운로드에 검색 조건과 XLSX 형식을 전달한다", async () => {
+    mockedExport.mockResolvedValue({ data: { workbookBase64: "eGxzeA==" }, status: 200, headers: new Headers() });
+    await expect(
+      exportAdminDeliveryWorkbook({ keyword: "글라스", guestOnly: true, orderStatus: "ORDER_PREPARING" }),
+    ).resolves.toEqual({ success: true, data: "eGxzeA==" });
+    expect(mockedExport).toHaveBeenCalledWith(
+      {
+        keyword: "글라스",
+        guestOnly: true,
+        orderStatus: "ORDER_PREPARING",
+        productType: "ITEM",
+        fulfillmentMethod: "DIRECT_DELIVERY",
+        saleTiming: "IMMEDIATE",
+        format: "XLSX",
+      },
+      { headers: { Authorization: "Bearer admin-token" } },
+    );
+  });
+
+  it("인증 없이 엑셀을 다운로드하거나 업로드하지 않는다", async () => {
+    mockedGetAuthToken.mockResolvedValue(undefined);
+    await expect(exportAdminDeliveryWorkbook({})).resolves.toEqual({ success: false, error: "인증이 필요합니다." });
+    await expect(uploadAdminDeliveryWorkbook(new File(["xlsx"], "orders.xlsx"), false)).resolves.toEqual({
+      success: false,
+      error: "인증이 필요합니다.",
+    });
+    expect(mockedExport).not.toHaveBeenCalled();
   });
 
   it("exports direct delivery immediate item orders", async () => {

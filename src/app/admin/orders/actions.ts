@@ -10,6 +10,7 @@ import {
   postApiAdminOrdersDeliveryImport,
   postApiAdminOrdersDeliveryImportResultCsv,
   type AdminDeliveryCsvUploadResponse,
+  type GetApiAdminOrdersDeliveryExportParams,
   type OrderDeliveryUpdateRequest,
   type OrderStatusUpdateRequestOrderStatus,
 } from "@/apis/generated/api";
@@ -150,6 +151,7 @@ export async function exportAdminDeliveryCsv(): Promise<AdminOrderActionResult<s
       options,
     );
 
+    if (typeof response.data !== "string") return { success: false, error: "CSV 응답 형식이 올바르지 않습니다." };
     return { success: true, data: response.data };
   } catch (error) {
     if (isRedirectError(error)) throw error;
@@ -158,6 +160,43 @@ export async function exportAdminDeliveryCsv(): Promise<AdminOrderActionResult<s
       error: getUserErrorMessage(error, "배송 CSV 다운로드에 실패했습니다."),
     };
   }
+}
+
+export async function exportAdminDeliveryWorkbook(
+  filters: Pick<
+    GetApiAdminOrdersDeliveryExportParams,
+    "keyword" | "orderStatus" | "paymentMethod" | "paymentStatus" | "guestOnly"
+  >,
+): Promise<AdminOrderActionResult<string>> {
+  try {
+    const options = await getAdminOptions();
+    if (!options) return { success: false, error: "인증이 필요합니다." };
+    const response = await getApiAdminOrdersDeliveryExport(
+      {
+        ...filters,
+        productType: "ITEM",
+        fulfillmentMethod: "DIRECT_DELIVERY",
+        saleTiming: "IMMEDIATE",
+        format: "XLSX",
+      },
+      options,
+    );
+    if (typeof response.data === "string") return { success: false, error: "출고 엑셀 응답 형식이 올바르지 않습니다." };
+    return { success: true, data: response.data.workbookBase64 };
+  } catch (error) {
+    if (isRedirectError(error)) throw error;
+    return { success: false, error: getUserErrorMessage(error, "출고 엑셀 다운로드에 실패했습니다.") };
+  }
+}
+
+export async function uploadAdminDeliveryWorkbook(
+  file: File,
+  dryRun: boolean,
+): Promise<AdminOrderActionResult<AdminDeliveryCsvUploadResponse>> {
+  if (!file || !file.name.toLowerCase().endsWith(".xlsx"))
+    return { success: false, error: "xlsx 출고 엑셀을 선택해주세요." };
+  if (file.size > 8 * 1024 * 1024) return { success: false, error: "엑셀 파일은 8MB 이하만 업로드할 수 있습니다." };
+  return uploadAdminDeliveryCsv(file, dryRun);
 }
 
 export async function uploadAdminDeliveryCsv(

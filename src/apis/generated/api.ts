@@ -1054,35 +1054,44 @@ export const AdminDeliveryCsvRowResultOrderStatus = {
 } as const;
 
 /**
- * 관리자 배송 CSV 행 처리 결과
+ * 관리자 배송 CSV/엑셀 주문별 처리 결과
  */
 export interface AdminDeliveryCsvRowResult {
-  /** 처리 결과 메시지 */
-  message?: string;
+  /** 파일의 실제 행 번호. CSV 데이터는 2번, 엑셀 송장입력 데이터는 4번부터 시작한다. */
+  rowNumber?: number;
   /** 주문 번호 */
   orderNumber?: string;
-  /** 처리 후 주문 상태 */
-  orderStatus?: AdminDeliveryCsvRowResultOrderStatus;
-  /** CSV 행 번호. 헤더는 1번이고 데이터는 2번부터 시작한다. */
-  rowNumber?: number;
   /** 처리 성공 여부 */
   success?: boolean;
+  /** 운송장 미입력 또는 동일 송장으로 이미 처리되어 건너뛴 주문 */
+  skipped?: boolean;
+  /** 처리 결과 메시지 */
+  message?: string;
+  /** 처리 후 주문 상태 */
+  orderStatus?: AdminDeliveryCsvRowResultOrderStatus;
 }
 
 /**
- * 관리자 배송 CSV 업로드 결과
+ * 관리자 배송 CSV/엑셀 업로드 결과
  */
 export interface AdminDeliveryCsvUploadResponse {
   /** 검증만 수행했는지 여부 */
   dryRun?: boolean;
-  /** 실패 행 수 */
-  failureCount?: number;
-  /** 행별 처리 결과 */
-  results?: AdminDeliveryCsvRowResult[];
-  /** 성공 행 수 */
-  successCount?: number;
   /** 데이터 행 수 */
   totalRows?: number;
+  /** 성공 행 수 */
+  successCount?: number;
+  /** 실패 행 수 */
+  failureCount?: number;
+  /** 건너뛴 주문 수. 엑셀 결과는 주문 단위로 집계한다. */
+  skippedCount?: number;
+  /**
+   * 엑셀 업로드에만 제공되는 결과 xlsx 파일의 Base64. 재업로드 가능한 원본 양식을 보존한다.
+   * @nullable
+   */
+  workbookBase64?: string | null;
+  /** 행별 처리 결과 */
+  results?: AdminDeliveryCsvRowResult[];
 }
 
 export interface AdminHomeBannerResponse {
@@ -7215,6 +7224,14 @@ export interface UsernameRequest {
   username: string;
 }
 
+/**
+ * 출고 작업 엑셀 파일
+ */
+export interface AdminDeliveryWorkbookResponse {
+  /** xlsx 파일의 Base64 데이터 */
+  workbookBase64: string;
+}
+
 export type GetApiV2AdminBannersPublishedParams = {
 /**
  * @minimum 0
@@ -10522,6 +10539,7 @@ createdFrom?: string;
  * 주문 생성 종료 시각
  */
 createdTo?: string;
+format?: GetApiAdminOrdersDeliveryExportFormat;
 };
 
 export type GetApiAdminOrdersDeliveryExportOrderStatus = typeof GetApiAdminOrdersDeliveryExportOrderStatus[keyof typeof GetApiAdminOrdersDeliveryExportOrderStatus];
@@ -10564,6 +10582,14 @@ export type GetApiAdminOrdersDeliveryExportSaleTiming = typeof GetApiAdminOrders
 export const GetApiAdminOrdersDeliveryExportSaleTiming = {
   IMMEDIATE: 'IMMEDIATE',
   RESERVATION: 'RESERVATION',
+} as const;
+
+export type GetApiAdminOrdersDeliveryExportFormat = typeof GetApiAdminOrdersDeliveryExportFormat[keyof typeof GetApiAdminOrdersDeliveryExportFormat];
+
+
+export const GetApiAdminOrdersDeliveryExportFormat = {
+  CSV: 'CSV',
+  XLSX: 'XLSX',
 } as const;
 
 export type PostApiAdminOrdersDeliveryImportParams = {
@@ -21408,15 +21434,22 @@ export const getApiAdminOrders = async (params?: GetApiAdminOrdersParams, option
 CSV 컬럼 순서는 주문번호, 수령인, 수령인연락처, 주소, 상품명, 수량, 배송메모, 배송사, 배송방법, 운송장번호, 발송시각이다.
 배송사가 비어 있는 주문은 CJ대한통운으로 기본 출력한다.
 관리자는 배송방법, 운송장번호, 발송시각을 채운 뒤 업로드할 수 있다.
+format=XLSX이면 JSON의 workbookBase64에 출고 엑셀을 반환한다. 송장입력/포장명세/상품별 집품표를 포함한다.
+검색 조건을 반영하며 최대 1,000주문, 20,000상품 행까지 제공한다. 상품명은 요약 없이 개별 행으로 표시한다.
 
- * @summary 관리자 배송 대상 CSV 다운로드
+ * @summary 관리자 배송 대상 CSV 또는 출고 엑셀 다운로드
  */
-export type getApiAdminOrdersDeliveryExportResponse200 = {
+export type getApiAdminOrdersDeliveryExportResponse200TextCsv = {
   data: string
   status: 200
 }
+
+export type getApiAdminOrdersDeliveryExportResponse200ApplicationJson = {
+  data: AdminDeliveryWorkbookResponse
+  status: 200
+}
     
-export type getApiAdminOrdersDeliveryExportResponseSuccess = (getApiAdminOrdersDeliveryExportResponse200) & {
+export type getApiAdminOrdersDeliveryExportResponseSuccess = (getApiAdminOrdersDeliveryExportResponse200TextCsv | getApiAdminOrdersDeliveryExportResponse200ApplicationJson) & {
   headers: Headers;
 };
 ;
@@ -21460,8 +21493,10 @@ CSV 컬럼 순서는 주문번호, 수령인, 수령인연락처, 주소, 상품
 발송시각은 2026-05-19T15:30:00 같은 ISO 날짜시간 형식을 사용한다.
 배송사, 배송방법, 운송장번호 길이 초과와 발송시각 형식 오류는 행별 실패로 반환한다.
 수령인, 수령인연락처, 주소, 상품명, 수량, 배송메모는 송장 작업 참고용이며 업로드 시 주문 배송 정보에 반영하지 않는다.
+xlsx 업로드는 송장입력 시트를 주문별로 처리한다. 운송장 미입력/동일 송장 기처리 주문은 건너뛰고 중복 주문번호는 모두 실패한다.
+엑셀의 수령인·연락처·주소·메모가 현재 주문과 다르면 실패한다. 결과 workbookBase64는 원본에 결과를 기록한 재업로드 가능한 엑셀이다.
 
- * @summary 관리자 배송 CSV 업로드
+ * @summary 관리자 배송 CSV 또는 출고 엑셀 업로드
  */
 export type postApiAdminOrdersDeliveryImportResponse200 = {
   data: AdminDeliveryCsvUploadResponse
