@@ -26,6 +26,8 @@ vi.mock("@/app/admin/_components/AdminLayoutClient", () => ({
 vi.mock("../actions", () => ({
   completeAdminOrderDelivery: vi.fn(),
   exportAdminDeliveryCsv: vi.fn(),
+  exportAdminDeliveryWorkbook: vi.fn(),
+  uploadAdminDeliveryWorkbook: vi.fn(),
   shipAdminOrderDelivery: vi.fn(),
   updateAdminOrderDelivery: vi.fn(),
   updateAdminOrderStatus: vi.fn(),

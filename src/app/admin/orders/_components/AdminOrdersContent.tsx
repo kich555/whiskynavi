@@ -1,6 +1,8 @@
 "use client";
 
-import type { AdminDeliveryCsvUploadResponse, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
+import DeliveryWorkbookPanel from "./DeliveryWorkbookPanel";
+
+import type { GetApiAdminOrdersDeliveryExportParams, AdminOrderResponse as OrderResponse } from "@/apis/generated/api";
 import { ORDER_STATUS_COLOR, ORDER_STATUS_LABEL } from "@/app/admin/constants";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -8,21 +10,19 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { formatCurrency, formatDateTime } from "@/lib/formatters";
 import { getFulfillmentMethodLabel, getProductTypeLabel, getSaleTimingLabel } from "@/lib/order-classification";
-import { Download, Eye, FileCheck2, FileUp, Search, Truck } from "lucide-react";
+import { Eye, Search, Truck } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
 import AdminHeader from "../../_components/AdminHeader";
 import { useSidebar } from "../../_components/AdminLayoutClient";
 import Pagination from "../../_components/Pagination";
 import {
   completeAdminOrderDelivery,
-  exportAdminDeliveryCsv,
   shipAdminOrderDelivery,
   updateAdminOrderDelivery,
   updateAdminOrderStatus,
-  uploadAdminDeliveryCsv,
 } from "../actions";
 
 export interface AdminOrdersSearchParams extends Record<string, string | undefined> {
@@ -120,18 +120,6 @@ function buildSearchParams(params: AdminOrdersSearchParams) {
     if (value) next.set(key, value);
   });
   return next;
-}
-
-function downloadTextFile(filename: string, text: string, type: string) {
-  const blob = new Blob([text], { type });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
-  URL.revokeObjectURL(url);
 }
 
 function hasAction(order: OrderResponse, action: string) {
@@ -241,45 +229,6 @@ function DeliveryModal({
   );
 }
 
-function CsvResultSummary({ result }: { result: AdminDeliveryCsvUploadResponse }) {
-  return (
-    <div className="mt-4 rounded-lg border border-gray-200 bg-gray-50 p-4">
-      <div className="typo-medium-14 flex flex-wrap gap-4 text-gray-700">
-        <span>전체 {result.totalRows ?? 0}행</span>
-        <span className="text-green-700">성공 {result.successCount ?? 0}행</span>
-        <span className="text-red-700">실패 {result.failureCount ?? 0}행</span>
-        <span>{result.dryRun ? "검증 결과" : "실제 처리 결과"}</span>
-      </div>
-      {(result.results ?? []).length > 0 && (
-        <div className="mt-3 max-h-56 overflow-auto rounded border border-gray-200 bg-white">
-          <table className="typo-medium-14 w-full">
-            <thead className="typo-medium-12 bg-gray-50 text-gray-600">
-              <tr>
-                <th className="px-3 py-2 text-left">행</th>
-                <th className="px-3 py-2 text-left">주문번호</th>
-                <th className="px-3 py-2 text-left">결과</th>
-                <th className="px-3 py-2 text-left">메시지</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {result.results?.map((row) => (
-                <tr key={`${row.rowNumber}-${row.orderNumber}`}>
-                  <td className="px-3 py-2">{row.rowNumber}</td>
-                  <td className="px-3 py-2">{row.orderNumber ?? "-"}</td>
-                  <td className={row.success ? "px-3 py-2 text-green-700" : "px-3 py-2 text-red-700"}>
-                    {row.success ? "성공" : "실패"}
-                  </td>
-                  <td className="px-3 py-2">{row.message ?? "-"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function AdminOrdersContent({
   searchParams,
   orders,
@@ -290,12 +239,10 @@ export default function AdminOrdersContent({
 }: AdminOrdersContentProps) {
   const { toggle } = useSidebar();
   const router = useRouter();
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isPending, startTransition] = useTransition();
   const [keyword, setKeyword] = useState(searchParams.keyword ?? "");
   const [modalOrder, setModalOrder] = useState<OrderResponse | null>(null);
   const [modalMode, setModalMode] = useState<DeliveryModalMode>("edit");
-  const [csvResult, setCsvResult] = useState<AdminDeliveryCsvUploadResponse | null>(null);
 
   const currentPage = Number(searchParams.page) || 1;
   const itemsPerPage = Number(searchParams.limit) || 20;
@@ -330,36 +277,6 @@ export default function AdminOrdersContent({
   const openDeliveryModal = (order: OrderResponse, mode: DeliveryModalMode) => {
     setModalOrder(order);
     setModalMode(mode);
-  };
-
-  const handleExportCsv = () => {
-    startTransition(async () => {
-      const result = await exportAdminDeliveryCsv();
-      if (result.success && result.data != null) {
-        downloadTextFile("general-item-delivery-orders.csv", result.data, "text/csv;charset=utf-8");
-      } else {
-        toast.error(result.error ?? "CSV 다운로드에 실패했습니다.");
-      }
-    });
-  };
-
-  const handleUploadCsv = (dryRun: boolean) => {
-    const file = fileInputRef.current?.files?.[0];
-    if (!file) {
-      toast.error("CSV 파일을 선택해주세요.");
-      return;
-    }
-
-    startTransition(async () => {
-      const result = await uploadAdminDeliveryCsv(file, dryRun);
-      if (result.success) {
-        setCsvResult(result.data ?? null);
-        toast.success(dryRun ? "CSV 검증이 끝났습니다." : "CSV 발송 처리를 완료했습니다.");
-        router.refresh();
-      } else {
-        toast.error(result.error ?? "CSV 업로드에 실패했습니다.");
-      }
-    });
   };
 
   return (
@@ -444,32 +361,15 @@ export default function AdminOrdersContent({
           </Link>
         )}
         {enableGeneralItemActions && (
-          <section className="mb-6 rounded-lg border border-gray-200 bg-white p-5">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-              <div>
-                <h2 className="typo-bold-18 text-gray-900">배송 CSV</h2>
-                <p className="typo-medium-14 mt-1 text-gray-500">
-                  일반 아이템 배송 주문은 먼저 검증한 뒤 실제 발송 처리를 실행합니다.
-                </p>
-              </div>
-              <div className="flex flex-col gap-2 sm:flex-row">
-                <input ref={fileInputRef} type="file" accept=".csv,text/csv" className="typo-medium-14" />
-                <Button type="button" variant="outline" onClick={handleExportCsv} disabled={isPending}>
-                  <Download className="size-4" />
-                  대상 다운로드
-                </Button>
-                <Button type="button" variant="outline" onClick={() => handleUploadCsv(true)} disabled={isPending}>
-                  <FileCheck2 className="size-4" />
-                  검증
-                </Button>
-                <Button type="button" onClick={() => handleUploadCsv(false)} disabled={isPending}>
-                  <FileUp className="size-4" />
-                  실제 처리
-                </Button>
-              </div>
-            </div>
-            {csvResult && <CsvResultSummary result={csvResult} />}
-          </section>
+          <DeliveryWorkbookPanel
+            filters={{
+              keyword: searchParams.keyword,
+              orderStatus: searchParams.orderStatus as GetApiAdminOrdersDeliveryExportParams["orderStatus"],
+              paymentMethod: searchParams.paymentMethod,
+              paymentStatus: searchParams.paymentStatus,
+              guestOnly: searchParams.guestOnly === "true" ? true : undefined,
+            }}
+          />
         )}
 
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
