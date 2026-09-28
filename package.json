@@ -11,9 +11,10 @@
     "test:run": "vitest run",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "gen:api": "orval && prettier --write src/apis/generated/api.ts src/apis/mutator.ts",
+    "gen:api": "orval --project whiskynavi && prettier --write src/apis/generated/api.ts src/apis/mutator.ts",
     "gen:icons": "tsx ./src/scripts/gen-icons.ts",
-    "postinstall": "pnpm gen:icons"
+    "postinstall": "pnpm gen:icons",
+    "gen:api:blind": "orval --project blindTasting && prettier --write src/apis/generated/blind-tasting.ts"
   },
   "dependencies": {
     "@radix-ui/react-accordion": "^1.2.12",

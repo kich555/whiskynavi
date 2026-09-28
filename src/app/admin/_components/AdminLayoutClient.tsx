@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useState } from "react";
+import { createContext, type ReactNode, useContext, useState, useSyncExternalStore } from "react";
 import AdminSidebar from "./AdminSidebar";
 
 interface AdminLayoutClientProps {
@@ -8,18 +8,42 @@ interface AdminLayoutClientProps {
   statsSlot: ReactNode;
 }
 
+const desktopQuery = "(min-width: 768px)";
+function subscribeViewport(callback: () => void) {
+  const media = window.matchMedia(desktopQuery);
+  media.addEventListener("change", callback);
+  return () => media.removeEventListener("change", callback);
+}
+const getDesktopSnapshot = () => window.matchMedia(desktopQuery).matches;
+const getServerDesktopSnapshot = () => true;
+
 export default function AdminLayoutClient({ children, statsSlot }: AdminLayoutClientProps) {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const desktop = useSyncExternalStore(subscribeViewport, getDesktopSnapshot, getServerDesktopSnapshot);
+  const [sidebarOverride, setSidebarOverride] = useState<boolean | null>(null);
+  const isSidebarOpen = sidebarOverride ?? desktop;
+  const toggleSidebar = () => setSidebarOverride(!isSidebarOpen);
 
   return (
     <div className="flex min-h-screen justify-center bg-gray-50">
       <div className="flex w-full max-w-[1920px]">
-        <AdminSidebar isOpen={isSidebarOpen} statsSlot={statsSlot} />
+        {isSidebarOpen && (
+          <button
+            type="button"
+            aria-label="관리자 메뉴 닫기"
+            onClick={toggleSidebar}
+            className="fixed inset-0 z-20 bg-black/30 md:hidden"
+          />
+        )}
+        <div
+          className={`fixed inset-y-0 left-0 z-30 overflow-y-auto bg-white md:static md:overflow-visible ${isSidebarOpen ? "" : "hidden"}`}
+        >
+          <AdminSidebar isOpen={isSidebarOpen} statsSlot={statsSlot} />
+        </div>
         <div className="flex-1 overflow-auto">
           <SidebarContext.Provider
             value={{
               isOpen: isSidebarOpen,
-              toggle: () => setIsSidebarOpen(!isSidebarOpen),
+              toggle: toggleSidebar,
             }}
           >
             {children}

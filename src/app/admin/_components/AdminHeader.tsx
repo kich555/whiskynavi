@@ -73,17 +73,18 @@ export default function AdminHeader({
 
   return (
     <div className="sticky top-0 z-10 border-b border-gray-200 bg-white">
-      <div className="px-8 py-6">
+      <div className="px-4 py-6 lg:px-8">
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
               type="button"
               onClick={onToggleSidebar}
+              aria-label="관리자 메뉴 열기/닫기"
               className="cursor-pointer rounded-lg p-2 transition-colors hover:bg-gray-100"
             >
               <Menu size={24} className="text-gray-600" />
             </button>
-            <h2 className="typo-bold-24 text-gray-900">{title}</h2>
+            <h2 className="typo-bold-24 leading-snug text-gray-900">{title}</h2>
           </div>
         </div>
 

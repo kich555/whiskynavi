@@ -14,6 +14,7 @@
 | 그룹 | 문서 | 대상 |
 |---|---|---|
 | admin | [admin/_index.md](./admin/_index.md) | `/admin` (대시보드 홈), 전체 `/admin/*` 인증 가드·에러 바운더리 |
+| admin | [admin/blind-tastings.md](./admin/blind-tastings.md) | `/admin/blind-tastings/*` 블라인드 관리자 전체 흐름 |
 | admin | [admin/reservations.md](./admin/reservations.md) | `/admin/reservations/*` |
 | admin | [admin/products.md](./admin/products.md) | `/admin/products/*` |
 | admin | [admin/users.md](./admin/users.md) | `/admin/users/*` |

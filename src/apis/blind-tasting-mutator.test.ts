@@ -1,0 +1,12 @@
+import {beforeEach,afterEach,expect,it,vi} from "vitest";
+import {blindTastingFetch} from "./blind-tasting-mutator";
+import {refreshSessionToken} from "./refresh-token";
+import {ApiError} from "./errors";
+vi.mock("./refresh-token",()=>({refreshSessionToken:vi.fn()}));
+vi.mock("./auth-logger",()=>({authLogger:{warn:vi.fn(),error:vi.fn()}}));
+beforeEach(()=>{vi.resetAllMocks();vi.stubGlobal("fetch",vi.fn());});
+afterEach(()=>vi.unstubAllGlobals());
+it("XLSX를 텍스트로 변환하지 않고 원본 바이트로 반환한다",async()=>{const bytes=new Uint8Array([80,75,3,4,0,255,128]);vi.mocked(fetch).mockResolvedValue(new Response(bytes,{headers:{"content-type":"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}}));const r=await blindTastingFetch<{data:Blob}>("/api/2.0/admin/blind-tastings/exports/1/download",{method:"GET"});expect(new Uint8Array(await r.data.arrayBuffer())).toEqual(bytes);});
+it("401 갱신 이후에도 파일 파싱과 인증 헤더를 유지한다",async()=>{vi.mocked(refreshSessionToken).mockResolvedValue("refreshed");vi.mocked(fetch).mockResolvedValueOnce(new Response(null,{status:401})).mockResolvedValueOnce(new Response("리뷰,통계",{headers:{"content-type":"text/csv"}}));const r=await blindTastingFetch<{data:Blob}>("/api/2.0/admin/blind-tastings/exports/1/download",{method:"GET"});expect(await r.data.text()).toBe("리뷰,통계");expect(new Headers(vi.mocked(fetch).mock.calls[1][1]?.headers).get("Authorization")).toBe("Bearer refreshed");});
+it("파일 403을 다운로드 성공으로 처리하지 않는다",async()=>{vi.mocked(fetch).mockResolvedValue(new Response('{"message":"권한 없음"}',{status:403,headers:{"content-type":"application/json"}}));await expect(blindTastingFetch("/api/2.0/admin/review-bottles/1/image",{method:"GET"})).rejects.toBeInstanceOf(ApiError);});
+it("JSON 목록 응답은 기존 JSON 계약을 유지한다",async()=>{vi.mocked(fetch).mockResolvedValue(new Response('[{"id":1}]',{headers:{"content-type":"application/json"}}));expect(await blindTastingFetch("/api/2.0/admin/blind-tastings/notices",{method:"GET"})).toMatchObject({data:[{id:1}]});});

@@ -20,10 +20,11 @@ async function handleAuthFailure(): Promise<never> {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "https://api.whiskynavi.com";
 
-function parseResponse(res: Response): Promise<unknown> | undefined {
+function parseResponse(res: Response, binary = false): Promise<unknown> | undefined {
   if (res.status === 204 || res.status === 205) {
     return undefined;
   }
+  if (binary) return res.blob();
   const ctype = res.headers.get("content-type") ?? "";
   return ctype.includes("application/json") ? res.json() : res.text();
 }
@@ -52,7 +53,7 @@ async function extractErrorDetail(res: Response): Promise<string> {
  * - 서버: JWT 쿠키에서 refreshToken 추출 → callRefreshApi (raw fetch)
  * - 클라이언트: getSession() → jwt callback 트리거 → 최신 accessToken 반환
  */
-export const customFetch = async <T>(url: string, options: RequestInit): Promise<T> => {
+export const customFetch = async <T>(url: string, options: RequestInit, binary = false): Promise<T> => {
   const fullUrl = url.startsWith("http") ? url : `${BASE_URL}${url}`;
 
   let res: Response;
@@ -87,7 +88,7 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
       }
 
       if (retryRes.ok) {
-        const data = await parseResponse(retryRes);
+        const data = await parseResponse(retryRes, binary);
         return { data, status: retryRes.status, headers: retryRes.headers } as T;
       }
 
@@ -112,7 +113,7 @@ export const customFetch = async <T>(url: string, options: RequestInit): Promise
     throw new ApiError(res.status, detail);
   }
 
-  const data = await parseResponse(res);
+  const data = await parseResponse(res, binary);
   return { data, status: res.status, headers: res.headers } as T;
 };
 

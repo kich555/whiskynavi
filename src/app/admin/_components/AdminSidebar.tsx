@@ -37,6 +37,11 @@ interface MenuItem {
 
 const menuGroups: { id: string; label: string; items: MenuItem[] }[] = [
   {
+    id: "blind-tasting",
+    label: "블라인드 테이스팅",
+    items: [{ id: "blind-tastings", label: "블라인드 관리", icon: BookOpenText, href: "/admin/blind-tastings" }],
+  },
+  {
     id: "members",
     label: "회원",
     items: [
