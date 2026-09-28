@@ -99,7 +99,7 @@ export default function DeliveryWorkbookPanel({ filters }: { filters: Filters })
             출고 파일 받기
           </h3>
           <p className="typo-medium-13 mt-3 mb-4 leading-relaxed text-gray-600">
-            현재 검색 조건의 발송 가능 주문입니다. 포장명세·상품별 집품표가 포함됩니다.
+            현재 검색 조건의 발송 가능 주문입니다. 집품표·포장명세·CNPLUS 접수용 데이터가 포함됩니다.
           </p>
           <Button className={`${secondaryButton} mt-auto`} onClick={exportWorkbook} disabled={isPending}>
             {isPending && pendingAction === "download" ? (
@@ -200,6 +200,23 @@ export default function DeliveryWorkbookPanel({ filters }: { filters: Filters })
         운송장이 비어 있는 주문과 같은 송장으로 이미 처리된 주문은 건너뜁니다. 주소 변경은 주문 화면에서 처리하고 엑셀을
         다시 내려받아주세요. 주문당 송장 1개를 지원합니다.
       </p>
+      <details className="mt-3 rounded-lg border border-gray-200 bg-gray-50 px-4 text-gray-700">
+        <summary className="typo-medium-14 cursor-pointer py-4 leading-relaxed focus-visible:outline-2 focus-visible:outline-amber-700">
+          CNPLUS로 송장을 출력하는 경우
+        </summary>
+        <ol className="typo-medium-13 mb-4 list-decimal space-y-2 pl-5 leading-relaxed">
+          <li>엑셀 시트 순서대로 집품표 → 포장명세 → CNPLUS 접수용 → 송장입력을 진행하세요.</li>
+          <li>
+            CNPLUS 접수용 시트를 새 엑셀에 값으로 복사하고 고객 LAYOUT을 연결하세요. 열 순서와 설정 방법은 파일 마지막의
+            CNPLUS 안내 시트에 있습니다.
+          </li>
+          <li>우편번호·박스수량·운임구분·박스타입의 빈칸은 실제 배송지와 CJ 계약에 맞춰 확인하세요.</li>
+          <li>
+            발급된 송장을 고객주문번호로 대조해 원본 송장입력 시트에 텍스트로 입력한 뒤 이 화면에서 검증하세요. CNPLUS
+            결과 파일을 직접 업로드하는 기능은 아직 지원하지 않습니다.
+          </li>
+        </ol>
+      </details>
       {result && (
         <div className="mt-5 space-y-3" aria-live="polite">
           <div className="typo-medium-14 flex flex-wrap items-center gap-4 rounded-lg bg-gray-50 p-4">
