@@ -43,14 +43,22 @@ export default async function GeneralItemsPage({ searchParams }: GeneralItemsPag
       />
 
       <main className="mx-auto max-w-[1440px] px-4 pt-3 pb-12 lg:px-10 lg:pt-2">
-        <div className="mb-6 flex items-center justify-between">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <p className="typo-medium-14 text-gray-400">판매중인 일반상품 {totalElements.toLocaleString("ko-KR")}건</p>
-          <Link
-            href="/orders/guest"
-            className="typo-medium-14 text-white/70 underline-offset-4 hover:text-white hover:underline"
-          >
-            비회원 주문 조회
-          </Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link
+              href="/general-items/cart"
+              className="typo-medium-14 inline-flex min-h-11 items-center rounded-lg border border-white/20 px-4 text-white transition-colors hover:bg-white/10"
+            >
+              장바구니 보기
+            </Link>
+            <Link
+              href="/orders/guest"
+              className="typo-medium-14 text-white/70 underline-offset-4 hover:text-white hover:underline"
+            >
+              비회원 주문 조회
+            </Link>
+          </div>
         </div>
 
         {sales.length === 0 ? (

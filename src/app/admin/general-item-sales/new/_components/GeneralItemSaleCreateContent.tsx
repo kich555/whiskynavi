@@ -112,6 +112,14 @@ export default function GeneralItemSaleCreateContent({ items, initialValues }: G
           <div className="typo-medium-14 mb-4 rounded-lg border border-green-200 bg-green-50 p-4 text-green-800">
             <p className="font-semibold">일반상품판매공고가 등록되었습니다. 공고 ID: {createdSale.id}</p>
             <div className="mt-3 flex flex-wrap gap-2">
+              {createdSale.id != null && (
+                <Link
+                  href={`/admin/general-item-sales/${createdSale.id}`}
+                  className="rounded-md bg-green-700 px-3 py-2 text-white hover:bg-green-800"
+                >
+                  공고 상세 관리
+                </Link>
+              )}
               <Link
                 href={buildOrderHref(createdSale.id)}
                 className="rounded-md bg-green-700 px-3 py-2 text-white hover:bg-green-800"
