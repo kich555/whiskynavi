@@ -481,7 +481,10 @@ export default function CartDeliveryOrderClient({
             </div>
           </div>
 
-          <div className="mt-8 grid gap-3 sm:grid-cols-2">
+          <p className="typo-medium-14 mt-8 leading-relaxed text-gray-400">
+            재고는 결제 확정 시 확보됩니다. 결제를 진행하는 동안 품절되면 결제가 완료되지 않을 수 있습니다.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <Button
               type="button"
               variant="outline"

@@ -1,5 +1,6 @@
 "use client";
 
+import { ShoppingCart } from "lucide-react";
 import { Session } from "next-auth";
 import Link from "next/link";
 import { overlay } from "overlay-kit";
@@ -59,6 +60,14 @@ const DesktopNavMenu: FC<Props> = ({ session, pathname }) => {
           ))}
       </nav>
       <div ref={authAreaRef} className="hidden items-center gap-4 lg:flex">
+        <Link
+          href="/general-items/cart"
+          aria-label="일반상품 장바구니"
+          title="일반상품 장바구니"
+          className="flex size-11 shrink-0 items-center justify-center rounded-lg text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+        >
+          <ShoppingCart size={22} aria-hidden="true" />
+        </Link>
         {/* TODO: 다국어 지원 시 Globe 버튼 + overlay.open으로 언어 선택 드롭다운 구현 */}
         <DesktopAuthArea onOpenUserMenu={openUserMenu} />
       </div>
